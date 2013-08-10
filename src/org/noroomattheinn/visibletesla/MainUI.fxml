@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
+
+<AnchorPane id="AnchorPane" fx:id="root" prefHeight="427.0" prefWidth="640.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.MainController">
+  <children>
+    <MenuBar layoutX="237.0" layoutY="206.0" useSystemMenuBar="true">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#closeHandler" text="Close">
+              <accelerator>
+                <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+              </accelerator>
+            </MenuItem>
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Simulate">
+          <items>
+            <Menu mnemonicParsing="false" text="Color">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Red" fx:id="simColorRed" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Blue" fx:id="simColorBlue" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Black" fx:id="simColorBlack" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Green" fx:id="simColorGreen" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Pearl" fx:id="simColorPearl" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Sig. Red" fx:id="simColorSigRed" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Brown" fx:id="simColorBrown" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Gray" fx:id="simColorGray" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Silver" fx:id="simColorSilver" />
+                <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="White" fx:id="simColorWhite" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Rims">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Silver 21" fx:id="lightRims" />
+                <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Gray 21" fx:id="darkRims" />
+                <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Silver 19" fx:id="silver19Rims" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Roof">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#simRoofHandler" text="Solid" fx:id="simSolidRoof" />
+                <MenuItem mnemonicParsing="false" onAction="#simRoofHandler" text="Black" fx:id="simBlackRoof" />
+                <MenuItem mnemonicParsing="false" onAction="#simRoofHandler" text="Pano" fx:id="simPanoRoof" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Units">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#simUnitsHandler" text="Metric" fx:id="simMetricUnits" />
+                <MenuItem mnemonicParsing="false" onAction="#simUnitsHandler" text="Imperial" fx:id="simImperialUnits" />
+              </items>
+            </Menu>
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#aboutHandler" text="About" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+    <TabPane fx:id="tabPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="-1.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <tabs>
+        <Tab fx:id="loginTab" text="Login">
+          <content>
+            <fx:include source="LoginUI.fxml" maxHeight="-1.0" maxWidth="-1.0" minHeight="400.0" minWidth="640.0" />
+          </content>
+        </Tab>
+        <Tab fx:id="overviewTab" disable="true" text="Overview">
+          <content>
+            <fx:include source="OverviewUI.fxml" maxHeight="-1.0" maxWidth="-1.0" minHeight="400.0" minWidth="640.0" />
+          </content>
+        </Tab>
+        <Tab fx:id="hvacTab" disable="true" text="HVAC">
+          <content>
+            <fx:include source="HVACUI.fxml" minHeight="400.0" />
+          </content>
+        </Tab>
+        <Tab fx:id="locationTab" disable="true" text="Location">
+          <content>
+            <fx:include source="LocationUI.fxml" minHeight="400.0" />
+          </content>
+        </Tab>
+        <Tab fx:id="chargeTab" disable="true" text="Charge">
+          <content>
+            <fx:include source="ChargeUI.fxml" minHeight="400.0" />
+          </content>
+        </Tab>
+      </tabs>
+    </TabPane>
+  </children>
+</AnchorPane>

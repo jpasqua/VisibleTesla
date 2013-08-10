@@ -1,0 +1,24 @@
+.AnchorPane {    
+    -fx-background-color: linear-gradient(#c4c4c4, #858585);
+}
+
+.TransparentBG {
+	-fx-background-color:transparent
+}
+
+.toolbar-hbox {
+    -fx-border-color: dimgray; 
+    -fx-padding: 3 ;
+}
+
+.progress-bar { -fx-box-border: goldenrod; }
+
+.green-bar  { -fx-accent: green;  }
+.yellow-bar { -fx-accent: yellow; }
+.orange-bar { -fx-accent: orange; }
+.red-bar    { -fx-accent: red;    }
+
+.semitransBackground {
+    -fx-background-color: rgba(255,255,255,0.5);
+}
+

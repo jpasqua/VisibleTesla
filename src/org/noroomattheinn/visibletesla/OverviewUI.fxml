@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.OverviewController">
+  <children>
+    <ImageView fx:id="prOpenImg" layoutX="331.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/right_rear_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="pfOpenImg" layoutX="233.0" layoutY="51.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/right_front_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="bodyImg" fitHeight="202.0" fitWidth="512.0" layoutX="53.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/body@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="panoClosedImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="true">
+      <image>
+        <Image url="@../TeslaResources/sunroof_closed@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView id="" fx:id="dfClosedImg" fitHeight="119.0" fitWidth="138.0" layoutX="205.0" layoutY="150.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/left_front_closed@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView id="" fx:id="drClosedImg" layoutX="327.0" layoutY="149.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/left_rear_closed@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="rtClosedImg" layoutX="433.0" layoutY="100.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/trunk_closed@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="ftClosedImg" layoutX="54.0" layoutY="127.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/frunk_closed@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="panoVentImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/sunroof_vent@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="solidRoofImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/roof@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView id="portOpenImg" fx:id="portClosedImg" layoutX="524.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/charge_port_closed@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="chargeCableImg" layoutX="492.0" layoutY="206.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/charge_cable_long@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView id="portClosedImg" fx:id="portOpenImg" layoutX="524.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/charge_port_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView id="hatchOpenImg" fx:id="rtOpenImg" layoutX="434.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/trunk_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="ftOpenImg" layoutX="61.0" layoutY="57.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/frunk_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="dfOpenImg" layoutX="181.0" layoutY="198.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/left_front_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="drOpenImg" layoutX="298.0" layoutY="160.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/COLOR_gray/left_rear_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="unlockedImg" fitHeight="0.0" fitWidth="0.0" layoutX="58.0" layoutY="299.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
+      <image>
+        <Image url="@../TeslaResources/06_controls_unlock@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="unlockedImg" fx:id="lockedImg" fitHeight="0.0" fitWidth="0.0" layoutX="58.0" layoutY="299.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+      <image>
+        <Image url="@../TeslaResources/06_controls_lock@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="panoOpenImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/sunroof_open@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
+    <Label fx:id="panoPercent" layoutX="317.0" layoutY="106.0" text="0%" textFill="WHITE">
+      <font>
+        <Font name="System Bold" size="13.0" />
+      </font>
+    </Label>
+    <HBox id="HBox" alignment="CENTER" layoutX="273.0" layoutY="320.0" spacing="5.0" styleClass="toolbar-hbox">
+      <children>
+        <Button id="lockButton" fx:id="honkButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Honk" />
+        <Button id="unlockButton" fx:id="flashButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Flash" />
+        <Button id="unlockButton" fx:id="wakeupButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Wakeup" />
+      </children>
+    </HBox>
+    <HBox id="HBox" alignment="CENTER" fillHeight="true" layoutX="242.0" layoutY="24.0" prefWidth="178.0" spacing="0.0">
+      <children>
+        <ToggleButton fx:id="closePanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-left" text="Close">
+          <toggleGroup>
+            <ToggleGroup fx:id="panoGroup" />
+          </toggleGroup>
+        </ToggleButton>
+        <ToggleButton fx:id="ventPanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-center" text="Vent" toggleGroup="$panoGroup" />
+        <ToggleButton fx:id="openPanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-right" text="Open" toggleGroup="$panoGroup" />
+      </children>
+    </HBox>
+    <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
+    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
+    <ImageView fx:id="darkRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="103.0" layoutY="233.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/rims_dark_front@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="darkRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="431.0" layoutY="233.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/rims_dark_rear@2x.png" />
+      </image>
+    </ImageView>
+    <HBox id="HBox" alignment="CENTER" layoutX="115.0" layoutY="323.0" spacing="-1.0">
+      <children>
+        <ToggleButton fx:id="lockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-left" text="Lock">
+          <toggleGroup>
+            <ToggleGroup fx:id="lockGroup" />
+          </toggleGroup>
+        </ToggleButton>
+        <ToggleButton fx:id="unlockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-right" text="Unlock" toggleGroup="$lockGroup" />
+      </children>
+    </HBox>
+    <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="104.0" layoutY="231.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/19r1.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="nineteenRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="431.0" layoutY="232.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/19r1.png" />
+      </image>
+    </ImageView>
+    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" text="Label" visible="false" />
+    <Button layoutX="482.0" layoutY="366.0" mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" />
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+    <URL value="@../styles/PillButton.css" />
+  </stylesheets>
+</AnchorPane>

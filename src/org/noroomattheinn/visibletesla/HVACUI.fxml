@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+
+<AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.HVACController">
+  <children>
+    <ImageView fitHeight="0.0" fitWidth="0.0" layoutX="7.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/05_climate_car@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="coldHatchImg" fx:id="climateColdImg" fitHeight="0.0" fitWidth="0.0" layoutX="176.0" layoutY="85.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_car_cold@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="hotHatchImg" fitHeight="0.0" fitWidth="0.0" layoutX="456.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_car_rear_hot@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="hotWSImg" fitHeight="0.0" fitWidth="0.0" layoutX="193.0" layoutY="89.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_car_front_hot@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="climateHotImg" fitHeight="0.0" fitWidth="0.0" layoutX="176.0" layoutY="85.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_car_hot@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="frontDefOnImg" fitHeight="0.0" fitWidth="0.0" layoutX="200.0" layoutY="38.0" onMouseReleased="#defOnPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_defrost_front_on@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="frontDefOffImg" fitHeight="0.0" fitWidth="0.0" layoutX="200.0" layoutY="38.0" onMouseReleased="#defOffPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+      <image>
+        <Image url="@../TeslaResources/05_climate_defrost_front@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="rearDefOnImg" fitHeight="0.0" fitWidth="0.0" layoutX="455.0" layoutY="38.0" onMouseReleased="#defOnPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_defrost_rear_on@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="rearDefOffImg" fitHeight="0.0" fitWidth="0.0" layoutX="455.0" layoutY="38.0" onMouseReleased="#defOffPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+      <image>
+        <Image url="@../TeslaResources/05_climate_defrost_rear@2x.png" />
+      </image>
+    </ImageView>
+    <Label layoutX="49.0" layoutY="40.0" text="Inside:" />
+    <Label layoutX="49.0" layoutY="60.0" text="Outside:" />
+    <ImageView fx:id="coldWSImg" fitHeight="0.0" fitWidth="0.0" layoutX="193.0" layoutY="89.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/05_climate_car_front_cold@2x.png" />
+      </image>
+    </ImageView>
+    <Label id="insideTmpLable" fx:id="insideTmpLabel" layoutX="109.0" layoutY="40.0" text="75" textFill="BLACK" />
+    <Label id="OutsideTempLabel" fx:id="outsideTempLabel" layoutX="109.0" layoutY="60.0" text="85" textFill="BLACK" />
+    <Label layoutX="50.0" layoutY="21.0" text="Temperatures" />
+    <AnchorPane id="AnchorPane" layoutX="303.0" layoutY="293.0" minHeight="67.75" minWidth="55.5" prefHeight="67.75" prefWidth="55.5">
+      <children>
+        <Button fx:id="driverTempDownButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="-83.0" layoutY="-27.0" mnemonicParsing="false" onAction="#tempTargetHandler" scaleX="0.25" scaleY="0.25" styleClass="TransparentBG" text="" textAlignment="LEFT">
+          <graphic>
+            <ImageView>
+              <image>
+                <Image url="@../TeslaResources/05_climate_temp_control_down_hit@2x.png" />
+              </image>
+            </ImageView>
+          </graphic>
+        </Button>
+        <Button fx:id="driverTempUpButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="-83.0" layoutY="-48.0" mnemonicParsing="false" onAction="#tempTargetHandler" scaleX="0.25" scaleY="0.25" styleClass="TransparentBG" text="" textAlignment="LEFT">
+          <graphic>
+            <ImageView>
+              <image>
+                <Image url="@../TeslaResources/05_climate_temp_control_up_hit@2x.png" />
+              </image>
+            </ImageView>
+          </graphic>
+        </Button>
+        <ImageView id="05_climate_temp_control_well@2x.png" layoutX="-37.0" layoutY="-13.0" scaleX="0.25" scaleY="0.25">
+          <image>
+            <Image url="@../TeslaResources/05_climate_temp_control_well@2x.png" preserveRatio="true" smooth="true" />
+          </image>
+        </ImageView>
+        <Label fx:id="driverTempLabel" layoutX="16.0" layoutY="22.0" text="65" textAlignment="CENTER" textFill="WHITE" />
+        <Label layoutX="33.0" layoutY="22.0" prefWidth="10.0" text="º" textFill="WHITE" />
+      </children>
+    </AnchorPane>
+    <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
+    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
+    <Group id="Group" layoutX="250.0" layoutY="306.0">
+      <children>
+        <ImageView fx:id="fan0" fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="true">
+          <image>
+            <Image url="@../TeslaResources/05_climate_fan0@2x.png" />
+          </image>
+        </ImageView>
+        <ImageView id="fan0" fx:id="fan1" fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="false">
+          <image>
+            <Image url="@../TeslaResources/05_climate_fan1@2x.png" />
+          </image>
+        </ImageView>
+        <ImageView id="fan0" fx:id="fan2" fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="false">
+          <image>
+            <Image url="@../TeslaResources/05_climate_fan2@2x.png" />
+          </image>
+        </ImageView>
+        <ImageView id="fan0" fx:id="fan3" fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="false">
+          <image>
+            <Image url="@../TeslaResources/05_climate_fan3@2x.png" />
+          </image>
+        </ImageView>
+        <ImageView id="fan0" fx:id="fan4" fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="false">
+          <image>
+            <Image url="@../TeslaResources/05_climate_fan4@2x.png" />
+          </image>
+        </ImageView>
+      </children>
+    </Group>
+    <HBox id="HBox" alignment="CENTER" layoutX="359.0" layoutY="311.0" prefHeight="26.0" prefWidth="88.0" spacing="-1.0">
+      <children>
+        <ToggleButton id="hvacOn" fx:id="hvacOnButton" mnemonicParsing="false" onAction="#hvacOnOffHandler" selected="false" styleClass="pill-left" text="On">
+          <toggleGroup>
+            <ToggleGroup fx:id="x1" />
+          </toggleGroup>
+        </ToggleButton>
+        <ToggleButton id="hvacOff" fx:id="hvacOffButton" mnemonicParsing="false" onAction="#hvacOnOffHandler" selected="true" styleClass="pill-right" text="Off" toggleGroup="$x1" />
+      </children>
+    </HBox>
+    <ImageView fx:id="darkRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="122.0" layoutY="223.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/rims_dark_front@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="darkRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="450.0" layoutY="223.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/rims_dark_rear@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="123.0" layoutY="221.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/19r1.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="nineteenRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="450.0" layoutY="222.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/19r1.png" />
+      </image>
+    </ImageView>
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+    <URL value="@../styles/PillButton.css" />
+  </stylesheets>
+</AnchorPane>

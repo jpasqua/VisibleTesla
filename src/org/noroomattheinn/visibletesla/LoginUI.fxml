@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+
+<AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.LoginController">
+  <children>
+    <TextField fx:id="usernameField" layoutX="261.0" layoutY="167.0" prefWidth="200.0" promptText="E-mail" />
+    <PasswordField fx:id="passwordField" layoutX="261.0" layoutY="189.0" prefWidth="200.0" promptText="****" />
+    <Button fx:id="loginButton" defaultButton="true" layoutX="400.0" layoutY="218.0" mnemonicParsing="false" onAction="#loginAction" text="Log In" />
+    <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutAction" text="Log Out" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <Label labelFor="$usernameField" layoutX="187.0" layoutY="170.0" text="User Name" />
+    <Label labelFor="$passwordField" layoutX="196.0" layoutY="192.0" text="Password" />
+    <Label id="failedLoginLabel" fx:id="loggedInStatus" layoutX="271.0" layoutY="93.0" prefWidth="200.0" text="Not Logged In" textFill="BLACK" visible="true" />
+    <Label fx:id="loggedInName" layoutX="271.0" layoutY="114.0" text="user@teslaowner.com" />
+    <ProgressIndicator id="loginProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
+    <Label fx:id="progressLabel" layoutX="55.0" layoutY="360.0" text="Label" />
+    <ImageView fx:id="loggedInImage" fitHeight="0.0" fitWidth="0.0" layoutX="168.0" layoutY="55.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+      <image>
+        <Image url="@../TeslaResources/Icon@2x.png" />
+      </image>
+    </ImageView>
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>
