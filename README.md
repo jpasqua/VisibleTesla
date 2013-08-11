@@ -50,7 +50,8 @@ Be sure to either set these variables or adapt the commands below:
 
 	# Download the javafx-dialogs library
 	cd ../javafx-dialogs
-	curl -L -s -O https://github.com/marcojakob/javafx-ui-sandbox/blob/master/javafx-dialogs/dist/javafx-dialogs-0.0.3.jar
+	curl -s -O -L https://github.com/marcojakob/javafx-ui-sandbox/blob/master/javafx-dialogs/dist/javafx-dialogs-0.0.3.jar?raw=true
+	mv javafx-dialogs-0.0.3.jar* javafx-dialogs-0.0.3.jar
 
 	# Download the jfxtras library
 	cd ../jfxtras
