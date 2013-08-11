@@ -52,7 +52,7 @@ abstract class BaseController {
     // Support for the AutoRefresh Mechanism
     static final long AutoRefreshInterval = 15 * 1000;
     static BaseController activeController = null;
-    static long lastRefreshTime = Long.MAX_VALUE;
+    static long lastRefreshTime = new Date().getTime();;
     static {
         Thread refreshThread = new Thread(new AutoRefresh());
         refreshThread.setDaemon(true);
@@ -355,10 +355,11 @@ class AutoRefresh implements Runnable {
         while (true) {
             try {
                 long timeToSleep = BaseController.AutoRefreshInterval;
-                while (timeToSleep >= 0) {
+                while (timeToSleep > 0) {
                     Thread.sleep(timeToSleep);
                     timeToSleep = BaseController.AutoRefreshInterval - 
                             (new Date().getTime() - BaseController.lastRefreshTime);
+                    timeToSleep = Math.min(timeToSleep, BaseController.AutoRefreshInterval);
                 }
                 Platform.runLater(new FireRefresh());
             } catch (InterruptedException ex) {
