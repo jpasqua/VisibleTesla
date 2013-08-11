@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import netscape.javascript.JSObject;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.DrivingState;
 import org.noroomattheinn.tesla.Vehicle;
@@ -30,6 +31,7 @@ public class LocationController extends BaseController {
     @FXML private WebView webView;
     
     private DrivingState drivingState;
+    private boolean mapIsLoaded = false;
     
     private WebEngine engine;
     
@@ -82,11 +84,17 @@ public class LocationController extends BaseController {
         if (drivingState == null) return;
             // We shouldn't get here if the state is null, but be careful anyway
 
-        String mapHTML = getMapFromTemplate(
-                String.valueOf(drivingState.latitude()),
-                String.valueOf(drivingState.longitude()),
-                String.valueOf(drivingState.heading()));
-        engine.loadContent(mapHTML);
+        String latitude = String.valueOf(drivingState.latitude());
+        String longitude = String.valueOf(drivingState.longitude());
+        String heading = String.valueOf(drivingState.heading());
+        if (!mapIsLoaded) {
+            String mapHTML = getMapFromTemplate(latitude, longitude, heading);
+            engine.loadContent(mapHTML);
+        } else {
+            engine.executeScript(String.format(
+                "moveMarker(%s, %s, %s)", latitude, longitude, heading));
+        }
+        mapIsLoaded = true;
     }
 
     protected APICall getRefreshableState() { return new DrivingState(vehicle); }
