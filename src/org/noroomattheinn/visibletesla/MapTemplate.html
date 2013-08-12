@@ -92,7 +92,7 @@ function initialize() {
         draggable: false,
         flat: true,
         anchor: RichMarkerPosition.MIDDLE,
-        content: content.innerHTML,
+        content: content.innerHTML
     });
 
     var infowindow = new google.maps.InfoWindow();
@@ -115,7 +115,10 @@ function moveMarker(lat, lng, heading) {
     var content  = getMarkerContent(lat,lng,heading);
     rm.setContent(content.innerHTML);
     rm.setPosition(newLL);
-    map.panTo(newLL);
+    if (!map.getBounds().contains(rm.getPosition())) {
+        var llb = new google.maps.LatLngBounds(newLL, newLL);
+        map.panToBounds(llb);
+    }
 }
     </script>
 
