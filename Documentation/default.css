@@ -1,0 +1,25 @@
+@charset "utf-8";
+ 
+ html, body {
+ margin: 2px;
+ padding: 0px;
+ border: 0px;
+ color: #000;
+ background: #fff;
+ }
+ html, body, p, th, td, li, dd, dt {
+ font: .95em Verdana, Arial, sans-serif;
+ }
+ h1, h2, h3, h4, h5, h6 {
+ font-family: Verdana, Arial, sans-serif;
+ }
+ h1 { font-size: 1.5em; }
+ h2 { font-size: 1.2em ; }
+ h3 { font-size: 1.0em; }
+ h4 { font-size: 0.9em; }
+ h5 { font-size: 0.8em; }
+ h6 { font-size: 0.8em; }
+ a:link { color: #00f; }
+ a:visited { color: #009; }
+ a:hover { color: #06f; }
+ a:active { color: #0cf; }

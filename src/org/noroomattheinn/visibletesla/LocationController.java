@@ -15,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSObject;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.DrivingState;
 import org.noroomattheinn.tesla.Vehicle;
