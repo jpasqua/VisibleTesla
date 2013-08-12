@@ -20,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.ActionController;
+import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DoorController;
 import org.noroomattheinn.tesla.DoorController.PanoCommand;
 import org.noroomattheinn.tesla.DoorState;
@@ -41,6 +42,9 @@ public class OverviewController extends BaseController {
     private DoorController doorController;
     private StreamingState streamingState;
     private double odometerReading = -1;
+    private ChargeState chargeState;
+    private int pilotCurrent = -1;
+    private boolean chargePortDoorOpen = false;
     
     private Callback wakeupCB, flashCB, honkCB;
     
@@ -93,6 +97,7 @@ public class OverviewController extends BaseController {
         if (!odometerLabel.isVisible())
             // If we're not display the odo label, that means we need to get a reading
             issueCommand(new GetStreamingState(), false);
+        issueCommand(new GetChargeState(), false);
         return new DoorState(vehicle);
     }
 
@@ -115,16 +120,26 @@ public class OverviewController extends BaseController {
         if (!odometerLabel.isVisible() && streamingState.odometer() > 0) {
             updateOdometer();
         }
+        
+        try {
+            pilotCurrent = chargeState.chargerPilotCurrent();
+            chargePortDoorOpen = chargeState.chargePortOpen();
+            updateChargePort();
+        } catch (Exception e) {
+            pilotCurrent = -1;  // No value available yet...
+            chargePortDoorOpen = false;
+        }
     }
 
     @Override protected void prepForVehicle(Vehicle v) {
         if (actions == null || v != vehicle) {
             actions = new ActionController(v);
             doorController = new DoorController(v);
-            streamingState = new StreamingState(v);
-            // Initialize the streamingState, but don't wait for results!
-            streamingState.refresh(0);
             getAppropriateImages(v);
+            // Handle background updates to streamingState and ChargeState
+            streamingState = new StreamingState(v);
+            streamingState.refresh(0);  // Initialize the streamingState, but don't wait for results!
+            chargeState = new ChargeState(v);
         }
     }
     
@@ -137,6 +152,7 @@ public class OverviewController extends BaseController {
         updateRoofView();
         updateDoorView();
         updateOdometer();
+        updateChargePort();
     }
     
     public enum RoofState {Open, Closed, Vent, Solid};
@@ -200,10 +216,12 @@ public class OverviewController extends BaseController {
         boolean locked = doorState.locked();
         setOptionState(locked, lockedImg, unlockedImg);
         lockButton.setSelected(locked); unlockButton.setSelected(!locked);
-
+    }
+    
+    private void updateChargePort() {
         // Show the state of the charging port and whether the cable is connected
-        // setOptionState(IS CHARGE PORT OPEN, portOpenImg, portClosedImg);
-        // chargeCableImg.setVisible(IS CHARGE CABLE CONNECTED);
+        setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
+        chargeCableImg.setVisible(pilotCurrent > 0);
     }
     
     private void updateRoofView() {
@@ -276,6 +294,12 @@ public class OverviewController extends BaseController {
                 } catch (InterruptedException ex) { /* Ignore */ }
             }
             return Result.Succeeded;
+        }
+    }
+    
+    private class GetChargeState implements Callback {
+        @Override public Result execute() {
+            return chargeState.refresh() ? Result.Succeeded : Result.Failed;
         }
     }
     
