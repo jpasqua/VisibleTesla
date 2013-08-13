@@ -35,16 +35,15 @@ import org.noroomattheinn.utils.Utils;
 
 public class OverviewController extends BaseController {
     private static final double KilometersPerMile = 1.60934;
+    private static final String GetStreamingState = "GET_STREAMING_STATE";
+    private static final String GetChargeState = "GET_CHARGE_STATE";
     
     // The Tesla State and Controller objects
-    private DoorState doorState;
-    private ActionController actions;
-    private DoorController doorController;
-    private StreamingState streamingState;
-    private double odometerReading = -1;
-    private ChargeState chargeState;
-    private int pilotCurrent = -1;
-    private boolean chargePortDoorOpen = false;
+    private DoorState doorState;            // The primary door state
+    private DoorController doorController;  // For primary door controller
+    private ActionController actions;       // For honk, flash, wake commands
+    private StreamingState streamingState;  // For odometer reading
+    private ChargeState chargeState;        // For chargePortDoor status
     
     private Callback wakeupCB, flashCB, honkCB;
     
@@ -88,46 +87,36 @@ public class OverviewController extends BaseController {
             
     // Controller-specific initialization
     protected void doInitialize() {
+        odometerLabel.setVisible(true);
         honkCB = new Callback() { public Result execute() { return actions.honk(); } };
         flashCB = new Callback() { public Result execute() { return actions.flashLights(); } };
         wakeupCB = new Callback() { public Result execute() { return actions.wakeUp(); } };
     }
 
+    /**
+     * This method would normally just return a DoorState object, but it actually
+     * requires two additional objects to display all of the information in this
+     * tab. We also need a ChargeState and a StreamingState. We get these by issuing
+     * explicit background commands to read them.
+     * @return A new DoorState object
+     */
     protected APICall getRefreshableState() {
-        if (!odometerLabel.isVisible())
-            // If we're not display the odo label, that means we need to get a reading
-            issueCommand(new GetStreamingState(), false);
-        issueCommand(new GetChargeState(), false);
+        issueCommand(GetStreamingState, new GetStreamingState(), false);
+        issueCommand(GetChargeState, new GetChargeState(), false);
         return new DoorState(vehicle);
     }
 
-    @Override protected void refreshButtonHandler(ActionEvent event) {
-        // When the user explicitly clicks the refreshButton, we force a refresh
-        // of the odometer reading...
-        odometerLabel.setVisible(false);
-        super.refreshButtonHandler(event);
-    }
-
-    @Override protected void commandComplete(Object state, boolean refresh) {
-        // Most of our issued commands don't require any special processing.
-        // Just call super and let it work as usual.
-        super.commandComplete(state, refresh);
-        
-        // When we issue the command to get the odometer reading, we need to
-        // take an explicit action here. We only take the action when the
-        // odometer reading int already showing. That means we've either never
-        // displayed it before, or we did an explicit refresh.
-        if (!odometerLabel.isVisible() && streamingState.odometer() > 0) {
-            updateOdometer();
-        }
-        
-        try {
-            pilotCurrent = chargeState.chargerPilotCurrent();
-            chargePortDoorOpen = chargeState.chargePortOpen();
-            updateChargePort();
-        } catch (Exception e) {
-            pilotCurrent = -1;  // No value available yet...
-            chargePortDoorOpen = false;
+    @Override protected void commandComplete(String commandName, Object state, boolean refresh) {
+        switch (commandName) {
+            case GetStreamingState:
+                updateOdometer();
+                break;
+            case GetChargeState:
+                updateChargePort();
+                break;
+            default:
+                super.commandComplete(commandName, state, refresh);
+                break;
         }
     }
 
@@ -138,7 +127,6 @@ public class OverviewController extends BaseController {
             getAppropriateImages(v);
             // Handle background updates to streamingState and ChargeState
             streamingState = new StreamingState(v);
-            streamingState.refresh(0);  // Initialize the streamingState, but don't wait for results!
             chargeState = new ChargeState(v);
         }
     }
@@ -167,16 +155,16 @@ public class OverviewController extends BaseController {
     
     @FXML void lockButtonHandler(ActionEvent event) {
         final ToggleButton source = (ToggleButton)event.getSource();
-        issueCommand( new Callback() {
+        issueCommand("SET_LOCK_STATE", new Callback() {
             public Result execute() {
                 return doorController.setLockState(source == lockButton); } }, true);
     }
 
     @FXML void miscCommandHandler(ActionEvent event) {
         Button source = (Button)event.getSource();
-        if (source == honkButton)  issueCommand(honkCB, false);
-        else if (source == flashButton) issueCommand(flashCB, false);
-        else if (source == wakeupButton) issueCommand(wakeupCB, true);
+        if (source == honkButton)  issueCommand("HONK", honkCB, false);
+        else if (source == flashButton) issueCommand("FLASH", flashCB, false);
+        else if (source == wakeupButton) issueCommand("WAKEUP", wakeupCB, true);
     }
 
     @FXML void panoButtonHandler(ActionEvent event) {
@@ -184,8 +172,8 @@ public class OverviewController extends BaseController {
         final PanoCommand cmd = 
             source == ventPanoButton ? PanoCommand.vent :
                 ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
-        issueCommand(
-            new Callback() { public Result execute() { return doorController.setPano(cmd); } },
+        issueCommand("SET_PANO", new Callback() {
+            public Result execute() { return doorController.setPano(cmd); } },
             true);
     }
 
@@ -194,7 +182,7 @@ public class OverviewController extends BaseController {
         TextArea t = new TextArea(vehicle.toString());
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
-                stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
+            stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
     }
     
     //
@@ -216,12 +204,6 @@ public class OverviewController extends BaseController {
         boolean locked = doorState.locked();
         setOptionState(locked, lockedImg, unlockedImg);
         lockButton.setSelected(locked); unlockButton.setSelected(!locked);
-    }
-    
-    private void updateChargePort() {
-        // Show the state of the charging port and whether the cable is connected
-        setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
-        chargeCableImg.setVisible(pilotCurrent > 0);
     }
     
     private void updateRoofView() {
@@ -303,15 +285,32 @@ public class OverviewController extends BaseController {
         }
     }
     
+    private void updateChargePort() {
+        // Show the state of the charging port and whether the cable is connected
+        int pilotCurrent = -1;
+        boolean chargePortDoorOpen = false;
+        
+        try {
+            pilotCurrent = chargeState.chargerPilotCurrent();
+            chargePortDoorOpen = chargeState.chargePortOpen();
+        } catch (Exception e) {
+            return; // New results aren't ready, leave the state alone
+        }
+        
+        setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
+        chargeCableImg.setVisible(pilotCurrent > 0);
+    }
+    
     private void updateOdometer() {
-        odometerReading = streamingState.odometer();
-        if (odometerReading <= 0) return;   // No reading yet...
-        GUIState gs = vehicle.getCachedGUIOptions();    // TO DO: If (gs == null) ...
-        boolean useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
-        String units = useMiles ? "mi" : "km";
-        odometerReading *= useMiles ? 1.0 : KilometersPerMile;
-        odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
-        odometerLabel.setVisible(true);
+        try {
+            double odometerReading = streamingState.odometer();
+            if (odometerReading == 0) return;   // The reading isn't ready yet 
+            GUIState gs = vehicle.getCachedGUIOptions();    // TO DO: If (gs == null) ...
+            boolean useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
+            String units = useMiles ? "mi" : "km";
+            odometerReading *= useMiles ? 1.0 : KilometersPerMile;
+            odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
+        } catch (Exception e) { /* New results aren't ready */ }
     }
     
     

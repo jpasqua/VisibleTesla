@@ -44,6 +44,7 @@ import org.noroomattheinn.tesla.Vehicle;
 
 abstract class BaseController {
     // Private Constants
+    private static final String RefreshCommand = "REFRESH";
     private static final String ProgressIndicatorColor = "darkgray";
     private static final double ProgressIndicatorSize = 24.0;
     private static final double ProgressIndicatorOffset = 14.0;
@@ -168,8 +169,10 @@ abstract class BaseController {
      * @param state     The result of the command
      * @param refresh   Whether or not to invoke doRefresh()
      */
-    protected void commandComplete(Object state, boolean refresh) {
-        if (refresh)
+    protected void commandComplete(String commandName, Object state, boolean refresh) {
+        if (commandName.equals(RefreshCommand))
+            reflectNewState(state);
+        else if (refresh)
             doRefresh();
     }
 
@@ -188,9 +191,9 @@ abstract class BaseController {
      * the impact of the command that was issued (eg refresh DoorState after
      * invoking functionality in DoorController).
      */
-    protected final void issueCommand(Callback c, boolean refreshAfterCommand) {
+    protected final void issueCommand(String commandName, Callback c, boolean refreshAfterCommand) {
         Task<Result> task = new IssueCommand(c);
-        launchTask(task, true, refreshAfterCommand);
+        launchTask(commandName, task, true, refreshAfterCommand);
     }
     
     /**
@@ -202,7 +205,7 @@ abstract class BaseController {
         APICall stateObject = getRefreshableState();
         if (stateObject == null) return;
         Task<APICall> task = new <APICall>RefreshTask(stateObject);
-        launchTask(task, false, false);
+        launchTask(RefreshCommand, task, false, false);
         lastRefreshTime = new Date().getTime(); // Used by the AutoRefresh mechanism
     }
     
@@ -216,10 +219,11 @@ abstract class BaseController {
     // Private Task Handling Methods
     //
     
-    private <T> void launchTask(Task<T> task, boolean isCommand, boolean refreshAfterCommand) {
+    private <T> void launchTask(
+            String commandName, Task<T> task, boolean isCommand, boolean refreshAfter) {
         showProgressUI(true);
         EventHandler<WorkerStateEvent> handler =
-                new CompletionHandler(isCommand, refreshAfterCommand);
+                new CompletionHandler(commandName, refreshAfter);
         task.setOnSucceeded(handler);
         task.setOnFailed(handler);
         bindProgress(task);
@@ -248,9 +252,10 @@ abstract class BaseController {
     }
     
     private class CompletionHandler implements EventHandler<WorkerStateEvent> {
-        boolean isCommand, refreshAfterCommand;
-        CompletionHandler(boolean isCommand, boolean refreshAfterCommand) {
-            this.isCommand = isCommand;
+        String commandName;
+        boolean refreshAfterCommand;
+        CompletionHandler(String commandName, boolean refreshAfterCommand) {
+            this.commandName = commandName;
             this.refreshAfterCommand = refreshAfterCommand;
         }
         
@@ -263,8 +268,7 @@ abstract class BaseController {
                 result = w.getValue();
             }
             showProgressUI(false);
-            if (isCommand) commandComplete(result, refreshAfterCommand);
-            else reflectNewState(result);
+            commandComplete(commandName, result, refreshAfterCommand);
         }
     }
     

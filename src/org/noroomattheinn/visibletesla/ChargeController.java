@@ -88,7 +88,7 @@ public class ChargeController extends BaseController {
 
     @FXML void chargeButtonHandler(ActionEvent event) {
         final Button b = (Button)event.getSource();
-        issueCommand(new Callback() {
+        issueCommand("SET_CHARGE_STATE", new Callback() {
             public Result execute() { return chargeController.setChargeState(b == startButton); } },
             true);
     }
@@ -96,8 +96,8 @@ public class ChargeController extends BaseController {
     @FXML void rangeHandler(ActionEvent event) {
         ToggleButton source = (ToggleButton)event.getSource();
         final boolean max = (source == maxRangeButton);
-        issueCommand(
-            new Callback() { public Result execute() { return chargeController.setChargeRange(max); } },
+        issueCommand("SET_CHARGE_MAX", new Callback() {
+            public Result execute() { return chargeController.setChargeRange(max); } },
             true);
     }
 

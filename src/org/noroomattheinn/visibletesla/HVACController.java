@@ -63,7 +63,7 @@ public class HVACController extends BaseController {
     //
     
     @FXML void hvacOnOffHandler(ActionEvent event) {
-        issueCommand(new Callback() {
+        issueCommand("SET_AC", new Callback() {
             public Result execute() {
                 return controller.setAC(hvacOnButton.isSelected()); } }, true);
     }
@@ -75,7 +75,7 @@ public class HVACController extends BaseController {
         double tempC = hvacState.driverTemp();
         final double temp = (useDegreesF ? Utils.cToF(tempC) : tempC) + increment;
         final boolean setF = useDegreesF;   // Must be final, so copy it...
-        issueCommand(new Callback() {
+        issueCommand("SET_TEMP", new Callback() {
             public Result execute() { 
                 if (setF) return controller.setTempF(temp, temp);
                 return controller.setTempC(temp, temp); }

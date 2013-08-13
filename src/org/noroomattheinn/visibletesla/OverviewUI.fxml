@@ -62,17 +62,17 @@
         <Image url="@../TeslaResources/COLOR_gray/roof@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView id="portOpenImg" fx:id="portClosedImg" layoutX="524.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true">
+    <ImageView id="portOpenImg" fx:id="portClosedImg" layoutX="524.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true" visible="true">
       <image>
         <Image url="@../TeslaResources/charge_port_closed@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView fx:id="chargeCableImg" layoutX="492.0" layoutY="206.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="chargeCableImg" layoutX="493.0" layoutY="207.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/charge_cable_long@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView id="portClosedImg" fx:id="portOpenImg" layoutX="524.0" layoutY="203.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView id="portClosedImg" fx:id="portOpenImg" layoutX="533.0" layoutY="204.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/charge_port_open@2x.png" preserveRatio="false" smooth="false" />
       </image>
@@ -168,7 +168,7 @@
         <Image url="@../TeslaResources/19r1.png" />
       </image>
     </ImageView>
-    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" text="Label" visible="false" />
+    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" text="Odometer: ..." visible="true" />
     <Button layoutX="482.0" layoutY="366.0" mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" />
   </children>
   <stylesheets>

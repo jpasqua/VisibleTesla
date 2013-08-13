@@ -67,7 +67,7 @@ public class LoginController extends BaseController {
     
     protected APICall getRefreshableState() { return null; }
     
-    protected void commandComplete(Object state, boolean refresh) {
+    protected void commandComplete(String commandName, Object state, boolean refresh) {
         Result r = Utils.cast(state);
         if (r.success) {
             showLoginSucceeded();   // Should be done by refreshing the view!
@@ -92,7 +92,7 @@ public class LoginController extends BaseController {
     //
     
     private void attemptLogin(String username, String password) {
-        issueCommand(new AttemptLogin(username, password), false);
+        issueCommand("LOGIN", new AttemptLogin(username, password), false);
     }
 
     // This controller doesn't reflect state - it just logs in...
