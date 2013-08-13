@@ -14,6 +14,10 @@
     apps do. Unlike those apps, VisibleTesla is not official, not from Tesla,
     and not supported.</p>
 
+    <p>VisibleTesla is free for personal and non-commercial use. It is based on
+    the work of many members of the <a href="http://www.teslamotorsclub.com/forum.php">
+    Tesla Motors Club Forum</a>.</p>
+
     <p><strong>Disclaimer:</strong> <em>Be careful</em> when using this software as it can
     lock and unlock your car as well as control various functions relating to
     the charging system, sun roof, lights, horn, and other subsystems of the
@@ -31,59 +35,82 @@
     the doors, opening the sun roof, or reducing the available charge in the
     battery.</p>
 
-    <h2><a id="introduction" name="introduction">Introduction</a></h1>The app
-    has a tabbed interface with one tab per functional area. When you launch
-    you start out in a login tab and the other tabs are disabled until you log
-    in. If you've logged in before then it automatically logs you in again
+    <h2><a id="introduction" name="introduction">Introduction</a></h1>VisibleTesla
+    has a tabbed interface with one tab per functional area. The following sections
+    describe each of the tabs. The screenshots are representative and may not
+    reflect exactly what you'll see. For example, these screen shots were taken on a Mac.</p>
+
+    <h3>Login Tab</h3>
+    When you launch the app
+    you'll start out in a login tab. The other tabs will be disabled until you log
+    in. If you've logged in before then the app will automatically log you in again
     based on stored cookies. This screenshot shows the logged-in state:
 
     <p><img alt="Login Tab" border="0" src="images/01_Login_Tab.png" /></p>
+    <h3>Overview Tab</h3>
 
     <p>The Overview tab shows basic state about the vehicle and gives access to
     commands like lock/unlock, operating the panoramic roof (if you have one),
-    flashing the lights, etc. These screen shots show the overview tab
-    reflecting various states of the car. The roof was vented using the "Vent"
-    button.</p>
-
-    <p>
-    <img border="0" src="images/02_Overview_Tab.png" />
-    <img border="0" src="images/03_Overview_Vented.png" />
-    <img border="0" src="images/04_Overview_Door_Open.png" />
+    flashing the lights, etc.These screen shots show the overview tab
+    reflecting various states of the car. The second screen shows an
+    information dialog that gives details about your car.
     </p>
+
+    <p><img border="0" src="images/02_Overview_Tab.png" /></p>
+    <p><img border="0" src="images/02a_Overview_Details.png" /></p>
+    <p>The next screen shot shows the panoramic roof in the vented state. The user
+        vented the roof by pressing the Vent button. The next screenshot shows
+        wht the app will display when the driver's door is open.<p>
+    <p><img border="0" src="images/03_Overview_Vented.png" /></p>
+    <p><img border="0" src="images/04_Overview_Door_Open.png" /> </p>
+    
+    <h3>HVAC Tab</h3>
 
     <p>Next we have the HVAC tab which shows the state of that system. It also
     allows you to set the target temperature and turn on/off the system.</p>
 
     <p><img border="0" src="images/05_HVAC_Tab.png" /></p>
 
+    <h3>Location Tab</h3>
+
     <p>The location tab embeds a Google map to show the current location and
     the marker is rotated to show the current heading. There is a "Browse"
     button that will launch a browser displaying a Google map with the car's
-    location so you can get directions, etc.</p>
+    location so you can get directions or perform any other Google map function.</p>
 
     <p><img border="0" src="images/06_Location_Tab.png" /></p>
+    <p>Like a normal Google Map, you can zoom in and out, you can pan, and switch to satellite
+        mode. If you click on the arrow representing your Tesla, an info window will pop
+        up displaying the street address that is closest to your car.</p>
+        <p><b>Note:</b> If you pan the map such that the marker for your car is no longer
+            displayed, the map will automatically pan back upon the next refresh.</p>
+    <p><img border="0" src="images/06a_Location_Info.png" /></p>
+
+    <h3>Charge Tab</h3>
 
     <p>The last tab shows the charge state and allows you to set the charge
     target (max or std) and start/stop charging. The screen shots show the car
     when not connected to a charger, connected but not charging, and charging.
-    In this case it is connected to an HPWC which is still limited to 60A.</p>
+    In this case it is connected to an HPWC which is set to 60A.</p>
 
     <p><img border="0" src="images/07_Charge_Tab.png" />
     <img border="0" src="images/08_Charge_Plugged_In.png" />
     <img border="0" src="images/09_Charging.png" /></p>
 
+    <h3>Auto-Refresh</h3>
     <p>This screen shot shows the "spinner" that is displayed when the app is
     communicating with the vehicle. Each tab has a refresh button and the app
     auto-refreshes once 15 seconds have elapsed since the last manual or
-    automatic refresh. Switching tabs does an auto refresh on the newly
+    automatic refresh. Switching tabs automatically refreshes the newly
     selected tab.</p>
 
     <p><img border="0" src="images/12_Auto_Refresh.png" /></p>
 
-    <p>Finally, I added a simulation menu so I could look at vehicle
-    configurations other than my own. These screen shots show changing the
-    color to red and using dark rims. I don't have images for every possible
-    configuration including the 19" wheels which I happen to have.</p>
+    <h3>Simulation Menu</h3>
+
+    <p>The simulation menu allows you to look at car configurations other than your own.
+        These screen shots show changing the
+    color to red and using 21" dark rims.</p>
 
     <p><img border="0" src="images/10_Simulate_Color_Red.png" />
     <img border="0" src="images/11_Simulate_Dark_Rims.png" /></p>

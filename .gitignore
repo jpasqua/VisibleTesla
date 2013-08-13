@@ -3,4 +3,4 @@
 /dist/
 /cookies.txt
 /manifest.mf
-/*.log
+/tesla.log*
