@@ -164,8 +164,9 @@ abstract class BaseController {
     
     /**
      * Override in order to explicitly handle the completion of a command
-     * that was issued earlier using issueCommand. The default implementation
-     * simply invokes doRefresh() if refresh is true.
+     * that was issued earlier using issueCommand. If this represents the completion
+     * of the "built-in" RefreshCommand, then we invoke reflectNewState(). If it 
+     * is any other command then we conditionally perform a refresh.
      * @param state     The result of the command
      * @param refresh   Whether or not to invoke doRefresh()
      */

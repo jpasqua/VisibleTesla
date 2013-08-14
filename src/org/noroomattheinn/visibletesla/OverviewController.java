@@ -23,7 +23,7 @@ import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DoorController;
 import org.noroomattheinn.tesla.DoorController.PanoCommand;
-import org.noroomattheinn.tesla.DoorState;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Options.WheelType;
@@ -39,7 +39,7 @@ public class OverviewController extends BaseController {
     private static final String GetChargeState = "GET_CHARGE_STATE";
     
     // The Tesla State and Controller objects
-    private DoorState doorState;            // The primary door state
+    private VehicleState doorState;            // The primary door state
     private DoorController doorController;  // For primary door controller
     private ActionController actions;       // For honk, flash, wake commands
     private StreamingState streamingState;  // For odometer reading
@@ -69,9 +69,11 @@ public class OverviewController extends BaseController {
     // Trunk/Frunk
     @FXML private ImageView ftClosedImg, ftOpenImg;
     @FXML private ImageView rtOpenImg, rtClosedImg;
+    @FXML private ImageView spoilerClosedImg, spoilerOpenImg;
 
     // Roof Images (Solipath+Pano: Open, Closepath+Vent)
-    @FXML private ImageView solidRoofImg, panoClosedImg, panoVentImg, panoOpenImg;
+    @FXML private ImageView blackRoofImg, solidRoofImg;
+    @FXML private ImageView panoClosedImg, panoVentImg, panoOpenImg;
     @FXML private Label panoPercent;
 
     // Charging related images
@@ -83,7 +85,7 @@ public class OverviewController extends BaseController {
     //
     @FXML private Button honkButton, flashButton, wakeupButton;
     @FXML private ToggleButton lockButton, unlockButton;
-    @FXML private ToggleButton closePanoButton, ventPanoButton, openPanoButton;
+    @FXML private Button closePanoButton, ventPanoButton, openPanoButton;
             
     // Controller-specific initialization
     protected void doInitialize() {
@@ -94,18 +96,18 @@ public class OverviewController extends BaseController {
     }
 
     /**
-     * This method would normally just return a DoorState object, but it actually
+     * This method would normally just return a VehicleState object, but it actually
      * requires two additional objects to display all of the information in this
      * tab. We also need a ChargeState and a StreamingState. We get these by issuing
      * explicit background commands to read them.
-     * @return A new DoorState object
+     * @return A new VehicleState object
      */
     protected APICall getRefreshableState() {
         issueCommand(GetStreamingState, new GetStreamingState(), false);
         issueCommand(GetChargeState, new GetChargeState(), false);
-        return new DoorState(vehicle);
+        return new VehicleState(vehicle);
     }
-
+    
     @Override protected void commandComplete(String commandName, Object state, boolean refresh) {
         switch (commandName) {
             case GetStreamingState:
@@ -168,7 +170,7 @@ public class OverviewController extends BaseController {
     }
 
     @FXML void panoButtonHandler(ActionEvent event) {
-        ToggleButton source = (ToggleButton)event.getSource();
+        Button source = (Button)event.getSource();
         final PanoCommand cmd = 
             source == ventPanoButton ? PanoCommand.vent :
                 ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
@@ -179,7 +181,8 @@ public class OverviewController extends BaseController {
 
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
-        TextArea t = new TextArea(vehicle.toString());
+        String info = vehicle.toString() + "\nFirmware Version: " + doorState.version();
+        TextArea t = new TextArea(info);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
             stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
@@ -198,6 +201,10 @@ public class OverviewController extends BaseController {
         setOptionState(doorState.isPFOpen(), pfOpenImg, null);
         setOptionState(doorState.isDROpen(), drOpenImg, drClosedImg);
         setOptionState(doorState.isPROpen(), prOpenImg, null);
+        if (doorState.hasSpoiler()) {
+            if (doorState.isRTOpen()) spoilerOpenImg.setVisible(true);
+            else spoilerClosedImg.setVisible(true);
+        }
         
         // Show whether the doors are locked or not and reflect that in
         // the lock / unlock buttons
@@ -207,44 +214,34 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRoofView() {
-        int pct = panoPercent();
-        if (pct >= 0) {
-            if (pct == 0) setRoofImage(RoofState.Closed);
-            else if (pct > 0 && pct < 90) setRoofImage(RoofState.Vent);
-            else setRoofImage(RoofState.Open);
-            panoPercent.setText(String.valueOf(doorState.panoPercent()) + " %");
-        } else setRoofImage(RoofState.Solid);
-    }
-    
-    private void setRoofImage(RoofState targetState) {
+        Options.RoofType type = vehicle.getOptions().roofType();
+        if (simulatedRoof != null) type = simulatedRoof;
+        boolean hasPano = (type == Options.RoofType.RFPO);
+        
+        // Start with all images set to invisible, then turn on the one right one
         panoOpenImg.setVisible(false);
         panoClosedImg.setVisible(false);
         panoVentImg.setVisible(false);
         solidRoofImg.setVisible(false);
-
-        switch (targetState) {
-            case Open:
-                openPanoButton.setSelected(true);
-                panoOpenImg.setVisible(true);
-                break;
-            case Closed:
-                closePanoButton.setSelected(true);
-                panoClosedImg.setVisible(true);
-                break;
-            case Vent:
-                ventPanoButton.setSelected(true);
-                panoVentImg.setVisible(true);
-                break;
-            case Solid:
-                solidRoofImg.setVisible(true);
-                closePanoButton.setVisible(false);
-                ventPanoButton.setVisible(false);
-                openPanoButton.setVisible(false);
-                panoPercent.setVisible(false);
-                break;
+        blackRoofImg.setVisible(false);
+        // Only show the pano controls and percent if we have a pano roof
+        closePanoButton.setVisible(hasPano);
+        ventPanoButton.setVisible(hasPano);
+        openPanoButton.setVisible(hasPano);
+        panoPercent.setVisible(hasPano);
+        
+        if (hasPano) {
+            int pct = doorState.panoPercent();
+            if (pct == 0) panoClosedImg.setVisible(true);
+            else if (pct > 0 && pct < 90) panoVentImg.setVisible(true);
+            else panoOpenImg.setVisible(true);
+            panoPercent.setText(String.valueOf(pct) + " %");
+        } else {
+            if (type == Options.RoofType.RFBC) solidRoofImg.setVisible(true);
+            else blackRoofImg.setVisible(true);
         }
     }
-
+    
     private void updateWheelView() {
         WheelType wt = (simulatedWheels == null) ? vehicle.getOptions().wheelType() : simulatedWheels;
         
@@ -267,38 +264,14 @@ public class OverviewController extends BaseController {
                 break;
         }
     }
-    
-    private class GetStreamingState implements Callback {
-        @Override public Result execute() {
-            while (!streamingState.refresh(5000)) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) { /* Ignore */ }
-            }
-            return Result.Succeeded;
-        }
-    }
-    
-    private class GetChargeState implements Callback {
-        @Override public Result execute() {
-            return chargeState.refresh() ? Result.Succeeded : Result.Failed;
-        }
-    }
-    
+      
     private void updateChargePort() {
-        // Show the state of the charging port and whether the cable is connected
-        int pilotCurrent = -1;
-        boolean chargePortDoorOpen = false;
-        
         try {
-            pilotCurrent = chargeState.chargerPilotCurrent();
-            chargePortDoorOpen = chargeState.chargePortOpen();
-        } catch (Exception e) {
-            return; // New results aren't ready, leave the state alone
-        }
-        
-        setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
-        chargeCableImg.setVisible(pilotCurrent > 0);
+            int pilotCurrent = chargeState.chargerPilotCurrent();
+            boolean chargePortDoorOpen = chargeState.chargePortOpen();
+            setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
+            chargeCableImg.setVisible(pilotCurrent > 0);
+        } catch (Exception e) { } // New results aren't ready yet
     }
     
     private void updateOdometer() {
@@ -378,16 +351,17 @@ public class OverviewController extends BaseController {
     private Options.RoofType simulatedRoof = null;
     void setSimulatedRoof(Options.RoofType rt) { simulatedRoof = rt; }
     
-    private int panoPercent() {
-        // Handle the case where a simulated roof type was set
-        if (simulatedRoof != null)
-            return (simulatedRoof == Options.RoofType.RFPO) ? 0 : -1;
-        
-        // Return the panoPercent if there is a pano roof; -1 otherwise
-        if (doorState.hasPano())
-            return doorState.panoPercent();
-        return -1;
+    private class GetStreamingState implements Callback {
+        @Override public Result execute() {
+            return streamingState.refresh((int)AutoRefreshInterval) ? 
+                    Result.Succeeded : Result.Failed;
+        }
     }
     
+    private class GetChargeState implements Callback {
+        @Override public Result execute() {
+            return chargeState.refresh() ? Result.Succeeded : Result.Failed;
+        }
+    }
 
 }

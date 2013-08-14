@@ -124,17 +124,7 @@
         <Button id="unlockButton" fx:id="wakeupButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Wakeup" />
       </children>
     </HBox>
-    <HBox id="HBox" alignment="CENTER" fillHeight="true" layoutX="242.0" layoutY="24.0" prefWidth="178.0" spacing="0.0">
-      <children>
-        <ToggleButton fx:id="closePanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-left" text="Close">
-          <toggleGroup>
-            <ToggleGroup fx:id="panoGroup" />
-          </toggleGroup>
-        </ToggleButton>
-        <ToggleButton fx:id="ventPanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-center" text="Vent" toggleGroup="$panoGroup" />
-        <ToggleButton fx:id="openPanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-right" text="Open" toggleGroup="$panoGroup" />
-      </children>
-    </HBox>
+    <HBox id="HBox" alignment="CENTER" fillHeight="true" layoutX="242.0" layoutY="24.0" prefWidth="178.0" spacing="0.0" />
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
@@ -170,6 +160,28 @@
     </ImageView>
     <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" text="Odometer: ..." visible="true" />
     <Button layoutX="482.0" layoutY="366.0" mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" />
+    <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="518.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/spoiler_closed@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="spoilerOpenImg" fitHeight="0.0" fitWidth="0.0" layoutX="519.0" layoutY="53.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/spoiler_open@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="blackRoofImg" fitHeight="0.0" fitWidth="0.0" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="false" x="0.0" y="0.0">
+      <image>
+        <Image url="@../TeslaResources/COLOR_black/roof@2x.png" />
+      </image>
+    </ImageView>
+    <HBox id="HBox" alignment="CENTER" layoutX="265.0" layoutY="20.0" spacing="0.0">
+      <children>
+        <Button fx:id="closePanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-left" text="Close" />
+        <Button id="closePanoButton" fx:id="ventPanoButton" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-center" text="Vent" />
+        <Button id="closePanoButton" fx:id="openPanoButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-right" text="Open" />
+      </children>
+    </HBox>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

@@ -38,15 +38,22 @@
     -fx-border-image-repeat: stretch;
     -fx-background-color: null !important; 
 }
-.pill-left:selected { -fx-border-image-source: url("left-btn-selected.png"); }
+.pill-left:selected {
+    -fx-text-fill: white; 
+    -fx-border-image-source: url("left-btn-selected.png");
+}
+.pill-left:pressed {
+    -fx-text-fill: white; 
+    -fx-border-image-source: url("left-btn-selected.png");
+}
 .pill-left .label {
-    -fx-text-fill: #d3d3d3; 
     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.75) , 0, 0.0 , 0 , -1 );
 }
 
 .pill-left:selected .label {
-   /* -fx-text-fill: black; */
-   -fx-text-fill: white;
+    -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
+}
+.pill-left:pressed .label {
     -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
 }
 .pill-center {
@@ -58,13 +65,21 @@
     -fx-border-image-repeat: stretch;
     -fx-background-color: null !important;
 }
-.pill-center:selected { -fx-border-image-source: url("center-btn-selected.png"); }
+.pill-center:selected {
+    -fx-text-fill: white; 
+    -fx-border-image-source: url("center-btn-selected.png");
+}
+.pill-center:pressed {
+    -fx-text-fill: white; 
+    -fx-border-image-source: url("center-btn-selected.png");
+}
 .pill-center .label {
-    -fx-text-fill: #d3d3d3;
     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.75) , 0, 0.0 , 0 , -1 );
 }
 .pill-center:selected .label {
-    -fx-text-fill: black;
+    -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
+}
+.pill-center:pressed .label {
     -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
 }
 .pill-right {
@@ -76,12 +91,20 @@
     -fx-border-image-repeat: stretch;
     -fx-background-color: null !important;
 }
-.pill-right:selected { -fx-border-image-source: url("right-btn-selected.png"); }
+.pill-right:selected {
+    -fx-text-fill: white; 
+    -fx-border-image-source: url("right-btn-selected.png");
+}
+.pill-right:pressed {
+    -fx-text-fill: white; 
+    -fx-border-image-source: url("right-btn-selected.png");
+}
 .pill-right .label {
-    -fx-text-fill: #d3d3d3;
     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.75) , 0, 0.0 , 0 , -1 );
 }
 .pill-right:selected .label {
-    -fx-text-fill: black;
+    -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
+}
+.pill-right:pressed .label {
     -fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );
 }
