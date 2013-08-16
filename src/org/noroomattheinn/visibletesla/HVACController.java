@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.HVACState;
 import org.noroomattheinn.tesla.Options;
@@ -63,9 +62,10 @@ public class HVACController extends BaseController {
     //
     
     @FXML void hvacOnOffHandler(ActionEvent event) {
-        issueCommand("SET_AC", new Callback() {
+        issueCommand(new Callback() {
             public Result execute() {
-                return controller.setAC(hvacOnButton.isSelected()); } }, true);
+                return controller.setAC(hvacOnButton.isSelected()); } },
+                AfterCommand.Refresh);
     }
 
 
@@ -75,11 +75,11 @@ public class HVACController extends BaseController {
         double tempC = hvacState.driverTemp();
         final double temp = (useDegreesF ? Utils.cToF(tempC) : tempC) + increment;
         final boolean setF = useDegreesF;   // Must be final, so copy it...
-        issueCommand("SET_TEMP", new Callback() {
+        issueCommand(new Callback() {
             public Result execute() { 
                 if (setF) return controller.setTempF(temp, temp);
                 return controller.setTempC(temp, temp); }
-            }, true);
+            }, AfterCommand.Refresh);
     }
     
     //
@@ -89,20 +89,19 @@ public class HVACController extends BaseController {
     protected void prepForVehicle(Vehicle v) {
         if (controller == null || v != vehicle) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
+            hvacState = new HVACState(vehicle);
         }
-        GUIState gs = vehicle.getCachedGUIOptions();    // TO DO: If (gs == null) ...
+        GUIState gs = vehicle.getLastKnownGUIState();
         useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
         if (simulatedUnitType != null)
             useDegreesF = (simulatedUnitType == Utils.UnitType.Imperial);
     }
 
-    protected APICall getRefreshableState() { return new HVACState(vehicle); }
+    protected void refresh() {
+        issueCommand(new GetAnyState(hvacState), AfterCommand.Reflect);
+    }
 
-    protected void reflectNewState(Object state) {
-        hvacState = Utils.cast(state);
-        if (hvacState == null) return;
-            // We shouldn't get here if the state is null, but be careful anyway
-
+    protected void reflectNewState() {
         updateWheelView();
         reflectHVACOnState();
         reflectActualTemps();

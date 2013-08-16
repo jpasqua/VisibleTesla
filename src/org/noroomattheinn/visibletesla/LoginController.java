@@ -14,11 +14,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.utils.Utils;
 
 
 public class LoginController extends BaseController {
@@ -65,19 +63,8 @@ public class LoginController extends BaseController {
     // Overriden methods from BaseController
     //
     
-    protected APICall getRefreshableState() { return null; }
+    protected void refresh() { }
     
-    protected void commandComplete(String commandName, Object state, boolean refresh) {
-        Result r = Utils.cast(state);
-        if (r.success) {
-            showLoginSucceeded();   // Should be done by refreshing the view!
-            loginCompleteProperty.set(true);
-        } else {
-            loginCompleteProperty.set(false);
-            showManualLoginUI();
-        }
-    }
-
     //
     // External Interface to this controller
     //
@@ -92,11 +79,13 @@ public class LoginController extends BaseController {
     //
     
     private void attemptLogin(String username, String password) {
-        issueCommand("LOGIN", new AttemptLogin(username, password), false);
+        issueCommand(new AttemptLogin(username, password), AfterCommand.Reflect);
     }
 
-    // This controller doesn't reflect state - it just logs in...
-    @Override protected void reflectNewState(Object state) {  }
+    @Override protected void reflectNewState() {
+        if (loginCompleteProperty.get()) showLoginSucceeded();
+        else showManualLoginUI();
+    }
 
     // Nothing to do here, there is no vehicle established yet
     @Override protected void prepForVehicle(Vehicle v) { }
@@ -111,9 +100,10 @@ public class LoginController extends BaseController {
         
         @Override public Result execute() {
             if (username == null)   // Try auto login
-                return new Result(tesla.connect(), "");
+                loginCompleteProperty.set(tesla.connect());
             else    // Login with the specified username and password
-                return new Result(tesla.connect(username, password), "");
+                loginCompleteProperty.set(tesla.connect(username, password));
+            return loginCompleteProperty.get() ? Result.Succeeded : Result.Failed;
         }
         
     }

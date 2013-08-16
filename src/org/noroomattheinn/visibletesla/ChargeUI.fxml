@@ -7,6 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 <?import jfxtras.labs.scene.control.gauge.*?>
 <?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
@@ -44,7 +45,7 @@
     <Button id="refreshButton" fx:id="refresh" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="17.0" />
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
-    <VBox id="VBox" alignment="CENTER" layoutX="43.0" layoutY="269.0" spacing="5.0">
+    <VBox id="VBox" alignment="CENTER" layoutX="299.0" layoutY="347.0" spacing="5.0">
       <children>
         <Label fx:id="chargeScheduledLabel" text="Charge Scheduled" textFill="WHITE">
           <font>
@@ -58,18 +59,29 @@
         </Label>
       </children>
     </VBox>
-    <HBox id="HBox" alignment="CENTER" layoutX="54.0" layoutY="200.0" spacing="-1.0">
+    <Slider fx:id="chargeSlider" layoutX="13.0" layoutY="198.0" majorTickUnit="20.0" max="100.0" min="0.0" onMouseReleased="#sliderMoved" prefWidth="203.0" showTickLabels="true" showTickMarks="true" value="80.0" visible="true" />
+    <HBox id="HBox" alignment="CENTER" layoutX="40.0" layoutY="244.0" spacing="5.0">
       <children>
-        <ToggleButton fx:id="stdRangeButton" mnemonicParsing="false" onAction="#rangeHandler" selected="false" styleClass="pill-left" text="Standard">
-          <toggleGroup>
-            <ToggleGroup fx:id="rangeGroup" />
-          </toggleGroup>
-        </ToggleButton>
-        <ToggleButton fx:id="maxRangeButton" mnemonicParsing="false" onAction="#rangeHandler" styleClass="pill-right" text="Max Range" toggleGroup="$rangeGroup" />
+        <Label text="Jump to:" />
+        <Hyperlink fx:id="stdLink" onAction="#rangeLinkHandler" text="Standard">
+          <textFill>
+            <Color blue="0.800" green="0.000" red="0.064" fx:id="x2" />
+          </textFill>
+        </Hyperlink>
+        <Hyperlink fx:id="maxLink" onAction="#rangeLinkHandler" text="Max" textFill="$x2" />
       </children>
     </HBox>
-    <Button id="chargeButton" fx:id="startButton" layoutX="76.0" layoutY="231.0" mnemonicParsing="false" onAction="#chargeButtonHandler" text="Start Charging" />
-    <Button id="chargeButton" fx:id="stopButton" layoutX="76.0" layoutY="231.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#chargeButtonHandler" text="Stop Charging" />
+    <HBox id="HBox" alignment="CENTER" layoutX="13.0" layoutY="291.0" prefWidth="203.0" spacing="22.0">
+      <children>
+        <Button id="chargeButton" fx:id="startButton" mnemonicParsing="false" onAction="#chargeButtonHandler" text="Start" />
+        <Button id="chargeButton" fx:id="stopButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#chargeButtonHandler" text="Stop " />
+      </children>
+    </HBox>
+    <Label fx:id="chargeSetting" layoutX="220.0" layoutY="200.0" text="100">
+      <font>
+        <Font size="11.0" />
+      </font>
+    </Label>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

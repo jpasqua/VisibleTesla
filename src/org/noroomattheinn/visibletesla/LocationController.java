@@ -15,11 +15,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.DrivingState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.GeoUtils;
-import org.noroomattheinn.utils.Utils;
 
 
 public class LocationController extends BaseController {
@@ -78,11 +76,7 @@ public class LocationController extends BaseController {
         return sb.toString();
     }
     
-    protected void reflectNewState(Object state) {
-        drivingState = Utils.cast(state);
-        if (drivingState == null) return;
-            // We shouldn't get here if the state is null, but be careful anyway
-
+    protected void reflectNewState() {
         String latitude = String.valueOf(drivingState.latitude());
         String longitude = String.valueOf(drivingState.longitude());
         String heading = String.valueOf(drivingState.heading());
@@ -96,9 +90,14 @@ public class LocationController extends BaseController {
         mapIsLoaded = true;
     }
 
-    protected APICall getRefreshableState() { return new DrivingState(vehicle); }
+    protected void refresh() {
+        issueCommand(new GetAnyState(drivingState), AfterCommand.Reflect);
+    }
 
-    // Nothing to do here. There are no controllers to set up for example
-    @Override protected void prepForVehicle(Vehicle v) {    }
+    @Override protected void prepForVehicle(Vehicle v) {
+        if (drivingState == null || v != vehicle) {
+            drivingState = new DrivingState(v);
+        }
+    }
     
 }

@@ -26,7 +26,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.Result;
+import org.noroomattheinn.tesla.StreamingState;
 import org.noroomattheinn.tesla.Vehicle;
+import static org.noroomattheinn.visibletesla.BaseController.AutoRefreshInterval;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
@@ -43,23 +45,13 @@ import org.noroomattheinn.tesla.Vehicle;
  */
 
 abstract class BaseController {
-    // Private Constants
-    private static final String RefreshCommand = "REFRESH";
-    private static final String ProgressIndicatorColor = "darkgray";
-    private static final double ProgressIndicatorSize = 24.0;
-    private static final double ProgressIndicatorOffset = 14.0;
-    private static final double RefreshButtonOffset = 14.0;
-    
     // Support for the AutoRefresh Mechanism
     static final long AutoRefreshInterval = 15 * 1000;
-    static BaseController activeController = null;
-    static long lastRefreshTime = new Date().getTime();;
-    static {
-        Thread refreshThread = new Thread(new AutoRefresh());
-        refreshThread.setDaemon(true);
-        refreshThread.start();
-    }
     
+    private static BaseController activeController = null;
+    private static long lastRefreshTime = 0;
+    private static Thread refreshThread = null;
+        
     // Internal State
     protected Vehicle vehicle;
     protected Application app;
@@ -76,6 +68,7 @@ abstract class BaseController {
     // Subclasses must implement the doInitialize method which is called from here.
     // The implementation can be empty if the subclass has nothing to do.
     @FXML final void initialize() {
+        ensureRefreshThread();
         root.setUserData(this);
         prepCommonElements();
         doInitialize();
@@ -139,14 +132,14 @@ abstract class BaseController {
      * Return a state object that is of the type to be refreshed. Return null
      * if no refresh-able state is being handled
      */
-    abstract protected APICall getRefreshableState();
+    abstract protected void refresh();
     
     /**
      * Subclasses must implement this method in order to update their UI
      * after a previously launched refresh Task has completed.
      * @param state The new state resulting from the prior doRefresh()
      */
-    abstract protected void reflectNewState(Object state);
+    abstract protected void reflectNewState();
     
     
     //
@@ -170,13 +163,16 @@ abstract class BaseController {
      * @param state     The result of the command
      * @param refresh   Whether or not to invoke doRefresh()
      */
-    protected void commandComplete(String commandName, Object state, boolean refresh) {
-        if (commandName.equals(RefreshCommand))
-            reflectNewState(state);
-        else if (refresh)
-            doRefresh();
+    protected void commandComplete(Object state, AfterCommand action) {
+        switch (action) {
+            case Reflect:  reflectNewState(); break;
+            case Refresh: doRefresh(); break;
+            case Nothing:
+            default: break;
+        }
     }
 
+    enum AfterCommand {Reflect, Refresh, Nothing};
     
     //
     // The following methods can be used by (but not overriden) by subclasses
@@ -192,22 +188,15 @@ abstract class BaseController {
      * the impact of the command that was issued (eg refresh DoorState after
      * invoking functionality in DoorController).
      */
-    protected final void issueCommand(String commandName, Callback c, boolean refreshAfterCommand) {
+    protected final void issueCommand(Callback c, AfterCommand action) {
         Task<Result> task = new IssueCommand(c);
-        launchTask(commandName, task, true, refreshAfterCommand);
-    }
-    
-    /**
-     * Launches a Task to refresh the state of an object of type T.
-     * @param <T>   The Type of the Task that will be launched
-     * @param task  The Task to be launched that will do the refresh
-     */
-    protected final void doRefresh() {
-        APICall stateObject = getRefreshableState();
-        if (stateObject == null) return;
-        Task<APICall> task = new <APICall>RefreshTask(stateObject);
-        launchTask(RefreshCommand, task, false, false);
-        lastRefreshTime = new Date().getTime(); // Used by the AutoRefresh mechanism
+        showProgressUI(true);
+        EventHandler<WorkerStateEvent> handler = new CompletionHandler(action);
+        task.setOnSucceeded(handler);
+        task.setOnFailed(handler);
+        progressIndicator.progressProperty().bind(task.progressProperty());
+        progressLabel.textProperty().bind(task.messageProperty());
+        new Thread(task).start();
     }
     
     protected final void setOptionState(boolean selected, ImageView selImg, ImageView deselImg) {
@@ -217,19 +206,8 @@ abstract class BaseController {
     
     
     //
-    // Private Task Handling Methods
+    // Private Task Handling Classes
     //
-    
-    private <T> void launchTask(
-            String commandName, Task<T> task, boolean isCommand, boolean refreshAfter) {
-        showProgressUI(true);
-        EventHandler<WorkerStateEvent> handler =
-                new CompletionHandler(commandName, refreshAfter);
-        task.setOnSucceeded(handler);
-        task.setOnFailed(handler);
-        bindProgress(task);
-        new Thread(task).start();
-    }
     
     private class IssueCommand extends Task<Result> {
         Callback callback;
@@ -242,26 +220,20 @@ abstract class BaseController {
             updateMessage("");
             Result r = callback.execute();
             if (r.success) {
-                updateProgress(1, 1);
                 return r;
             }
             updateMessage("Problem communicating with Tesla");
-            updateProgress(1, 1);
             return new Result(false, "");
         }
 
     }
     
     private class CompletionHandler implements EventHandler<WorkerStateEvent> {
-        String commandName;
-        boolean refreshAfterCommand;
-        CompletionHandler(String commandName, boolean refreshAfterCommand) {
-            this.commandName = commandName;
-            this.refreshAfterCommand = refreshAfterCommand;
-        }
+        AfterCommand action;
+        
+        CompletionHandler(AfterCommand action) { this.action = action; }
         
         @Override public void handle(WorkerStateEvent event) {
-            unbindProgress();
             Worker w = event.getSource();
             Object result = null;
             if (w.getState() == Worker.State.SUCCEEDED) {
@@ -269,29 +241,68 @@ abstract class BaseController {
                 result = w.getValue();
             }
             showProgressUI(false);
-            commandComplete(commandName, result, refreshAfterCommand);
+            commandComplete(result, action);
         }
     }
     
-    
+    class AutoRefresh implements Runnable {
+        @Override public void run() {
+            while (true) {
+                try {
+                    long timeToSleep = BaseController.AutoRefreshInterval;
+                    while (timeToSleep > 0) {
+                        Thread.sleep(timeToSleep);
+                        timeToSleep = BaseController.AutoRefreshInterval - 
+                                (new Date().getTime() - BaseController.lastRefreshTime);
+                        timeToSleep = Math.min(timeToSleep, BaseController.AutoRefreshInterval);
+                    }
+                    Platform.runLater(new FireRefresh());
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(AutoRefresh.class.getName()).log(Level.FINEST, null, ex);
+                }
+            }
+        }
+
+        class FireRefresh implements Runnable {
+            @Override public void run() {
+                BaseController active = BaseController.activeController;
+                if (active == null) return;
+                active.doRefresh();
+            }
+        }
+    }
     //
     // Private Utility Methods
     //
     
-    private void bindProgress(Task t) {
-        progressIndicator.progressProperty().bind(t.progressProperty());
-        progressLabel.textProperty().bind(t.messageProperty());
+    /**
+     * Wrapper around refresh() that keeps track of the time to facilitate AutoRefresh
+     */
+    private void doRefresh() {
+        lastRefreshTime = new Date().getTime(); // Used by the AutoRefresh mechanism
+        refresh();
     }
     
-    private void unbindProgress() {
-        progressIndicator.progressProperty().unbind();  // Get rid of binding
-        progressLabel.textProperty().unbind();          // Get rid of binding
+    private void ensureRefreshThread() {
+        if (refreshThread == null) {
+            refreshThread = new Thread(new AutoRefresh());
+            refreshThread.setDaemon(true);
+            refreshThread.start();
+            lastRefreshTime = new Date().getTime();
+        }
     }
-    
+
+    private int spuiCount = 0;
     private void showProgressUI(boolean show) {
-        progressIndicator.setVisible(show);
+        spuiCount = spuiCount + (show ? 1 : -1);
+        progressIndicator.setVisible(spuiCount != 0);
         progressLabel.setVisible(false);    // Progress label is only used for debugging
     }
+    
+    private static final String ProgressIndicatorColor = "darkgray";
+    private static final double ProgressIndicatorSize = 24.0;
+    private static final double ProgressIndicatorOffset = 14.0;
+    private static final double RefreshButtonOffset = 14.0;
     
     private void prepCommonElements() {
         // Set the size, color, and location/anchor of the progressIndicator
@@ -319,35 +330,20 @@ abstract class BaseController {
  */
 interface Callback { Result execute(); }
 
-
-
-/**
- * This class is a sublcass of Task used as input to the doRefresh method.
- * It is parameterized by the APICall subclass representing the type of
- * state we are refreshing (eg DoorState or ChargeState).
- * 
- * @param <S> The type of the State object we're updating
- */
-class RefreshTask extends Task<APICall> {
+class GetAnyState implements Callback {
     APICall state;
 
-    RefreshTask(APICall state) { this.state = state; }
+    GetAnyState(APICall state) { this.state = state; }
 
-    @Override
-    protected APICall call() throws Exception {
-        String stateName = state.getStateName();
-        updateProgress(-1, 100);
-        updateMessage("Retrieving " + stateName);
-        if (state.refresh()) {
-            updateMessage(stateName + " retrieved");
-            updateProgress(1, 1);
-            return state;
+    @Override public Result execute() {
+        if (state instanceof StreamingState) {
+            return ((StreamingState) state).refresh((int) AutoRefreshInterval)
+                    ? Result.Succeeded : Result.Failed;
         }
-        updateMessage("Failed to retrieve " + stateName);
-        updateProgress(1, 1);
-        return null;
+        return state.refresh() ? Result.Succeeded : Result.Failed;
     }
 }
+
 
 /**
  * This class runs in the background and periodically invokes doRefresh()
@@ -355,30 +351,4 @@ class RefreshTask extends Task<APICall> {
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class AutoRefresh implements Runnable {
-    @Override public void run() {
-        while (true) {
-            try {
-                long timeToSleep = BaseController.AutoRefreshInterval;
-                while (timeToSleep > 0) {
-                    Thread.sleep(timeToSleep);
-                    timeToSleep = BaseController.AutoRefreshInterval - 
-                            (new Date().getTime() - BaseController.lastRefreshTime);
-                    timeToSleep = Math.min(timeToSleep, BaseController.AutoRefreshInterval);
-                }
-                Platform.runLater(new FireRefresh());
-            } catch (InterruptedException ex) {
-                Logger.getLogger(AutoRefresh.class.getName()).log(Level.FINEST, null, ex);
-            }
-        }
-    }
-    
-    class FireRefresh implements Runnable {
-        @Override public void run() {
-            BaseController active = BaseController.activeController;
-            if (active == null) return;
-            active.doRefresh();
-        }
-    }
-}
 

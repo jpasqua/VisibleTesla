@@ -97,12 +97,12 @@
         <Image url="@../TeslaResources/COLOR_gray/left_rear_open@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView fx:id="unlockedImg" fitHeight="0.0" fitWidth="0.0" layoutX="58.0" layoutY="299.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
+    <ImageView fx:id="unlockedImg" fitHeight="0.0" fitWidth="0.0" layoutX="55.0" layoutY="299.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
       <image>
         <Image url="@../TeslaResources/06_controls_unlock@2x.png" />
       </image>
     </ImageView>
-    <ImageView id="unlockedImg" fx:id="lockedImg" fitHeight="0.0" fitWidth="0.0" layoutX="58.0" layoutY="299.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+    <ImageView id="unlockedImg" fx:id="lockedImg" fitHeight="0.0" fitWidth="0.0" layoutX="55.0" layoutY="299.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
       <image>
         <Image url="@../TeslaResources/06_controls_lock@2x.png" />
       </image>
@@ -140,12 +140,8 @@
     </ImageView>
     <HBox id="HBox" alignment="CENTER" layoutX="115.0" layoutY="323.0" spacing="-1.0">
       <children>
-        <ToggleButton fx:id="lockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-left" text="Lock">
-          <toggleGroup>
-            <ToggleGroup fx:id="lockGroup" />
-          </toggleGroup>
-        </ToggleButton>
-        <ToggleButton fx:id="unlockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-right" text="Unlock" toggleGroup="$lockGroup" />
+        <Button fx:id="lockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-left" text="Lock" />
+        <Button fx:id="unlockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-right" text="Unlock" />
       </children>
     </HBox>
     <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="104.0" layoutY="231.0" pickOnBounds="true" preserveRatio="true" visible="false">
@@ -160,12 +156,12 @@
     </ImageView>
     <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" text="Odometer: ..." visible="true" />
     <Button layoutX="482.0" layoutY="366.0" mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" />
-    <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="518.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="523.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/spoiler_closed@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="spoilerOpenImg" fitHeight="0.0" fitWidth="0.0" layoutX="519.0" layoutY="53.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="spoilerOpenImg" fitHeight="0.0" fitWidth="0.0" layoutX="525.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/spoiler_open@2x.png" />
       </image>

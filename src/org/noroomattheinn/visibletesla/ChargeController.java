@@ -13,32 +13,39 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import jfxtras.labs.scene.control.gauge.Battery;
 import jfxtras.labs.scene.control.gauge.Lcd;
-import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 
 
 public class ChargeController extends BaseController {
     private static final double KilometersPerMile = 1.60934;
+    private static final String MinVersionForChargePct = "1.33.38";
+        // This value is taken from the wiki here: http://tinyurl.com/mzwxbps
     
     // Controller & State objects
     private ChargeState chargeState;
+    private VehicleState vehicleState;
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private boolean useMiles;
     
     // UI Controls
-    @FXML private ToggleButton maxRangeButton, stdRangeButton;
     @FXML private Button startButton, stopButton;
+    @FXML private Slider chargeSlider;
+    @FXML private Label chargeSetting;
+    @FXML private Hyperlink stdLink, maxLink;
     
     // Elements that display charge status
     @FXML private Battery batteryGauge;
@@ -84,29 +91,47 @@ public class ChargeController extends BaseController {
         propUnitsColumn.setCellValueFactory( new PropertyValueFactory<Property,String>("units") );
         propertyTable.setItems(data);
         showPendingChargeLabels(false);
+        
+        // Until we know that we've got the right software version, disable the slider
+        chargeSlider.setDisable(true);
     }
 
-    @FXML void chargeButtonHandler(ActionEvent event) {
-        final Button b = (Button)event.getSource();
-        issueCommand("SET_CHARGE_STATE", new Callback() {
-            public Result execute() { return chargeController.setChargeState(b == startButton); } },
-            true);
+    @FXML private void sliderMoved(MouseEvent event) {
+        setChargePercent((int)chargeSlider.getValue());
     }
     
-    @FXML void rangeHandler(ActionEvent event) {
-        ToggleButton source = (ToggleButton)event.getSource();
-        final boolean max = (source == maxRangeButton);
-        issueCommand("SET_CHARGE_MAX", new Callback() {
-            public Result execute() { return chargeController.setChargeRange(max); } },
-            true);
+    @FXML void rangeLinkHandler(ActionEvent event) {
+        Hyperlink h = (Hyperlink)event.getSource();
+        int percent = (h == stdLink) ?
+                chargeState.chargeLimitSOCStd() : chargeState.chargeLimitSOCMax();
+        setChargePercent(percent);
     }
 
+    private void setChargePercent(final int percent) {
+        chargeSlider.setValue(percent);
+        chargeSetting.setText(percent + " %");
+        issueCommand(new Callback() {
+            public Result execute() {
+                return chargeController.setChargePercent(percent); } },
+            AfterCommand.Refresh);
+    }
+    
+    
+    @FXML void chargeButtonHandler(ActionEvent event) {
+        final Button b = (Button)event.getSource();
+        issueCommand(new Callback() {
+            public Result execute() { return chargeController.setChargeState(b == startButton); } },
+            AfterCommand.Refresh);
+    }
+        
     protected void prepForVehicle(Vehicle v) {
         if (chargeController == null || v != vehicle) {
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
+            chargeState = new ChargeState(v);
+            vehicleState = new VehicleState(v);
         }
         
-        GUIState gs = vehicle.getCachedGUIOptions();    // TO DO: If (gs == null) ...
+        GUIState gs = vehicle.getLastKnownGUIState();
         useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         if (simulatedUnitType != null)
             useMiles = (simulatedUnitType == Utils.UnitType.Imperial);
@@ -118,17 +143,37 @@ public class ChargeController extends BaseController {
         chargeRate.setUnits(useMiles ? "mph" : "kph");
     }
 
-    protected APICall getRefreshableState() { return new ChargeState(vehicle); }
+    protected void refresh() { 
+        issueCommand(new GetAnyState(chargeState), AfterCommand.Reflect);
+        if (vehicleState.lastRefreshTime() == 0)
+            issueCommand(new GetAnyState(vehicleState), AfterCommand.Reflect);
+    }
     
-    protected void reflectNewState(Object newState) {
-        chargeState = Utils.cast(newState);
-        if (chargeState == null) return;
-            // We shouldn't get here if the state is null, but be careful anyway
-
+    protected void reflectNewState() {
+        if (chargeState.lastRefreshTime() == 0) return; // No Data Yet...
+        
         reflectRange();
         reflectBatteryStats();
         reflectChargeStatus();
         reflectProperties();
+        if (vehicleState.lastRefreshTime() != 0) {
+            chargeSlider.setDisable(!meetsMinVersion(vehicleState.version(), MinVersionForChargePct));
+        }
+    }
+    
+    private boolean meetsMinVersion(String curVersion, String minVersion) {
+        String[] curParts = curVersion.split("\\.");
+        String[] minParts = minVersion.split("\\.");
+        int shortest = Math.min(curParts.length, minParts.length);
+        
+        int i = 0;
+        while (i < shortest && curParts[i].equals(minParts[i])) { i++; }
+
+        if (i < shortest) {
+            return (Integer.valueOf(curParts[i]) > Integer.valueOf(minParts[i]));
+        }
+
+        return curParts.length >= minParts.length;
     }
     
     private void reflectProperties() {
@@ -145,14 +190,6 @@ public class ChargeController extends BaseController {
         chargingState.setValue(chargeState.chargingState().name());
     }
     
-    private String getDurationString(double hoursFloat) {
-        int hours = (int)hoursFloat;
-        double fractionalHour = hoursFloat - hours;
-        int minutes = (int)(fractionalHour * 60);
-        int seconds = (int)((fractionalHour * 60) - minutes) * 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-    
     //
     // Utility Methods for updating elements of the UI
     //
@@ -162,18 +199,13 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectChargeStatus() {
-        if (chargeState.chargingState() == ChargeState.State.Charging) {
-            startButton.setVisible(false);
-            stopButton.setVisible(true);
-        } else {
-            startButton.setVisible(true);
-            stopButton.setVisible(false);
-        }
-        
-        if (chargeState.chargeToMaxRange())
-            maxRangeButton.setSelected(true);
-        else
-            stdRangeButton.setSelected(true);
+        int percent = chargeState.chargeLimitSOC();
+        chargeSlider.setMin(chargeState.chargeLimitSOCMin());
+        chargeSlider.setMax(chargeState.chargeLimitSOCMax());
+        chargeSlider.setValue(percent);
+        chargeSetting.setText(percent + " %");
+        stdLink.setVisited(percent == chargeState.chargeLimitSOCStd());
+        maxLink.setVisited(percent == chargeState.chargeLimitSOCMax());
         
         // Set the labels that indicate a charge is pending
         if (chargeState.scheduledChargePending()) {
@@ -198,12 +230,21 @@ public class ChargeController extends BaseController {
         }
         batteryPercentLabel.setText(String.valueOf(chargeState.batteryPercent()));
     }
-
+    
+    
     private void reflectRange() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         estOdometer.setValue(chargeState.estimatedRange() * conversionFactor);
         idealOdometer.setValue(chargeState.idealRange() * conversionFactor);
         ratedOdometer.setValue(chargeState.range() * conversionFactor);
+    }
+    
+    private String getDurationString(double hoursFloat) {
+        int hours = (int)hoursFloat;
+        double fractionalHour = hoursFloat - hours;
+        int minutes = (int)(fractionalHour * 60);
+        int seconds = (int)((fractionalHour * 60) - minutes) * 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
     
     public static class Property {
@@ -236,6 +277,6 @@ public class ChargeController extends BaseController {
     //
     // Handle Simulated Values
     //
-        private Utils.UnitType simulatedUnitType = null;
+    private Utils.UnitType simulatedUnitType = null;
     void setSimulatedUnits(Utils.UnitType t) { simulatedUnitType = t; }
 }
