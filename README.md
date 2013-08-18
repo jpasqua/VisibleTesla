@@ -35,7 +35,7 @@ Once you have installed the TeslaClient project you'll have most of what you nee
 + <code>$DOWNLOAD</code>is the directory where you downloaded the project from github
 + <code>$ROOT</code>is the directory in which the top level Tesla directory resides.
 
-Be sure to either set these variables or adapt the commands below:
+Be sure to either set these variables or adapt the commands below. Note that the jfxtras library is under active development and the library versions change fairly frequently. The project refers to a stable jar name which is assumed to be linked to the version that has been downloaded. The commands below create the link.
 
 	cd $ROOT
 	mv $DOWNLOAD/VisibleTesla-master Tesla/VisibleTesla
@@ -54,8 +54,11 @@ Be sure to either set these variables or adapt the commands below:
 	mv javafx-dialogs-0.0.3.jar* javafx-dialogs-0.0.3.jar
 
 	# Download the jfxtras library
+	# There may be a newer version of the library. If so, update the version details below
 	cd ../jfxtras
-	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20130703.085215-2.jar
+	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20130815.133831-3.jar
+    ln -s jfxtras-labs-2.2-r6-20130815.133831-3.jar jfxtras-labs-2.2.jar
+
 
 
 

@@ -200,8 +200,11 @@ public class ChargeController extends BaseController {
     
     private void reflectChargeStatus() {
         int percent = chargeState.chargeLimitSOC();
-        chargeSlider.setMin(chargeState.chargeLimitSOCMin());
-        chargeSlider.setMax(chargeState.chargeLimitSOCMax());
+        chargeSlider.setMin((chargeState.chargeLimitSOCMin()/10)*10);
+        chargeSlider.setMax(100);
+        chargeSlider.setMajorTickUnit(10);
+        chargeSlider.setMinorTickCount(4);
+        chargeSlider.setBlockIncrement(10);
         chargeSlider.setValue(percent);
         chargeSetting.setText(percent + " %");
         stdLink.setVisited(percent == chargeState.chargeLimitSOCStd());

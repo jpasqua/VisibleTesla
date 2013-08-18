@@ -59,7 +59,7 @@
         </Label>
       </children>
     </VBox>
-    <Slider fx:id="chargeSlider" layoutX="13.0" layoutY="198.0" majorTickUnit="20.0" max="100.0" min="0.0" onMouseReleased="#sliderMoved" prefWidth="203.0" showTickLabels="true" showTickMarks="true" value="80.0" visible="true" />
+    <Slider fx:id="chargeSlider" layoutX="13.0" layoutY="198.0" majorTickUnit="10.0" max="100.0" min="50.0" minorTickCount="4" onMouseReleased="#sliderMoved" prefWidth="203.0" showTickLabels="true" showTickMarks="true" value="90.0" visible="true" />
     <HBox id="HBox" alignment="CENTER" layoutX="40.0" layoutY="244.0" spacing="5.0">
       <children>
         <Label text="Jump to:" />

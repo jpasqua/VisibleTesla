@@ -117,11 +117,11 @@
         <Font name="System Bold" size="13.0" />
       </font>
     </Label>
-    <HBox id="HBox" alignment="CENTER" layoutX="273.0" layoutY="320.0" spacing="5.0" styleClass="toolbar-hbox">
+    <HBox id="HBox" alignment="CENTER" layoutX="275.0" layoutY="323.0" spacing="0.0">
       <children>
-        <Button id="lockButton" fx:id="honkButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Honk" />
-        <Button id="unlockButton" fx:id="flashButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Flash" />
-        <Button id="unlockButton" fx:id="wakeupButton" mnemonicParsing="false" onAction="#miscCommandHandler" text="Wakeup" />
+        <Button id="lockButton" fx:id="honkButton" mnemonicParsing="false" onAction="#miscCommandHandler" styleClass="pill-left" text="Honk" />
+        <Button id="unlockButton" fx:id="flashButton" mnemonicParsing="false" onAction="#miscCommandHandler" styleClass="pill-center" text="Flash" />
+        <Button id="unlockButton" fx:id="wakeupButton" mnemonicParsing="false" onAction="#miscCommandHandler" styleClass="pill-right" text="Wakeup" />
       </children>
     </HBox>
     <HBox id="HBox" alignment="CENTER" fillHeight="true" layoutX="242.0" layoutY="24.0" prefWidth="178.0" spacing="0.0" />
@@ -154,7 +154,7 @@
         <Image url="@../TeslaResources/19r1.png" />
       </image>
     </ImageView>
-    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" text="Odometer: ..." visible="true" />
+    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" minHeight="13.9998779296875" prefHeight="13.9998779296875" text="Odometer: ..." visible="true" />
     <Button layoutX="482.0" layoutY="366.0" mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" />
     <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="523.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>

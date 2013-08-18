@@ -29,3 +29,7 @@
     -fx-border-width: 1px;
 }
 
+.slider .axis .axis-tick-mark, .slider .axis .axis-minor-tick-mark {
+    -fx-fill: null;
+    -fx-stroke: white;
+}
