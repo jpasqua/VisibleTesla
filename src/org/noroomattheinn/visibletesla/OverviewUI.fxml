@@ -67,11 +67,6 @@
         <Image url="@../TeslaResources/charge_port_closed@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView fx:id="chargeCableImg" layoutX="493.0" layoutY="207.0" pickOnBounds="true" preserveRatio="true" visible="false">
-      <image>
-        <Image url="@../TeslaResources/charge_cable_long@2x.png" preserveRatio="false" smooth="false" />
-      </image>
-    </ImageView>
     <ImageView id="portClosedImg" fx:id="portOpenImg" layoutX="533.0" layoutY="204.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/charge_port_open@2x.png" preserveRatio="false" smooth="false" />
@@ -178,6 +173,16 @@
         <Button id="closePanoButton" fx:id="openPanoButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#panoButtonHandler" styleClass="pill-right" text="Open" />
       </children>
     </HBox>
+    <ImageView fx:id="greenGlowImage" fitHeight="0.0" fitWidth="0.0" layoutX="525.0" layoutY="204.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/charge_port_on@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="chargeCableImg" layoutX="493.0" layoutY="207.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/charge_cable_long@2x.png" preserveRatio="false" smooth="false" />
+      </image>
+    </ImageView>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

@@ -127,9 +127,72 @@
             </ul>
     </p>
 
-    The screen shots show the car
+    <p>There are quite a few pieces of data in the Charge Tab. The following
+        table lists the items and gives a brief description of what they represent.</p>
+
+    <table class="grid_table">
+        <tr>
+            <th>Item</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Current</td>
+            <td>The amount of current being supplied to the vehicle</td>
+        </tr>
+        <tr>
+            <td>Voltage</td>
+            <td>The voltage being supplied to the vehicle</td>
+        </tr>
+        <tr>
+            <td>Charge Rate</td>
+            <td>How many miles of range are being recovered per hour of charging</td>
+        </tr>
+        <tr>
+            <td>Time Left</td>
+            <td>Estimated amount of time until the charge will be complete</td>
+        </tr>
+        <tr>
+            <td>State</td>
+            <td>Charging, Complete, Disconnected or Unknown</td>
+        </tr>
+        <tr>
+            <td>Pilot Current</td>
+            <td>The amount of current reported to be available from the attached power source</td>
+        </tr>
+        <tr>
+            <td>Battery Current</td>
+            <td>The current flowing into the battery (or out if negative)</td>
+        </tr>
+        <tr>
+            <td>Fast Charger</td>
+            <td>Is the vehicle connected to a supercharger. HPWC does not qualify</td>
+        </tr>
+        <tr>
+            <td>Charger Power</td>
+            <td>The power in kW being supplied at the moment the reading was taken</td>
+        </tr>
+        <tr>
+            <td># Range Charges</td>
+            <td>The number of consequetive range charges since the last standard charge. If you range charge three times in a row, this will display '3'. If you perform a Standard charge, it will be reset to 0.</td>
+        </tr>
+        <tr>
+            <td>Rated Range</td>
+            <td>The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is different for different vehicles (85kWh / 60kWh) and in different markets based on the regulatory test for that vehicle in that market. For example, in the US this is based on the EPA estimate.</td>
+        </tr>
+        <tr>
+            <td>Estimated Range</td>
+            <td>The car's predicted remaining range based on energy consumption during recent driving</td>
+        </tr>
+        <tr>
+            <td>Ideal Range</td>
+            <td>The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is an optimal figure determined by Tesla.</td>
+        </tr>
+    </table>
+    
+    <p>The screen shots show the car
     when not connected to a charger, connected but not charging, and charging.
     In this case it is connected to an HPWC which is set to 60A.</p>
+
 
     <p><img border="0" style="margin:5px" src="images/07_Charge_Tab.png" />
     <img border="0" style="margin:5px" src="images/08_Charge_Plugged_In.png" />

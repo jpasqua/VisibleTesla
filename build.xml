@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- You may freely edit this file. See commented blocks below for --><!-- some examples of how to customize the build. --><!-- (If you delete it and reopen the project it will be recreated.) --><!-- By default, only the Clean and Build commands use this build script. --><project name="VisibleTesla" default="default" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
     <description>Builds, tests, and runs the project VisibleTesla.</description>
     <target name="-post-compile">
-        <copydir src="Documentation" dest="${dist.dir}/Documentation"/>        
+        <copy todir="${dist.dir}/Documentation">
+          <fileset dir="Documentation"/>
+        </copy>
+        <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
     </target>
 
     <import file="nbproject/build-impl.xml"/>

@@ -23,3 +23,29 @@
  a:visited { color: #009; }
  a:hover { color: #06f; }
  a:active { color: #0cf; }
+
+table.grid_table {
+	color:#333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+table.grid_table th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+table.grid_table td {
+	vertical-align:top;
+	border-width: 1px;
+	padding: 4px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+
+table.grid_table td:first-child {
+	white-space:nowrap;
+}

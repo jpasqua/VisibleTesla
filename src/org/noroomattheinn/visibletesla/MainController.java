@@ -30,7 +30,7 @@ import org.noroomattheinn.utils.Utils;
 
 public class MainController {
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.17";
+    private static final String ProductVersion = "0.17c";
     
     //  The Tesla, Vehicle, and App Objects
     private Tesla tesla;

@@ -72,7 +72,7 @@ public class OverviewController extends BaseController {
     @FXML private Label panoPercent;
 
     // Charging related images
-    @FXML private ImageView chargeCableImg, portClosedImg, portOpenImg;
+    @FXML private ImageView chargeCableImg, portClosedImg, portOpenImg, greenGlowImage;
     @FXML private Label odometerLabel;
     
     //
@@ -243,12 +243,13 @@ public class OverviewController extends BaseController {
     }
       
     private void updateChargePort() {
-        try {
-            int pilotCurrent = chargeState.chargerPilotCurrent();
-            boolean chargePortDoorOpen = chargeState.chargePortOpen();
-            setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
-            chargeCableImg.setVisible(pilotCurrent > 0);
-        } catch (Exception e) { } // New results aren't ready yet
+        if (chargeState.lastRefreshTime() == 0) return; // No data available yet...
+        
+        int pilotCurrent = chargeState.chargerPilotCurrent();
+        boolean chargePortDoorOpen = chargeState.chargePortOpen();
+        setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
+        chargeCableImg.setVisible(pilotCurrent > 0);
+        greenGlowImage.setVisible(chargeState.chargingState() == ChargeState.State.Charging);
     }
     
     private void updateOdometer() {
