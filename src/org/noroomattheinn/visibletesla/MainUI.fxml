@@ -93,6 +93,11 @@
             <fx:include source="ChargeUI.fxml" minHeight="400.0" />
           </content>
         </Tab>
+        <Tab fx:id="graphTab" disable="true" text="Graphs">
+          <content>
+            <fx:include source="GraphUI.fxml" minHeight="400.0" />
+          </content>
+        </Tab>
       </tabs>
     </TabPane>
   </children>

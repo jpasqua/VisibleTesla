@@ -52,6 +52,7 @@ public class MainController {
     @FXML private TabPane tabPane;
 
     // The individual tabs that comprise the overall UI
+    @FXML private Tab graphTab;
     @FXML private Tab chargeTab;
     @FXML private Tab hvacTab;
     @FXML private Tab locationTab;
@@ -87,6 +88,7 @@ public class MainController {
      * @param enabled     Indicates whether the tabs should be enabled or disabled.
      */
     public void setTabsEnabled(boolean enabled) {
+        graphTab.setDisable(!enabled);
         chargeTab.setDisable(!enabled);
         hvacTab.setDisable(!enabled);
         locationTab.setDisable(!enabled);

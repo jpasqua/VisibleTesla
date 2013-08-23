@@ -263,7 +263,6 @@ public class OverviewController extends BaseController {
         if (!chargeState.hasValidData()) return; // No data available yet...
         
         int pilotCurrent = chargeState.chargerPilotCurrent();
-        System.out.println("chargeState = " + chargeState);
         boolean chargePortDoorOpen = (chargeState.chargePortOpen() || pilotCurrent > 0);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
