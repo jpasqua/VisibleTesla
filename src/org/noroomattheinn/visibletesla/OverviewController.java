@@ -7,8 +7,6 @@ package org.noroomattheinn.visibletesla;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,7 +28,6 @@ import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.StreamingState;
-import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 
 
@@ -204,8 +201,7 @@ public class OverviewController extends BaseController {
         setOptionState(vehicleState.locked(), lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);   // Default to no spoiler
-        Tesla.logger.log(Level.INFO, "hasSpoiler " + hasSpoiler);
-        //if (hasSpoiler) { setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg); }        
+        if (hasSpoiler) { setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg); }        
     }
     
     private void updateRoofView() {
@@ -267,6 +263,7 @@ public class OverviewController extends BaseController {
         if (!chargeState.hasValidData()) return; // No data available yet...
         
         int pilotCurrent = chargeState.chargerPilotCurrent();
+        System.out.println("chargeState = " + chargeState);
         boolean chargePortDoorOpen = (chargeState.chargePortOpen() || pilotCurrent > 0);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
