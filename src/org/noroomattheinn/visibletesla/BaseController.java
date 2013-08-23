@@ -46,7 +46,7 @@ import static org.noroomattheinn.visibletesla.BaseController.AutoRefreshInterval
 
 abstract class BaseController {
     // Support for the AutoRefresh Mechanism
-    static final long AutoRefreshInterval = 15 * 1000;
+    static final long AutoRefreshInterval = 20 * 1000;
     
     private static BaseController activeController = null;
     private static long lastRefreshTime = 0;
@@ -154,7 +154,9 @@ abstract class BaseController {
      */
     // Handle the refresh button by, you guessed it, refreshing
     @FXML protected void refreshButtonHandler(ActionEvent event) { doRefresh(); }
-    
+
+    enum AfterCommand {Reflect, Refresh, Nothing};
+
     /**
      * Override in order to explicitly handle the completion of a command
      * that was issued earlier using issueCommand. If this represents the completion
@@ -165,15 +167,13 @@ abstract class BaseController {
      */
     protected void commandComplete(Object state, AfterCommand action) {
         switch (action) {
-            case Reflect:  reflectNewState(); break;
+            case Reflect: reflectNewState(); break;
             case Refresh: doRefresh(); break;
             case Nothing:
             default: break;
         }
     }
 
-    enum AfterCommand {Reflect, Refresh, Nothing};
-    
     //
     // The following methods can be used by (but not overriden) by subclasses
     // to perform various utility functions.

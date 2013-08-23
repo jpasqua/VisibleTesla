@@ -7,6 +7,9 @@ package org.noroomattheinn.visibletesla;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,18 +30,24 @@ import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.StreamingState;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 
 
 public class OverviewController extends BaseController {
     private static final double KilometersPerMile = 1.60934;
+    private Preferences preferences;
     
     // The Tesla State and Controller objects
-    private VehicleState vehicleState;      // The primary door state
-    private DoorController doorController;  // For primary door controller
-    private ActionController actions;       // For honk, flash, wake commands
-    private StreamingState streamingState;  // For odometer reading
-    private ChargeState chargeState;        // For chargePortDoor status
+    private VehicleState        vehicleState;   // The primary door state
+    private StreamingState      streamingState; // For odometer reading
+    private ChargeState         chargeState;    // For chargePortDoor status
+    private DoorController      doorController; // For primary door controller
+    private ActionController    actions;        // For honk, flash, wake commands
+    
+    private Options.WheelType storedWheelType;
+    private Options.RoofType storedRoofType;
+    private double storedOdometerReading;
     
     private Callback wakeupCB, flashCB, honkCB;
     
@@ -112,13 +121,19 @@ public class OverviewController extends BaseController {
             vehicleState = new VehicleState(v);
             streamingState = new StreamingState(v);
             chargeState = new ChargeState(v);
+            
+            preferences = Preferences.userNodeForPackage(this.getClass());
+            storedOdometerReading = preferences.getDouble(v.getVIN()+"_odometer", 0);
+
+            updateWheelView();  // Make sure we display the right wheels from the get-go
+            updateRoofView();   // Make sure we display the right roof from the get-go
         }
     }
     
     @Override protected void reflectNewState() {
-        if (vehicleState.lastRefreshTime() == 0)    // Data's not ready yet
+        if (!vehicleState.hasValidData())    // Data's not ready yet
             return;
-        
+
         updateWheelView();
         updateRoofView();
         updateDoorView();
@@ -161,7 +176,9 @@ public class OverviewController extends BaseController {
 
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
-        String info = vehicle.toString() + "\nFirmware Version: " + vehicleState.version();
+        String info = vehicle.toString() +
+                "\nFirmware Version: " + vehicle.cachedVehicleState().version() +
+                "\nHas Spoiler: " + vehicle.cachedVehicleState().hasSpoiler();
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
@@ -185,9 +202,10 @@ public class OverviewController extends BaseController {
         setOptionState(vehicleState.isDROpen(), drOpenImg, drClosedImg);
         setOptionState(vehicleState.isPROpen(), prOpenImg, null);
         setOptionState(vehicleState.locked(), lockedImg, unlockedImg);
-        if (hasSpoiler)
-            setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         
+        spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);   // Default to no spoiler
+        Tesla.logger.log(Level.INFO, "hasSpoiler " + hasSpoiler);
+        //if (hasSpoiler) { setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg); }        
     }
     
     private void updateRoofView() {
@@ -207,16 +225,19 @@ public class OverviewController extends BaseController {
         openPanoButton.setVisible(hasPano);
         panoPercent.setVisible(hasPano);
         
-        if (hasPano) {
-            int pct = vehicleState.panoPercent();
-            if (pct == 0) panoClosedImg.setVisible(true);
-            else if (pct > 0 && pct < 90) panoVentImg.setVisible(true);
-            else panoOpenImg.setVisible(true);
-            panoPercent.setText(String.valueOf(pct) + " %");
-        } else {
-            if (type == Options.RoofType.RFBC) solidRoofImg.setVisible(true);
-            else blackRoofImg.setVisible(true);
-        }
+        if (hasPano)
+            updatePanoView();
+        else 
+            setOptionState(type == Options.RoofType.RFBC, solidRoofImg, blackRoofImg);
+    }
+    
+    private void updatePanoView() {
+        int pct = (vehicleState.hasValidData()) ? vehicleState.panoPercent() : 0;
+        
+        if (pct == 0) panoClosedImg.setVisible(true);
+        else if (pct > 0 && pct < 90) panoVentImg.setVisible(true);
+        else panoOpenImg.setVisible(true);
+        panoPercent.setText(String.valueOf(pct) + " %");
     }
     
     private void updateWheelView() {
@@ -243,26 +264,26 @@ public class OverviewController extends BaseController {
     }
       
     private void updateChargePort() {
-        if (chargeState.lastRefreshTime() == 0) return; // No data available yet...
+        if (!chargeState.hasValidData()) return; // No data available yet...
         
         int pilotCurrent = chargeState.chargerPilotCurrent();
-        boolean chargePortDoorOpen = chargeState.chargePortOpen();
+        boolean chargePortDoorOpen = (chargeState.chargePortOpen() || pilotCurrent > 0);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
         greenGlowImage.setVisible(chargeState.chargingState() == ChargeState.State.Charging);
     }
     
     private void updateOdometer() {
-        if (streamingState.lastRefreshTime() == 0)
-            return;  // Data isn't ready yet
-
-        double odometerReading = streamingState.odometer();
-        if (odometerReading == 0) return;   // The reading isn't ready yet 
-        GUIState gs = vehicle.getLastKnownGUIState();
+        double odometerReading = (streamingState.hasValidData()) ?
+                streamingState.odometer() : storedOdometerReading;
+        if (odometerReading == 0) return;   // The reading isn't ready yet
+        
+        GUIState gs = vehicle.cachedGUIState();
         boolean useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
+        preferences.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
     }
     
     

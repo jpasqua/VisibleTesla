@@ -27,7 +27,7 @@
         <Image url="@../TeslaResources/COLOR_gray/body@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView fx:id="panoClosedImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="true">
+    <ImageView fx:id="panoClosedImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/sunroof_closed@2x.png" preserveRatio="false" smooth="false" />
       </image>
@@ -57,7 +57,7 @@
         <Image url="@../TeslaResources/sunroof_vent@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <ImageView fx:id="solidRoofImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="solidRoofImg" layoutX="273.0" layoutY="91.0" pickOnBounds="true" preserveRatio="true" visible="true">
       <image>
         <Image url="@../TeslaResources/COLOR_gray/roof@2x.png" preserveRatio="false" smooth="false" />
       </image>

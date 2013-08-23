@@ -60,7 +60,7 @@
       </children>
     </VBox>
     <Slider fx:id="chargeSlider" layoutX="13.0" layoutY="198.0" majorTickUnit="10.0" max="100.0" min="50.0" minorTickCount="4" onMouseReleased="#sliderMoved" prefWidth="203.0" showTickLabels="true" showTickMarks="true" value="90.0" visible="true" />
-    <HBox id="HBox" alignment="CENTER" layoutX="40.0" layoutY="244.0" spacing="5.0">
+    <HBox id="HBox" alignment="CENTER" layoutX="23.0" layoutY="244.0" spacing="5.0">
       <children>
         <Label text="Jump to:" />
         <Hyperlink fx:id="stdLink" onAction="#rangeLinkHandler" text="Standard">
@@ -71,10 +71,10 @@
         <Hyperlink fx:id="maxLink" onAction="#rangeLinkHandler" text="Max" textFill="$x2" />
       </children>
     </HBox>
-    <HBox id="HBox" alignment="CENTER" layoutX="13.0" layoutY="291.0" prefWidth="203.0" spacing="22.0">
+    <HBox id="HBox" alignment="CENTER" layoutX="80.0" layoutY="292.0" prefWidth="97.0" spacing="-1.0">
       <children>
-        <Button id="chargeButton" fx:id="startButton" mnemonicParsing="false" onAction="#chargeButtonHandler" text="Start" />
-        <Button id="chargeButton" fx:id="stopButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#chargeButtonHandler" text="Stop " />
+        <Button id="chargeButton" fx:id="startButton" mnemonicParsing="false" onAction="#chargeButtonHandler" styleClass="pill-left" text="Start" />
+        <Button id="chargeButton" fx:id="stopButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#chargeButtonHandler" styleClass="pill-right" text="Stop " />
       </children>
     </HBox>
     <Label fx:id="chargeSetting" layoutX="220.0" layoutY="200.0" text="100">
@@ -82,6 +82,7 @@
         <Font size="11.0" />
       </font>
     </Label>
+    <Label layoutX="23.0" layoutY="296.0" text="Charging:" />
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

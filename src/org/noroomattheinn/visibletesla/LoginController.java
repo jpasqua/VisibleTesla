@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -41,16 +42,25 @@ public class LoginController extends BaseController {
     @FXML private TextField usernameField;
     @FXML private ImageView loggedInImage;
     @FXML private Label loggedInStatus;
-
+    @FXML private CheckBox rememberMe;
     //
     // Login / Logout Button Handlers
     //
     
-    @FXML void logoutAction(ActionEvent event) { }
+    @FXML void logoutAction(ActionEvent event) {
+        loginCompleteProperty.set(false);
+        usernameField.setText("");
+        passwordField.setText("");
+        reflectNewState();
+    }
 
     @FXML void loginAction(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
+        if (username.isEmpty()) {
+            loggedInStatus.setText("Please enter a username");
+            return;
+        }
         attemptLogin(username, password);
     }
 
@@ -102,7 +112,7 @@ public class LoginController extends BaseController {
             if (username == null)   // Try auto login
                 loginCompleteProperty.set(tesla.connect());
             else    // Login with the specified username and password
-                loginCompleteProperty.set(tesla.connect(username, password));
+                loginCompleteProperty.set(tesla.connect(username, password, rememberMe.isSelected()));
             return loginCompleteProperty.get() ? Result.Succeeded : Result.Failed;
         }
         

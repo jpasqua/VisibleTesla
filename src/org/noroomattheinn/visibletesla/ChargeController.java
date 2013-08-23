@@ -26,7 +26,6 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 
 
@@ -37,7 +36,6 @@ public class ChargeController extends BaseController {
     
     // Controller & State objects
     private ChargeState chargeState;
-    private VehicleState vehicleState;
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private boolean useMiles;
     
@@ -128,10 +126,9 @@ public class ChargeController extends BaseController {
         if (chargeController == null || v != vehicle) {
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             chargeState = new ChargeState(v);
-            vehicleState = new VehicleState(v);
         }
         
-        GUIState gs = vehicle.getLastKnownGUIState();
+        GUIState gs = vehicle.cachedGUIState();
         useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         if (simulatedUnitType != null)
             useMiles = (simulatedUnitType == Utils.UnitType.Imperial);
@@ -145,20 +142,17 @@ public class ChargeController extends BaseController {
 
     protected void refresh() { 
         issueCommand(new GetAnyState(chargeState), AfterCommand.Reflect);
-        if (vehicleState.lastRefreshTime() == 0)
-            issueCommand(new GetAnyState(vehicleState), AfterCommand.Reflect);
     }
     
     protected void reflectNewState() {
-        if (chargeState.lastRefreshTime() == 0) return; // No Data Yet...
+        if (!chargeState.hasValidData()) return; // No Data Yet...
         
         reflectRange();
         reflectBatteryStats();
         reflectChargeStatus();
         reflectProperties();
-        if (vehicleState.lastRefreshTime() != 0) {
-            chargeSlider.setDisable(!meetsMinVersion(vehicleState.version(), MinVersionForChargePct));
-        }
+            chargeSlider.setDisable(
+                    !meetsMinVersion(vehicle.cachedVehicleState().version(), MinVersionForChargePct));
     }
     
     private boolean meetsMinVersion(String curVersion, String minVersion) {

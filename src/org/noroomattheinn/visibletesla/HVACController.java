@@ -90,11 +90,13 @@ public class HVACController extends BaseController {
         if (controller == null || v != vehicle) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
             hvacState = new HVACState(vehicle);
+            
+            GUIState gs = vehicle.cachedGUIState();
+            useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
+            if (simulatedUnitType != null)
+                useDegreesF = (simulatedUnitType == Utils.UnitType.Imperial);
+            updateWheelView();  // Make sure we show the right wheels from the get-go
         }
-        GUIState gs = vehicle.getLastKnownGUIState();
-        useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
-        if (simulatedUnitType != null)
-            useDegreesF = (simulatedUnitType == Utils.UnitType.Imperial);
     }
 
     protected void refresh() {
@@ -173,6 +175,10 @@ public class HVACController extends BaseController {
     private static final String degreesF = "º F";
     private static final String degreesC = "º C";
     private void setTempLabel(Label label, double temp, boolean displayUnits) {
+        if (Double.isNaN(temp)) {   // No value is available
+            label.setText("...");
+            return;
+        }
         if (useDegreesF) temp = Utils.cToF(temp);
         String tempAsString = String.valueOf((int)(temp + 0.5));
         if (displayUnits) tempAsString = tempAsString + (useDegreesF ? degreesF : degreesC);

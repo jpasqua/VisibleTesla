@@ -27,10 +27,14 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
+// TO DO:
+// * If the user has more than one vehicle on their account, the app should pop up a list and
+//   them to select a specific car. Perhaps represent them by vin and small colored car icon
+//
 
 public class MainController {
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.17c";
+    private static final String ProductVersion = "0.18";
     
     //  The Tesla, Vehicle, and App Objects
     private Tesla tesla;
@@ -127,15 +131,25 @@ public class MainController {
                 ObservableValue<? extends Boolean> observable,
                 Boolean oldValue, Boolean newValue) {
             if (newValue) {
-                // Login succeeded! Grab the vehicle list and enable all
-                // of the tabs. The app is ready to use.
                 vehicles = tesla.getVehicles();
-                // For now just automatically select the first vehicle
-                // TO DO: Fix this - allow user selection of vehicle
-                selectedVehicle = vehicles.get(0);
+                selectedVehicle = vehicles.get(0);  // TO DO: Allow user to select vehicle from list
                 setTabsEnabled(true);
+                jumpToTab(overviewTab);
+            } else {
+                vehicles = null;
+                selectedVehicle = null;
+                setTabsEnabled(false);
             }
         }
+    }
+
+    private void jumpToTab(final Tab tab) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tabPane.getSelectionModel().select(tab);    // Jump to Overview Tab     
+            }
+        });
     }
 
     /**

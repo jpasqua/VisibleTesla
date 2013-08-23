@@ -63,8 +63,8 @@
         <Image url="@../TeslaResources/05_climate_car_front_cold@2x.png" />
       </image>
     </ImageView>
-    <Label id="insideTmpLable" fx:id="insideTmpLabel" layoutX="109.0" layoutY="40.0" text="75" textFill="BLACK" />
-    <Label id="OutsideTempLabel" fx:id="outsideTempLabel" layoutX="109.0" layoutY="60.0" text="85" textFill="BLACK" />
+    <Label id="insideTmpLable" fx:id="insideTmpLabel" layoutX="109.0" layoutY="40.0" text="..." textFill="BLACK" />
+    <Label id="OutsideTempLabel" fx:id="outsideTempLabel" layoutX="109.0" layoutY="60.0" text="..." textFill="BLACK" />
     <Label layoutX="50.0" layoutY="21.0" text="Temperatures" />
     <AnchorPane id="AnchorPane" layoutX="303.0" layoutY="293.0" minHeight="67.75" minWidth="55.5" prefHeight="67.75" prefWidth="55.5">
       <children>
