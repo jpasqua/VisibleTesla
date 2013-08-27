@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.GraphController">
+  <children>
+    <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
+    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
+    <Label fx:id="readout" layoutX="65.0" layoutY="20.0" text="[    ]">
+      <font>
+        <Font size="10.0" />
+      </font>
+    </Label>
+    <TitledPane animated="false" expanded="false" minWidth="149.0" prefHeight="156.0" prefWidth="149.0" text="Items" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="14.0">
+      <content>
+        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <children>
+            <VBox id="VBox" alignment="BASELINE_LEFT" layoutX="14.0" layoutY="11.0" spacing="5.0">
+              <children>
+                <CheckBox fx:id="voltageCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Voltage" />
+                <CheckBox fx:id="currentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Current" />
+                <CheckBox fx:id="rangeCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Range" />
+                <CheckBox fx:id="socCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="State of Charge" />
+                <CheckBox fx:id="rocCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Rate of Charge" />
+              </children>
+            </VBox>
+          </children>
+        </AnchorPane>
+      </content>
+    </TitledPane>
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+    <URL value="@../styles/PillButton.css" />
+  </stylesheets>
+</AnchorPane>

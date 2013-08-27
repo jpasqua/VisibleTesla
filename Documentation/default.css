@@ -49,3 +49,10 @@ table.grid_table td {
 table.grid_table td:first-child {
 	white-space:nowrap;
 }
+
+li.li1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial}
+span.s1 {color: #042eee}
+span.s2 {text-decoration: underline}
+ul.ul1 {list-style-type: disc}
+ul.ul2 {list-style-type: circle}
+ul.ul3 {list-style-type: square}

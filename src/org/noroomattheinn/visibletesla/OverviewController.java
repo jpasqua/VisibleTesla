@@ -124,6 +124,8 @@ public class OverviewController extends BaseController {
 
             updateWheelView();  // Make sure we display the right wheels from the get-go
             updateRoofView();   // Make sure we display the right roof from the get-go
+            if (storedOdometerReading != 0)
+                updateOdometer();   // Show at least an old reading to start
         }
     }
     
@@ -189,7 +191,6 @@ public class OverviewController extends BaseController {
     
     private void updateDoorView() {
         boolean rtOpen = vehicleState.isRTOpen();
-        boolean hasSpoiler = vehicleState.hasSpoiler();
         
         // Show the open/closed state of the doors and trunks
         setOptionState(vehicleState.isFTOpen(), ftOpenImg, ftClosedImg);
@@ -200,8 +201,10 @@ public class OverviewController extends BaseController {
         setOptionState(vehicleState.isPROpen(), prOpenImg, null);
         setOptionState(vehicleState.locked(), lockedImg, unlockedImg);
         
-        spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);   // Default to no spoiler
-        if (hasSpoiler) { setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg); }        
+        spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
+        if (vehicle.cachedVehicleState().hasSpoiler()) {
+            setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
+        }        
     }
     
     private void updateRoofView() {
@@ -263,7 +266,6 @@ public class OverviewController extends BaseController {
         if (!chargeState.hasValidData()) return; // No data available yet...
         
         int pilotCurrent = chargeState.chargerPilotCurrent();
-        System.out.println("chargeState = " + chargeState);
         boolean chargePortDoorOpen = (chargeState.chargePortOpen() || pilotCurrent > 0);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
