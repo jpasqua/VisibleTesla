@@ -20,7 +20,7 @@
         <Font size="10.0" />
       </font>
     </Label>
-    <TitledPane animated="false" expanded="false" minWidth="149.0" prefHeight="156.0" prefWidth="149.0" text="Lines" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="14.0">
+    <TitledPane animated="false" expanded="false" minWidth="149.0" prefHeight="156.0" prefWidth="149.0" text="Items" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="14.0">
       <content>
         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>
