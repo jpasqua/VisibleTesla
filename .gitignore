@@ -7,3 +7,6 @@
 .DS_Store
 /src/org/noroomattheinn/.DS_Store
 /src/org/noroomattheinn/TeslaResources/.DS_Store
+/*.stats.log
+/*.stats.aux
+
