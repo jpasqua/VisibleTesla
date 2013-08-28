@@ -1,120 +1,530 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="1187.39">
+  <title>VisibleTesla Release Notes</title>
   <link rel="stylesheet" type="text/css" href="default.css">
 </head>
-<body>
-  <h1>VisibleTesla Release Notes</h1>
-<ul class="ul1">
-  <li class="li1">0.18</li>
-  <ul class="ul2">
-    <li class="li1">General</li>
-    <ul class="ul3">
-      <li class="li1">Automatically switch to the Overview tab after a successful login</li>
-      <li class="li1">Change the auto-refresh time to 20 seconds</li>
-    </ul>
-    <li class="li1">Login Tab</li>
-    <ul class="ul3">
-      <li class="li1">Enable the logout functionality</li>
-      <li class="li1">Add a "Remember Me" checkbox to the login panel. If this is not set, no cookies will be saved and the user must log in each time.</li>
-    </ul>
-    <li class="li1">Overview Tab</li>
-    <ul class="ul3">
-      <li class="li1">Cache the odometer reading so something reasonable shows until a new reading is received</li>
-      <li class="li1">Update the wheel view before the panel is displayed the first time</li>
-    </ul>
-    <li class="li1">HVAC Tab</li>
-    <ul class="ul3">
-      <li class="li1">Update the wheel view before the panel is displayed the first time</li>
-      <li class="li1">When no temp readings are available it used to show zero degrees. It now displays "…"</li>
-    </ul>
-  </ul>
-  <li class="li1">0.17c</li>
-  <ul class="ul2">
-    <li class="li1">Under-the-covers</li>
-    <ul class="ul3">
-      <li class="li1">Build files have small updates</li>
-      <li class="li1"><span class="s1"><a href="https://raw.github.com/jpasqua/VisibleTesla/master/README.md/"><span class="s2">Readme.md</span></a></span> updated to reflect changes to downloads for jfxtras library</li>
-      <li class="li1">Protection against runaway requests to the Tesla web portal. If you hit refresh over and over again in rapid succession, you will notice a delay as the underlying library throttles your activity. This also protects against bugs in the code.</li>
-      <li class="li1">Simplification of some of the underlying code</li>
-    </ul>
-    <li class="li1">User-Visible</li>
-    <ul class="ul3">
-      <li class="li1">Add support for charge percentages. Support is conditional on the car's firmware version. If it is not up to the right version, only standard and max settings are allowed.</li>
-      <li class="li1">Fixes to the spoiler support. Get rid of "floaters" reported by @araxara. Move the spoiler to reflect the actual position on the car as opposed to where the iPhone app shows it</li>
-      <li class="li1">Several minor UI elements have been updated. Some ToggleButtons were changed to regular buttons. They no longer indicate state. They are just commands.</li>
-      <li class="li1">On the overview tab, the car's elements (eg wheel type, odometer reading, door state) still update as data becomes available, but the spinner should remain spinning until all data becomes available.</li>
-      <li class="li1">The documentation has been updated with new screen captures to reflect the UI changes. Explanations have been added for the elements of the Charge Tab.</li>
-      <li class="li1">Fixed a problem handling passwords with certain special characters</li>
-    </ul>
-    <li class="li1">Known problems</li>
-    <ul class="ul3">
-      <li class="li1">It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0</li>
-      <li class="li1">I've seen, but been unable to reproduce, the charge cable appear, disappear, and reappear from the Overview Tab during charging</li>
-    </ul>
-  </ul>
-  <li class="li1">0.16</li>
-  <ul class="ul2">
-    <li class="li1">The app never used to display the spoiler on cars that had it. I've implemented experimental support for that. Since my car doesn't have a spoiler, I was only able to test through simulation. If you have a spoiler on your Model S, please give it a try. If possible, try it with your trunk open and closed and let me know if you have problems or notice anomalies. [Thanks @araxara for reminding me about this]</li>
-    <li class="li1">The details dialog in the Overview tab now lists the firmware version of the vehicle.</li>
-    <li class="li1">If your car has a black roof you may have noticed that the app displayed it as a solid body color. This should be fixed. Since I don't have this configuration, I'd appreciate some testing from someone who does. [Thanks to @JohnQ for point this out]</li>
-    <li class="li1">The controls for the panoramic roof (open, close, vent) used to be toggle buttons, now they are just regular buttons. This fits better with what they actually do and how they work.</li>
-    <li class="li1">Minor code cleanup to the app and the underlying client library with no visible changes.</li>
-    <li class="li1">Minor documentation changes</li>
-  </ul>
-  <li class="li1">0.15</li>
-  <ul class="ul2">
-    <li class="li1">Basic documentation has been added. Click Overview.html in the Documentation folder.</li>
-    <li class="li1">The overview tab now displays the proper status of the charge port door and shows whether the charging cable is connected.</li>
-    <li class="li1">There were cases where auto refreshes never happened. They were scheduled for 300M years into the future rather than 15 seconds. That's fixed.</li>
-    <li class="li1">Some code cleanup with no user-visible changes.</li>
-    <li class="li1">The location tab no longer re-centers the map upon refresh. If, however, you pan the map such that the car marker is not visible, it will pan the map just enough to make sure the marker is showing.</li>
-  </ul>
-  <li class="li1">0.14</li>
-  <ul class="ul2">
-    <li class="li1">Improved the odometer implementation. It now updates in the background properly - no refresh is necessary. The odometer is not updated during auto-refreshes, but is updated upon explicit refreshes via the refresh button</li>
-    <li class="li1">There is now a "Details" button on the Overview tab. Pressing it pops up a dialog with a simple scrolling list of detailed data about the current vehicle.</li>
-    <li class="li1">Simplified the implementation of the google maps code. There are no user-visible changes</li>
-    <li class="li1">Started to fix the "wrong wheel" problem on the HVAC page. The driver-side wheels are now reflected properly, but not the passenger side wheels. I don't have a good plan for how to deal with the passenger side.</li>
-  </ul>
-  <li class="li1">0.13</li>
-  <ul class="ul2">
-    <li class="li1">In the location tab if you click on the arrow that represents the car, a google maps info window will open with the address nearest to the given (lat,long) as determined by google's geocoding service.</li>
-    <li class="li1">A first cut at displaying the odometer reading on the Overview tab. It does respect the GUI units setting. This is not the final implementation but I wanted to get something out there. It has several limitations:</li>
-    <ul class="ul3">
-      <li class="li1">It usually requires a refresh before the odometer reading is displayed. In the future it will simply show up when a separate background task completes.</li>
-      <li class="li1">Once displayed, it does not update if the vehicle is in motion.</li>
-    </ul>
-  </ul>
-  <li class="li1">0.12</li>
-  <ul class="ul2">
-    <li class="li1">Added visual support for 19" wheels</li>
-    <ul class="ul3">
-      <li class="li1">It will correctly display 19" wheels for cars that have them</li>
-      <li class="li1">Added 19" wheels to the Simulate menu</li>
-    </ul>
-    <li class="li1">Added an About dialog which is accessed from the help menu</li>
-    <li class="li1">Acknowledged the work of the "API Detectives" from tmc that figured out the REST API</li>
-    <li class="li1">Acknowledged that the images are derived form the Tesla iPhone app</li>
-    <li class="li1">Noted that the app is free for non-commercial use</li>
-    <li class="li1">Included the "fob" icon</li>
-  </ul>
-  <li class="li1">0.11</li>
-  <ul class="ul2">
-    <li class="li1">Minor changes to the login tab (cosmetic changes and field traversal fix)</li>
-    <li class="li1">Experimental support for metric units</li>
-    <ul class="ul3">
-      <li class="li1">It now checks the car's GUI settings and follows the settings for F|C temp &amp; miles|km</li>
-      <li class="li1">This is reflected in the Charge tab and the HVAC tab</li>
-      <li class="li1">There is a new item in the Simulate menu that allows you to override your car's unit setting and choose Metric or Imperial. If you do this, you will need to change tabs before the simulated setting takes effect</li>
-    </ul>
-    <li class="li1">Minor internal tweaks that aren't visible in the GUI</li>
-  </ul>
+
+<body style="max-width:800px">
+
+<h1>VisibleTesla Release Notes</h1>
+
+<hr>
+<h3>VisibleTesla 0.18</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+					<li>Automatically switch to the Overview tab after a successful login</li>
+					<li>Change the auto-refresh time to 20 seconds</li>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+					<li>Enable the logout functionality.</li>
+					<li>Add a "Remember Me" checkbox to the login panel. If this is not set, no cookies will be saved and the user must log in each time.</li>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+					<li>Cache the odometer reading so something reasonable shows until a new reading is received.</li>
+					<li>Update the wheel view before the panel is displayed the first time.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+					<li>Update the wheel view before the panel is displayed the first time.</li>
+					<li>When no temp readings are available it used to show zero degrees. It now displays "…".</li>
+				</ul>
+			</li>
+			<li>
+				Graphs
+				<ul>
+					<li>Adding experimental support for graphing certain statistics.</li>
+					<li>Please refer to the documentation for an overview.</li>
+					<li>The stats that are currently gathered are somewhat arbitrary. They are all
+						charge-related. I will update the set of stats that are gathered over time
+						based on what is of interest and practical to gather.</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+			<li>Code Refactoring to support the graphs tab.</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+			<li>There is a "dead area" on the chart where the Items dropdown list displays. Even when the Items list
+				is not showing, mouse activity in that area is ignored. For example, if you try to mousedown and
+				drag the chart, it will not respond.</li>
+			<li>The x-axis in the graph does not always reliably display dates - just times.</li>
+			<li>It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0.</li>
+		</ul>
+	</li>
 </ul>
+
+<hr>
+<h3>VisibleTesla 0.17c</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+					<li>Several minor UI elements have been updated. Some ToggleButtons were changed to regular buttons. They no longer indicate state. They are just commands.</li>
+					<li>The documentation has been updated with new screen captures to reflect the UI changes. Explanations have been added for the elements of the Charge Tab.</li>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+			      <li>Fixed a problem handling passwords with certain special characters.</li>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+					<li>Fixes to the spoiler support. Get rid of "floaters" reported by @araxara. Move the spoiler to reflect the actual position on the car as opposed to where the iPhone app shows it.</li>
+					<li>the car's elements (eg wheel type, odometer reading, door state) still update as data becomes available, but the spinner should remain spinning until all data becomes available.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+					<li>Add support for charge percentages. Support is conditional on the car's firmware version. If it is not up to the right version, only standard and max settings are allowed.</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+	      <li>It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0</li>
+	      <li>I've seen, but been unable to reproduce, the charge cable appear, disappear, and reappear from the Overview Tab during charging.</li>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+<h3>VisibleTesla 0.16</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+    <li>Minor documentation changes</li>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+    <li>The app never used to display the spoiler on cars that had it. I've implemented experimental support for that. Since my car doesn't have a spoiler, I was only able to test through simulation. If you have a spoiler on your Model S, please give it a try. If possible, try it with your trunk open and closed and let me know if you have problems or notice anomalies. [Thanks @araxara for reminding me about this]</li>
+    <li>The details dialog in the Overview tab now lists the firmware version of the vehicle.</li>
+    <li>If your car has a black roof you may have noticed that the app displayed it as a solid body color. This should be fixed. Since I don't have this configuration, I'd appreciate some testing from someone who does. [Thanks to @JohnQ for point this out]</li>
+    <li>The controls for the panoramic roof (open, close, vent) used to be toggle buttons, now they are just regular buttons. This fits better with what they actually do and how they work.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+   			 <li>Minor code cleanup to the app and the underlying client library with no visible changes.</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+<h3>VisibleTesla 0.15</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+					<li>Basic documentation has been added. Click Overview.html in the Documentation folder.</li>
+    				<li>There were cases where auto refreshes never happened. They were scheduled for 300M years into the future rather than 15 seconds. That's fixed.</li>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+				    <li>The overview tab now displays the proper status of the charge port door and shows whether the charging cable is connected.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				    <li>The location tab no longer re-centers the map upon refresh. If, however, you pan the map such that the car marker is not visible, it will pan the map just enough to make sure the marker is showing.</li>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+		    <li>Some code cleanup with no user-visible changes.</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+<h3>VisibleTesla 0.14</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+				    <li>Improved the odometer implementation. It now updates in the background properly - no refresh is necessary. The odometer is not updated during auto-refreshes, but is updated upon explicit refreshes via the refresh button</li>
+				    <li>There is now a "Details" button on the Overview tab. Pressing it pops up a dialog with a simple scrolling list of detailed data about the current vehicle.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+    				<li>Started to fix the "wrong wheel" problem on the HVAC page. The driver-side wheels are now reflected properly, but not the passenger side wheels. I don't have a good plan for how to deal with the passenger side.</li>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+    		<li>Simplified the implementation of the google maps code.</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+<h3>VisibleTesla 0.13</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+    				<li>A first cut at displaying the odometer reading on the Overview tab. It does respect the GUI units setting. This is not the final implementation but I wanted to get something out there. It has several limitations:</li>
+    				<ul>
+				    	<li>It usually requires a refresh before the odometer reading is displayed. In the future it will simply show up when a separate background task completes.</li>
+      					<li>Once displayed, it does not update if the vehicle is in motion.</li>
+    				</ul>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+					<li>If you click on the arrow that represents the car, a google maps info window will open with the address nearest to the given (lat,long) as determined by google's geocoding service.</li>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+<h3>VisibleTesla 0.12</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+			    	<li>Added 19" wheels to the Simulate menu.</li>
+				    <li>Added an About dialog which is accessed from the help menu.</li>
+				    <li>Acknowledged the work of the "API Detectives" from tmc that figured out the REST API</li>
+				    <li>Acknowledged that the images are derived form the Tesla iPhone app</li>
+				    <li>Noted that the app is free for non-commercial use</li>
+				    <li>Included the "fob" icon</li>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+    				<li>Added visual support for 19" wheels.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+    				<li>Added visual support for 19" wheels.</li>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+<h3>VisibleTesla 0.11</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+				    <li>Experimental support for metric units</li>
+				    <ul>
+				      <li>It now checks the car's GUI settings and follows the settings for F|C temp &amp; miles|km</li>
+				      <li>This is reflected in the Charge tab and the HVAC tab</li>
+				      <li>There is a new item in the Simulate menu that allows you to override your car's unit setting and choose Metric or Imperial. If you do this, you will need to change tabs before the simulated setting takes effect</li>
+				    </ul>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+    				<li>Minor changes to the UI (cosmetic changes and field traversal fix).</li>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+		    <li>Minor internal tweaks that aren't visible in the GUI</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<!--
+<hr>
+<h3>VisibleTesla 0.00</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Graphs
+				<ul>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+-->
+
+
+
 </body>
 </html>

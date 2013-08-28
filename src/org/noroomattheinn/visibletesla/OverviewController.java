@@ -1,5 +1,6 @@
 /*
- * OverviewController.java - Copyright(c) 2013  All Rights Reserved, Joe Pasqua
+ * OverviewController.java - Copyright(c) 2013 Joe Pasqua
+ * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
 
@@ -110,7 +111,7 @@ public class OverviewController extends BaseController {
     }
     
     @Override protected void prepForVehicle(Vehicle v) {
-        if (actions == null || v != vehicle) {
+        if (actions == null || !actions.getVehicle().getVIN().equals(v.getVIN())) {
             actions = new ActionController(v);
             doorController = new DoorController(v);
             getAppropriateImages(v);

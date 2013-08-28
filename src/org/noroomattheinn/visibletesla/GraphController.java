@@ -1,5 +1,6 @@
 /*
- * HVACController.java - Copyright(c) 2013  All Rights Reserved, Joe Pasqua
+ * HVACController.java - Copyright(c) 2013 Joe Pasqua
+ * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
 
@@ -68,7 +69,7 @@ public class GraphController extends BaseController implements StatsRepository.R
     //
     
     protected void prepForVehicle(Vehicle v) {
-        if (chargeState == null || !v.getVIN().equals(vehicle.getVIN())) {
+        if (chargeState == null || !chargeState.getVehicle().getVIN().equals(v.getVIN())) {
             chargeState = new ChargeState(v);
             variables = new VariableSet();
             
@@ -141,7 +142,7 @@ public class GraphController extends BaseController implements StatsRepository.R
             long time = new Date().getTime();
             addElement(variables.get("C_VLT"), time, chargeState.chargerVoltage());
             addElement(variables.get("C_AMP"), time, chargeState.chargerActualCurrent());
-            addElement(variables.get("C_EST"), time, chargeState.estimatedRange());
+            addElement(variables.get("C_EST"), time, chargeState.range());
             addElement(variables.get("C_SOC"), time, chargeState.batteryPercent());
             addElement(variables.get("C_ROC"), time, chargeState.chargeRate());
             repo.flushElements();

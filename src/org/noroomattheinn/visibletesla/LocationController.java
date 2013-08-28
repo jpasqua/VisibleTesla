@@ -1,5 +1,6 @@
 /*
- * LocationController.java - Copyright(c) 2013  All Rights Reserved, Joe Pasqua
+ * LocationController.java - Copyright(c) 2013 Joe Pasqua
+ * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
 
@@ -95,7 +96,7 @@ public class LocationController extends BaseController {
     }
 
     @Override protected void prepForVehicle(Vehicle v) {
-        if (drivingState == null || v != vehicle) {
+        if (drivingState == null || !drivingState.getVehicle().getVIN().equals(v.getVIN())) {
             drivingState = new DrivingState(v);
         }
     }

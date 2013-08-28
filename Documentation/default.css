@@ -1,24 +1,27 @@
 @charset "utf-8";
  
  html, body {
- margin: 2px;
- padding: 0px;
- border: 0px;
- color: #000;
- background: #fff;
+	 margin: 2px;
+	 padding: 0px;
+	 border: 0px;
+	 color: #000;
+	 background: #fff;
  }
  html, body, p, th, td, li, dd, dt {
- font: .95em Verdana, Arial, sans-serif;
+ 	font: .95em Verdana, Arial, sans-serif;
  }
+
  h1, h2, h3, h4, h5, h6 {
- font-family: Verdana, Arial, sans-serif;
+ 	font-family: Verdana, Arial, sans-serif;
  }
+
  h1 { font-size: 1.5em; }
  h2 { font-size: 1.2em ; }
  h3 { font-size: 1.0em; }
  h4 { font-size: 0.9em; }
  h5 { font-size: 0.8em; }
  h6 { font-size: 0.8em; }
+
  a:link { color: #00f; }
  a:visited { color: #009; }
  a:hover { color: #06f; }
@@ -50,9 +53,9 @@ table.grid_table td:first-child {
 	white-space:nowrap;
 }
 
-li.li1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial}
 span.s1 {color: #042eee}
 span.s2 {text-decoration: underline}
-ul.ul1 {list-style-type: disc}
-ul.ul2 {list-style-type: circle}
-ul.ul3 {list-style-type: square}
+ul.li {list-style-type: disc}
+ul.li.li {list-style-type: circle}
+ul.li.li.li {list-style-type: square}
+ul.li.li.li.li {list-style-type: square}

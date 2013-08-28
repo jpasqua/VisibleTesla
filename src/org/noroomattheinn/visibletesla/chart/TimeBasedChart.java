@@ -1,5 +1,6 @@
 /*
- * TimeBasedChart.java - Copyright(c) 2013  All Rights Reserved, Joe Pasqua
+ * TimeBasedChart.java - Copyright(c) 2013 Joe Pasqua
+ * Provided under the MIT License. See the LICENSE file for details.
  * Created: Aug 25, 2013
  */
 
@@ -24,7 +25,8 @@ import javafx.util.converter.TimeStringConverter;
  */
 
 public class TimeBasedChart {
-
+    private static final int minorTicksForX = 20;
+    
     private NumberAxis xAxis, yAxis;
     private LineChart<Number, Number> lineChart;
     private Label readout;
@@ -40,7 +42,7 @@ public class TimeBasedChart {
     
     private void createChart() {
         long now = new Date().getTime()/(60*1000);
-        xAxis = new NumberAxis(now-30, now+30, 60/20);
+        xAxis = new NumberAxis(now-15, now+15, 30/minorTicksForX);
         yAxis = new NumberAxis();
         
         xAxis.setAnimated(false);
@@ -100,7 +102,7 @@ public class TimeBasedChart {
     }
 
     class ChartZoomer implements EventHandler<ScrollEvent> {
-        private static final double MinRange = 30;            // 30 Minutes
+        private static final double MinRange = 10;            // 30 Minutes
         private static final double MaxRange = 30 * 24 * 60;  // A month
         @Override public void handle(ScrollEvent scrollEvent) {
             double movement = scrollEvent.getDeltaY();
@@ -117,7 +119,7 @@ public class TimeBasedChart {
                 upperBound = lowerBound + MaxRange;
             xAxis.lowerBoundProperty().set(lowerBound);
             xAxis.upperBoundProperty().set(upperBound);
-            xAxis.tickUnitProperty().set((upperBound - lowerBound)/20);
+            xAxis.tickUnitProperty().set((upperBound - lowerBound)/minorTicksForX);
         }
     
     }

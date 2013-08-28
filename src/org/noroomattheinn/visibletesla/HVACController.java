@@ -1,5 +1,6 @@
 /*
- * HVACController.java - Copyright(c) 2013  All Rights Reserved, Joe Pasqua
+ * HVACController.java - Copyright(c) 2013 Joe Pasqua
+ * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
 
@@ -87,16 +88,15 @@ public class HVACController extends BaseController {
     //
     
     protected void prepForVehicle(Vehicle v) {
-        if (controller == null || v != vehicle) {
+        if (controller == null || !controller.getVehicle().getVIN().equals(v.getVIN())) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
-            hvacState = new HVACState(vehicle);
-            
-            GUIState gs = vehicle.cachedGUIState();
+            hvacState = new HVACState(v);
+            GUIState gs = v.cachedGUIState();
             useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
             if (simulatedUnitType != null)
                 useDegreesF = (simulatedUnitType == Utils.UnitType.Imperial);
             updateWheelView();  // Make sure we show the right wheels from the get-go
-        }
+        }            
     }
 
     protected void refresh() {

@@ -44,6 +44,7 @@
             <li><a href="#hvac_tab">HVAC Tab</a></li>
             <li><a href="#location_tab">Location Tab</a></li>
             <li><a href="#charging_tab">Charge Tab</a></li>
+            <li><a href="#graphs_tab">Graphs Tab</a></li>
             <li><a href="#autorefresh">Auto-Refresh</a></li>
             <li><a href="#simulation">Simulation</a></li>
         </ul>
@@ -216,6 +217,40 @@
     <p><img border="0" style="margin:5px" src="images/07_Charge_Tab.png" />
     <img border="0" style="margin:5px" src="images/08_Charge_Plugged_In.png" />
     <img border="0" style="margin:5px" src="images/09_Charging.png" /></p>
+
+    <h3><a id="graphs_tab">Graphs Tab</a></h3>
+    <p>This tab tracks and graphs basic statistics about the vehicle as a line chart. The x-axis represents the time at
+        which the stats were gathered and the y-axis represents the values. An "Items" drop down list allows
+        you to select which statistics are displayed. It also gives a color-coded legend to so you can tell
+        which line represents which value. If you deselect a particular item it will not be displayed, but
+        the statistics for that item will continue to be gathered.
+    </p>
+    <p>Note that hese statistics are only collected while VisibleTesla is running.
+        If you quit the app or your computer goes into sleep mode, the statistics will
+        not be collected. Until the next time you run the app. VisibleTesla does store
+        the statistics it collects. If you quit the app and restart it later, it will 
+        display the old statistics and newly gathered ones.
+    </p>
+    <p>You can interact with the line chart in several different ways.
+        <ul>
+            <li>If you wish to move the view
+            forwarward or backward in time, simply grab the chart (mouse-down) and drag it to the
+            right or the left.</li>
+            <li>If you wish to change the time-span that is displayed (soom in on a small
+            range of time or zoom out to a large range of time) spin the scroll-wheel up or down.</li>
+            <li>To select which statistics are displayed, click on the arrow to expand the Items dropdown.
+                Select or deselect the statistics as desired.</li>
+            <li>To see more, simply the grow the window. The graph will expand and scale to fit.</li>
+            <li>To determine the specific value at any point in the graph, move your mouse over the spot to be
+                measured. A readout in the upper left corner of the chart is updated to display the time and value
+                corresponding to the location of the cursor.
+        </ul>
+    </p>
+    <p>The following screenshots show the graph with the Items dropdown expanded. The first chart shows all
+        of the statistics displayed while the second shows the chart with two statistics de-selected.
+    </p>
+    <p><img border="0" style="margin:5px" src="images/14_Graphs_All.png" /></p>
+    <p><img border="0" style="margin:5px" src="images/13_Graphs_Partial.png" /></p>
 
     <h3><a id="autorefresh">Auto-Refresh</a></h3>
     <p>This screen shot shows the "spinner" that is displayed when the app is

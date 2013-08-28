@@ -1,5 +1,6 @@
 /*
- * ChargeController.java - Copyright(c) 2013  All Rights Reserved, Joe Pasqua
+ * ChargeController.java - Copyright(c) 2013 Joe Pasqua
+ * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
 
@@ -123,12 +124,12 @@ public class ChargeController extends BaseController {
     }
         
     protected void prepForVehicle(Vehicle v) {
-        if (chargeController == null || v != vehicle) {
+        if (chargeController == null || chargeController.getVehicle().getVIN().equals(v.getVIN())) {
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             chargeState = new ChargeState(v);
         }
         
-        GUIState gs = vehicle.cachedGUIState();
+        GUIState gs = v.cachedGUIState();
         useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         if (simulatedUnitType != null)
             useMiles = (simulatedUnitType == Utils.UnitType.Imperial);
