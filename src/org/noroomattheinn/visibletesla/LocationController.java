@@ -10,42 +10,104 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import org.noroomattheinn.tesla.DrivingState;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.utils.GeoUtils;
 
 
 public class LocationController extends BaseController {
-
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private static final String MapTemplateFileName = "MapTemplate.html";
     
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    private DrivingState drivingState;
+    private boolean mapIsLoaded = false;
+    private WebEngine engine;
+
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements
+ * 
+ *----------------------------------------------------------------------------*/
     @FXML private Button launchButton;
     @FXML private WebView webView;
     
-    private DrivingState drivingState;
-    private boolean mapIsLoaded = false;
-    
-    private WebEngine engine;
-    
+/*------------------------------------------------------------------------------
+ *
+ *  UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
+
     @FXML void launchButtonHandler(ActionEvent event) {
         String url = String.format(
                 "https://maps.google.com/maps?q=%f,%f(Tesla)&z=18&output=embed",
                 drivingState.latitude(), drivingState.longitude());
-        app.getHostServices().showDocument(url);
+        appContext.app.getHostServices().showDocument(url);
     }
     
-    // Controller-specific initialization
-    protected void doInitialize() {
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    protected void fxInitialize() {
         engine = webView.getEngine();
+        engine.setOnAlert(new EventHandler<WebEvent<String>>() {
+                  @Override public void handle(WebEvent<String> event) {
+                    System.out.println(event.getData());
+                  }
+                });  
         progressIndicator.setVisible(false);
         progressLabel.setVisible(false);
     }
+    
+    protected void reflectNewState() {
+        if (!drivingState.hasValidData()) return;
+        double jitter = 0;
+//        double jitter = (Math.random()-0.5)*0.003;    // For testing only!
+        String latitude = String.valueOf(drivingState.latitude() + jitter);
+        String longitude = String.valueOf(drivingState.longitude() - jitter);
+        String heading = String.valueOf(drivingState.heading());
+        if (!mapIsLoaded) {
+            String mapHTML = getMapFromTemplate(latitude, longitude, heading);
+            engine.loadContent(mapHTML);
+        } else {
+            engine.executeScript(String.format(
+                "moveMarker(%s, %s, %s)", latitude, longitude, heading));
+        }
+        mapIsLoaded = true;
+    }
+
+    protected void refresh() { updateState(drivingState); }
+
+    @Override protected void prepForVehicle(Vehicle v) {
+        if (differentVehicle(drivingState, v)) {
+            drivingState = new DrivingState(v);
+        }
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods and Classes
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void replaceField(StringBuilder sb, String placeholder, String newText) {
         int length = placeholder.length();
@@ -60,45 +122,19 @@ public class LocationController extends BaseController {
             int c;
             while ((c = r.read()) != -1) { sb.append((char) c); }
         } catch (IOException ex) {
-            Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+            Tesla.logger.log(Level.SEVERE, null, ex);
         }
         return sb;
     }
     
     String getMapFromTemplate(String lat, String lng, String heading) {
-        String addr = GeoUtils.getAddrForLatLong(lat, lng).replaceFirst(", ", "<BR>");
         StringBuilder sb = fromInputStream(getClass().getResourceAsStream(MapTemplateFileName));
         // TO DO: replaceField scans from the beginning each time which is dumb, 
         // but this approach is quick and easy to implement...
         replaceField(sb, "DIRECTION", heading);
         replaceField(sb, "LAT", lat);
         replaceField(sb, "LONG", lng);
-        replaceField(sb, "ADDR", addr);
         return sb.toString();
-    }
-    
-    protected void reflectNewState() {
-        String latitude = String.valueOf(drivingState.latitude());
-        String longitude = String.valueOf(drivingState.longitude());
-        String heading = String.valueOf(drivingState.heading());
-        if (!mapIsLoaded) {
-            String mapHTML = getMapFromTemplate(latitude, longitude, heading);
-            engine.loadContent(mapHTML);
-        } else {
-            engine.executeScript(String.format(
-                "moveMarker(%s, %s, %s)", latitude, longitude, heading));
-        }
-        mapIsLoaded = true;
-    }
-
-    protected void refresh() {
-        issueCommand(new GetAnyState(drivingState), AfterCommand.Reflect);
-    }
-
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (drivingState == null || !drivingState.getVehicle().getVIN().equals(v.getVIN())) {
-            drivingState = new DrivingState(v);
-        }
     }
     
 }

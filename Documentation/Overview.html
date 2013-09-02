@@ -46,6 +46,7 @@
             <li><a href="#charging_tab">Charge Tab</a></li>
             <li><a href="#graphs_tab">Graphs Tab</a></li>
             <li><a href="#autorefresh">Auto-Refresh</a></li>
+            <li><a href="#sleepmode">Sleep Mode</a></li>
             <li><a href="#simulation">Simulation</a></li>
         </ul>
         <li><a href="#installation">Installing and Running</a></li>
@@ -60,6 +61,8 @@
     has a tabbed interface with one tab per functional area. The following sections
     describe each of the tabs. The screenshots are representative and may not
     reflect exactly what you'll see. For example, these screen shots were taken on a Mac.</p>
+
+    <p>The app has three menus: File, Simulate, and Help. The items of the first two menus will be described below. The Help menu allows you to bring up this documentation, the release notes, and a general "About" dialog.</p>
 
     <h3><a id="login_tab">Login Tab</a></h3>
     When you launch the app
@@ -116,15 +119,17 @@
 
     <p>The location tab embeds a Google map to show the current location and
     the marker is rotated to show the current heading. There is a "Browse"
-    button that will launch a browser displaying a Google map with the car's
+    button that will launch your default browser displaying a Google map with the car's
     location so you can get directions or perform any other Google map function.</p>
 
     <p><img border="0" style="margin:5px" src="images/06_Location_Tab.png" /></p>
     <p>Like a normal Google Map, you can zoom in and out, you can pan, and switch to satellite
         mode. If you click on the arrow representing your Tesla, an info window will pop
         up displaying the street address that is closest to your car.</p>
-        <p><b>Note:</b> If you pan the map such that the marker for your car is no longer
-            displayed, the map will automatically pan back upon the next refresh.</p>
+    <p>The map will  keep the car centered <i>unless you manually pan the map</i>. If you do so, you are indicating that you want to view a specific location and the app will not recenter the map as the car moves. You may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.</p>
+                        <p>If the user pans the map manually thereby leaving "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</p>
+    <p><b>Note</b>: The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again.</p>
+
     <p><img border="0" style="margin:5px" src="images/06a_Location_Info.png" /></p>
 
     <h3><a id="charging_tab">Charge Tab</a></h3>
@@ -184,7 +189,7 @@
             <td>The current flowing into the battery (or out if negative)</td>
         </tr>
         <tr>
-            <td>Fast Charger</td>
+            <td>Supercharger</td>
             <td>Is the vehicle connected to a supercharger. HPWC does not qualify</td>
         </tr>
         <tr>
@@ -227,20 +232,21 @@
     </p>
     <p>Note that hese statistics are only collected while VisibleTesla is running.
         If you quit the app or your computer goes into sleep mode, the statistics will
-        not be collected. Until the next time you run the app. VisibleTesla does store
+        not be collected until the next time you run the app. If you have selected "File->Allow Sleep" and you don't use the app for 15 minutes, it will stop collecting samples.
+        VisibleTesla does store
         the statistics it collects. If you quit the app and restart it later, it will 
         display the old statistics and newly gathered ones.
     </p>
     <p>You can interact with the line chart in several different ways.
         <ul>
-            <li>If you wish to move the view
-            forwarward or backward in time, simply grab the chart (mouse-down) and drag it to the
-            right or the left.</li>
-            <li>If you wish to change the time-span that is displayed (soom in on a small
-            range of time or zoom out to a large range of time) spin the scroll-wheel up or down.</li>
+            <li>Panning: If you wish to move the view forwarward or backward in time, simply grab the chart (mouse-down) and drag it to the right or the left. To pan the chart up or down, press the CTRL button while dragging the mouse. If you want to pan in both directions simultaneously, hold the SHIFT key while dragging.</li>
+            <li>Zooming: If you wish to  change the time-span that is displayed (zoom in on a small
+            range of time or zoom out to a large range of time) spin the scroll-wheel on your mouse up or down. To zoom in or out on the value (y) axis, press CTRL while scrolling. To zoom both axes simultaneously, press SHIFT while scrolling. When zooming, the app does so relative to the current mouse location. That is, the chart will seem to expand around the point under the mouse.</li>
             <li>To select which statistics are displayed, click on the arrow to expand the Items dropdown.
                 Select or deselect the statistics as desired.</li>
-            <li>To see more, simply the grow the window. The graph will expand and scale to fit.</li>
+            <li>The app remembers which variables you have selected. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. All variables are collected whether they are selected or not.</li>
+            <li>In the lower left corner of the chart there is a reset button (backward pointing arrow icon). Clicking the  button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.</li>
+            <li>To see more data at once, simply the grow the window. The graph will expand and scale to fit.</li>
             <li>To determine the specific value at any point in the graph, move your mouse over the spot to be
                 measured. A readout in the upper left corner of the chart is updated to display the time and value
                 corresponding to the location of the cursor.
@@ -267,6 +273,13 @@
     </p>
 
     <p><img border="0" style="margin:5px" src="images/12_Auto_Refresh.png" /></p>
+
+    <h3><a id="sleepmode">Sleep Mode</a></h3>
+    If your car has version 5.0 or later firmware, it has a sleep mode which allows it to conserve power. When you connect to your car from VisibleTesla or one of Tesla's official apps, it will wake the car up if it is sleeping. You may want to avoid doing this accidentally, so when you log in to VisibleTesla, it determines whether the car is sleeping. If it is, you will be presented with a dialog asking if you want to wake up the car or let it sleep (see the screenshot below). If you click the "let it sleep" button, the app will exit without waking the car. Otherwise, the app will start normally.
+
+    <p><img border="0" style="margin:5px" src="images/15_Sleep_Dialog.png" /></p>
+
+    When you are using VisibleTesla, it communicates with your car on a regular basis. This communication will keep your car from going to sleep. This may be exactly what you want, but often you'll want to let the car go to sleep even when VisibleTesla is running. To do this, use the File->Allow Sleep menu. When checked, "Allow Sleep" will cause the app to go into an idle mode after 15 minutes of inactivity. When in this mode the app will not interact with your car which means it can go to sleep. To let you know that it is in inacative mode, the app will display an indication in the title bar. If you want the app to start communicating with your car again, simply click the refresh button on any tab or switch tabs to cause a refresh.
 
     <h3><a id="simulation">Simulation Menu</a></h3>
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="469.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.WakeSleepDialog">
+  <children>
+    <ImageView fitHeight="0.0" fitWidth="0.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <image>
+        <Image url="@../TeslaResources/SleepyTeslaWide.png" />
+      </image>
+    </ImageView>
+    <Label text="Your Tesla is sleeping peacefully." textFill="WHITE" AnchorPane.rightAnchor="105.0" AnchorPane.topAnchor="14.0">
+      <font>
+        <Font size="16.0" />
+      </font>
+    </Label>
+    <Label text="Are you sure you want to wake it up?" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="143.0" />
+    <CheckBox fx:id="dontAskCheckbox" disable="true" layoutX="203.0" layoutY="65.0" mnemonicParsing="false" onAction="#dontAskhandler" text="Always wake it up" visible="false" />
+    <Button fx:id="wakeButton" cancelButton="true" layoutX="270.0" layoutY="168.0" mnemonicParsing="false" onAction="#wakeSleepHandler" text="Wake it up" />
+    <Button fx:id="sleepButton" defaultButton="true" layoutX="366.0" layoutY="168.0" mnemonicParsing="false" onAction="#wakeSleepHandler" text="Let it sleep" />
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>

@@ -9,7 +9,6 @@
     <script type="text/javascript">
         var directionDeg = DIRECTION;
         var latLng = new google.maps.LatLng(LAT, LONG);
-        var addr = "ADDR";
     </script>
 
     <style> html, body, #map-canvas { margin:0; padding:0; height: 100%; } </style>
@@ -19,6 +18,11 @@
 var map;
 var rm;
 var arrowImage = new Image();
+var lastBounds;
+var centerOnCar = true;
+var geocoder;
+var infowindow;
+var debug = false;
 
 // The original: http://www.noroomattheinn.org/images/arrow.png
 // Converter: http://software.hixie.ch/utilities/cgi/data/data
@@ -83,6 +87,8 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    geocoder = new google.maps.Geocoder();
+    infowindow = new google.maps.InfoWindow();
 
     var content = getMarkerContent(latLng.lat, latLng.lng, directionDeg);
     
@@ -95,15 +101,30 @@ function initialize() {
         content: content.innerHTML
     });
 
-    var infowindow = new google.maps.InfoWindow();
 
     google.maps.event.addListener(rm, "click", function (event) {
-        var myHtml = document.createElement('div');
-        myHtml.innerHTML = addr;
-        infowindow.setContent(myHtml);
-        infowindow.setPosition(latLng);
-        infowindow.open(map, rm);
+        geocoder.geocode({'latLng': rm.getPosition()}, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+                if (results[0]) {
+                    var loc = results[0].formatted_address.replace(", ", "<BR>");
+                    infowindow.setContent(loc);
+                    infowindow.setPosition(latLng);
+                    infowindow.open(map, rm);
+                    if (debug) alert("centerOnCar = true");
+                    centerOnCar = true;
+                    map.setCenter(rm.getPosition());
+                    lastBounds = map.getBounds();
+                }
+            } else {
+                if (debug) alert("Geocoder failed due to: " + status);
+            }
+        });
     });
+    
+    google.maps.event.addListenerOnce(map, 'idle', function(){
+        lastBounds = map.getBounds();
+    });
+
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
@@ -111,14 +132,29 @@ google.maps.event.addDomListener(window, 'load', initialize);
     
     <script>
 function moveMarker(lat, lng, heading) {
+    // Test whether the map bounds have changed. If they have, it means the user
+    // has manually panned the map. In that case we no longer center the map on
+    // the car automatically.
+    var curBounds = map.getBounds();
+    if (!lastBounds.equals(curBounds)) {
+        centerOnCar = false;
+        if (debug) alert("centerOnCar = false");        
+    }
+
     var newLL = new google.maps.LatLng(lat, lng);
     var content  = getMarkerContent(lat,lng,heading);
     rm.setContent(content.innerHTML);
     rm.setPosition(newLL);
-    if (!map.getBounds().contains(rm.getPosition())) {
+    if (centerOnCar) {
+        map.setCenter(newLL);
+        if (debug) alert("Panning to center car");
+    }
+    else if (!map.getBounds().contains(rm.getPosition())) {
         var llb = new google.maps.LatLngBounds(newLL, newLL);
         map.panToBounds(llb);
+        if (debug) alert("Panning to keep car on display");
     }
+    lastBounds = map.getBounds();   // Remember the bounds that we ended up with
 }
     </script>
 

@@ -73,8 +73,8 @@
     </HBox>
     <HBox id="HBox" alignment="CENTER" layoutX="80.0" layoutY="292.0" prefWidth="97.0" spacing="-1.0">
       <children>
-        <Button id="chargeButton" fx:id="startButton" mnemonicParsing="false" onAction="#chargeButtonHandler" styleClass="pill-left" text="Start" />
-        <Button id="chargeButton" fx:id="stopButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#chargeButtonHandler" styleClass="pill-right" text="Stop " />
+        <Button id="chargeButton" fx:id="startButton" contentDisplay="TEXT_ONLY" mnemonicParsing="false" onAction="#chargeButtonHandler" styleClass="pill-left" text="Start" />
+        <Button id="chargeButton" fx:id="stopButton" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" minWidth="-Infinity" mnemonicParsing="false" onAction="#chargeButtonHandler" styleClass="pill-right" text="Stop " textAlignment="RIGHT" />
       </children>
     </HBox>
     <Label fx:id="chargeSetting" layoutX="220.0" layoutY="200.0" text="100">

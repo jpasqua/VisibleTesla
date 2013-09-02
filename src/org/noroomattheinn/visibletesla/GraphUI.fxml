@@ -20,23 +20,35 @@
         <Font size="10.0" />
       </font>
     </Label>
-    <TitledPane animated="false" expanded="false" minWidth="149.0" prefHeight="156.0" prefWidth="149.0" text="Items" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="14.0">
-      <content>
-        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+    <AnchorPane id="Content" fx:id="itemListContent" minHeight="0.0" minWidth="0.0" prefHeight="168.0" prefWidth="139.0" styleClass="choiceList" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="33.0">
+      <children>
+        <VBox id="VBox" alignment="BASELINE_LEFT" spacing="5.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="11.0">
           <children>
-            <VBox id="VBox" alignment="BASELINE_LEFT" layoutX="14.0" layoutY="11.0" spacing="5.0">
-              <children>
-                <CheckBox fx:id="voltageCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Voltage" />
-                <CheckBox fx:id="currentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Current" />
-                <CheckBox fx:id="rangeCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Range" />
-                <CheckBox fx:id="socCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="State of Charge" />
-                <CheckBox fx:id="rocCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Rate of Charge" />
-              </children>
-            </VBox>
+            <CheckBox fx:id="voltageCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Voltage" />
+            <CheckBox fx:id="currentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Current" />
+            <CheckBox fx:id="rangeCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Range" />
+            <CheckBox fx:id="socCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="State of Charge" />
+            <CheckBox fx:id="rocCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Rate of Charge" />
+            <CheckBox fx:id="powerCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Power" />
+            <CheckBox fx:id="speedCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Speed" />
           </children>
-        </AnchorPane>
-      </content>
-    </TitledPane>
+        </VBox>
+      </children>
+    </AnchorPane>
+    <Button fx:id="showItemsButton" alignment="TOP_LEFT" contentDisplay="LEFT" graphicTextGap="16.0" mnemonicParsing="false" onAction="#showItemsHandler" prefWidth="139.0" styleClass="noGlow, squareButton" text="Show Items" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
+      <graphic>
+        <AnchorPane fx:id="arrow" prefHeight="10.0" prefWidth="10.0" styleClass="arrow" />
+      </graphic>
+    </Button>
+    <Button contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="6.0" layoutY="376.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" onAction="#nowHandler" prefHeight="16.0" prefWidth="10.0" styleClass="TransparentBG" text="">
+      <graphic>
+        <ImageView id="04_charge_alert_blue@2x.png" scaleX="1.0" scaleY="1.0">
+          <image>
+            <Image url="@../TeslaResources/icon-back.png" preserveRatio="true" smooth="true" />
+          </image>
+        </ImageView>
+      </graphic>
+    </Button>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

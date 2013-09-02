@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.noroomattheinn.utils.Utils;
 
 /**
  * This is the main class for the VisibleTesla application.
@@ -30,6 +31,7 @@ import javafx.stage.Stage;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class VisibleTesla extends Application {
+    MainController mainController;
     
     /**
      * This is where everything starts. It's invoked indirectly by main() and is
@@ -46,9 +48,14 @@ public class VisibleTesla extends Application {
         // Everything above is boilerplate. The only thing this method does that
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
-        ((MainController)root.getUserData()).start(this, stage);
+        mainController = Utils.cast(root.getUserData());
+        mainController.start(this, stage);
     }
-
+    
+    public void stop() {
+        mainController.stop();
+    }
+    
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
      * main() serves only as fallback in case the application can not be

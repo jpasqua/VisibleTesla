@@ -14,6 +14,7 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
+            <CheckMenuItem mnemonicParsing="false" onAction="#allowSleepHandler" text="Allow Sleep" fx:id="allowSleepMenuItem" />
             <MenuItem mnemonicParsing="false" onAction="#closeHandler" text="Close">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
@@ -62,6 +63,8 @@
         <Menu mnemonicParsing="false" text="Help">
           <items>
             <MenuItem mnemonicParsing="false" onAction="#aboutHandler" text="About" />
+            <MenuItem mnemonicParsing="false" onAction="#helpHandler" text="Documentation" />
+            <MenuItem mnemonicParsing="false" onAction="#whatsNewHandler" text="What's New" />
           </items>
         </Menu>
       </menus>

@@ -19,11 +19,23 @@ import javafx.scene.chart.LineChart;
  */
 
 public class VariableSet {
-
+    
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private Set<Variable> variables = new HashSet<>();
     private Map<Object, Variable> objectToVariable = new HashMap<>();
     private Map<String, Variable> typeToVariable = new HashMap<>();
-
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+    
     public void clear() {
         variables.clear();
         objectToVariable.clear();
@@ -50,5 +62,28 @@ public class VariableSet {
 
     public Variable getByKey(Object key) {
         return objectToVariable.get(key);
+    }
+    
+    public Set<Variable> set() { return variables; }
+    
+    public static class Range {
+        double min;
+        double max;
+        Range(double min, double max) { this.min = min; this.max = max; }
+    }
+    
+    public Range getRange(boolean visibleOnly) {
+        double minVal = 0;
+        double maxVal = 0;
+        for (Variable v : variables) {
+            if (visibleOnly && !v.visible)
+                continue;
+            
+            if (minVal < v.minVal)
+                minVal = v.minVal;
+            if (maxVal > v.maxVal)
+                maxVal = v.maxVal;
+        }
+        return new Range(minVal, maxVal);
     }
 }

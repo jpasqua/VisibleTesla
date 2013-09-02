@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.util.concurrent.Callable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -22,20 +23,30 @@ import org.noroomattheinn.tesla.Vehicle;
 
 
 public class LoginController extends BaseController {
-    //
-    // Observable State
-    //
+    
+/*------------------------------------------------------------------------------
+ *
+ * Observable State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private BooleanProperty loginCompleteProperty = new SimpleBooleanProperty(false);
     BooleanProperty getLoginCompleteProperty() { return loginCompleteProperty; }
     
-    //
-    // The Tesla object that allows us to connect...
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+
     private Tesla tesla;
     
-    //
-    // The UI Elements
-    //
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements
+ * 
+ *----------------------------------------------------------------------------*/
+
     @FXML private Label loggedInName;
     @FXML private Button loginButton;
     @FXML private Button logoutButton;
@@ -44,9 +55,23 @@ public class LoginController extends BaseController {
     @FXML private ImageView loggedInImage;
     @FXML private Label loggedInStatus;
     @FXML private CheckBox rememberMe;
-    //
-    // Login / Logout Button Handlers
-    //
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+    
+    void attemptAutoLogin(Tesla t) {
+        this.tesla = t;
+        attemptLogin(null, null);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ *  UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
     
     @FXML void logoutAction(ActionEvent event) {
         loginCompleteProperty.set(false);
@@ -66,63 +91,23 @@ public class LoginController extends BaseController {
     }
 
     // Controller-specific initialization
-    protected void doInitialize() {
+    protected void fxInitialize() {
         showAutoLoginUI();
     }
     
-    //
-    // Overriden methods from BaseController
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController
+ * 
+ *----------------------------------------------------------------------------*/
     
     protected void refresh() { }
     
-    //
-    // External Interface to this controller
-    //
-    
-    void attemptAutoLogin(Tesla t) {
-        this.tesla = t;
-        attemptLogin(null, null);
-    }
-    
-    //
-    // Internal classes and methods to handle the login process
-    //
-    
-    private void attemptLogin(String username, String password) {
-        issueCommand(new AttemptLogin(username, password), AfterCommand.Reflect);
-    }
-
-    @Override protected void reflectNewState() {
-        if (loginCompleteProperty.get()) showLoginSucceeded();
-        else showManualLoginUI();
-    }
-
-    // Nothing to do here, there is no vehicle established yet
-    @Override protected void prepForVehicle(Vehicle v) { }
-
-    private class AttemptLogin implements Callback {
-        String username, password;
-        
-        AttemptLogin(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-        
-        @Override public Result execute() {
-            if (username == null)   // Try auto login
-                loginCompleteProperty.set(tesla.connect());
-            else    // Login with the specified username and password
-                loginCompleteProperty.set(tesla.connect(username, password, rememberMe.isSelected()));
-            return loginCompleteProperty.get() ? Result.Succeeded : Result.Failed;
-        }
-        
-    }
-    
-
-    //
-    // Reflect the desired state of the UI
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Methods to Reflect the desired state of the UI
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void showLoginUI(String prompt, String user, boolean loggedIn) {
         loggedInStatus.setText(prompt);
@@ -146,5 +131,42 @@ public class LoginController extends BaseController {
         showLoginUI("Attempting Automatic Login", "", false);
         logoutButton.setDisable(true);
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods and Classes
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void attemptLogin(String username, String password) {
+        issueCommand(new AttemptLogin(username, password), AfterCommand.Reflect);
+    }
+
+    @Override protected void reflectNewState() {
+        if (loginCompleteProperty.get()) showLoginSucceeded();
+        else showManualLoginUI();
+    }
+
+    // Nothing to do here, there is no vehicle established yet
+    @Override protected void prepForVehicle(Vehicle v) { }
+
+    private class AttemptLogin implements Callable<Result> {
+        String username, password;
+        
+        AttemptLogin(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+        
+        @Override public Result call() {
+            if (username == null)   // Try auto login
+                loginCompleteProperty.set(tesla.connect());
+            else    // Login with the specified username and password
+                loginCompleteProperty.set(tesla.connect(username, password, rememberMe.isSelected()));
+            return loginCompleteProperty.get() ? Result.Succeeded : Result.Failed;
+        }
+        
+    }
+    
 
 }

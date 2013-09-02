@@ -62,6 +62,6 @@ Be sure to either set these variables or adapt the commands below. Note that the
 
 
 
-#Running VisibleTesla
+#Installing and Running VisibleTesla
 
-Once you've built the application, you can run it simply by double-clicking <code>VisibleTesla.jar</code>in Tesla/VisibleTesla/dist.
+Once you've built the application, you can run it simply by double-clicking <code>VisibleTesla.jar</code>in Tesla/VisibleTesla/dist. For details, refer to the documentation and release notes in Tesla/VisibleTesla/Documentation.

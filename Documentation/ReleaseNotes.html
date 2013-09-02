@@ -9,6 +9,96 @@
 <h1>VisibleTesla Release Notes</h1>
 
 <hr>
+<h3>VisibleTesla 0.19 [2013-09-02]</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+					<li>Added a "Documentation" item to the "Help" menu. When selected, it displays the documentation in a web browser.</li>
+					<li>Added a "What's New" item to the "Help" menu. When selected, it displays the release notes in a web browser.</li>
+					<li>Sleep-Related</li>
+						<ul>
+							<li>Added an "Allow Sleep" item to the file menu. If selected, this will allow the app to go to sleep after 15 minutes of user inactivity. It will not collect data from the car and will allow the car to go to sleep. The setting of "Allow Sleep" is remembered between runs of the app. Any interaction with the app (e.g. selecting a new Tab) will cause an interaction with the car and will wake it from sleep.
+							</li>
+							<li>If the app goes into idle mode, it will display an indication in the title bar.</li>
+							<li>When VisibleTesla is launched and immediately after the user logs in, it checks to see whether the car is asleep (Tesla firmware 5.0 and later). If it is asleep, a dialog will be displayed that asks the user whether she wants to wake it up. If the user says no, the app will exit. <b>NOTE</b>: This functioanlity has only been tested in simulation and should be considered experimental.
+							</li>
+						</ul>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+					<li><b>Fixed</b>: Problem where cached odometer readings showed incorrectly if the car's units are set to metric.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+					<li>Overhauled the way map positioning is done. The map will now keep the car centered <i>unless the user explicitly pans the map</i>. If the user does so, she is indicating that she wants to view a specific location and the app will not recenter the map as the car moves. The user may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.</li>
+					<li>If the user pans the map manually thereby leaving "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</li>
+					<li>The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again.</li>
+					<li><b>Fixed</b>: When you click on the arrow that represents the car, an infowindow pops up that gives the nearest street address to the car's location. That was never being updated. It always reflected the car's location when the map was first displayed.
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+					<li>Changed the "Fast Charger" table entry to "Supercharger". This entry is true only for Superchargers, not HPWCs.</li>
+					<li>The Start and Stop buttons are only enabled if there is power connected to the car.</li>
+				</ul>
+			</li>
+			<li>
+				Graphs
+				<ul>
+					<li>Added two new variables: speed and power.</li>
+					<li>Experimenting with auto-adjustments to the refresh interval. It will drop down to as little as 20 seconds if at least one variable is changing 20% or more from reading to reading. It will go up as high as 5 minutes if there are no changes to any variables. It starts at 2 minutes.</li>
+					<li>The app remembers which variables you had turned on / off between runs. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. All variables are collected whether they are selected or not.</li>
+					<li>Added a "reset" button in the lower left corner which is represented by a backward arrow icon. Clicking the  button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.</li>
+					<li>The scrolling and zooming behavior now work in both time (x axis) and value (y axis). With no modifier keys pressed, scrolling/zooming are constrained to the time axis. To scroll/zoom the value axis, press the CTRL key while operating the mouse. To scroll/zoom both, press the SHIFT key while operating the mouse. </li>
+					<li>Zooming is now relative to the current mouse position. The point under the mouse will stay fixed, and the chart will zoom around it. It used to zoom relative to the center of the chart which could be disconcerting at times.</li>
+					<li><b>Fixed</b>: The app  did not respect the units that are selected in the car's interface. Now it does.</li>
+					<li><b>Fixed</b>: There used to be a "dead area" where the dropdown list of items displayed. The mouse was non-responsive in that area. This problem has been fixed.</li>
+					<li><b>Fixed</b>: Scaling the chart to longer time frames could make it easy to lose your place in the chart. It now stays centered around the selected time frame.</li>
+
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+			<li>Applied the MIT Open Source license to all of the sources.</li>
+			<li>Fixed a bug that will cause problems when the app supports multiple cars.</li>
+			<li>Added an alternative method to collect the streaming data in the underlying TeslaClient library.</li>
+			<li>Starting to clean up the way simulated values work.</li>
+			<li>Gracefully shutdown background threads upon app exit.</li>
+			<li>Yet more code simplification.</li>
+			<li>Moved the reverse geo-coding mechanism from Java to javascript.</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+			<li>When quitting the app on a Mac, the app icon will sometimes linger in the dock.</li>
+		</ul>
+	</li>
+</ul>
+
+<hr>
 <h3>VisibleTesla 0.18</h3>
 <ul>
 	<li>

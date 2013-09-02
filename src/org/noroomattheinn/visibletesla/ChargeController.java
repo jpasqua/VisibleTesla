@@ -8,6 +8,7 @@ package org.noroomattheinn.visibletesla;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Callable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,16 +32,33 @@ import org.noroomattheinn.utils.Utils;
 
 
 public class ChargeController extends BaseController {
+    
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+
     private static final double KilometersPerMile = 1.60934;
     private static final String MinVersionForChargePct = "1.33.38";
         // This value is taken from the wiki here: http://tinyurl.com/mzwxbps
     
-    // Controller & State objects
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private ChargeState chargeState;
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private boolean useMiles;
     
-    // UI Controls
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements
+ * 
+ *----------------------------------------------------------------------------*/
+    
     @FXML private Button startButton, stopButton;
     @FXML private Slider chargeSlider;
     @FXML private Label chargeSetting;
@@ -59,42 +77,41 @@ public class ChargeController extends BaseController {
     @FXML private Label chargeScheduledLabel, scheduledTimeLabel;
 
     // The Charge Property TableView and its Columns
-    @FXML private TableView<Property> propertyTable;
-    @FXML private TableColumn<Property,String> propNameColumn;
-    @FXML private TableColumn<Property,String> propValColumn;
-    @FXML private TableColumn<Property,String> propUnitsColumn;
-
-    // Each Property defines a row of the table...
-    private Property pilotCurrent = new Property("Pilot Current", "0.0", "Amps");
-    private Property voltage = new Property("Voltage", "0.0", "Volts");
-    private Property batteryCurrent = new Property("Battery Current", "0.0", "Amps");
-    private Property nRangeCharges = new Property("# Range Charges", "0.0", "Count");
-    private Property fastCharger = new Property("Fast Charger", "No", "");
-    private Property chargeRate = new Property("Charge Rate", "0.0", "MPH");
-    private Property remaining = new Property("Time Left", "00:00:00", "HH:MM:SS");
-    private Property actualCurrent = new Property("Current", "0.0", "Amps");
-    private Property chargerPower = new Property("Charger Power", "0.0", "kW");
-    private Property chargingState = new Property("State", "Disconnected", "");
+    @FXML private TableView<GenericProperty> propertyTable;
+    @FXML private TableColumn<GenericProperty,String> propNameColumn;
+    @FXML private TableColumn<GenericProperty,String> propValColumn;
+    @FXML private TableColumn<GenericProperty,String> propUnitsColumn;
     
-    final ObservableList<Property> data = FXCollections.observableArrayList(
+/*------------------------------------------------------------------------------
+ *
+ * The Elements of the Property Table
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    // Each Property defines a row of the table...
+    private GenericProperty pilotCurrent = new GenericProperty("Pilot Current", "0.0", "Amps");
+    private GenericProperty voltage = new GenericProperty("Voltage", "0.0", "Volts");
+    private GenericProperty batteryCurrent = new GenericProperty("Battery Current", "0.0", "Amps");
+    private GenericProperty nRangeCharges = new GenericProperty("# Range Charges", "0.0", "Count");
+    private GenericProperty fastCharger = new GenericProperty("Supercharger", "No", "");
+    private GenericProperty chargeRate = new GenericProperty("Charge Rate", "0.0", "MPH");
+    private GenericProperty remaining = new GenericProperty("Time Left", "00:00:00", "HH:MM:SS");
+    private GenericProperty actualCurrent = new GenericProperty("Current", "0.0", "Amps");
+    private GenericProperty chargerPower = new GenericProperty("Charger Power", "0.0", "kW");
+    private GenericProperty chargingState = new GenericProperty("State", "Disconnected", "");
+    
+    final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
             actualCurrent, voltage, chargeRate, remaining, chargingState,
             pilotCurrent, batteryCurrent, fastCharger, chargerPower,
             nRangeCharges);
 
     
-    // Controller-specific initialization
-    protected void doInitialize() {
-        // Prepare the property table
-        propNameColumn.setCellValueFactory( new PropertyValueFactory<Property,String>("name") );
-        propValColumn.setCellValueFactory( new PropertyValueFactory<Property,String>("value") );
-        propUnitsColumn.setCellValueFactory( new PropertyValueFactory<Property,String>("units") );
-        propertyTable.setItems(data);
-        showPendingChargeLabels(false);
-        
-        // Until we know that we've got the right software version, disable the slider
-        chargeSlider.setDisable(true);
-    }
-
+/*------------------------------------------------------------------------------
+ *
+ *  UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
+    
     @FXML private void sliderMoved(MouseEvent event) {
         setChargePercent((int)chargeSlider.getValue());
     }
@@ -106,33 +123,52 @@ public class ChargeController extends BaseController {
         setChargePercent(percent);
     }
 
+    
+    @FXML void chargeButtonHandler(ActionEvent event) {
+        final Button b = (Button)event.getSource();
+        issueCommand(new Callable<Result>() {
+            public Result call() { return chargeController.setChargeState(b == startButton); } },
+            AfterCommand.Refresh);
+    }
+    
     private void setChargePercent(final int percent) {
         chargeSlider.setValue(percent);
         chargeSetting.setText(percent + " %");
-        issueCommand(new Callback() {
-            public Result execute() {
+        issueCommand(new Callable<Result>() {
+            public Result call() {
                 return chargeController.setChargePercent(percent); } },
             AfterCommand.Refresh);
     }
     
     
-    @FXML void chargeButtonHandler(ActionEvent event) {
-        final Button b = (Button)event.getSource();
-        issueCommand(new Callback() {
-            public Result execute() { return chargeController.setChargeState(b == startButton); } },
-            AfterCommand.Refresh);
-    }
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController
+ * 
+ *----------------------------------------------------------------------------*/
+
+    protected void fxInitialize() {
+        // Prepare the property table
+        propNameColumn.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("name") );
+        propValColumn.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("value") );
+        propUnitsColumn.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("units") );
+        propertyTable.setItems(data);
+        updatePendingChargeLabels(false);
         
+        // Until we know that we've got the right software version, disable the slider
+        chargeSlider.setDisable(true);
+    }
+
     protected void prepForVehicle(Vehicle v) {
-        if (chargeController == null || chargeController.getVehicle().getVIN().equals(v.getVIN())) {
+        if (differentVehicle(chargeController, v)) {
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             chargeState = new ChargeState(v);
         }
         
         GUIState gs = v.cachedGUIState();
         useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
-        if (simulatedUnitType != null)
-            useMiles = (simulatedUnitType == Utils.UnitType.Imperial);
+        if (appContext.simulatedUnits.get() != null)
+            useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
         String units = useMiles ? "Miles" : "Km";
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);
@@ -141,9 +177,7 @@ public class ChargeController extends BaseController {
         chargeRate.setUnits(useMiles ? "mph" : "kph");
     }
 
-    protected void refresh() { 
-        issueCommand(new GetAnyState(chargeState), AfterCommand.Reflect);
-    }
+    protected void refresh() {  updateState(chargeState); }
     
     protected void reflectNewState() {
         if (!chargeState.hasValidData()) return; // No Data Yet...
@@ -152,24 +186,18 @@ public class ChargeController extends BaseController {
         reflectBatteryStats();
         reflectChargeStatus();
         reflectProperties();
-            chargeSlider.setDisable(
-                    !meetsMinVersion(vehicle.cachedVehicleState().version(), MinVersionForChargePct));
+        chargeSlider.setDisable(Utils.compareVersions(
+            vehicle.cachedVehicleState().version(), MinVersionForChargePct) < 0);
+        boolean isConnectedToPower = (chargeState.chargerPilotCurrent() > 0);
+        startButton.setDisable(!isConnectedToPower);
+        stopButton.setDisable(!isConnectedToPower);
     }
     
-    private boolean meetsMinVersion(String curVersion, String minVersion) {
-        String[] curParts = curVersion.split("\\.");
-        String[] minParts = minVersion.split("\\.");
-        int shortest = Math.min(curParts.length, minParts.length);
-        
-        int i = 0;
-        while (i < shortest && curParts[i].equals(minParts[i])) { i++; }
-
-        if (i < shortest) {
-            return (Integer.valueOf(curParts[i]) > Integer.valueOf(minParts[i]));
-        }
-
-        return curParts.length >= minParts.length;
-    }
+/*------------------------------------------------------------------------------
+ *
+ * Methods to Reflect the State of the Charge
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void reflectProperties() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
@@ -183,14 +211,6 @@ public class ChargeController extends BaseController {
         actualCurrent.setValue(String.valueOf(chargeState.chargerActualCurrent()));
         chargerPower.setValue(String.valueOf(chargeState.chargerPower()));
         chargingState.setValue(chargeState.chargingState().name());
-    }
-    
-    //
-    // Utility Methods for updating elements of the UI
-    //
-    private void showPendingChargeLabels(boolean show) {
-            chargeScheduledLabel.setVisible(show);
-            scheduledTimeLabel.setVisible(show);
     }
     
     private void reflectChargeStatus() {
@@ -210,9 +230,9 @@ public class ChargeController extends BaseController {
             Date d = new Date(chargeState.scheduledStart()*1000);
             String time = new SimpleDateFormat("hh:mm a").format(d);
             scheduledTimeLabel.setText("Charging will start at " + time);
-            showPendingChargeLabels(true);
+            updatePendingChargeLabels(true);
         } else {
-            showPendingChargeLabels(false);
+            updatePendingChargeLabels(false);
         }
     }
     
@@ -228,8 +248,7 @@ public class ChargeController extends BaseController {
         }
         batteryPercentLabel.setText(String.valueOf(chargeState.batteryPercent()));
     }
-    
-    
+
     private void reflectRange() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         estOdometer.setValue(chargeState.estimatedRange() * conversionFactor);
@@ -237,6 +256,18 @@ public class ChargeController extends BaseController {
         ratedOdometer.setValue(chargeState.range() * conversionFactor);
     }
     
+    private void updatePendingChargeLabels(boolean show) {
+        chargeScheduledLabel.setVisible(show);
+        scheduledTimeLabel.setVisible(show);
+    }
+    
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods and Classes
+ * 
+ *----------------------------------------------------------------------------*/
+
     private String getDurationString(double hoursFloat) {
         int hours = (int)hoursFloat;
         double fractionalHour = hoursFloat - hours;
@@ -245,12 +276,12 @@ public class ChargeController extends BaseController {
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
     
-    public static class Property {
+    public static class GenericProperty {
         private final SimpleStringProperty name;
         private final SimpleStringProperty value;
         private final SimpleStringProperty units;
 
-        private Property(String name, String value, String units) {
+        private GenericProperty(String name, String value, String units) {
             this.name = new SimpleStringProperty(name);
             this.value = new SimpleStringProperty(value);
             this.units = new SimpleStringProperty(units);
@@ -271,10 +302,4 @@ public class ChargeController extends BaseController {
 
     }
 
-    
-    //
-    // Handle Simulated Values
-    //
-    private Utils.UnitType simulatedUnitType = null;
-    void setSimulatedUnits(Utils.UnitType t) { simulatedUnitType = t; }
 }

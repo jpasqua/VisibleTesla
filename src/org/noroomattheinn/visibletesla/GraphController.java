@@ -6,15 +6,20 @@
 
 package org.noroomattheinn.visibletesla;
 
-import java.util.Date;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.ChargeState;
+import org.noroomattheinn.tesla.GUIState;
+import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
 import org.noroomattheinn.visibletesla.chart.Variable;
 import org.noroomattheinn.visibletesla.chart.VariableSet;
@@ -22,55 +27,129 @@ import org.noroomattheinn.visibletesla.chart.VariableSet;
 // TO DO:
 //
 
-public class GraphController extends BaseController implements StatsRepository.Recorder {
+// To add a new variable:
+// 1. If the variable requires a new state object:
+//    1.1 Add the declaration of the object
+//    1.2 Initialize the object in prepForVehicle
+//    1.3 In getAndRecordStats: refresh the object and addElement on each variable
+// 2. Add the corresponding checkbox
+//    2.1 Add a decalration for the checkbox and compile this source
+//    2.2 Open GraphUI.fxml and add a checkbox to the dropdown list
+// 3. Register the new variable in prepVariables()
 
+public class GraphController extends BaseController implements StatsRepository.Recorder {
+    
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+
+    private static final long DefaultInterval = 2 * 60 * 1000;  // 2 Minutes
+    private static final long MinInterval     =     20 * 1000;  // 20 Seconds
+    private static final long MaxInterval     = 5 * 60 * 1000;  // 5 Minutes
+    
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private ChargeState chargeState;
+    private SnapshotState snapshotState;
     private StatsRepository repo;
     private VariableSet variables;
-    
-    //
-    // UI Components
-    //
-    
+    private long lastSnapshotTime = 0;
+
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements
+ * 
+ *----------------------------------------------------------------------------*/
+
     @FXML private Label readout;
     @FXML private CheckBox voltageCheckbox;
     @FXML private CheckBox currentCheckbox;
     @FXML private CheckBox rangeCheckbox;
     @FXML private CheckBox socCheckbox;
     @FXML private CheckBox rocCheckbox;
-    private TimeBasedChart chart;
+    @FXML private CheckBox powerCheckbox;
+    @FXML private CheckBox speedCheckbox;
+    @FXML private AnchorPane itemListContent;
+    @FXML private Button showItemsButton;
+    @FXML private AnchorPane arrow;
+          private TimeBasedChart chart;
     
-    //
-    // Variables
-    //
+/*------------------------------------------------------------------------------
+ *
+ * This section implements UI Actionhandlers
+ * 
+ *----------------------------------------------------------------------------*/
     
-    //
-    // UI Interaction Handlers
-    //
+    private void showItemList(boolean visible) {
+        itemListContent.setVisible(visible);
+        itemListContent.setMouseTransparent(!visible);
+        arrow.setStyle(visible ? "-fx-rotate: 0;" : "-fx-rotate: -90;");
+    }
+    
+    @FXML void nowHandler(ActionEvent event) {
+        chart.centerTime(System.currentTimeMillis());
+        
+    }
+    
+    @FXML void showItemsHandler(ActionEvent event) {
+        boolean isVisible = itemListContent.isVisible();
+        showItemList(!isVisible);   // Flip whether it's visible
+    }
     
     @FXML void optionCheckboxHandler(ActionEvent event) {
         CheckBox cb = (CheckBox)event.getSource();
-        variables.getByKey(cb).visible = cb.isSelected();
+        Variable var = variables.getByKey(cb);
+        var.visible = cb.isSelected();
+        variables.assignToChart(chart.getChart());
+        // Remember the value for next time we start up
+        appContext.prefs.putBoolean(prefKey(var.type), var.visible);
+    }    
+    
+/*------------------------------------------------------------------------------
+ *
+ * Variable Handling
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void prepVariables() {
+        GUIState gs = vehicle.cachedGUIState();
+        Variable.Transform distTransform = gs.distanceUnits().startsWith("mi") ?
+                Variable.idTransform : Variable.mToKTransform;
+        variables.clear();
+        variables.register(new Variable(voltageCheckbox, "C_VLT", "violet", Variable.idTransform));
+        variables.register(new Variable(currentCheckbox, "C_AMP", "aqua", Variable.idTransform));
+        variables.register(new Variable(rangeCheckbox, "C_EST", "red", distTransform));
+        variables.register(new Variable(socCheckbox, "C_SOC", "salmon", Variable.idTransform));
+        variables.register(new Variable(rocCheckbox, "C_ROC", "blue", distTransform));
+        variables.register(new Variable(powerCheckbox, "S_PWR", "gray", Variable.idTransform));
+        variables.register(new Variable(speedCheckbox, "S_SPD", "green", distTransform));
+    }
+    
+    private void restoreLastSettings() {
+        // Restore the last settings of the checkboxes
+        for (Variable var : variables.set()) {
+            boolean selected = appContext.prefs.getBoolean(prefKey(var.type), true);
+            var.cb.setSelected((var.visible = selected));
+        }
         variables.assignToChart(chart.getChart());
     }
-
-
-    private void prepVariables() {
-        variables.clear();
-        variables.register(new Variable(voltageCheckbox, "C_VLT", "violet"));
-        variables.register(new Variable(currentCheckbox, "C_AMP", "aqua"));
-        variables.register(new Variable(rangeCheckbox, "C_EST", "red"));
-        variables.register(new Variable(socCheckbox, "C_SOC", "salmon"));
-        variables.register(new Variable(rocCheckbox, "C_ROC", "blue"));
-    }
     
-    //
-    // Overriden methods from BaseController
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController
+ * 
+ *----------------------------------------------------------------------------*/
     
     protected void prepForVehicle(Vehicle v) {
-        if (chargeState == null || !chargeState.getVehicle().getVIN().equals(v.getVIN())) {
+        if (differentVehicle(chargeState, v)) {
             chargeState = new ChargeState(v);
+            snapshotState = new SnapshotState(v);
             variables = new VariableSet();
             
             pauseRefresh();
@@ -78,6 +157,7 @@ public class GraphController extends BaseController implements StatsRepository.R
             if (repo != null) repo.close();
             repo = new StatsRepository(v.getVIN(), this);
             variables.assignToChart(chart.getChart());
+            restoreLastSettings();
             ensureRefreshThread();  // If thread already exists, it unpauses
         }
     }
@@ -86,29 +166,34 @@ public class GraphController extends BaseController implements StatsRepository.R
 
     protected void reflectNewState() { }
 
-    protected void doInitialize() {
+    protected void fxInitialize() {
         refreshButton.setDisable(true);
         refreshButton.setVisible(false);
         progressIndicator.setVisible(false);
         progressLabel.setVisible(false);
-        chart = new TimeBasedChart(root, readout);
+        chart = new TimeBasedChart(root, readout);        
+        showItemList(false);
     }
     
     
-    //
-    // Private Utility Methods for remembering values in memory
-    // and in the repository
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Utility Methods for storing stats in memory and on disk
+ * 
+ *----------------------------------------------------------------------------*/
     
     
     private void addElement(Variable variable, long time, double value) {
+        if (Double.isNaN(value) || Double.isInfinite(value))
+            value = 0;
         // Round to 1 decimal place. The rest isn't really significant
-        value = Math.round(value *10.0)/10.0;
+        value = Math.round(value * 10.0)/10.0;
         recordElement(variable, time, value);
         repo.storeElement(variable.type, time, value);
     }
     
-    // Implement StatsRepository.Recorder
+    // Implement StatsRepository.Recorder - Called when old stats are read in
+    // by the StatsRepository. All it does is record the data in memory.
     @Override public void recordElement(long time, String type, double val) {
         recordElement(variables.get(type), time, val);
     }
@@ -122,60 +207,78 @@ public class GraphController extends BaseController implements StatsRepository.R
         //Platform.runLater(new ElementRecorder(variable, time, value));
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                variable.seriesData.add(new XYChart.Data<Number, Number>(time/(60*1000), value));
+                variable.addToSeries(time, value);
             }
         });
     }
     
-    //
-    // This section has the code pertaining to the background thread that
-    // is responsible for collecting stats on a regular basis
-    //
-    
-    static final long RefreshInterval = 5 * 60 * 1000;
-    private static long lastRefreshTime = 0;
-    private static Thread refreshThread = null;
-    
-    private void getAndRecordStats() {
+    // Called by the background thread to gather and record a new set of samples
+    private double getAndRecordStats() {
         chargeState.refresh();
+        snapshotState.refresh();
+        long time = System.currentTimeMillis();
         if (chargeState.hasValidData()) {
-            long time = new Date().getTime();
             addElement(variables.get("C_VLT"), time, chargeState.chargerVoltage());
             addElement(variables.get("C_AMP"), time, chargeState.chargerActualCurrent());
             addElement(variables.get("C_EST"), time, chargeState.range());
             addElement(variables.get("C_SOC"), time, chargeState.batteryPercent());
             addElement(variables.get("C_ROC"), time, chargeState.chargeRate());
-            repo.flushElements();
         }
+        if (snapshotState.hasValidData()) {
+            long thisSnapshotTime = snapshotState.timestamp().getTime();
+            if (thisSnapshotTime != lastSnapshotTime) {
+                addElement(variables.get("S_PWR"), time, snapshotState.power());
+                addElement(variables.get("S_SPD"), time, snapshotState.speed());
+                lastSnapshotTime = thisSnapshotTime;
+            }
+        }
+        double avgChange = repo.flushElements();
+        return avgChange > 0.2 ? 0.5 : 2.0;
     }
+
+    private String prefKey(String key) { return vehicle.getVIN()+"_"+key; }
+
+/*------------------------------------------------------------------------------
+ *
+ * This section has the code pertaining to the background thread that
+ * is responsible for collecting stats on a regular basis
+ * 
+ *----------------------------------------------------------------------------*/
     
-    private boolean collectionPaused = true;
+    private static Thread refreshThread = null;
+    private static boolean collectionPaused = true;
     
     private void pauseRefresh() { collectionPaused = true; }
     
     private void ensureRefreshThread() {
         collectionPaused = false;
         if (refreshThread == null) {
-            refreshThread = new Thread(new AutoRefresh());
-            refreshThread.setDaemon(true);
-            refreshThread.start();
-            lastRefreshTime = new Date().getTime();
+            refreshThread = appContext.launchThread(new AutoCollect(), "00 AutoCollect");
         }
     }
-    
-    class AutoRefresh implements Runnable {
+
+    private class AutoCollect implements Runnable, ChangeListener<Boolean> {
+        private boolean asleep = false;
+        
+        @Override public void 
+        changed(ObservableValue<? extends Boolean> o, Boolean ov, Boolean nv) {
+            asleep = nv;
+        }
+        
         @Override public void run() {
+            appContext.shouldBeSleeping.addListener(this);
+            asleep = appContext.shouldBeSleeping.get();
+            long collectionInterval = DefaultInterval;
             while (true) {
-                if (!collectionPaused)
-                    getAndRecordStats();
-                try {
-                    long timeToSleep = RefreshInterval;
-                    while (timeToSleep > 0) {
-                        Thread.sleep(timeToSleep);
-                        timeToSleep = RefreshInterval - (new Date().getTime() - lastRefreshTime);
-                        timeToSleep = Math.min(timeToSleep, RefreshInterval);
-                    }
-                } catch (InterruptedException ex) { }
+                if (!collectionPaused && !asleep) {
+                    double delayFactor = getAndRecordStats();
+                    collectionInterval = Utils.clamp(
+                            (long)(collectionInterval * delayFactor),
+                            MinInterval, MaxInterval);
+                }
+                Utils.sleep(collectionInterval);
+                if (appContext.shuttingDown.get())
+                    return;
             }
         }
     }

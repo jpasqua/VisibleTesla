@@ -8,7 +8,9 @@ package org.noroomattheinn.visibletesla;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.prefs.Preferences;
+import java.util.concurrent.Callable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,28 +28,42 @@ import org.noroomattheinn.tesla.DoorController.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
+import org.noroomattheinn.tesla.Options.PaintColor;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.StreamingState;
+import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
 
 
 public class OverviewController extends BaseController {
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+
     private static final double KilometersPerMile = 1.60934;
-    private Preferences preferences;
-    
-    // The Tesla State and Controller objects
+    public enum RoofState {Open, Closed, Vent, Solid};
+
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+
     private VehicleState        vehicleState;   // The primary door state
-    private StreamingState      streamingState; // For odometer reading
+    private SnapshotState       snapshotState;  // For odometer reading
     private ChargeState         chargeState;    // For chargePortDoor status
     private DoorController      doorController; // For primary door controller
     private ActionController    actions;        // For honk, flash, wake commands
+    private double              storedOdometerReading;
+    private Callable<Result>    wakeupCB, flashCB, honkCB;
     
-    private Options.WheelType storedWheelType;
-    private Options.RoofType storedRoofType;
-    private double storedOdometerReading;
-    
-    private Callback wakeupCB, flashCB, honkCB;
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements
+ * 
+ *----------------------------------------------------------------------------*/
     
     // Lock Status Images
     @FXML private ImageView lockedImg;
@@ -88,40 +104,89 @@ public class OverviewController extends BaseController {
     @FXML private Button honkButton, flashButton, wakeupButton;
     @FXML private Button lockButton, unlockButton;
     @FXML private Button closePanoButton, ventPanoButton, openPanoButton;
-            
-    // Controller-specific initialization
-    protected void doInitialize() {
-        odometerLabel.setVisible(true);
-        honkCB = new Callback() { public Result execute() { return actions.honk(); } };
-        flashCB = new Callback() { public Result execute() { return actions.flashLights(); } };
-        wakeupCB = new Callback() { public Result execute() { return actions.wakeUp(); } };
+    
+/*------------------------------------------------------------------------------
+ *
+ *  UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
+
+    @FXML void lockButtonHandler(ActionEvent event) {
+        final Button source = (Button)event.getSource();
+        issueCommand(new Callable<Result>() {
+            public Result call() {
+                return doorController.setLockState(source == lockButton); } }, AfterCommand.Refresh);
     }
 
-    /**
-     * This method would normally just return a VehicleState object, but it actually
-     * requires two additional objects to display all of the information in this
-     * tab. We also need a ChargeState and a StreamingState. We get these by issuing
-     * explicit background commands to read them.
-     * @return A new VehicleState object
-     */
+    @FXML void miscCommandHandler(ActionEvent event) {
+        Button source = (Button)event.getSource();
+        if (source == honkButton)  issueCommand(honkCB, AfterCommand.Nothing);
+        else if (source == flashButton) issueCommand(flashCB, AfterCommand.Nothing);
+        else if (source == wakeupButton) issueCommand(wakeupCB, AfterCommand.Nothing);
+    }
+
+    @FXML void panoButtonHandler(ActionEvent event) {
+        Button source = (Button)event.getSource();
+        final PanoCommand cmd = 
+            source == ventPanoButton ? PanoCommand.vent :
+                ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
+        issueCommand(new Callable<Result>() {
+            public Result call() { return doorController.setPano(cmd); } },
+            AfterCommand.Refresh);
+    }
+
+    @FXML void detailsButtonHandler(ActionEvent event) {
+        AnchorPane pane = new AnchorPane();
+        String info = vehicle.toString() +
+                "\nFirmware Version: " + vehicle.cachedVehicleState().version() +
+                "\nHas Spoiler: " + vehicle.cachedVehicleState().hasSpoiler();
+        TextArea t = new TextArea(info);
+        pane.getChildren().add(t);
+        Dialogs.showCustomDialog(
+            appContext.stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    @Override protected void fxInitialize() {
+        odometerLabel.setVisible(true);
+        honkCB = new Callable<Result>() { public Result call() { return actions.honk(); } };
+        flashCB = new Callable<Result>() { public Result call() { return actions.flashLights(); } };
+        wakeupCB = new Callable<Result>() { public Result call() { return actions.wakeUp(); } };
+    }
+
+    @Override protected void appInitialize() {
+        appContext.simulatedColor.addListener(new ChangeListener<PaintColor>() {
+            @Override public void changed(
+                    ObservableValue<? extends PaintColor> ov,
+                    PaintColor oldPaint, PaintColor newPaint) {
+                getAppropriateImages(vehicle);
+            }
+        });
+    }
+    
+
     protected void refresh() {
-        issueCommand(new GetAnyState(streamingState), AfterCommand.Reflect);
-        issueCommand(new GetAnyState(chargeState), AfterCommand.Reflect);
-        issueCommand(new GetAnyState(vehicleState), AfterCommand.Reflect);
+        updateState(snapshotState);
+        updateState(chargeState);
+        updateState(vehicleState);
     }
     
     @Override protected void prepForVehicle(Vehicle v) {
-        if (actions == null || !actions.getVehicle().getVIN().equals(v.getVIN())) {
+        if (differentVehicle(actions, v)) {
             actions = new ActionController(v);
             doorController = new DoorController(v);
             getAppropriateImages(v);
-            // Handle background updates to streamingState and ChargeState
+
             vehicleState = new VehicleState(v);
-            streamingState = new StreamingState(v);
+            snapshotState = new SnapshotState(v);
             chargeState = new ChargeState(v);
             
-            preferences = Preferences.userNodeForPackage(this.getClass());
-            storedOdometerReading = preferences.getDouble(v.getVIN()+"_odometer", 0);
+            storedOdometerReading = appContext.prefs.getDouble(v.getVIN()+"_odometer", 0);
 
             updateWheelView();  // Make sure we display the right wheels from the get-go
             updateRoofView();   // Make sure we display the right roof from the get-go
@@ -141,54 +206,14 @@ public class OverviewController extends BaseController {
         updateChargePort();
     }
     
-    public enum RoofState {Open, Closed, Vent, Solid};
     
 
-    //
-    // The following methods issue commands using the DoorController or
-    // ActionController objects. If the command may change the state of the
-    // vehicle, a refresh will be invoked to update the display.
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Methods to Reflect the overall state of the vehicle
+ * 
+ *----------------------------------------------------------------------------*/
     
-    @FXML void lockButtonHandler(ActionEvent event) {
-        final Button source = (Button)event.getSource();
-        issueCommand(new Callback() {
-            public Result execute() {
-                return doorController.setLockState(source == lockButton); } }, AfterCommand.Refresh);
-    }
-
-    @FXML void miscCommandHandler(ActionEvent event) {
-        Button source = (Button)event.getSource();
-        if (source == honkButton)  issueCommand(honkCB, AfterCommand.Nothing);
-        else if (source == flashButton) issueCommand(flashCB, AfterCommand.Nothing);
-        else if (source == wakeupButton) issueCommand(wakeupCB, AfterCommand.Nothing);
-    }
-
-    @FXML void panoButtonHandler(ActionEvent event) {
-        Button source = (Button)event.getSource();
-        final PanoCommand cmd = 
-            source == ventPanoButton ? PanoCommand.vent :
-                ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
-        issueCommand(new Callback() {
-            public Result execute() { return doorController.setPano(cmd); } },
-            AfterCommand.Refresh);
-    }
-
-    @FXML void detailsButtonHandler(ActionEvent event) {
-        AnchorPane pane = new AnchorPane();
-        String info = vehicle.toString() +
-                "\nFirmware Version: " + vehicle.cachedVehicleState().version() +
-                "\nHas Spoiler: " + vehicle.cachedVehicleState().hasSpoiler();
-        TextArea t = new TextArea(info);
-        pane.getChildren().add(t);
-        Dialogs.showCustomDialog(
-            stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
-    }
-    
-    //
-    // The following methods are responsible for updating the displayed image
-    // to reflect the elements of the vehicleState object
-    //
     
     private void updateDoorView() {
         boolean rtOpen = vehicleState.isRTOpen();
@@ -209,8 +234,8 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRoofView() {
-        Options.RoofType type = vehicle.getOptions().roofType();
-        if (simulatedRoof != null) type = simulatedRoof;
+        Options.RoofType type = (appContext.simulatedRoof.get() == null) ?
+            vehicle.getOptions().roofType() : appContext.simulatedRoof.get();
         boolean hasPano = (type == Options.RoofType.RFPO);
         
         // Start with all images set to invisible, then turn on the one right one
@@ -241,7 +266,8 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        WheelType wt = (simulatedWheels == null) ? vehicle.getOptions().wheelType() : simulatedWheels;
+        WheelType wt = (appContext.simulatedWheels.get() == null) ?
+                vehicle.getOptions().wheelType() : appContext.simulatedWheels.get();
         
         nineteenRimFront.setVisible(false);
         nineteenRimRear.setVisible(false);
@@ -274,25 +300,26 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading = (streamingState.hasValidData()) ?
-                streamingState.odometer() : storedOdometerReading;
+        double odometerReading = (snapshotState.hasValidData()) ?
+                snapshotState.odometer() : storedOdometerReading;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
+        // Save off the odometer reading (in miles)
+        appContext.prefs.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
         GUIState gs = vehicle.cachedGUIState();
         boolean useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
-        preferences.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
     }
     
     
+/*------------------------------------------------------------------------------
+ *
+ * Data and Methods for locating the right images based on vehicle parameters
+ * 
+ *----------------------------------------------------------------------------*/
 
-    //
-    // The following methods and data implement the mechanism that chooses
-    // the images corresponding to the vehicle's actual color
-    //
-    
     // This Map maps from a PaintColor to a directory name which holds the
     // images for that color. As new colors are added by Tesla, the map
     // must be udated (as must the PaintColor enum).
@@ -316,7 +343,8 @@ public class OverviewController extends BaseController {
 
     // Replace the images that were selected by default with images for the actual color
     private void getAppropriateImages(Vehicle v) {
-        Options.PaintColor c = simulatedColor != null ? simulatedColor : v.getOptions().paintColor();
+        Options.PaintColor c = appContext.simulatedColor.get() != null ?
+                appContext.simulatedColor.get() : v.getOptions().paintColor();
 
         ClassLoader cl = getClass().getClassLoader();
         String colorDirectory = colorToDirectory.get(c);
@@ -335,20 +363,5 @@ public class OverviewController extends BaseController {
         rtClosedImg.setImage(new Image(cl.getResourceAsStream(path+"trunk_closed@2x.png")));
         solidRoofImg.setImage(new Image(cl.getResourceAsStream(path+"roof@2x.png")));
     }
-    
-    //
-    // Methods and data to handle simulated color, rims, etc.
-    //
-    private Options.PaintColor simulatedColor = null;
-    void setSimulatedColor(Options.PaintColor color) {
-        simulatedColor = color;
-        getAppropriateImages(vehicle);
-    }
-    
-    private Options.WheelType simulatedWheels = null;
-    void setSimulatedWheels(Options.WheelType wt) { simulatedWheels = wt; }
-    
-    private Options.RoofType simulatedRoof = null;
-    void setSimulatedRoof(Options.RoofType rt) { simulatedRoof = rt; }
     
 }

@@ -9,10 +9,10 @@ package org.noroomattheinn.visibletesla;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Application;
+import java.util.concurrent.Callable;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
@@ -24,12 +24,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.StreamingState;
 import org.noroomattheinn.tesla.Vehicle;
-import static org.noroomattheinn.visibletesla.BaseController.AutoRefreshInterval;
+import org.noroomattheinn.utils.Utils;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
@@ -46,19 +44,30 @@ import static org.noroomattheinn.visibletesla.BaseController.AutoRefreshInterval
  */
 
 abstract class BaseController {
-    // Support for the AutoRefresh Mechanism
-    static final long AutoRefreshInterval = 20 * 1000;
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    private static final long AutoRefreshInterval = 20 * 1000;
+    enum AfterCommand {Reflect, Refresh, Nothing};
     
-    private static BaseController activeController = null;
-    private static long lastRefreshTime = 0;
-    private static Thread refreshThread = null;
-        
-    // Internal State
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private static BaseController activeController = null;    
     protected Vehicle vehicle;
-    protected Application app;
-    protected Stage stage;
+    protected AppContext appContext;
     
-    // UI Elements in common to all subclasses (Controllers)
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements that are common to all subclasses (Controllers)
+ * 
+ *----------------------------------------------------------------------------*/
+    
     @FXML protected ResourceBundle resources;
     @FXML protected URL location;
     @FXML protected AnchorPane root;
@@ -66,33 +75,32 @@ abstract class BaseController {
     @FXML protected ProgressIndicator progressIndicator;
     @FXML protected Label progressLabel;
 
-    // Subclasses must implement the doInitialize method which is called from here.
-    // The implementation can be empty if the subclass has nothing to do.
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+
     @FXML final void initialize() {
-        ensureRefreshThread();
         root.setUserData(this);
         prepCommonElements();
-        doInitialize();
+        fxInitialize();     // This is an initialization hook for subclasses
     }
     
-    
-    //
-    // The following methods are called by the enclosing application. Subclasses
-    // don't need to (and can't) override these methods.
-    //
-    
     /**
-     * This is called ONE TIME at startup to establish the application object
+     * This is called ONE TIME at startup to establish the appContext
      * in which we are running. In order to keep the lower level controller
-     * classes independent of the main application, we need to "inject" the application
-     * object into the controllers rather than have them know about the application.
-     * TO DO: Find a better way to do this
-     * @param a The containing Application object. Useful, for example, to
-     *          get the HostServices object.
+     * classes independent of the main application, we need to "inject" the app
+     * context into the controllers rather than have them know about the top
+     * level app class.
+     * 
+     * Subclasses may override appInitialize if they want to do something
+     * once the appContext is set (not true at fxInitialize() time)
      */
-    public final void setAppContext(Application a, Stage s) {
-        this.app = a;
-        this.stage = s;
+    public final void setAppContext(AppContext ctxt) {
+        this.appContext = ctxt;
+        ensureRefreshThread();
+        appInitialize();    // This is an initialization hook for subclasses
     }
     
     /**
@@ -105,21 +113,32 @@ abstract class BaseController {
      */
     public final void activate(Vehicle v) {
         this.vehicle = v;
-        prepForVehicle(v);
+        prepForVehicle(v);      // This is an activation hook for subclasses
         activeController = this;
         doRefresh();
     }
     
+/*------------------------------------------------------------------------------
+ *
+ * UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
     
-    //
-    // Abstract methods that must be implemented by subclasses
-    //
+    @FXML protected void refreshButtonHandler(ActionEvent event) { doRefresh(); }
+
+/*------------------------------------------------------------------------------
+ * 
+ * The following methods must be implemented by subclasses though the
+ * implementation may be empty.
+ * 
+ *----------------------------------------------------------------------------*/
     
     /**
      * The controller is being initialized along with the associated UI. This
      * is a chance for the BaseController subclass to do any necessary setup.
      */
-    abstract protected void doInitialize();
+    abstract protected void fxInitialize();
+    
 
     /**
      * Subclasses can do whatever is needed to prepare for operations on the
@@ -130,66 +149,50 @@ abstract class BaseController {
     abstract protected void prepForVehicle(Vehicle v);
     
     /**
-     * Return a state object that is of the type to be refreshed. Return null
-     * if no refresh-able state is being handled
+     * Do whatever is required to refresh the state the controller uses
+     * to display its UI. This doesn't actually update the UI, it just gets
+     * the state needed to do so.
      */
     abstract protected void refresh();
     
     /**
      * Subclasses must implement this method in order to update their UI
      * after a previously launched refresh Task has completed.
-     * @param state The new state resulting from the prior doRefresh()
      */
     abstract protected void reflectNewState();
     
     
-    //
-    // The following methods may be overriden by subclasses, but need not be.
-    //
+/*------------------------------------------------------------------------------
+ * 
+ * The following methods may be overridden by subclasses but need not be.
+ * 
+ *----------------------------------------------------------------------------*/
     
     /**
-     * Subclasses rarely need to override this handler, but they may do so if
-     * they need to do some special processing before the refresh happens (or
-     * instead of it).
-     * @param event     The ActionEvent from the refreshButton
+     * Gives controllers a chance to do one-time initialization *after* the 
+     * appCntext is set. At fxInitialize time the appContext isn't ready yet.
      */
-    // Handle the refresh button by, you guessed it, refreshing
-    @FXML protected void refreshButtonHandler(ActionEvent event) { doRefresh(); }
+    protected void appInitialize() {}
 
-    enum AfterCommand {Reflect, Refresh, Nothing};
 
-    /**
-     * Override in order to explicitly handle the completion of a command
-     * that was issued earlier using issueCommand. If this represents the completion
-     * of the "built-in" RefreshCommand, then we invoke reflectNewState(). If it 
-     * is any other command then we conditionally perform a refresh.
-     * @param state     The result of the command
-     * @param refresh   Whether or not to invoke doRefresh()
-     */
-    protected void commandComplete(Object state, AfterCommand action) {
-        switch (action) {
-            case Reflect: reflectNewState(); break;
-            case Refresh: doRefresh(); break;
-            case Nothing:
-            default: break;
-        }
-    }
-
-    //
-    // The following methods can be used by (but not overriden) by subclasses
-    // to perform various utility functions.
-    //
     
+/*------------------------------------------------------------------------------
+ * 
+ * Methods for use by subclasses to issue commands and refresh state
+ * 
+ *----------------------------------------------------------------------------*/    
+
+    private static long lastRefreshTime = 0;
+    private static Thread refreshThread = null;
+
     /**
      * Launch a Task that will issue a command to a tesla controller function.
      * The call to the controller function is encapsulated in the Callback
-     * object along with any state it requires to operate. If refreshAfterCommand
-     * is true, doRefresh() will be invoked after the command completes. This is
-     * often useful to update the state of an associated object to determine
-     * the impact of the command that was issued (eg refresh DoorState after
-     * invoking functionality in DoorController).
+     * object along with any state it requires to operate.
+     * @param c         The Callback object which will be invoked to do the work
+     * @param action    What to do after the command is complete
      */
-    protected final void issueCommand(Callback c, AfterCommand action) {
+    protected final void issueCommand(Callable<Result> c, AfterCommand action) {
         Task<Result> task = new IssueCommand(c);
         showProgressUI(true);
         EventHandler<WorkerStateEvent> handler = new CompletionHandler(action);
@@ -197,29 +200,55 @@ abstract class BaseController {
         task.setOnFailed(handler);
         progressIndicator.progressProperty().bind(task.progressProperty());
         progressLabel.textProperty().bind(task.messageProperty());
-        new Thread(task).start();
+        appContext.launchThread(task, "00 IssueCommand");
     }
+    
+    /**
+     * Issue a command to refresh the given state object and reflect the
+     * results after the command is complete.
+     * @param state     The state to be refreshed
+     */
+    protected final void updateState(final APICall state) {
+        issueCommand(new Callable<Result>() {
+            @Override public Result call() {
+                return state.refresh() ? Result.Succeeded : Result.Failed;
+            }
+        }, AfterCommand.Reflect);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Utility Methods for use by subclasses
+ * 
+ *----------------------------------------------------------------------------*/
     
     protected final void setOptionState(boolean selected, ImageView selImg, ImageView deselImg) {
         if (deselImg != null) deselImg.setVisible(!selected);
         if (selImg != null) selImg.setVisible(selected);
     }
     
+    protected final boolean differentVehicle(APICall state, Vehicle v) {
+        if (state == null) return true;
+        return !state.getVehicle().getVIN().equals(v.getVIN());
+    }
     
-    //
-    // Private Task Handling Classes
-    //
+/*------------------------------------------------------------------------------
+ * 
+ * The following methods and classes implement background tasks for issuing
+ * commands and refreshing state automatically.
+ * 
+ *----------------------------------------------------------------------------*/    
     
     private class IssueCommand extends Task<Result> {
-        Callback callback;
+        Callable<Result> callable;
 
-        IssueCommand(Callback c) { this.callback = c; }
+        IssueCommand(Callable<Result> c) { this.callable = c; }
 
         @Override
         protected Result call() throws Exception {
             updateProgress(-1, 100);
             updateMessage("");
-            Result r = callback.execute();
+            Result r = callable.call();
             if (r.success) {
                 return r;
             }
@@ -242,25 +271,45 @@ abstract class BaseController {
                 result = w.getValue();
             }
             showProgressUI(false);
-            commandComplete(result, action);
+            switch (action) {
+                case Reflect: reflectNewState(); break;
+                case Refresh: doRefresh(); break;
+                case Nothing:
+                default: break;
+            }
         }
     }
     
-    class AutoRefresh implements Runnable {
+    private void ensureRefreshThread() {
+        if (refreshThread == null) {
+            refreshThread = appContext.launchThread(new AutoRefresh(), "00 AutoRefresh");
+            lastRefreshTime = new Date().getTime();
+        }
+    }
+    
+    class AutoRefresh implements Runnable, ChangeListener<Boolean> {
+        private boolean asleep = true;
+        
+        @Override public void
+        changed(ObservableValue<? extends Boolean> o, Boolean ov, Boolean nv) {
+            asleep = nv;
+        }
+
         @Override public void run() {
+            appContext.shouldBeSleeping.addListener(this);
+            asleep = appContext.shouldBeSleeping.get();
             while (true) {
-                try {
-                    long timeToSleep = BaseController.AutoRefreshInterval;
-                    while (timeToSleep > 0) {
-                        Thread.sleep(timeToSleep);
-                        timeToSleep = BaseController.AutoRefreshInterval - 
-                                (new Date().getTime() - BaseController.lastRefreshTime);
-                        timeToSleep = Math.min(timeToSleep, BaseController.AutoRefreshInterval);
-                    }
-                    Platform.runLater(new FireRefresh());
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(AutoRefresh.class.getName()).log(Level.FINEST, null, ex);
+                long timeToSleep = AutoRefreshInterval;
+                while (timeToSleep > 0) {
+                    Utils.sleep(timeToSleep);
+                    if (appContext.shuttingDown.get())
+                        return;
+                    timeToSleep = AutoRefreshInterval - 
+                            (System.currentTimeMillis() - lastRefreshTime);
+                    timeToSleep = Math.min(timeToSleep, AutoRefreshInterval);
                 }
+                if (!asleep)
+                    Platform.runLater(new FireRefresh());
             }
         }
 
@@ -272,26 +321,21 @@ abstract class BaseController {
             }
         }
     }
-    //
-    // Private Utility Methods
-    //
-    
+
+/*------------------------------------------------------------------------------
+ * 
+ * Private Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/    
+
     /**
      * Wrapper around refresh() that keeps track of the time to facilitate AutoRefresh
      */
     private void doRefresh() {
-        lastRefreshTime = new Date().getTime(); // Used by the AutoRefresh mechanism
+        lastRefreshTime = System.currentTimeMillis(); // Used by the AutoRefresh mechanism
         refresh();
     }
     
-    private void ensureRefreshThread() {
-        if (refreshThread == null) {
-            refreshThread = new Thread(new AutoRefresh());
-            refreshThread.setDaemon(true);
-            refreshThread.start();
-            lastRefreshTime = new Date().getTime();
-        }
-    }
 
     private int spuiCount = 0;
     private void showProgressUI(boolean show) {
@@ -320,36 +364,5 @@ abstract class BaseController {
             AnchorPane.setBottomAnchor(refreshButton, RefreshButtonOffset);
         }
     }
-
+    
 }
-
-
-/**
- * Implementations of this interface are used as input to the issueCommand
- * method. When the execute method is called, it should invoke a command
- * on a tesla Controller object
- */
-interface Callback { Result execute(); }
-
-class GetAnyState implements Callback {
-    APICall state;
-
-    GetAnyState(APICall state) { this.state = state; }
-
-    @Override public Result execute() {
-        if (state instanceof StreamingState) {
-            return ((StreamingState) state).refresh((int) AutoRefreshInterval)
-                    ? Result.Succeeded : Result.Failed;
-        }
-        return state.refresh() ? Result.Succeeded : Result.Failed;
-    }
-}
-
-
-/**
- * This class runs in the background and periodically invokes doRefresh()
- * so that the UI stays up to date without the user hitting the refresh button.
- * 
- * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
- */
-

@@ -6,26 +6,46 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.util.concurrent.Callable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.HVACState;
-import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
 public class HVACController extends BaseController {
-    // Controller State
+    
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+
+    private static final String degreesF = "º F";
+    private static final String degreesC = "º C";
+
+    /*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private org.noroomattheinn.tesla.HVACController controller;
     private HVACState hvacState;
     private boolean useDegreesF = false;
+    
+/*------------------------------------------------------------------------------
+ *
+ * UI Elements
+ * 
+ *----------------------------------------------------------------------------*/
     
     // Temperature Readouts    
     @FXML private Label insideTmpLabel, outsideTempLabel;
@@ -53,18 +73,15 @@ public class HVACController extends BaseController {
     @FXML private ToggleButton  hvacOffButton, hvacOnButton;
     @FXML private Button    driverTempUpButton, driverTempDownButton;
 
-    // Unused (for now) items...
-    @FXML private ImageView hotHatchImg;
-    @FXML private ImageView hotWSImg;
-    
-    
-    //
-    // Action Handlers
-    //
+/*------------------------------------------------------------------------------
+ *
+ *  UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
     
     @FXML void hvacOnOffHandler(ActionEvent event) {
-        issueCommand(new Callback() {
-            public Result execute() {
+        issueCommand(new Callable<Result>() {
+            public Result call() {
                 return controller.setAC(hvacOnButton.isSelected()); } },
                 AfterCommand.Refresh);
     }
@@ -76,32 +93,32 @@ public class HVACController extends BaseController {
         double tempC = hvacState.driverTemp();
         final double temp = (useDegreesF ? Utils.cToF(tempC) : tempC) + increment;
         final boolean setF = useDegreesF;   // Must be final, so copy it...
-        issueCommand(new Callback() {
-            public Result execute() { 
+        issueCommand(new Callable<Result>() {
+            public Result call() { 
                 if (setF) return controller.setTempF(temp, temp);
                 return controller.setTempC(temp, temp); }
             }, AfterCommand.Refresh);
     }
     
-    //
-    // Overriden methods from BaseController
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController
+ * 
+ *----------------------------------------------------------------------------*/
     
     protected void prepForVehicle(Vehicle v) {
-        if (controller == null || !controller.getVehicle().getVIN().equals(v.getVIN())) {
+        if (differentVehicle(controller, v)) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
             hvacState = new HVACState(v);
             GUIState gs = v.cachedGUIState();
             useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
-            if (simulatedUnitType != null)
-                useDegreesF = (simulatedUnitType == Utils.UnitType.Imperial);
             updateWheelView();  // Make sure we show the right wheels from the get-go
         }            
+        if (appContext.simulatedUnits.get() != null)
+            useDegreesF = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
     }
 
-    protected void refresh() {
-        issueCommand(new GetAnyState(hvacState), AfterCommand.Reflect);
-    }
+    protected void refresh() { updateState(hvacState); }
 
     protected void reflectNewState() {
         updateWheelView();
@@ -112,12 +129,14 @@ public class HVACController extends BaseController {
 
     
     // Controller-specific initialization
-    protected void doInitialize() {    }    
+    protected void fxInitialize() {    }    
     
-    //
-    // These methods update the state of the UI to reflect the values in
-    // the hvacState object
-    //
+    
+/*------------------------------------------------------------------------------
+ *
+ * Methods to Reflect the State of the HVAC System
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void reflectHVACOnState() {
         // Determining whether the HVAC is on is a little tricky. You'd think
@@ -172,8 +191,6 @@ public class HVACController extends BaseController {
         }
     } 
 
-    private static final String degreesF = "º F";
-    private static final String degreesC = "º C";
     private void setTempLabel(Label label, double temp, boolean displayUnits) {
         if (Double.isNaN(temp)) {   // No value is available
             label.setText("...");
@@ -186,43 +203,11 @@ public class HVACController extends BaseController {
     }
 
     
-    //
-    // Handle Simulated Values
-    //
-    
-    private Utils.UnitType simulatedUnitType = null;
-    void setSimulatedUnits(Utils.UnitType t) { simulatedUnitType = t; }
-
-    
-    //
-    // These methods don't really do anything yet
-    //
-
-    @FXML void defOffPressed(MouseEvent event) {
-//        We can't actually control the defroster, so do nothing here...
-//        ImageView offImg = (ImageView)event.getSource();
-//        ImageView onImg = (offImg == rearDefOffImg) ? rearDefOnImg : frontDefOnImg;
-//        offImg.setVisible(false);
-//        onImg.setVisible(true);
-    }
-
-    @FXML void defOnPressed(MouseEvent event) {
-//        We can't actually control the defroster, so do nothing here...
-//        ImageView onImg = (ImageView)event.getSource();
-//        ImageView offImg = (onImg == rearDefOnImg) ? rearDefOffImg : frontDefOffImg;
-//        offImg.setVisible(true);
-//        onImg.setVisible(false);
-    }
-    
-    
     // TO DO: This wheel-related code duplicates functionality in OverviewController. 
-    // Refactorthis to make it shareable (somehow).
-    
-    private Options.WheelType simulatedWheels = null;
-    void setSimulatedWheels(Options.WheelType wt) { simulatedWheels = wt; }
-
+    // Refactor this to make it shareable (somehow).
     private void updateWheelView() {
-        WheelType wt = (simulatedWheels == null) ? vehicle.getOptions().wheelType() : simulatedWheels;
+        WheelType wt = (appContext.simulatedWheels.get() == null) ?
+                vehicle.getOptions().wheelType() : appContext.simulatedWheels.get();
         
         nineteenRimFront.setVisible(false);
         nineteenRimRear.setVisible(false);

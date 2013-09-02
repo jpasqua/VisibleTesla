@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.utils.Utils;
 
 /**
  * StatsRepository
@@ -43,6 +44,8 @@ public class StatsRepository {
         void recordElement(long time, String type, double val);
     }
     
+    private double cumulativeChange = 0.0;
+    private int valuesWritten = 0;
     
     void storeElement(String type, long time, double value) {
         if (statsWriter == null)  return;
@@ -51,12 +54,15 @@ public class StatsRepository {
         
         if (lastEntry == null) {    // First entry, write it out and remember it
             statsWriter.format("%d\t%s\t%3.1f\n", time, type, value);
+            cumulativeChange += 1.0;
+            valuesWritten++;
         } else {
             if (lastEntry.value != value) {
                 // It's a different value, write out the old and the new
                 statsWriter.format("%d\t%s\t%3.1f\n", lastEntry.time, type, lastEntry.value);
                 statsWriter.format("%d\t%s\t%3.1f\n", time, type, value);
-            } else {
+                cumulativeChange += Utils.percentChange(lastEntry.value, value);
+                valuesWritten++;
             }
         }
         lastEntryMap.put(type, new Entry(time, type, value));
@@ -66,7 +72,7 @@ public class StatsRepository {
         if (statsWriter != null) statsWriter.close();
     }
 
-    void flushElements() {
+    double flushElements() {
         statsWriter.flush();
         
         String auxName = auxNameForVIN(vin);
@@ -79,6 +85,10 @@ public class StatsRepository {
         } catch (FileNotFoundException ex) {
             Tesla.logger.log(Level.WARNING, "Can't create aux file: " + auxName, ex);
         }
+        double avgPctChange = valuesWritten == 0 ? 0 : cumulativeChange/valuesWritten;
+        cumulativeChange = 0;
+        valuesWritten = 0;
+        return avgPctChange;
     }
 
     //

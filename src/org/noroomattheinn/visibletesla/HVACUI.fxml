@@ -36,22 +36,22 @@
         <Image url="@../TeslaResources/05_climate_car_hot@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="frontDefOnImg" fitHeight="0.0" fitWidth="0.0" layoutX="200.0" layoutY="38.0" onMouseReleased="#defOnPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
+    <ImageView fx:id="frontDefOnImg" fitHeight="0.0" fitWidth="0.0" layoutX="200.0" layoutY="38.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
       <image>
         <Image url="@../TeslaResources/05_climate_defrost_front_on@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="frontDefOffImg" fitHeight="0.0" fitWidth="0.0" layoutX="200.0" layoutY="38.0" onMouseReleased="#defOffPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+    <ImageView fx:id="frontDefOffImg" fitHeight="0.0" fitWidth="0.0" layoutX="200.0" layoutY="38.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
       <image>
         <Image url="@../TeslaResources/05_climate_defrost_front@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="rearDefOnImg" fitHeight="0.0" fitWidth="0.0" layoutX="455.0" layoutY="38.0" onMouseReleased="#defOnPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
+    <ImageView fx:id="rearDefOnImg" fitHeight="0.0" fitWidth="0.0" layoutX="455.0" layoutY="38.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" visible="false">
       <image>
         <Image url="@../TeslaResources/05_climate_defrost_rear_on@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="rearDefOffImg" fitHeight="0.0" fitWidth="0.0" layoutX="455.0" layoutY="38.0" onMouseReleased="#defOffPressed" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+    <ImageView fx:id="rearDefOffImg" fitHeight="0.0" fitWidth="0.0" layoutX="455.0" layoutY="38.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
       <image>
         <Image url="@../TeslaResources/05_climate_defrost_rear@2x.png" />
       </image>
