@@ -58,7 +58,7 @@ public class MainController {
     private static final String ProductVersion = "0.19";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
 
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  *
  * Internal State
  * 
@@ -273,6 +273,12 @@ public class MainController {
     // File->Close
     @FXML void closeHandler(ActionEvent event) {
         Platform.exit();
+    }
+    
+    // File->Export Graph Data...
+    @FXML void exportHandler(ActionEvent event) {
+        GraphController gc = Utils.cast(controllerFromTab(graphTab));
+        gc.exportCSV();
     }
     
     // File->Allow Sleep menu option

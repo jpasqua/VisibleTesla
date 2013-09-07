@@ -150,7 +150,7 @@
       </image>
     </ImageView>
     <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" minHeight="13.9998779296875" prefHeight="13.9998779296875" text="Odometer: ..." visible="true" />
-    <Button layoutX="482.0" layoutY="366.0" mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" />
+    <Button mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" AnchorPane.bottomAnchor="13.0" AnchorPane.rightAnchor="92.0" />
     <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="523.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/spoiler_closed@2x.png" />

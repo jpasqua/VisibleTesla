@@ -15,6 +15,7 @@
         <Menu mnemonicParsing="false" text="File">
           <items>
             <CheckMenuItem mnemonicParsing="false" onAction="#allowSleepHandler" text="Allow Sleep" fx:id="allowSleepMenuItem" />
+            <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Graph Data..." />
             <MenuItem mnemonicParsing="false" onAction="#closeHandler" text="Close">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
@@ -73,7 +74,7 @@
       <tabs>
         <Tab fx:id="loginTab" text="Login">
           <content>
-            <fx:include source="LoginUI.fxml" maxHeight="-1.0" maxWidth="-1.0" minHeight="400.0" minWidth="640.0" />
+            <fx:include source="LoginUI.fxml" disable="false" maxHeight="-1.0" maxWidth="-1.0" minHeight="400.0" minWidth="640.0" />
           </content>
         </Tab>
         <Tab fx:id="overviewTab" disable="true" text="Overview">

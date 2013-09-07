@@ -1,0 +1,21 @@
+/* 
+    Document   : tooltip
+    Created on : Sep 6, 2013, 9:59:01 PM
+    Author     : Joe Pasqua <joe at NoRoomAtTheInn dot org>
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.tooltip {
+       -fx-background-color: 
+        rgba(0,0,0,0.08),
+        linear-gradient(#9a9a9a, #909090),
+        linear-gradient(white 0%, #f3f3f3 50%, #ececec 51%, #f2f2f2 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-text-fill: #242d35;
+}
+
+.page-corner {
+    -fx-shape: " ";
+}

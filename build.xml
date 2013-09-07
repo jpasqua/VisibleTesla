@@ -5,6 +5,7 @@
           <fileset dir="Documentation"/>
         </copy>
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
+        <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>     
     </target>
 
     <import file="nbproject/build-impl.xml"/>

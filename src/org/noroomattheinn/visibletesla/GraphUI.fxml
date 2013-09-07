@@ -20,17 +20,50 @@
         <Font size="10.0" />
       </font>
     </Label>
-    <AnchorPane id="Content" fx:id="itemListContent" minHeight="0.0" minWidth="0.0" prefHeight="168.0" prefWidth="139.0" styleClass="choiceList" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="33.0">
+    <AnchorPane id="Content" fx:id="itemListContent" minHeight="0.0" minWidth="0.0" prefHeight="186.0" prefWidth="139.0" styleClass="choiceList" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="33.0">
       <children>
         <VBox id="VBox" alignment="BASELINE_LEFT" spacing="5.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="11.0">
           <children>
-            <CheckBox fx:id="voltageCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Voltage" />
-            <CheckBox fx:id="currentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Current" />
-            <CheckBox fx:id="rangeCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Range" />
-            <CheckBox fx:id="socCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="State of Charge" />
-            <CheckBox fx:id="rocCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Rate of Charge" />
-            <CheckBox fx:id="powerCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Power" />
-            <CheckBox fx:id="speedCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Speed" />
+            <CheckBox fx:id="voltageCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Voltage">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="AC volts into the car" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox fx:id="currentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Current">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="AC current into the car" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox fx:id="rangeCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Range">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="Rated Range" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox fx:id="socCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="State of Charge">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="Battery percentage remaining" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox fx:id="rocCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Rate of Charge">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="Distance replenished per hour" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox fx:id="powerCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Power">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="DC power from/to the battery pack" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox fx:id="speedCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Speed">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="Speed" wrapText="true" />
+              </tooltip>
+            </CheckBox>
+            <CheckBox id="speedCheckbox" fx:id="batteryCurrentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Battery Current">
+              <tooltip>
+                <Tooltip prefWidth="150.0" text="Current flowing into or out of the battery" wrapText="true" />
+              </tooltip>
+            </CheckBox>
           </children>
         </VBox>
       </children>
@@ -40,7 +73,7 @@
         <AnchorPane fx:id="arrow" prefHeight="10.0" prefWidth="10.0" styleClass="arrow" />
       </graphic>
     </Button>
-    <Button contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="6.0" layoutY="376.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" onAction="#nowHandler" prefHeight="16.0" prefWidth="10.0" styleClass="TransparentBG" text="">
+    <Button contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" onAction="#nowHandler" prefHeight="16.0" prefWidth="10.0" styleClass="TransparentBG" text="" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="6.0">
       <graphic>
         <ImageView id="04_charge_alert_blue@2x.png" scaleX="1.0" scaleY="1.0">
           <image>

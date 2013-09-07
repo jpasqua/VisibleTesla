@@ -236,8 +236,8 @@ public class TimeBasedChart {
             boolean ctrl = event.isControlDown();
             boolean shift = event.isShiftDown();
             boolean none = !ctrl && ! shift;
-            double x = event.getX() + b.getMinX();
-            double y = event.getY() + b.getMinY();
+            double x = event.getX() - b.getMinX();
+            double y = event.getY() - b.getMinY();
             
             if (et == MouseEvent.MOUSE_MOVED) updateReadout(x, y);
             

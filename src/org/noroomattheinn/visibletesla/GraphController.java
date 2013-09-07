@@ -6,15 +6,25 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.net.URL;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.SnapshotState;
@@ -74,12 +84,57 @@ public class GraphController extends BaseController implements StatsRepository.R
     @FXML private CheckBox socCheckbox;
     @FXML private CheckBox rocCheckbox;
     @FXML private CheckBox powerCheckbox;
+    @FXML private CheckBox batteryCurrentCheckbox;
     @FXML private CheckBox speedCheckbox;
     @FXML private AnchorPane itemListContent;
     @FXML private Button showItemsButton;
     @FXML private AnchorPane arrow;
           private TimeBasedChart chart;
-    
+          
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+          
+    void exportCSV() {
+        if (variables == null) {
+            Dialogs.showWarningDialog(
+                    appContext.stage,
+                    "Your graph data hasn't been loaded yet.\n" +
+                    "Please select the Graphs tab then try again");
+            return;
+        }
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Graph Data");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        final File file = fileChooser.showSaveDialog(appContext.stage);
+        if (file == null)
+            return;
+        
+        try {
+            final PrintStream csvWriter = new PrintStream(new FileOutputStream(file));
+
+            csvWriter.println("timestamp,\ttype,\tvalue");
+
+            for (Variable v : variables.set()) {
+                for (Data<Number, Number> data : v.seriesData) {
+                    csvWriter.format("%d,\t%s,\t%3.1f\n", data.getXValue(), v.type, data.getYValue());
+                }
+            }
+
+            csvWriter.close();
+            Dialogs.showInformationDialog(
+                    appContext.stage, "Your data has been exported");
+        } catch (FileNotFoundException ex) {
+            Dialogs.showErrorDialog(
+                    appContext.stage, "Unable to save to: " + file);
+        }
+        
+    }
+          
 /*------------------------------------------------------------------------------
  *
  * This section implements UI Actionhandlers
@@ -129,6 +184,7 @@ public class GraphController extends BaseController implements StatsRepository.R
         variables.register(new Variable(rocCheckbox, "C_ROC", "blue", distTransform));
         variables.register(new Variable(powerCheckbox, "S_PWR", "gray", Variable.idTransform));
         variables.register(new Variable(speedCheckbox, "S_SPD", "green", distTransform));
+        variables.register(new Variable(batteryCurrentCheckbox, "C_BAM", "black", Variable.idTransform));
     }
     
     private void restoreLastSettings() {
@@ -155,7 +211,8 @@ public class GraphController extends BaseController implements StatsRepository.R
             pauseRefresh();
             prepVariables();
             if (repo != null) repo.close();
-            repo = new StatsRepository(v.getVIN(), this);
+            repo = new StatsRepository(v.getVIN());
+            repo.loadExistingData(this);
             variables.assignToChart(chart.getChart());
             restoreLastSettings();
             ensureRefreshThread();  // If thread already exists, it unpauses
@@ -175,6 +232,14 @@ public class GraphController extends BaseController implements StatsRepository.R
         showItemList(false);
     }
     
+    protected void appInitialize() {
+        // This is a hack!! For some reason this is the only way I can get styles
+        // to work for ToolTips. I should be able to just choose the appropriate
+        // css class decalratively, but that doesn't work and no one seems to
+        // know why. This is a workaround.
+        URL url = getClass().getClassLoader().getResource("org/noroomattheinn/styles/tooltip.css");
+        appContext.stage.getScene().getStylesheets().add(url.toExternalForm());
+    }
     
 /*------------------------------------------------------------------------------
  *
@@ -223,6 +288,7 @@ public class GraphController extends BaseController implements StatsRepository.R
             addElement(variables.get("C_EST"), time, chargeState.range());
             addElement(variables.get("C_SOC"), time, chargeState.batteryPercent());
             addElement(variables.get("C_ROC"), time, chargeState.chargeRate());
+            addElement(variables.get("C_BAM"), time, chargeState.batteryCurrent());
         }
         if (snapshotState.hasValidData()) {
             long thisSnapshotTime = snapshotState.timestamp().getTime();

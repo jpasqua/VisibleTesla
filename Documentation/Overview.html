@@ -230,12 +230,8 @@
         which line represents which value. If you deselect a particular item it will not be displayed, but
         the statistics for that item will continue to be gathered.
     </p>
-    <p>Note that hese statistics are only collected while VisibleTesla is running.
-        If you quit the app or your computer goes into sleep mode, the statistics will
-        not be collected until the next time you run the app. If you have selected "File->Allow Sleep" and you don't use the app for 15 minutes, it will stop collecting samples.
-        VisibleTesla does store
-        the statistics it collects. If you quit the app and restart it later, it will 
-        display the old statistics and newly gathered ones.
+    <p>Note that these statistics are only collected while VisibleTesla is running and only after you view the Graphs tab at least once. It will continue collecting stats in the background even if you move to another tab. If you quit the app the statistics will not be collected until the next time you restart VisibleTesla. If you have selected "File->Allow Sleep" and you don't use the app for 15 minutes, it will stop collecting samples. VisibleTesla does store the statistics it collects. If you quit the app and restart it later, it will display the old statistics and newly gathered ones. </p>
+    <p>When you start VisibleTesla it does not automatically start collecting graph data. It only starts collecting data when you select the Graphs tab. Once you go to the Graphs tab once, it will continue collecting information in the background even if you switch to another tab.
     </p>
     <p>You can interact with the line chart in several different ways.
         <ul>
@@ -252,6 +248,7 @@
                 corresponding to the location of the cursor.
         </ul>
     </p>
+    <p>There is another item in the File menu titled "Export Graph Data...". It does just what the name implies; exports all of the data collected by the graph tab. It saves it as a CSV file in a location that you choose. CSV files are text files that can be opened by Microsoft Excel and many other applications. When you open an exported file in Excel, you'll see three columns labeled timestamp, type, and value. The timestamp is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You can convert this to a normal date and time using an Excel formula.</p>
     <p>The following screenshots show the graph with the Items dropdown expanded. The first chart shows all
         of the statistics displayed while the second shows the chart with two statistics de-selected.
     </p>

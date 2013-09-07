@@ -30,22 +30,51 @@ import org.noroomattheinn.utils.Utils;
  */
 
 public class StatsRepository {
+    
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+
     private String vin;
     private PrintStream statsWriter;
     private Map<String,Entry> lastEntryMap = new HashMap<>();
+    private double cumulativeChange = 0.0;
+    private int valuesWritten = 0;
+    
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
 
-    StatsRepository(String forVIN, Recorder recorder) {
+    StatsRepository(String forVIN) {
         this.vin = forVIN;
         prepRepository();
-        loadExistingData(recorder);
     }
     
     interface Recorder {
         void recordElement(long time, String type, double val);
     }
     
-    private double cumulativeChange = 0.0;
-    private int valuesWritten = 0;
+    void loadExistingData(Recorder r) {
+        processAndDeleteAuxFile();
+        try {
+            Scanner s = new Scanner(new BufferedReader(new FileReader(fileNameForVIN(vin))));
+            // <long>time       <String>type    <double>value
+            // 1377316202051    C_EST           126.6
+            while (s.hasNext()) {
+                long time = s.nextLong();
+                String type = s.next();
+                double val = s.nextDouble();
+                r.recordElement(time, type, val);
+            }
+        } catch (FileNotFoundException ex) {
+            Tesla.logger.log(Level.INFO, "Starting with partial/empty stats", ex);
+        }
+    }
     
     void storeElement(String type, long time, double value) {
         if (statsWriter == null)  return;
@@ -91,14 +120,12 @@ public class StatsRepository {
         return avgPctChange;
     }
 
-    //
-    // PRIVATE
-    // This section has the code pertaining to the storage repository
-    // for the sampled data
-    //
-    
-    private String fileNameForVIN(String vin) { return vin + ".stats.log"; }
-    private String auxNameForVIN(String vin) { return vin + ".stats.aux"; }
+/*------------------------------------------------------------------------------
+ *
+ * This section has the PRIVATE code pertaining to the storage repository
+ * for the sampled data
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void prepRepository() {
         if (statsWriter != null) { statsWriter.close(); }
@@ -132,28 +159,17 @@ public class StatsRepository {
         } 
     }
     
-    private void loadExistingData(Recorder r) {
-        processAndDeleteAuxFile();
-        try {
-            Scanner s = new Scanner(new BufferedReader(new FileReader(fileNameForVIN(vin))));
-            // <long>time       <String>type    <double>value
-            // 1377316202051    C_EST           126.6
-            while (s.hasNext()) {
-                long time = s.nextLong();
-                String type = s.next();
-                double val = s.nextDouble();
-                r.recordElement(time, type, val);
-            }
-        } catch (FileNotFoundException ex) {
-            Tesla.logger.log(Level.INFO, "Starting with partial/empty stats", ex);
-        }
-    }
     
     
-    //
-    // Private Utility Classes
-    //
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods and Classes
+ * 
+ *----------------------------------------------------------------------------*/
 
+    private String fileNameForVIN(String vin) { return vin + ".stats.log"; }
+    private String auxNameForVIN(String vin) { return vin + ".stats.aux"; }
+    
     private class Entry {
         public final long time;
         public final double value;
