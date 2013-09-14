@@ -18,7 +18,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Level;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
@@ -61,18 +60,24 @@ public class StatsRepository {
     
     void loadExistingData(Recorder r) {
         processAndDeleteAuxFile();
-        try {
-            Scanner s = new Scanner(new BufferedReader(new FileReader(fileNameForVIN(vin))));
-            // <long>time       <String>type    <double>value
-            // 1377316202051    C_EST           126.6
-            while (s.hasNext()) {
-                long time = s.nextLong();
-                String type = s.next();
-                double val = s.nextDouble();
-                r.recordElement(time, type, val);
+        BufferedReader rdr = getReaderForFile(fileNameForVIN(vin));
+        if (rdr == null) return;
+        
+        String line;
+        while ((line = getLineFromReader(rdr)) != null) {
+            String tokens[] = line.split("\\s");
+            if (tokens.length != 3) {   // Malformed line
+                Tesla.logger.log(Level.INFO, "Malformed stats entry: Improper number of tokens");                
+                continue;
             }
-        } catch (FileNotFoundException ex) {
-            Tesla.logger.log(Level.INFO, "Starting with partial/empty stats", ex);
+            try {
+                long time = Long.valueOf(tokens[0]);
+                String type = tokens[1];
+                double val = Double.valueOf(tokens[2]);
+                r.recordElement(time, type, val);
+            } catch (NumberFormatException ex) {
+                Tesla.logger.log(Level.INFO, "Malformed stats entry", ex);
+            }
         }
     }
     
@@ -166,7 +171,25 @@ public class StatsRepository {
  * Private Utility Methods and Classes
  * 
  *----------------------------------------------------------------------------*/
-
+    
+    private BufferedReader getReaderForFile(String fileName) {
+        try {
+            return new BufferedReader(new FileReader(fileName));
+        } catch (FileNotFoundException ex) {
+            Tesla.logger.log(Level.INFO, "Could not open file", ex);
+        }
+        return null;
+    }
+    
+    private String getLineFromReader(BufferedReader rdr) {
+        try {
+            return rdr.readLine();
+        } catch (IOException ex) {
+            Tesla.logger.log(Level.INFO, "Failed reading line", ex);
+        }
+        return null;
+    }
+    
     private String fileNameForVIN(String vin) { return vin + ".stats.log"; }
     private String auxNameForVIN(String vin) { return vin + ".stats.aux"; }
     

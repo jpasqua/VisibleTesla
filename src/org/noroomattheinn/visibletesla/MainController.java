@@ -55,7 +55,7 @@ public class MainController {
  *----------------------------------------------------------------------------*/
 
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.19";
+    private static final String ProductVersion = "0.19.03";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
 
 /*------------------------------------------------------------------------------
