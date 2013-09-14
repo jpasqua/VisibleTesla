@@ -26,7 +26,7 @@
           <children>
             <CheckBox fx:id="voltageCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Voltage">
               <tooltip>
-                <Tooltip prefWidth="150.0" text="AC volts into the car" wrapText="true" />
+                <Tooltip prefWidth="150.0" text="Volts into the car" wrapText="true" />
               </tooltip>
             </CheckBox>
             <CheckBox fx:id="currentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Current">
@@ -51,7 +51,7 @@
             </CheckBox>
             <CheckBox fx:id="powerCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Power">
               <tooltip>
-                <Tooltip prefWidth="150.0" text="DC power from/to the battery pack" wrapText="true" />
+                <Tooltip prefWidth="150.0" text="DC power to/from the battery pack" wrapText="true" />
               </tooltip>
             </CheckBox>
             <CheckBox fx:id="speedCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Speed">
@@ -61,7 +61,7 @@
             </CheckBox>
             <CheckBox id="speedCheckbox" fx:id="batteryCurrentCheckbox" mnemonicParsing="false" onAction="#optionCheckboxHandler" selected="true" text="Battery Current">
               <tooltip>
-                <Tooltip prefWidth="150.0" text="Current flowing into or out of the battery" wrapText="true" />
+                <Tooltip prefWidth="150.0" text="Current flowing to/from the battery" wrapText="true" />
               </tooltip>
             </CheckBox>
           </children>
