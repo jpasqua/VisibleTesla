@@ -7,10 +7,13 @@
 package org.noroomattheinn.visibletesla;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -23,6 +26,10 @@ import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import jxl.Workbook;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.SnapshotState;
@@ -68,6 +75,7 @@ public class GraphController extends BaseController implements StatsRepository.R
     private StatsRepository repo;
     private VariableSet variables;
     private long lastSnapshotTime = 0;
+    private Map<String,Integer> valueMap = null;
 
 /*------------------------------------------------------------------------------
  *
@@ -94,7 +102,7 @@ public class GraphController extends BaseController implements StatsRepository.R
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
-          
+              
     void exportCSV() {
         if (variables == null) {
             Dialogs.showWarningDialog(
@@ -103,7 +111,7 @@ public class GraphController extends BaseController implements StatsRepository.R
                     "Please select the Graphs tab then try again");
             return;
         }
-        
+                
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Graph Data");
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -112,25 +120,61 @@ public class GraphController extends BaseController implements StatsRepository.R
         if (file == null)
             return;
         
+        if (valueMap == null)
+            createValueMap();
+        
+        TreeMap<Long,Double[]> table = collectIntoTable(valueMap);
+        
         try {
-            final PrintStream csvWriter = new PrintStream(new FileOutputStream(file));
-
-            csvWriter.println("timestamp,\ttype,\tvalue");
-
-            for (Variable v : variables.set()) {
-                for (Data<Number, Number> data : v.seriesData) {
-                    csvWriter.format("%d,\t%s,\t%3.1f\n", data.getXValue(), v.type, data.getYValue());
-                }
+            WritableWorkbook workbook = Workbook.createWorkbook(file);
+            WritableSheet sheet = workbook.createSheet("Sheet1", 0);
+            
+            int row = 0;
+            
+            // Add the header row
+            jxl.write.Label label = new jxl.write.Label(0, row, "TIMESTAMP"); 
+            sheet.addCell(label);
+            sheet.setColumnView(0, 12); // Big enough for a timestamp;
+            for (Map.Entry<String,Integer>entry : valueMap.entrySet()) {
+                String type = entry.getKey();
+                int column = entry.getValue();
+                label = new jxl.write.Label(column+1, row, type); 
+                sheet.addCell(label);
             }
-
-            csvWriter.close();
+            sheet.setColumnView(valueMap.size()+1, 16); // Big enough for a Date string;
+            
+            jxl.write.WritableCellFormat dateFormat = new jxl.write.WritableCellFormat(
+                        new jxl.write.DateFormat("M/d/yy H:mm:ss"));
+            
+            // Run through the table and add each row...
+            for (Map.Entry<Long,Double[]> entry : table.entrySet()) {
+                row++;
+                long time = entry.getKey().longValue();
+                jxl.write.Number timeCell = new jxl.write.Number(0, row, time); 
+                sheet.addCell(timeCell);
+                
+                Double[] vals = entry.getValue();
+                for (int i = 0; i < vals.length; i++) {
+                    double val = vals[i];
+                    if (!Double.isNaN(val)) {
+                        jxl.write.Number valueCell = new jxl.write.Number(i+1, row, val);
+                        sheet.addCell(valueCell);
+                    }
+                }
+                // Create a column which converts the UNIX timestamp to a Date
+                String dateFormula = String.format("(A%d/86400)+25569+(-8/24)",row+1);
+                jxl.write.Formula f = new jxl.write.Formula(vals.length+1, row, dateFormula, dateFormat);
+                sheet.addCell(f);
+            }
+            workbook.write(); 
+            workbook.close();
+            
             Dialogs.showInformationDialog(
                     appContext.stage, "Your data has been exported");
-        } catch (FileNotFoundException ex) {
+        } catch (IOException | WriteException ex) {
             Dialogs.showErrorDialog(
                     appContext.stage, "Unable to save to: " + file);
         }
-        
     }
           
 /*------------------------------------------------------------------------------
@@ -301,6 +345,45 @@ public class GraphController extends BaseController implements StatsRepository.R
     }
 
     private String prefKey(String key) { return vehicle.getVIN()+"_"+key; }
+    
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Utility methods for exporting data to an Excel file
+ * 
+ *----------------------------------------------------------------------------*/
+
+    private void createValueMap() {
+        valueMap = new HashMap<>();
+        
+        int i = 0;
+        Set<Variable> sorted = new TreeSet<>(variables.set());
+        for (Variable v : sorted) {
+            valueMap.put(v.type, i);
+            i++;
+        }
+
+    }
+    
+    private TreeMap<Long,Double[]> collectIntoTable(Map<String,Integer> typeToIndex) {
+        TreeMap<Long,Double[]> table = new TreeMap<>();
+        int nVars = variables.set().size();
+        for (Variable v : variables.set()) {
+            int valueIndex = typeToIndex.get(v.type);
+            for (Data<Number, Number> data : v.seriesData) {
+                long timeIndex = data.getXValue().longValue();
+                Double[] vals = table.get(timeIndex);
+                if (vals == null) {
+                    vals = new Double[nVars];
+                    for (int i = 0; i < nVars; i++) { vals[i] = Double.NaN; }
+                    table.put(timeIndex, vals);
+                }
+                vals[valueIndex] = data.getYValue().doubleValue();
+            }
+        }
+        return table;
+    }
+    
 
 /*------------------------------------------------------------------------------
  *

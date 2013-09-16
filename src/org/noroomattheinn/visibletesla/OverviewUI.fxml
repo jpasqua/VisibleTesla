@@ -5,9 +5,11 @@
 <?import java.util.*?>
 <?import javafx.collections.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
 <AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.OverviewController">
@@ -183,6 +185,16 @@
         <Image url="@../TeslaResources/charge_cable_long@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
+    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#d0d0d0" height="26.0" layoutX="12.0" layoutY="19.0" stroke="TRANSPARENT" strokeType="INSIDE" width="94.5">
+      <effect>
+        <BoxBlur height="2.0" width="2.0">
+          <input>
+            <DropShadow blurType="ONE_PASS_BOX" color="#606060" height="1.0" offsetX="3.0" offsetY="3.0" radius="0.0" width="1.0" />
+          </input>
+        </BoxBlur>
+      </effect>
+    </Rectangle>
+    <Label fx:id="vinLabel" layoutX="21.0" layoutY="25.0" text="VIN P08714" textFill="BLACK" />
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

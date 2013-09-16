@@ -17,7 +17,7 @@ import org.noroomattheinn.utils.Utils;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-public class Variable {
+public class Variable implements Comparable {
     
 /*------------------------------------------------------------------------------
  *
@@ -56,6 +56,7 @@ public class Variable {
 
     public void establishColor() {
         series.getNode().setStyle("-fx-stroke: " + color + ";");
+        //series.getNode().setStyle("-fx-stroke: " + "transparent" + ";");
         cb.setStyle("-fx-text-fill: " + color + ";");
     }
     
@@ -65,7 +66,10 @@ public class Variable {
         seriesData.add(new XYChart.Data<Number, Number>(time/(1000), xform.transform(value)));
     }
 
-    
+    @Override public int compareTo(Object o) {
+        return type.compareTo(((Variable)o).type);
+    }
+
 /*------------------------------------------------------------------------------
  *
  * The Transform Interface and several interesting instances

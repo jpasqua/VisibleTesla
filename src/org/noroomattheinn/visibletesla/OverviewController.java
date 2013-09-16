@@ -21,6 +21,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DoorController;
@@ -96,7 +97,10 @@ public class OverviewController extends BaseController {
 
     // Charging related images
     @FXML private ImageView chargeCableImg, portClosedImg, portOpenImg, greenGlowImage;
+    
+    // Other Labels
     @FXML private Label odometerLabel;
+    @FXML private Label vinLabel;
     
     //
     // Controls
@@ -192,6 +196,8 @@ public class OverviewController extends BaseController {
             updateRoofView();   // Make sure we display the right roof from the get-go
             if (storedOdometerReading != 0)
                 updateOdometer();   // Show at least an old reading to start
+            
+            vinLabel.setText("VIN " + StringUtils.right(v.getVIN(), 6));
         }
     }
     

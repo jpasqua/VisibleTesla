@@ -8,6 +8,72 @@
 
 <h1>VisibleTesla Release Notes</h1>
 <hr>
+<h3>VisibleTesla 0.19.04 [2013-09-15]</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+					<li>The "File->Export Graph Data..." menu item has been revamped.
+						<ol>
+							<li>It now exports an excel spreadsheet rather than a CSV.</li>
+							<li>It creates a table with all the fields in each row for a given timestamp.</li>
+							<li>It appends a column with a human-readable date value corresponging to the timestamp so you don't have to add a formula for this yourself. It displays all dates in the US Pacific time zone. For other time zones look at the formula and replace the "-8" with the time zone offset you want.</li>
+						</ol>
+					</li>
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+					<li>Added a label displaying the last part of the VIN of the vehicle; e.g., P08714.</li>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Graphs
+				<ul>
+					<li>When the mouse enters the chart area it turns into a crosshair shape. This makes it easier to precisely position the mouse over a point whose value you want to see int he readout.</li>
+					<li><b>Fixed</b>: The readout showing the value currently under the mouse was off by a small amount. This has been fixed.</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+			<li><b>Fixed</b>: The Graphs tab would write duplicate entries to the data file. This would not show up to the user, but the entries would appear in the file created by "File -> Export Graph Data...".</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+		</ul>
+	</li>
+</ul>
+
+<hr>
 <h3>VisibleTesla 0.19.03 [2013-09-13]</h3>
 <ul>
 	<li>

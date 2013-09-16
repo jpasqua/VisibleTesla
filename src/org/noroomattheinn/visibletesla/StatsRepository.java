@@ -92,9 +92,9 @@ public class StatsRepository {
             valuesWritten++;
         } else {
             if (lastEntry.value != value) {
-                // It's a different value, write out the old and the new
+                // It's a different value, write out the old and save the new one
                 statsWriter.format("%d\t%s\t%3.1f\n", lastEntry.time, type, lastEntry.value);
-                statsWriter.format("%d\t%s\t%3.1f\n", time, type, value);
+                // statsWriter.format("%d\t%s\t%3.1f\n", time, type, value);
                 cumulativeChange += Utils.percentChange(lastEntry.value, value);
                 valuesWritten++;
             }

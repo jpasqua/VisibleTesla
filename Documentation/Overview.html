@@ -95,7 +95,7 @@
 
     <p>The Overview tab shows basic state about the vehicle and gives access to
     commands like lock/unlock, operating the panoramic roof (if you have one),
-    flashing the lights, etc.These screen shots show the overview tab
+    flashing the lights, etc. These screen shots show the overview tab
     reflecting various states of the car. The second screen shows an
     information dialog that gives details about your car.
     </p>
@@ -104,21 +104,21 @@
     <p><img border="0" style="margin:5px" src="images/02a_Overview_Details.png" /></p>
     <p>The next screen shot shows the panoramic roof in the vented state. The user
         vented the roof by pressing the Vent button. The next screenshot shows
-        wht the app will display when the driver's door is open.<p>
+        what the app will display when the driver's door is open.<p>
     <p><img border="0" style="margin:5px" src="images/03_Overview_Vented.png" /></p>
     <p><img border="0" style="margin:5px" src="images/04_Overview_Door_Open.png" /> </p>
     
     <h3><a id="hvac_tab">HVAC Tab</a></h3>
 
     <p>Next we have the HVAC tab which shows the state of that system. It also
-    allows you to set the target temperature and turn on/off the system.</p>
+    allows you to set the target temperature and turn on/off the system. This tab will display whether the front or rear defrosters are on, but it cannot control the defrosters. The fan blades will fill in to show the speed at which the fan is blowing. All empty is off, all full is maximum, and partially full are levels in between. </p>
 
     <p><img border="0" style="margin:5px" src="images/05_HVAC_Tab.png" /></p>
 
     <h3><a id="location_tab">Location Tab</a></h3>
 
-    <p>The location tab embeds a Google map to show the current location and
-    the marker is rotated to show the current heading. There is a "Browse"
+    <p>The Location tab embeds a Google map to show the current location of your car with a marker. The
+     marker is rotated to show your car's heading. There is a "Browse"
     button that will launch your default browser displaying a Google map with the car's
     location so you can get directions or perform any other Google map function.</p>
 
@@ -127,7 +127,7 @@
         mode. If you click on the arrow representing your Tesla, an info window will pop
         up displaying the street address that is closest to your car.</p>
     <p>The map will  keep the car centered <i>unless you manually pan the map</i>. If you do so, you are indicating that you want to view a specific location and the app will not recenter the map as the car moves. You may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.</p>
-                        <p>If the user pans the map manually thereby leaving "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</p>
+    <p>If the user pans the map manually thereby exiting "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</p>
     <p><b>Note</b>: The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again.</p>
 
     <p><img border="0" style="margin:5px" src="images/06a_Location_Info.png" /></p>
@@ -248,9 +248,49 @@
                 corresponding to the location of the cursor.
         </ul>
     </p>
-    <p>There is another item in the File menu titled "Export Graph Data...". It does just what the name implies; exports all of the data collected by the graph tab. It saves it as a CSV file in a location that you choose. CSV files are text files that can be opened by Microsoft Excel and many other applications. When you open an exported file in Excel, you'll see three columns labeled timestamp, type, and value. The timestamp is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You can convert this to a normal date and time using an Excel formula.</p>
+    <p>There is another item in the File menu titled "Export Graph Data...". It does just what the name implies;
+        exports all of the data collected by the Graphs tab.  It saves the data to a Microsoft Excel file in a location that you choose. When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The timestamp is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like this:</p>
+    <table class="grid_table">
+            <tr>
+                <th>TIMESTAMP</th>
+                <th>C_AMP</th>
+                <th>C_BAM</th>
+                <th>C_EST</th>
+                <th>C_ROC</th>
+                <th>C_SOC</th>
+                <th>C_VLT</th>
+                <th>S_PWR</th>
+                <th>S_SPD</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <td>1377743292</td>
+                <td>0</td>
+                <td></td>
+                <td>99.7</td>
+                <td>-1</td>
+                <td>55</td>
+                <td>0</td>
+                <td>24</td>
+                <td>14</td>
+                <td>8/28/13 18:28:12</td>
+            </tr>
+            <tr>
+                <td>1377746306</td>
+                <td>0</td>
+                <td></td>
+                <td>99.3</td>
+                <td>-1</td>
+                <td>50</td>
+                <td>0</td>
+                <td>21</td>
+                <td>16</td>
+                <td>8/28/13 19:18:26</td>
+            </tr>
+        </table>
+        <p>You may notice that some entries are missing. This is normal and can happen for a number of reasons.</p>
     <p>The following screenshots show the graph with the Items dropdown expanded. The first chart shows all
-        of the statistics displayed while the second shows the chart with two statistics de-selected. The last image shows
+        of the statistics displayed while the second shows the chart with several items de-selected. The last image shows
         the "Export Graph Data..." item of the File menu. This screenshot is from Windows to give a feel for how the menu bar looks on that platform.
     </p>
     <p><img border="0" style="margin:5px" src="images/14_Graphs_All.png" /></p>
@@ -295,12 +335,12 @@
     &amp; 8, 32 and 64 bit. It was developed and tested on Mac OS X 10.8 and
     has been installed and run on several variants of Mac OS including 10.9
     beta. I've done very limited testing on Linux (Mint 15 in particular) and
-    did not notice any problems.
+    did not notice any problems. If you run the app in a virtualized environment using VMware, you may need to disable 3D acceleration in order to avoid screen display issues. This is a problem with JavaFX which is used by VisibleTesla.
 
     <h3><a id="java">Java</a></h3>
     VisibleTesla is a Java application and requires that you have
     a recent version of Java installed on your system. If you already have Java
-    installed, you can skip this step. You can download Java for Windows, Mac,
+    installed, you nay be able to skip this step. However, VisibleTesla requires a recent version of Java so you may have to update your Java installation if it is old. You can download Java for Windows, Mac,
     and Linux from java.com using the links below:
     <ul>
         <li> <a target="_blank" href="http://www.java.com/en/download/help/windows_manual_download.xml">Windows</a> </li>

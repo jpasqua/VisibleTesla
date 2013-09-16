@@ -26,6 +26,8 @@ This project assumes a directory structure that looks like this:
 		apache
 			commons-io-2.4
 		javafx-dialog
+		jfxtras
+		jexcelapi
 
 The Tesla/VisibleTesla directory corrsponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
 [TeslaClient](https://github.com/jpasqua/TeslaClient.git)
@@ -41,6 +43,7 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	mv $DOWNLOAD/VisibleTesla-master Tesla/VisibleTesla
 	mkdir ThirdParty/javafx-dialogs
 	mkdir ThirdParty/jfxtras
+	mkdir ThirdParty/jexcelapi
 
 	# Download the apache libraries
 	cd ThirdParty/apache
@@ -52,6 +55,12 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	cd ../javafx-dialogs
 	curl -s -O -L https://github.com/marcojakob/javafx-ui-sandbox/blob/master/javafx-dialogs/dist/javafx-dialogs-0.0.3.jar?raw=true
 	mv javafx-dialogs-0.0.3.jar* javafx-dialogs-0.0.3.jar
+
+	# Download the  JExcelAPI library
+	cd ../jexcelapi
+	curl -s -O -L http://sourceforge.net/projects/jexcelapi/files/jexcelapi/2.6.12/jexcelapi_2_6_12.zip
+	unzip jexcelapi_2_6_12.zip
+	rm jexcelapi_2_6_12.zip
 
 	# Download the jfxtras library
 	# There may be a newer version of the library. If so, update the version details below

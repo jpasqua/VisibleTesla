@@ -10,6 +10,8 @@ import java.util.Date;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -116,7 +118,8 @@ public class TimeBasedChart {
         lineChart.setAlternativeRowFillVisible(false);
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
-
+        lineChart.setCursor(Cursor.CROSSHAIR);
+        
         AnchorPane.setTopAnchor(lineChart, 0.0);
         AnchorPane.setBottomAnchor(lineChart, 0.0);
         AnchorPane.setLeftAnchor(lineChart, 0.0);
@@ -190,16 +193,16 @@ public class TimeBasedChart {
         }
         
         @Override public void handle(ScrollEvent event) {
-            Bounds b = chart.boundsInParentProperty().get();
+            Point2D offset = getOffset(lineChart, chart);
             boolean ctrl = event.isControlDown();
             boolean shift = event.isShiftDown();
             boolean none = !ctrl && ! shift;
             
             if (ctrl || shift)
-                handle(event.getDeltaY(), event.getY()-b.getMinY(), 
+                handle(event.getDeltaY(), event.getY()-offset.getY(), 
                        yAxis, minorTicksForY, MinRangeY, MaxRangeY);
             if (none || (shift && !ctrl))
-                handle(event.getDeltaY(), event.getX()-b.getMinX(),
+                handle(event.getDeltaY(), event.getX()-offset.getX(),
                        xAxis, minorTicksForX, MinRangeX, MaxRangeX);
         }
     }
@@ -232,12 +235,12 @@ public class TimeBasedChart {
         @Override
         public void handle(MouseEvent event) {
             EventType et = event.getEventType();
-            Bounds b = chart.boundsInParentProperty().get();
             boolean ctrl = event.isControlDown();
             boolean shift = event.isShiftDown();
             boolean none = !ctrl && ! shift;
-            double x = event.getX() - b.getMinX();
-            double y = event.getY() - b.getMinY();
+            Point2D offset = getOffset(lineChart, chart);
+            double x = event.getX() - offset.getX();
+            double y = event.getY() - offset.getY();
             
             if (et == MouseEvent.MOUSE_MOVED) updateReadout(x, y);
             
@@ -247,6 +250,25 @@ public class TimeBasedChart {
                 lastX = handle(et, x, lastX, xAxis, xAxis.getWidth(), 1);
         }
     }
+    
+    private Point2D getOffset(Node ancestor, Node leaf) {
+        double xOff = 0;
+        double yOff = 0;
+        
+        Node parent = null;
+        while (parent != ancestor) {
+            Bounds b = leaf.boundsInParentProperty().get();
+            xOff += b.getMinX();
+            yOff += b.getMinY();
+            
+            parent = leaf.getParent();
+            leaf = parent;
+        }
+        
+        return new Point2D(xOff, yOff);
+    }
+    
+    
     
 /*------------------------------------------------------------------------------
  *
