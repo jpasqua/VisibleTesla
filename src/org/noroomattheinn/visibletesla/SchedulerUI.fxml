@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" style="-fx-background-color:#d0d0d0;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.SchedulerController">
+  <children>
+    <GridPane id="schedulerGrid" fx:id="gridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="363.0" prefWidth="572.0" AnchorPane.bottomAnchor="-4.0" AnchorPane.leftAnchor="14.5" AnchorPane.rightAnchor="13.5" AnchorPane.topAnchor="41.0">
+      <children>
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:#f0f0f0;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:white;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:#777777;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:white;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:#777777;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="4" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:white;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:#777777;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:white;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
+        <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:#777777;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="8" />
+        <Label minWidth="30.0" rotate="90.0" text="Sun" textFill="BLACK" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="Mon" textFill="BLACK" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="Tue" textFill="BLACK" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="Wed" textFill="BLACK" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="Thu" textFill="BLACK" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="Fri" textFill="BLACK" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="Sat" textAlignment="LEFT" textFill="BLACK" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Should the command&#10;be issued on this day?" />
+          </tooltip>
+        </Label>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" contentDisplay="CENTER" disable="false" graphicTextGap="-2.0" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <Label text="Command" textFill="BLACK" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="The command to run" />
+          </tooltip>
+        </Label>
+        <Label minWidth="30.0" rotate="90.0" text="On?" textFill="BLACK" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Is this command&#10;enabled?" />
+          </tooltip>
+        </Label>
+        <CheckBox id="zeroOne" alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" visible="true" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08" visibleRowCount="0">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <Label rotate="90.0" text="Safe" textAlignment="CENTER" textFill="BLACK" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="Only charge if battery&#10;is at 25% or more" />
+          </tooltip>
+        </Label>
+        <Label prefWidth="-1.0" text="Time" textFill="BLACK" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <tooltip>
+            <Tooltip text="The time at which to&#10;run the command" />
+          </tooltip>
+        </Label>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <ComboBox id="elevenEight" styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="HVAC On" />
+              <String fx:value="HVAC Off" />
+              <String fx:value="Start Charging" />
+              <String fx:value="Stop Charging" />
+              <String fx:value="-- None --" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+        <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+          <children>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="01" />
+                  <String fx:value="02" />
+                  <String fx:value="03" />
+                  <String fx:value="04" />
+                  <String fx:value="05" />
+                  <String fx:value="06" />
+                  <String fx:value="07" />
+                  <String fx:value="08" />
+                  <String fx:value="09" />
+                  <String fx:value="10" />
+                  <String fx:value="11" />
+                  <String fx:value="12" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="00" />
+                  <String fx:value="05" />
+                  <String fx:value="10" />
+                  <String fx:value="15" />
+                  <String fx:value="20" />
+                  <String fx:value="25" />
+                  <String fx:value="30" />
+                  <String fx:value="35" />
+                  <String fx:value="40" />
+                  <String fx:value="45" />
+                  <String fx:value="50" />
+                  <String fx:value="55" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+            <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="AM" />
+                  <String fx:value="PM" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+      </children>
+      <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="168.0" minWidth="10.0" prefWidth="168.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="148.0" minWidth="10.0" prefWidth="148.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="45.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+      </rowConstraints>
+    </GridPane>
+    <Label text="Scheduler" AnchorPane.leftAnchor="27.0" AnchorPane.topAnchor="17.0">
+      <font>
+        <Font size="24.0" />
+      </font>
+    </Label>
+    <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
+    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
+    <TitledPane alignment="TOP_LEFT" animated="false" contentDisplay="TEXT_ONLY" expanded="false" graphicTextGap="0.0" layoutX="174.0" layoutY="38.0" prefWidth="439.5" style="" styleClass="plane-pane" text="Recent Activity" textAlignment="LEFT">
+      <content>
+        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <children>
+            <TextArea fx:id="activityLog" editable="false" prefHeight="181.0" prefWidth="436.0" promptText="Recent Activity" text="" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+          </children>
+        </AnchorPane>
+      </content>
+    </TitledPane>
+  </children>
+  <stylesheets>
+    <URL value="@../styles/PillButton.css" />
+    <URL value="@../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>

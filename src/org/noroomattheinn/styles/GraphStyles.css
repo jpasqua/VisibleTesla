@@ -1,0 +1,61 @@
+.GraphRoot {
+    Series00Color: violet;
+    Series01Color: aqua;
+    Series02Color: red;
+    Series03Color: salmon;
+    Series04Color: blue;
+    Series05Color: gray;
+    Series06Color: green;
+    Series07Color: brown;
+}
+
+.chart-line-symbol {
+    -fx-background-color: #f9d900;
+    -fx-background-insets: 0;
+    -fx-background-radius: 2px;
+    -fx-padding: 2px;
+}
+
+.chart-series-line {
+    -fx-stroke: #f9d900;
+    -fx-stroke-width: 1px;
+    /*-fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0) , 8, 0.0 , 0 , 3 );*/
+    -fx-effect: null;
+}
+
+.default-color0.chart-line-symbol { -fx-background-color: Series00Color; }
+.default-color1.chart-line-symbol { -fx-background-color: Series01Color; }
+.default-color2.chart-line-symbol { -fx-background-color: Series02Color; }
+.default-color3.chart-line-symbol { -fx-background-color: Series03Color; }
+.default-color4.chart-line-symbol { -fx-background-color: Series04Color; }
+.default-color5.chart-line-symbol { -fx-background-color: Series05Color; }
+.default-color6.chart-line-symbol { -fx-background-color: Series06Color; }
+.default-color7.chart-line-symbol { -fx-background-color: Series07Color; }
+/*
+.default-color0.chart-series-line { -fx-stroke: transparent; }
+.default-color1.chart-series-line { -fx-stroke: transparent; }
+.default-color2.chart-series-line { -fx-stroke: transparent; }
+.default-color3.chart-series-line { -fx-stroke: transparent; }
+.default-color4.chart-series-line { -fx-stroke: transparent; }
+.default-color5.chart-series-line { -fx-stroke: transparent; }
+.default-color6.chart-series-line { -fx-stroke: transparent; }
+.default-color7.chart-series-line { -fx-stroke: transparent; }
+*/
+.default-color0.chart-series-line { -fx-stroke: Series00Color; -fx-opacity: 0.5;}
+.default-color1.chart-series-line { -fx-stroke: Series01Color; -fx-opacity: 0.5; }
+.default-color2.chart-series-line { -fx-stroke: Series02Color; -fx-opacity: 0.5; }
+.default-color3.chart-series-line { -fx-stroke: Series03Color; -fx-opacity: 0.5; }
+.default-color4.chart-series-line { -fx-stroke: Series04Color; -fx-opacity: 0.5; }
+.default-color5.chart-series-line { -fx-stroke: Series05Color; -fx-opacity: 0.5; }
+.default-color6.chart-series-line { -fx-stroke: Series06Color; -fx-opacity: 0.5; }
+.default-color7.chart-series-line { -fx-stroke: Series07Color; -fx-opacity: 0.5; }
+
+
+.cb0 {-fx-text-fill: Series00Color;}
+.cb1 {-fx-text-fill: Series01Color;}
+.cb2 {-fx-text-fill: Series02Color;}
+.cb3 {-fx-text-fill: Series03Color;}
+.cb4 {-fx-text-fill: Series04Color;}
+.cb5 {-fx-text-fill: Series05Color;}
+.cb6 {-fx-text-fill: Series06Color;}
+.cb7 {-fx-text-fill: Series07Color;}

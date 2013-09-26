@@ -55,7 +55,7 @@ public class MainController {
  *----------------------------------------------------------------------------*/
 
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.19.04";
+    private static final String ProductVersion = "0.20.00";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
 
 /*------------------------------------------------------------------------------
@@ -84,6 +84,7 @@ public class MainController {
     @FXML private TabPane tabPane;
 
     // The individual tabs that comprise the overall UI
+    @FXML private Tab schedulerTab;
     @FXML private Tab graphTab;
     @FXML private Tab chargeTab;
     @FXML private Tab hvacTab;
@@ -133,6 +134,7 @@ public class MainController {
         });
 
         controllerFromTab(loginTab).setAppContext(appContext);
+        controllerFromTab(schedulerTab).setAppContext(appContext);
         controllerFromTab(graphTab).setAppContext(appContext);
         controllerFromTab(chargeTab).setAppContext(appContext);
         controllerFromTab(hvacTab).setAppContext(appContext);
@@ -146,6 +148,8 @@ public class MainController {
     
     public void stop() {
         appContext.shutDown();
+        SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
+        sc.shutDown();
     }
     
     // Not really a public interface, but this is called by the FXML plumbing
@@ -194,6 +198,8 @@ public class MainController {
                 trackInactivity();
                 setTabsEnabled(true);
                 jumpToTab(overviewTab);
+                SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
+                sc.activate(selectedVehicle);
             } else {
                 vehicles = null;
                 selectedVehicle = null;
@@ -235,6 +241,7 @@ public class MainController {
     
 
     private void setTabsEnabled(boolean enabled) {
+        schedulerTab.setDisable(!enabled);
         graphTab.setDisable(!enabled);
         chargeTab.setDisable(!enabled);
         hvacTab.setDisable(!enabled);

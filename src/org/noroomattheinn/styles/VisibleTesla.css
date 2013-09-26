@@ -66,3 +66,17 @@
     -fx-effect: dropshadow( two-pass-box , rgba(0,0,0,0.3) , 8, 0.0 , 0 , 3 );
 }
 
+/* ComboBox with squared off edges */
+
+.squarecombo .arrow-button {
+    -fx-background-radius: 0 0 0 0;
+} 
+
+.squarecombo {
+     -fx-background-radius: 0 0 0 0;
+}
+
+.plane-pane:focused > .title {
+    -fx-color: gray;
+}
+
