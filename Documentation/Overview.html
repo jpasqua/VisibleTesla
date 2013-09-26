@@ -45,6 +45,7 @@
             <li><a href="#location_tab">Location Tab</a></li>
             <li><a href="#charging_tab">Charge Tab</a></li>
             <li><a href="#graphs_tab">Graphs Tab</a></li>
+            <li><a href="#scheduler_tab">Scheduler Tab</a></li>
             <li><a href="#autorefresh">Auto-Refresh</a></li>
             <li><a href="#sleepmode">Sleep Mode</a></li>
             <li><a href="#simulation">Simulation</a></li>
@@ -112,6 +113,7 @@
 
     <p>Next we have the HVAC tab which shows the state of that system. It also
     allows you to set the target temperature and turn on/off the system. This tab will display whether the front or rear defrosters are on, but it cannot control the defrosters. The fan blades will fill in to show the speed at which the fan is blowing. All empty is off, all full is maximum, and partially full are levels in between. </p>
+    <p>This tab also displays the current interior and exterior temperature readings when they are available. The vehicle does not always supply this information. If no temperature readings are available, the tab will display "--" in place of the reading. It is not known when the vehicle decides to provide temperature readings and for how long. It is the case that if you activate the HVAC system, the readings will be made available and will remain available for an indeterminate period after the HVAC system is turned off.</p>
 
     <p><img border="0" style="margin:5px" src="images/05_HVAC_Tab.png" /></p>
 
@@ -248,8 +250,10 @@
                 corresponding to the location of the cursor.
         </ul>
     </p>
+    <p>The Graphs tab also allows you to select how you would like the information displayed. It can display a line chart, a line chart with markers (dots) at the points where readings were taken, or both. The default is to display both. You can choose your display option by bringing up a context menu on the chart. To do this, press the secondary mouse button (usually the right button) when the mouse is over the chart. A menu will appear with the three display choices (lines, markers, or both). Once you choose an option it will be stored on  your computer and used the next time you start the app.
+    </p>
     <p>There is another item in the File menu titled "Export Graph Data...". It does just what the name implies;
-        exports all of the data collected by the Graphs tab.  It saves the data to a Microsoft Excel file in a location that you choose. When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The timestamp is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like this:</p>
+        exports all of the data collected by the Graphs tab.  It saves the data to a Microsoft Excel file in a location that you choose. When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like this:</p>
     <table class="grid_table">
             <tr>
                 <th>TIMESTAMP</th>
@@ -288,7 +292,9 @@
                 <td>8/28/13 19:18:26</td>
             </tr>
         </table>
-        <p>You may notice that some entries are missing. This is normal and can happen for a number of reasons.</p>
+
+    <p>You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time.</p>
+    
     <p>The following screenshots show the graph with the Items dropdown expanded. The first chart shows all
         of the statistics displayed while the second shows the chart with several items de-selected. The last image shows
         the "Export Graph Data..." item of the File menu. This screenshot is from Windows to give a feel for how the menu bar looks on that platform.
@@ -296,6 +302,22 @@
     <p><img border="0" style="margin:5px" src="images/14_Graphs_All.png" /></p>
     <p><img border="0" style="margin:5px" src="images/13_Graphs_Partial.png" /></p>
     <p><img border="0" style="margin:5px" src="images/16_Export.png" /></p>
+
+    <h3><a id="scheduler_tab">Scheduler Tab</a></h3>
+    <p>VisibleTesla now includes a very basic capability for scheduled activities like charging your car or turning on/off your air conditioning. For scheduled events to be executed, Visible Tesla must be running. That is, if you schedule your vehicle to turn on the HVAC system at 7:30AM so that your car is warm by the time you get to it at 7:45, then VisibleTesla must be running at 7:30AM to issue the commands. The screenshot below shows the Scheduler Tab.</p>
+        <p><img border="0" style="margin:5px" src="images/17_Scheduler.png" /></p>
+<p>Each row represents a command that can be scheduled independently. There are 8 rows meaning that up to 8 distinct schedules can be set. The fields for each row are as follows:
+    <ul>
+<li>On?: If selected then this schedule is active. If not selected, VT will remember the scheduled event, but not execute it.</li>
+<li>Sunday-Saturday: The scheduled event will be executed only on the selected days.</li>
+<li>Time: The time at which the command will be executed. Minutes can be specified with a granularity of 5 minutes (00, 05, 10, ...)</li>
+<li>Safe: If selected, the command will only be executed if there is at least 25% charge remaining on the battery. Otherwise it will be ignored. Note that starting the charging process does not require a minimum charge regardless of this setting.</li>
+<li>Command: The command to execute. Choices are: HVAC On, HVAC Off, Start Charging, Stop Charging, and None.</li>
+</ul>
+</p>
+<p>Please remember that using this functionality can trigger activity that depletes your battery. Only yu are solely responsible for any negative consequences that this might produce.
+</p>
+
 
     <h3><a id="autorefresh">Auto-Refresh</a></h3>
     <p>This screen shot shows the "spinner" that is displayed when the app is

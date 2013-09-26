@@ -13,7 +13,13 @@ import org.noroomattheinn.utils.Utils;
 
 /**
  * Variable
- *
+ * 
+ * NOTES
+ * - The color that is passed to the constructor is currently ignored!
+ *   All colors are set via the CSS and not programmatically. This is 
+ *   because I can't find a way to set the symbol color. There is an easy
+ *   way to set the line color and CheckBox color.
+ * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
@@ -41,7 +47,8 @@ public class Variable implements Comparable {
     public boolean visible;
     public CheckBox cb;
     public double minVal, maxVal;
-
+    private boolean linesVisible;
+    
     public Variable(CheckBox cb, String type, String color, Transform xform) {
         this.cb = cb;
         this.type = type;
@@ -52,12 +59,31 @@ public class Variable implements Comparable {
         seriesData = series.getData();
         visible = true;
         minVal = maxVal = 0;
+        linesVisible = true;
     }
 
-    public void establishColor() {
-        series.getNode().setStyle("-fx-stroke: " + color + ";");
-        //series.getNode().setStyle("-fx-stroke: " + "transparent" + ";");
-        cb.setStyle("-fx-text-fill: " + color + ";");
+// NOTE:
+//          We don't establish color programatically any more. This is left here
+//          as documentation in case we ever do so in the future
+//    public void establishColor(int seriesNumber) {
+//        //series.getNode().setStyle("-fx-stroke: " + color + ";");
+//        //series.getNode().setStyle("-fx-stroke: transparent;");
+//        //cb.setStyle("-fx-text-fill: " + color + ";");
+//        cb.getStyleClass().clear();
+//        cb.getStyleClass().add("cb"+seriesNumber);
+//    }
+    
+    public void reflectLineVisibility() {
+        if (linesVisible) {
+            series.getNode().setStyle("");
+        } else{
+            series.getNode().setStyle("-fx-stroke: transparent;");
+        }
+    }
+    
+    public void setLineVisibility(boolean displayLines) {
+        linesVisible = displayLines;
+        reflectLineVisibility();
     }
     
     public void addToSeries(long time, double value) {

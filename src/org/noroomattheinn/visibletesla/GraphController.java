@@ -9,21 +9,27 @@ package org.noroomattheinn.visibletesla;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import jxl.Workbook;
@@ -61,7 +67,7 @@ public class GraphController extends BaseController implements StatsRepository.R
  *----------------------------------------------------------------------------*/
 
     private static final long DefaultInterval = 2 * 60 * 1000;  // 2 Minutes
-    private static final long MinInterval     =     20 * 1000;  // 20 Seconds
+    private static final long MinInterval     =     30 * 1000;  // 30 Seconds
     private static final long MaxInterval     = 5 * 60 * 1000;  // 5 Minutes
     
 /*------------------------------------------------------------------------------
@@ -74,8 +80,9 @@ public class GraphController extends BaseController implements StatsRepository.R
     private SnapshotState snapshotState;
     private StatsRepository repo;
     private VariableSet variables;
-    private long lastSnapshotTime = 0;
     private Map<String,Integer> valueMap = null;
+    private boolean displayLines = true;
+    private boolean displayMarkers = true;
 
 /*------------------------------------------------------------------------------
  *
@@ -92,10 +99,16 @@ public class GraphController extends BaseController implements StatsRepository.R
     @FXML private CheckBox powerCheckbox;
     @FXML private CheckBox batteryCurrentCheckbox;
     @FXML private CheckBox speedCheckbox;
+    
     @FXML private AnchorPane itemListContent;
     @FXML private Button showItemsButton;
     @FXML private AnchorPane arrow;
-          private TimeBasedChart chart;
+    
+    private RadioMenuItem displayLinesMI;
+    private RadioMenuItem displayMarkersMI;
+    private RadioMenuItem displayBothMI;
+    
+    private TimeBasedChart chart;
           
 /*==============================================================================
  * -------                                                               -------
@@ -162,7 +175,9 @@ public class GraphController extends BaseController implements StatsRepository.R
                     }
                 }
                 // Create a column which converts the UNIX timestamp to a Date
-                String dateFormula = String.format("(A%d/86400)+25569+(-8/24)",row+1);
+                TimeZone tz = Calendar.getInstance().getTimeZone();
+                long offset = (tz.getOffset(System.currentTimeMillis()))/(1000*60*60);
+                String dateFormula = String.format("(A%d/86400)+25569+(%d/24)",row+1, offset);
                 jxl.write.Formula f = new jxl.write.Formula(vals.length+1, row, dateFormula, dateFormat);
                 sheet.addCell(f);
             }
@@ -219,6 +234,11 @@ public class GraphController extends BaseController implements StatsRepository.R
         Variable.Transform distTransform = gs.distanceUnits().startsWith("mi") ?
                 Variable.idTransform : Variable.mToKTransform;
         variables.clear();
+        // NOTE: the colors specified below are ignored!!
+        // They are currently set via CSS rather than programmatically. I left the
+        // color specifications here just in case I figure out how to make the
+        // programmatic application of colors work. Right now I can't apply
+        // colors to series symbols. That's why it's done via CSS
         variables.register(new Variable(voltageCheckbox, "C_VLT", "violet", Variable.idTransform));
         variables.register(new Variable(currentCheckbox, "C_AMP", "aqua", Variable.idTransform));
         variables.register(new Variable(rangeCheckbox, "C_EST", "red", distTransform));
@@ -235,7 +255,14 @@ public class GraphController extends BaseController implements StatsRepository.R
             boolean selected = appContext.prefs.getBoolean(prefKey(var.type), true);
             var.cb.setSelected((var.visible = selected));
         }
+        
+        // Restore the last settings for the display settings (display lines,
+        // markers, or both)
+        displayLines = appContext.prefs.getBoolean(prefKey("DISPLAY_LINES"), true);
+        displayMarkers = appContext.prefs.getBoolean(prefKey("DISPLAY_MARKERS"), true);
+        
         variables.assignToChart(chart.getChart());
+        reflectDisplayOptions();
     }
     
 /*------------------------------------------------------------------------------
@@ -260,7 +287,7 @@ public class GraphController extends BaseController implements StatsRepository.R
             ensureRefreshThread();  // If thread already exists, it unpauses
         }
     }
-
+    
     protected void refresh() { }
 
     protected void reflectNewState() { }
@@ -270,7 +297,8 @@ public class GraphController extends BaseController implements StatsRepository.R
         refreshButton.setVisible(false);
         progressIndicator.setVisible(false);
         progressLabel.setVisible(false);
-        chart = new TimeBasedChart(root, readout);        
+        chart = new TimeBasedChart(root, readout);  
+        createContextMenu();
         showItemList(false);
     }
     
@@ -283,9 +311,70 @@ public class GraphController extends BaseController implements StatsRepository.R
         appContext.stage.getScene().getStylesheets().add(url.toExternalForm());
     }
     
+    
 /*------------------------------------------------------------------------------
  *
- * Utility Methods for storing stats in memory and on disk
+ * PRIVATE - Utility Methods for attaching a ContextMenu to the LineChart
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void createContextMenu() {
+        final ContextMenu contextMenu = new ContextMenu();
+        final ToggleGroup toggleGroup = new ToggleGroup();
+
+        displayLinesMI = new RadioMenuItem("Display Only Lines");
+        displayLinesMI.setOnAction(displayMIHandler);
+        displayLinesMI.setSelected(displayLines);
+        displayLinesMI.setToggleGroup(toggleGroup);
+        displayMarkersMI = new RadioMenuItem("Display Only Markers");
+        displayMarkersMI.setOnAction(displayMIHandler);
+        displayMarkersMI.setSelected(displayMarkers);
+        displayMarkersMI.setToggleGroup(toggleGroup);
+        displayBothMI = new RadioMenuItem("Display Both");
+        displayBothMI.setOnAction(displayMIHandler);
+        displayBothMI.setSelected(displayMarkers);
+        displayBothMI.setToggleGroup(toggleGroup);
+        
+        if (displayLines && displayMarkers) displayBothMI.setSelected(true);
+        else if (displayLines) displayLinesMI.setSelected(true);
+        else if (displayMarkers) displayMarkersMI.setSelected(true);
+        
+        contextMenu.getItems().addAll(displayLinesMI, displayMarkersMI, displayBothMI);
+        chart.addContextMenu(contextMenu);
+    }
+    
+    private EventHandler<ActionEvent> displayMIHandler = new EventHandler<ActionEvent>(){
+        @Override public void handle(ActionEvent event) {
+            RadioMenuItem target = (RadioMenuItem)event.getTarget();
+            if (target == displayLinesMI) {
+                displayLines = true;
+                displayMarkers = false;
+            } else if (target == displayMarkersMI) {
+                displayLines = false;
+                displayMarkers = true;
+            } else {
+                displayLines = true;
+                displayMarkers = true;
+            }
+
+            reflectDisplayOptions();
+            
+            appContext.prefs.putBoolean(prefKey("DISPLAY_LINES"), displayLines);
+            appContext.prefs.putBoolean(prefKey("DISPLAY_MARKERS"), displayMarkers);
+            }
+    };
+    
+    private void reflectDisplayOptions() {
+        chart.getChart().setCreateSymbols(displayMarkers);
+        variables.setLineVisibility(displayLines);
+        if (displayLines && displayMarkers) displayBothMI.setSelected(true);
+        else if (displayLines) displayLinesMI.setSelected(true);
+        else if (displayMarkers) displayMarkersMI.setSelected(true);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Utility Methods for storing stats in memory and on disk
  * 
  *----------------------------------------------------------------------------*/
     
@@ -319,10 +408,18 @@ public class GraphController extends BaseController implements StatsRepository.R
         });
     }
     
-    // Called by the background thread to gather and record a new set of samples
-    private double getAndRecordStats() {
+    // 
+    /**
+     * Called by the background thread to gather and record a new set of samples
+     * @return  Boolean(true) if the vehicle is in motion
+     *          Boolean(false) if it's not
+     *          null if we don't know
+     */
+    private Boolean getAndRecordStats() {
         chargeState.refresh();
         snapshotState.refresh();
+        double speed = Double.NaN;
+        
         long time = System.currentTimeMillis();
         if (chargeState.hasValidData()) {
             addElement(variables.get("C_VLT"), time, chargeState.chargerVoltage());
@@ -333,15 +430,15 @@ public class GraphController extends BaseController implements StatsRepository.R
             addElement(variables.get("C_BAM"), time, chargeState.batteryCurrent());
         }
         if (snapshotState.hasValidData()) {
-            long thisSnapshotTime = snapshotState.timestamp().getTime();
-            if (thisSnapshotTime != lastSnapshotTime) {
-                addElement(variables.get("S_PWR"), time, snapshotState.power());
-                addElement(variables.get("S_SPD"), time, snapshotState.speed());
-                lastSnapshotTime = thisSnapshotTime;
-            }
+            speed = snapshotState.speed();
+            addElement(variables.get("S_PWR"), time, snapshotState.power());
+            addElement(variables.get("S_SPD"), time, speed);
         }
-        double avgChange = repo.flushElements();
-        return avgChange > 0.2 ? 0.5 : 2.0;
+        repo.flushElements();
+        
+        if (Double.isNaN(speed))
+            return false;
+        return speed > 1.0;
     }
 
     private String prefKey(String key) { return vehicle.getVIN()+"_"+key; }
@@ -418,10 +515,14 @@ public class GraphController extends BaseController implements StatsRepository.R
             long collectionInterval = DefaultInterval;
             while (true) {
                 if (!collectionPaused && !asleep) {
-                    double delayFactor = getAndRecordStats();
-                    collectionInterval = Utils.clamp(
-                            (long)(collectionInterval * delayFactor),
-                            MinInterval, MaxInterval);
+                    Boolean inMotion = getAndRecordStats();
+                    if (inMotion != null) {
+                        if (inMotion)
+                            collectionInterval = MinInterval;
+                        else
+                            collectionInterval = (long)Math.min(
+                                collectionInterval*1.5, MaxInterval);
+                    }
                 }
                 Utils.sleep(collectionInterval);
                 if (appContext.shuttingDown.get())

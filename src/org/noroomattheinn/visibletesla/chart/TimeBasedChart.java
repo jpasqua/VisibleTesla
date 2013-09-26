@@ -15,7 +15,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -32,7 +34,7 @@ import org.noroomattheinn.utils.Utils;
  *   but there is no guarantee of that.
  * - The minorTicksForX value is carefully chosen to make the number of ticks
  *   compatible with the average label size on the axis.
- *
+ * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class TimeBasedChart {
@@ -60,6 +62,7 @@ public class TimeBasedChart {
     private LineChart<Number, Number> lineChart;
     private Label readout;
     private AnchorPane root;
+    private ContextMenu contextMenu = null;
     
 /*==============================================================================
  * -------                                                               -------
@@ -74,6 +77,8 @@ public class TimeBasedChart {
     }
     
     public LineChart<Number,Number> getChart() { return lineChart; }
+    
+    public void addContextMenu(ContextMenu cm) { contextMenu = cm; }
 
 /*------------------------------------------------------------------------------
  *
@@ -243,7 +248,9 @@ public class TimeBasedChart {
             double y = event.getY() - offset.getY();
             
             if (et == MouseEvent.MOUSE_MOVED) updateReadout(x, y);
-            
+            if (contextMenu != null && MouseButton.SECONDARY.equals(event.getButton()))
+              contextMenu.show(chart, event.getScreenX(), event.getScreenY());
+              
             if (ctrl || shift)
                 lastY = handle(et, y, lastY, yAxis, yAxis.getHeight(), -1);
             if (none || (shift && !ctrl))

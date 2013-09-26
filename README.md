@@ -28,6 +28,7 @@ This project assumes a directory structure that looks like this:
 		javafx-dialog
 		jfxtras
 		jexcelapi
+		google-guava
 
 The Tesla/VisibleTesla directory corrsponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
 [TeslaClient](https://github.com/jpasqua/TeslaClient.git)
@@ -44,6 +45,7 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	mkdir ThirdParty/javafx-dialogs
 	mkdir ThirdParty/jfxtras
 	mkdir ThirdParty/jexcelapi
+	mkdir ThirdParty/google-guava
 
 	# Download the apache libraries
 	cd ThirdParty/apache
@@ -61,6 +63,10 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	curl -s -O -L http://sourceforge.net/projects/jexcelapi/files/jexcelapi/2.6.12/jexcelapi_2_6_12.zip
 	unzip jexcelapi_2_6_12.zip
 	rm jexcelapi_2_6_12.zip
+
+	# Download Google Guava
+	cd ../google-guava
+	curl -s -O http://search.maven.org/remotecontent?filepath=com/google/guava/guava/15.0/guava-15.0.jar
 
 	# Download the jfxtras library
 	# There may be a newer version of the library. If so, update the version details below

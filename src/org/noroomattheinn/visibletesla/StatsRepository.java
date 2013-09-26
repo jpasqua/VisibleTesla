@@ -7,20 +7,18 @@
 package org.noroomattheinn.visibletesla;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.utils.Utils;
 
 /**
  * StatsRepository
@@ -38,10 +36,8 @@ public class StatsRepository {
 
     private String vin;
     private PrintStream statsWriter;
-    private Map<String,Entry> lastEntryMap = new HashMap<>();
-    private double cumulativeChange = 0.0;
-    private int valuesWritten = 0;
-    
+    private Map<String,Double> lastRowWritten = new HashMap<>();
+    private List<Entry> entriesSinceLastFlush = new ArrayList<>();
     
 /*==============================================================================
  * -------                                                               -------
@@ -59,76 +55,128 @@ public class StatsRepository {
     }
     
     void loadExistingData(Recorder r) {
-        processAndDeleteAuxFile();
         BufferedReader rdr = getReaderForFile(fileNameForVIN(vin));
         if (rdr == null) return;
         
         String line;
+        Map<String,String>  lastEntries = new HashMap<>();
+        
         while ((line = getLineFromReader(rdr)) != null) {
             String tokens[] = line.split("\\s");
-            if (tokens.length != 3) {   // Malformed line
-                Tesla.logger.log(Level.INFO, "Malformed stats entry: Improper number of tokens");                
+            
+            if ((tokens.length-1)%2 != 0) {   // Malformed line
+                Tesla.logger.log(Level.INFO, "Malformed stats entry: Improper number of tokens: " + line);                
                 continue;
             }
+            
+            Map<String,String> merged = mergeEntries(tokens, lastEntries);
             try {
                 long time = Long.valueOf(tokens[0]);
-                String type = tokens[1];
-                double val = Double.valueOf(tokens[2]);
-                r.recordElement(time, type, val);
+                for (Map.Entry<String,String> entry : merged.entrySet()) {
+                    String type = entry.getKey();
+                    double val = Double.valueOf(entry.getValue());
+                    r.recordElement(time, type, val);
+                }
+                lastEntries = merged;
             } catch (NumberFormatException ex) {
                 Tesla.logger.log(Level.INFO, "Malformed stats entry", ex);
             }
         }
     }
     
+    
     void storeElement(String type, long time, double value) {
         if (statsWriter == null)  return;
-        
-        Entry lastEntry = lastEntryMap.get(type);
-        
-        if (lastEntry == null) {    // First entry, write it out and remember it
-            statsWriter.format("%d\t%s\t%3.1f\n", time, type, value);
-            cumulativeChange += 1.0;
-            valuesWritten++;
-        } else {
-            if (lastEntry.value != value) {
-                // It's a different value, write out the old and save the new one
-                statsWriter.format("%d\t%s\t%3.1f\n", lastEntry.time, type, lastEntry.value);
-                // statsWriter.format("%d\t%s\t%3.1f\n", time, type, value);
-                cumulativeChange += Utils.percentChange(lastEntry.value, value);
-                valuesWritten++;
-            }
-        }
-        lastEntryMap.put(type, new Entry(time, type, value));
+        entriesSinceLastFlush.add(new Entry(time, type, value));
     }
     
     void close() {
         if (statsWriter != null) statsWriter.close();
     }
 
-    double flushElements() {
-        statsWriter.flush();
+    
+    void flushElements() {
+        Map<Long,Map<String,Double>> rows = new TreeMap<>();
         
-        String auxName = auxNameForVIN(vin);
-        try {
-            PrintStream auxWriter = new PrintStream(new FileOutputStream(auxName, false));
-            for (Entry entry : lastEntryMap.values()) {
-                auxWriter.format("%d\t%s\t%3.1f\n", entry.time, entry.type, entry.value);
+        // It's possible that there are entries for multiple points in time
+        // Create a map with a key for each unique time where the value
+        // is a list of Entries with that time
+        for (Entry entry : entriesSinceLastFlush) {
+            Map<String,Double> row = rows.get(entry.time);
+            if (row == null) {
+                row = new HashMap<>();
+                rows.put(entry.time, row);
             }
-            auxWriter.close();
-        } catch (FileNotFoundException ex) {
-            Tesla.logger.log(Level.WARNING, "Can't create aux file: " + auxName, ex);
+            row.put(entry.type, entry.value);
         }
-        double avgPctChange = valuesWritten == 0 ? 0 : cumulativeChange/valuesWritten;
-        cumulativeChange = 0;
-        valuesWritten = 0;
-        return avgPctChange;
+        
+        
+        for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
+            long time = row.getKey();
+            Map<String,Double> currentEntries = row.getValue();
+            Map<String,Double> uniqueEntries = mergeOutput(lastRowWritten, currentEntries);
+            boolean hasDupes = uniqueEntries.size() != currentEntries.size();
+            
+            statsWriter.print(time );
+            if (hasDupes)
+                statsWriter.print(" * *");
+            for (Map.Entry<String,Double> entry:uniqueEntries.entrySet()) {
+                statsWriter.print(" " + entry.getKey() + " " + entry.getValue());
+            }
+            statsWriter.println();
+            lastRowWritten = currentEntries;
+        }
+        
+        statsWriter.flush();
+        entriesSinceLastFlush.clear();
     }
 
+    
 /*------------------------------------------------------------------------------
  *
- * This section has the PRIVATE code pertaining to the storage repository
- * for the sampled data
+ * PRIVATE - Utility methods that aid in the reading and writing of data
+ * to the external file in a space efficient manner
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private Map<String,String> mergeEntries(String[] newTokens, Map<String,String>lastEntries) {
+        // If the newTokens contains a "*" entry, then start by copying the last
+        // set of values. If not, start with an empty Map.
+        Map<String,String> vals = null;
+        for (String token : newTokens) {
+            if (token.equals("*")) {
+                vals = new HashMap<>(lastEntries);
+                break;
+            }
+        }
+        if (vals == null) vals = new HashMap<>();
+        
+        // Go through the new tokens and overwrite any previous values for the same type
+        for (int i = 1; i < newTokens.length; ) {
+            String type = newTokens[i++];
+            String value = newTokens[i++];
+            if (!type.equals("*"))
+                vals.put(type, value);
+        }
+        
+        return vals;
+    }
+    
+    private Map<String,Double> mergeOutput(Map<String,Double> old, Map<String,Double> current) {
+        Map<String,Double> merged = new HashMap<>(current);
+        for (Map.Entry<String,Double> entry : old.entrySet()) {
+            String oldType = entry.getKey();
+            Double oldVal = entry.getValue();
+            Double curVal = current.get(oldType);
+            if (curVal != null && curVal.equals(oldVal))
+                merged.remove(oldType);
+        }
+        return merged;
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods and Classes
  * 
  *----------------------------------------------------------------------------*/
     
@@ -142,35 +190,6 @@ public class StatsRepository {
             statsWriter = null;
         }
     }
-    
-    private void processAndDeleteAuxFile() {
-        File auxFile = new File(auxNameForVIN(vin));
-        File statsFile = new File(fileNameForVIN(vin));
-        if (!auxFile.exists()) return;
-
-        try {
-            InputStream in = new FileInputStream(auxFile);
-            OutputStream out = new FileOutputStream(statsFile,true);
- 
-            int len;
-            byte[] buf = new byte[8192];
-            while ((len = in.read(buf)) > 0) { out.write(buf, 0, len); }
-            in.close(); out.close();
-            auxFile.delete();
-        } catch(FileNotFoundException ex) {
-            Tesla.logger.log(Level.INFO, "Starting with partial/empty stats", ex);
-        } catch (IOException ex) {
-            Tesla.logger.log(Level.INFO, "Problem reading stats", ex);
-        } 
-    }
-    
-    
-    
-/*------------------------------------------------------------------------------
- *
- * Private Utility Methods and Classes
- * 
- *----------------------------------------------------------------------------*/
     
     private BufferedReader getReaderForFile(String fileName) {
         try {
@@ -191,7 +210,6 @@ public class StatsRepository {
     }
     
     private String fileNameForVIN(String vin) { return vin + ".stats.log"; }
-    private String auxNameForVIN(String vin) { return vin + ".stats.aux"; }
     
     private class Entry {
         public final long time;

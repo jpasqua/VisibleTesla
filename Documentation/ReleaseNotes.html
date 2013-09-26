@@ -8,6 +8,77 @@
 
 <h1>VisibleTesla Release Notes</h1>
 <hr>
+<h3>VisibleTesla 0.20.00 [2013-09-22]</h3>
+<ul>
+	<li>
+		User-Visible Changes
+		<ul>
+			<li>
+				General
+				<ul>
+					<li>A disclaimer dialog is displayed one time when first using the application. It will pop up after you successfully log in and displays a disclaimer like the one that can be found in the documentation. I added this in conjunction with the addition of the Scheduling functionality to remind users that they are using the application at their own risk. This dialog will be displayed once on each machine where the application is run.</li>
+					<li>The Excel file produced by the "File->Export Graph Data..." menu item now gets and includes the system time zone in the formula to determine the human readable time column.
+				</ul>
+			</li>
+			<li>
+				Login
+				<ul>
+					<li><b>Fixed</b>: Unusual usernames could cause login failures. That has been addressed.</li>
+				</ul>
+			</li>
+			<li>
+				Overview
+				<ul>
+				</ul>
+			</li>
+			<li>
+				HVAC
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Location
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Charge
+				<ul>
+				</ul>
+			</li>
+			<li>
+				Graphs
+				<ul>
+					<li>Graphs can now be drawn with markers (dots) corresponding to every actual reading. Thin, semitransparent lines connect the dots for clarity, but do not represent readings. They represent the trendline between readings. Please refer to the documentation to learn how to select whether dots, lines, or both should be displayed.
+					</li>
+					<li><b>Fixed</b>: The app used to throw away intermediate duplicate values in a sequence of readings. For example, if the Voltage reading was the same 10 times in a row, it would only store the first and last of those ten duplicate readings. This lead to odd looking graphs in isolated cases and made it impossible to show markers where the actual readings took place, or gaps in the collection of data.</li>
+					<li>
+				</ul>
+			</li>
+			<li>
+				Scheduler
+				<ul>
+					<li>Added a very basic scheduling mechanism that allows users to do things like starting and stopping the HVAC system at certain times on certain days. Please refer to the documentation for more details.</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Under-the-covers
+		<ul>
+			<li>Completely reworked the way statistics are stored. The new mechanism is compatible with older data files but stores the data in a manner that allows all data points to be maintained while not significantly increasing storage requirements. The ".aux" file is no longer required and will not be created by the application.
+			</li>
+		</ul>
+	</li>
+	<li>
+		Known problems
+		<ul>
+			<li>The context menu in the Graphs tab should only ever show one checked item at a time. Occasionally it will show a check mark next to both the currently selected value and the last selected value. Moving your mouse over the last selected value will make it refresh and display correctly. The application functions properly, but the display can be confusing. This appears to be a problem with the underlying JavaFX system. I am looking for a workaround.</li>
+		</ul>
+	</li>
+</ul>
+
+<hr>
 <h3>VisibleTesla 0.19.04 [2013-09-15]</h3>
 <ul>
 	<li>

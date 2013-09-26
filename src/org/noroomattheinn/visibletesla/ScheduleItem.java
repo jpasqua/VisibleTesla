@@ -254,8 +254,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
 
     private Node prepNode(Node n) {
         if (n instanceof ComboBox) {
-            ((ComboBox) n).setOnAction(this);
-            ((ComboBox) n).setVisibleRowCount(12);
+            ComboBox<String> cbs = Utils.<ComboBox<String>>cast(n);
+            cbs.setOnAction(this);
+            cbs.setVisibleRowCount(12);
         } else if (n instanceof ButtonBase) {
             ((ButtonBase) n).setOnAction(this);
         }

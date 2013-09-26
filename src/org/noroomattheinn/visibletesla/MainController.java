@@ -192,6 +192,25 @@ public class MainController {
                         Platform.exit();
                 }
                 
+                boolean disclaimer = appContext.prefs.getBoolean(
+                        selectedVehicle.getVIN()+"Disclaimer", false);
+                if (!disclaimer) {
+                    Dialogs.showInformationDialog(
+                            appContext.stage,
+                            "Use this application at your own risk. The author\n" +
+                            "does not guarantee its proper functioning.\n" +
+                            "It is possible that use of this application may cause\n" +
+                            "unexpected damage for which nobody but you are\n" +
+                            "responsible. Use of this application can change the\n" +
+                            "settings on your car and may have negative\n" +
+                            "consequences such as (but not limited to):\n" +
+                            "unlocking the doors, opening the sun roof, or\n" +
+                            "reducing the available charge in the battery.",
+                            "Please Read Carefully", "Disclaimer");
+                }
+                appContext.prefs.putBoolean(
+                        selectedVehicle.getVIN()+"Disclaimer", true);                
+                
                 allowSleep = appContext.prefs.getBoolean(
                         selectedVehicle.getVIN()+"_AllowSleep", false);
                 allowSleepMenuItem.setSelected(allowSleep);

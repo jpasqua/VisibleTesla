@@ -6,10 +6,9 @@
 
 package org.noroomattheinn.visibletesla.chart;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import javafx.scene.chart.LineChart;
 
 /**
@@ -26,9 +25,10 @@ public class VariableSet {
  * 
  *----------------------------------------------------------------------------*/
     
-    private Set<Variable> variables = new HashSet<>();
+    private Map<Integer,Variable> variables = new HashMap<>();
     private Map<Object, Variable> objectToVariable = new HashMap<>();
     private Map<String, Variable> typeToVariable = new HashMap<>();
+    private int nSeries = 0;    // The number of variables (series) we've got
     
 /*==============================================================================
  * -------                                                               -------
@@ -40,19 +40,24 @@ public class VariableSet {
         variables.clear();
         objectToVariable.clear();
         typeToVariable.clear();
+        nSeries = 0;
     }
 
     public void register(Variable v) {
-        variables.add(v);
+        variables.put(nSeries, v);
         objectToVariable.put(v.cb, v);
         typeToVariable.put(v.type, v);
+        // Establish the color of the CheckBox associated with this series
+        v.cb.getStyleClass().add("cb"+nSeries);
+        nSeries++;
     }
 
     public void assignToChart(LineChart<Number,Number> lineChart) {
         lineChart.getData().clear();
-        for (Variable var : variables) {
+        for (int i = 0; i < nSeries; i++) {
+            Variable var = variables.get(i);
             lineChart.getData().add(var.visible ? var.series : var.emptySeries);
-            var.establishColor();
+            var.reflectLineVisibility();
         }
     }
 
@@ -64,7 +69,11 @@ public class VariableSet {
         return objectToVariable.get(key);
     }
     
-    public Set<Variable> set() { return variables; }
+    public Collection<Variable> set() { return variables.values(); }
+    
+    public void setLineVisibility(boolean displayLines) {
+        for (Variable v : variables.values()) { v.setLineVisibility(displayLines); }
+    }
     
     public static class Range {
         double min;
@@ -75,7 +84,7 @@ public class VariableSet {
     public Range getRange(boolean visibleOnly) {
         double minVal = 0;
         double maxVal = 0;
-        for (Variable v : variables) {
+        for (Variable v : variables.values()) {
             if (visibleOnly && !v.visible)
                 continue;
             

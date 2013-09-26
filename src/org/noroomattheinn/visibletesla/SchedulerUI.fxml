@@ -11,7 +11,7 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" style="-fx-background-color:#d0d0d0;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.SchedulerController">
   <children>
-    <GridPane id="schedulerGrid" fx:id="gridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="363.0" prefWidth="572.0" AnchorPane.bottomAnchor="-4.0" AnchorPane.leftAnchor="14.5" AnchorPane.rightAnchor="13.5" AnchorPane.topAnchor="41.0">
+    <GridPane id="schedulerGrid" fx:id="gridPane" alignment="CENTER" gridLinesVisible="true" layoutX="14.5" prefHeight="363.0" prefWidth="612.0" AnchorPane.topAnchor="41.0">
       <children>
         <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:#f0f0f0;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
         <Pane prefHeight="20.0" prefWidth="20.0" style="-fx-background-color:white;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
@@ -655,7 +655,7 @@
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
-    <TitledPane alignment="TOP_LEFT" animated="false" contentDisplay="TEXT_ONLY" expanded="false" graphicTextGap="0.0" layoutX="174.0" layoutY="38.0" prefWidth="439.5" style="" styleClass="plane-pane" text="Recent Activity" textAlignment="LEFT">
+    <TitledPane alignment="TOP_LEFT" animated="false" contentDisplay="TEXT_ONLY" expanded="false" graphicTextGap="0.0" layoutX="174.0" prefWidth="439.5" style="" styleClass="plane-pane" text="Recent Activity" textAlignment="LEFT" AnchorPane.topAnchor="38.0">
       <content>
         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
           <children>

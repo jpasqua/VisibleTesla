@@ -80,3 +80,10 @@
     -fx-color: gray;
 }
 
+.chart-line-symbol {
+    /*-fx-background-color: #f9d900, transparent;*/
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 3px;
+    -fx-padding: 3px;
+}
+
