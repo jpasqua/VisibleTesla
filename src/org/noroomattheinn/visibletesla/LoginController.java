@@ -21,7 +21,22 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 
-
+/**
+ * This controller allows the user to login and logout. The "logged-in" state
+ * can be monitored by observing the loginCompleteProperty.
+ * 
+ * After a successful login, this controller also fetches the GUIState and
+ * VehicleState and caches them in the appContext. Other components may use
+ * these cached values but must understand that they are not updated - they
+ * represent a snapshot of the values when the user logged in.
+ * 
+ * TO DO:
+ * - If there are more than one vehicle associated with the logged-in user,
+ *   allow the user to select the vehicle she's interested in.
+ * 
+ * 
+ * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
+ */
 public class LoginController extends BaseController {
     
 /*------------------------------------------------------------------------------
@@ -159,14 +174,17 @@ public class LoginController extends BaseController {
         }
         
         @Override public Result call() {
+            boolean loggedIn;
+            
             if (username == null)   // Try auto login
-                loginCompleteProperty.set(tesla.connect());
+                loggedIn = tesla.connect();
             else    // Login with the specified username and password
-                loginCompleteProperty.set(tesla.connect(username, password, rememberMe.isSelected()));
-            return loginCompleteProperty.get() ? Result.Succeeded : Result.Failed;
+                loggedIn = tesla.connect(username, password, rememberMe.isSelected());
+            
+            loginCompleteProperty.set(loggedIn);
+            return loggedIn ? Result.Succeeded : Result.Failed;
         }
         
     }
     
-
 }

@@ -142,8 +142,10 @@ public class OverviewController extends BaseController {
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
         String info = vehicle.toString() +
-                "\nFirmware Version: " + vehicle.cachedVehicleState().version() +
-                "\nHas Spoiler: " + vehicle.cachedVehicleState().hasSpoiler();
+                "\nFirmware Version: " + vehicleState.version() +
+                "\nHas Spoiler: " + vehicleState.hasSpoiler() +
+                "\n--------------------------------------------" +
+                "\nLow level information: " + vehicle.getUnderlyingValues();
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
@@ -173,12 +175,24 @@ public class OverviewController extends BaseController {
         });
     }
     
-
+    /**
+     * Refresh the state either because the user requested it or because the 
+     * auto-refresh interval has passed. We always update the vehicleState and
+     * chargeState. Getting the odometer reading can be more burdensome because
+     * it has to be done through the streaming API. We only do that every 3rd
+     * time refresh is invoked, or if the user pressed the refresh button.
+     * This keeps down our request rate to the tesla servers.
+     * 
+     */
     protected void refresh() {
-        updateState(snapshotState);
-        updateState(chargeState);
         updateState(vehicleState);
+        updateState(chargeState);
+        if (userInvokedRefresh || refreshCount % 3 == 0) {
+            updateState(snapshotState);
+        }
+        refreshCount++;
     }
+    static private int refreshCount = 0;
     
     @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle(actions, v)) {
@@ -234,7 +248,7 @@ public class OverviewController extends BaseController {
         setOptionState(vehicleState.locked(), lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
-        if (vehicle.cachedVehicleState().hasSpoiler()) {
+        if (vehicleState.hasSpoiler()) {
             setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         }        
     }
@@ -312,7 +326,7 @@ public class OverviewController extends BaseController {
         
         // Save off the odometer reading (in miles)
         appContext.prefs.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
-        GUIState gs = vehicle.cachedGUIState();
+        GUIState gs = appContext.cachedGUIState;
         boolean useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;

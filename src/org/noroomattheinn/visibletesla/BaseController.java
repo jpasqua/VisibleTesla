@@ -7,9 +7,9 @@
 package org.noroomattheinn.visibletesla;
 
 import java.net.URL;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,16 +26,21 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.Result;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
  * by all Controller (sub)classes. The methods in this class are divided into 5
  * categories:<ol>
- * <li>Methods completely implemented by this class and called by external objects (not the subclasses)</li>
- * <li>Abstract methods that must be implemented by subclasses to provide subclass-specific functionality</li>
- * <li>Protected methods with default implementations that *may* be overriden by subclasses</li>
+ * <li>Methods completely implemented by this class and called by external
+ *     objects (not the subclasses)</li>
+ * <li>Abstract methods that must be implemented by subclasses to provide
+ *     subclass-specific functionality</li>
+ * <li>Protected methods with default implementations that *may* be overriden
+ *     by subclasses</li>
  * <li>Utility methods that may be used (but not overriden) by subclasses
  * <li>Private/internal methods</li>
  * </ol>
@@ -49,7 +54,9 @@ abstract class BaseController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-    private static final long AutoRefreshInterval = 20 * 1000;
+    protected static final long AutoRefreshInterval = 30 * 1000;
+    protected static final long MinRefreshInterval =   2 * 1000;
+    
     enum AfterCommand {Reflect, Refresh, Nothing};
     
 /*------------------------------------------------------------------------------
@@ -59,8 +66,12 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/
     
     private static BaseController activeController = null;    
-    protected Vehicle vehicle;
-    protected AppContext appContext;
+    protected static long lastRefreshTime;  // Primarily sed by AutoRefresh
+    protected Vehicle vehicle;              // The current vehicle
+    protected AppContext appContext;        // The overall app context
+    protected boolean userInvokedRefresh;   // Is the current refresh a result
+                                            // of the user pressing the refresh
+                                            // button or is it an auto-refresh?
     
 /*------------------------------------------------------------------------------
  *
@@ -124,7 +135,16 @@ abstract class BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    @FXML protected void refreshButtonHandler(ActionEvent event) { doRefresh(); }
+    @FXML protected void refreshButtonHandler(ActionEvent event) {
+        long now = System.currentTimeMillis();
+        if (now - lastRefreshTime < MinRefreshInterval) {
+            Tesla.logger.log(Level.INFO, "Ignoring refresh button - we just refreshed!");
+            return;
+        }
+        userInvokedRefresh = true;
+        doRefresh();
+        userInvokedRefresh = false;
+    }
 
 /*------------------------------------------------------------------------------
  * 
@@ -182,7 +202,6 @@ abstract class BaseController {
  * 
  *----------------------------------------------------------------------------*/    
 
-    private static long lastRefreshTime = 0;
     private static Thread refreshThread = null;
 
     /**
@@ -283,21 +302,21 @@ abstract class BaseController {
     private void ensureRefreshThread() {
         if (refreshThread == null) {
             refreshThread = appContext.launchThread(new AutoRefresh(), "00 AutoRefresh");
-            lastRefreshTime = new Date().getTime();
+            lastRefreshTime = System.currentTimeMillis();
         }
     }
     
-    class AutoRefresh implements Runnable, ChangeListener<Boolean> {
-        private boolean asleep = true;
+    class AutoRefresh implements Runnable, ChangeListener<InactivityMode> {
+        private InactivityMode inactivityState = InactivityMode.StayAwake;
         
         @Override public void
-        changed(ObservableValue<? extends Boolean> o, Boolean ov, Boolean nv) {
-            asleep = nv;
+        changed(ObservableValue<? extends InactivityMode> o, InactivityMode ov, InactivityMode nv) {
+            inactivityState = nv;
         }
 
         @Override public void run() {
-            appContext.shouldBeSleeping.addListener(this);
-            asleep = appContext.shouldBeSleeping.get();
+            appContext.inactivityState.addListener(this);
+            inactivityState = appContext.inactivityState.get();
             while (true) {
                 long timeToSleep = AutoRefreshInterval;
                 while (timeToSleep > 0) {
@@ -308,7 +327,7 @@ abstract class BaseController {
                             (System.currentTimeMillis() - lastRefreshTime);
                     timeToSleep = Math.min(timeToSleep, AutoRefreshInterval);
                 }
-                if (!asleep)
+                if (inactivityState == InactivityMode.StayAwake)
                     Platform.runLater(new FireRefresh());
             }
         }

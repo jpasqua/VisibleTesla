@@ -1,385 +1,508 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>VisibleTesla Overview</title>
-    <link rel="stylesheet" type="text/css" href="default.css">
+<title>VisibleTesla Overview</title>
+<link rel="stylesheet" type="text/css" href="default.css">
 </head>
-
 <body style="max-width:800px">
-    <h1>VisibleTesla</h1>
-    <p>VisibleTesla lets you view, monitor, and control your
-    Tesla Model S in much the same way as the official Tesla iPhone and Android
-    apps do. Unlike those apps, VisibleTesla is not official, not from Tesla,
-    and not supported.</p>
-
-    <p>VisibleTesla is free for personal and non-commercial use. It is based on
-    the work of many members of the <a href="http://www.teslamotorsclub.com/forum.php">
-    Tesla Motors Club Forum</a>.</p>
-
-    <p><strong>Disclaimer:</strong> <em>Be careful</em> when using this software as it can
-    lock and unlock your car as well as control various functions relating to
-    the charging system, sun roof, lights, horn, and other subsystems of the
-    car. Don't to send your login and password to anyone other than Tesla or
-    you are giving away the authentication details required to control your
-    car. VisibleTesla does not store your password and only communicates with
-    Tesla.</p>
-
-    <p>Use this application at your own risk. The authors do not guarantee its
-    proper functioning. This application attempts to use the same interfaces
-    used by the official Tesla apps. However, it is possible that use of this
-    application may cause unexpected damage for which nobody but you are
-    responsible. Use of this application can change the settings on your car
-    and may have negative consequences such as (but not limited to) unlocking
-    the doors, opening the sun roof, or reducing the available charge in the
-    battery.</p>
-
-    <h2><a id="introduction" name="introduction">Topics</a></h2>
-    <ul>
-        <li><a href="#introduction">Introduction</a></li>
-        <ul>
-            <li><a href="#login_tab">Login Tab</a></li>
-            <li><a href="#overview_tab">Overview Tab</a></li>
-            <li><a href="#hvac_tab">HVAC Tab</a></li>
-            <li><a href="#location_tab">Location Tab</a></li>
-            <li><a href="#charging_tab">Charge Tab</a></li>
-            <li><a href="#graphs_tab">Graphs Tab</a></li>
-            <li><a href="#scheduler_tab">Scheduler Tab</a></li>
-            <li><a href="#autorefresh">Auto-Refresh</a></li>
-            <li><a href="#sleepmode">Sleep Mode</a></li>
-            <li><a href="#simulation">Simulation</a></li>
-        </ul>
-        <li><a href="#installation">Installing and Running</a></li>
-        <ul>
-            <li><a href="#java">Installing Java</a></li>
-            <li><a href="#running">Running VisibleTesla</a></li>
-        </ul>
-    </ul>
-
-
-    <h2><a id="introduction" name="introduction">Overview</a></h2>VisibleTesla
-    has a tabbed interface with one tab per functional area. The following sections
-    describe each of the tabs. The screenshots are representative and may not
-    reflect exactly what you'll see. For example, these screen shots were taken on a Mac.</p>
-
-    <p>The app has three menus: File, Simulate, and Help. The items of the first two menus will be described below. The Help menu allows you to bring up this documentation, the release notes, and a general "About" dialog.</p>
-
-    <h3><a id="login_tab">Login Tab</a></h3>
-    When you launch the app
-    you'll start out in a login tab. The other tabs will be disabled until you log
-    in. The first time you use the app you'll need to enter the same username and
-    password you use with the iPhone or Android app. If you'd like the app to remember
-    you so you won't have to re-enter your details every time, check the "Remember Me" box
-    before clocking the "Login" button. On subsequent runs of the app, you won't need
-    to enter your credentials.</p> 
-
-    Notes:<ul>
-        <li>Even if you use the "Remember Me" feature, your username and password will not
-        be stored on your computer. Instead, the app will store "cookies" which contain
-        encoded information from Tesla. The cookies are stored in a file called cookies.txt.
-        You should not share that file with others. Even though it does not contain your password,
-        it can be used by others to connect to your car.</li>
-        <li>If you don't want a cookies file to be created, don't check the "Remember Me" box. It is also
-            perfectly fine to delete the cookies.txt file.
-        <li>All communication between the app and Tesla are encrypted including the login
-            process.</li>
-            <li>If you logout of the application, you'll need to re-enter your credentials to use
-        the app again.</li>
-    </ul>
-
-    <p>The following screenshot shows the logged-in state:</P>
-
-    <p><img alt="Login Tab" border="0" style="margin:5px" src="images/01_Login_Tab.png" /></p>
-
-    <h3><a id="overview_tab">Overview Tab</a></h3>
-
-    <p>The Overview tab shows basic state about the vehicle and gives access to
-    commands like lock/unlock, operating the panoramic roof (if you have one),
-    flashing the lights, etc. These screen shots show the overview tab
-    reflecting various states of the car. The second screen shows an
-    information dialog that gives details about your car.
-    </p>
-
-    <p><img border="0" style="margin:5px" src="images/02_Overview_Tab.png" /></p>
-    <p><img border="0" style="margin:5px" src="images/02a_Overview_Details.png" /></p>
-    <p>The next screen shot shows the panoramic roof in the vented state. The user
-        vented the roof by pressing the Vent button. The next screenshot shows
-        what the app will display when the driver's door is open.<p>
-    <p><img border="0" style="margin:5px" src="images/03_Overview_Vented.png" /></p>
-    <p><img border="0" style="margin:5px" src="images/04_Overview_Door_Open.png" /> </p>
-    
-    <h3><a id="hvac_tab">HVAC Tab</a></h3>
-
-    <p>Next we have the HVAC tab which shows the state of that system. It also
-    allows you to set the target temperature and turn on/off the system. This tab will display whether the front or rear defrosters are on, but it cannot control the defrosters. The fan blades will fill in to show the speed at which the fan is blowing. All empty is off, all full is maximum, and partially full are levels in between. </p>
-    <p>This tab also displays the current interior and exterior temperature readings when they are available. The vehicle does not always supply this information. If no temperature readings are available, the tab will display "--" in place of the reading. It is not known when the vehicle decides to provide temperature readings and for how long. It is the case that if you activate the HVAC system, the readings will be made available and will remain available for an indeterminate period after the HVAC system is turned off.</p>
-
-    <p><img border="0" style="margin:5px" src="images/05_HVAC_Tab.png" /></p>
-
-    <h3><a id="location_tab">Location Tab</a></h3>
-
-    <p>The Location tab embeds a Google map to show the current location of your car with a marker. The
-     marker is rotated to show your car's heading. There is a "Browse"
-    button that will launch your default browser displaying a Google map with the car's
-    location so you can get directions or perform any other Google map function.</p>
-
-    <p><img border="0" style="margin:5px" src="images/06_Location_Tab.png" /></p>
-    <p>Like a normal Google Map, you can zoom in and out, you can pan, and switch to satellite
-        mode. If you click on the arrow representing your Tesla, an info window will pop
-        up displaying the street address that is closest to your car.</p>
-    <p>The map will  keep the car centered <i>unless you manually pan the map</i>. If you do so, you are indicating that you want to view a specific location and the app will not recenter the map as the car moves. You may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.</p>
-    <p>If the user pans the map manually thereby exiting "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</p>
-    <p><b>Note</b>: The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again.</p>
-
-    <p><img border="0" style="margin:5px" src="images/06a_Location_Info.png" /></p>
-
-    <h3><a id="charging_tab">Charge Tab</a></h3>
-
-    <p>The Charge tab shows the charge state and allows you to set the charge
-    target and to start/stop charging. The slider allows you to specify how much
-    charge you want the car to get. You can click on "Standard" or "Max" to
-    make the slider jump to a preset value.</p>
-
-    <p><b>Notes:</b><ul>
-        <li>VisibleTesla checks the version of firmware installed on your
-        car. If it is an older version, the slider capability is not supported
-        and you can only adjust the charge target by clicking on "Standard" or "Max".</li>
-        <li>The range of the slider is automatically adjusted to accommodate the range of
-            values that the car will accept. For example, the minimum value may be 50 rather
-            than 0.</li>
-            <li>The Tesla server may adjust the value you specify. The actual value
-                will be reflected in the slider. you may see it jump to a slightly
-                different value after you release it.</li>
-            </ul>
-    </p>
-
-    <p>There are quite a few pieces of data in the Charge Tab. The following
-        table lists the items and gives a brief description of what they represent.</p>
-
-    <table class="grid_table">
-        <tr>
-            <th>Item</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>Current</td>
-            <td>The amount of current being supplied to the vehicle</td>
-        </tr>
-        <tr>
-            <td>Voltage</td>
-            <td>The voltage being supplied to the vehicle</td>
-        </tr>
-        <tr>
-            <td>Charge Rate</td>
-            <td>How many miles of range are being recovered per hour of charging</td>
-        </tr>
-        <tr>
-            <td>Time Left</td>
-            <td>Estimated amount of time until the charge will be complete</td>
-        </tr>
-        <tr>
-            <td>State</td>
-            <td>Charging, Complete, Disconnected or Unknown</td>
-        </tr>
-        <tr>
-            <td>Pilot Current</td>
-            <td>The amount of current reported to be available from the attached power source</td>
-        </tr>
-        <tr>
-            <td>Battery Current</td>
-            <td>The current flowing into the battery (or out if negative)</td>
-        </tr>
-        <tr>
-            <td>Supercharger</td>
-            <td>Is the vehicle connected to a supercharger. HPWC does not qualify</td>
-        </tr>
-        <tr>
-            <td>Charger Power</td>
-            <td>The power in kW being supplied at the moment the reading was taken</td>
-        </tr>
-        <tr>
-            <td># Range Charges</td>
-            <td>The number of consequetive range charges since the last standard charge. If you range charge three times in a row, this will display '3'. If you perform a Standard charge, it will be reset to 0.</td>
-        </tr>
-        <tr>
-            <td>Rated Range</td>
-            <td>The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is different for different vehicles (85kWh / 60kWh) and in different markets based on the regulatory test for that vehicle in that market. For example, in the US this is based on the EPA estimate.</td>
-        </tr>
-        <tr>
-            <td>Estimated Range</td>
-            <td>The car's predicted remaining range based on energy consumption during recent driving</td>
-        </tr>
-        <tr>
-            <td>Ideal Range</td>
-            <td>The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is an optimal figure determined by Tesla.</td>
-        </tr>
-    </table>
-    
-    <p>The screen shots show the car
-    when not connected to a charger, connected but not charging, and charging.
-    In this case it is connected to an HPWC which is set to 60A.</p>
-
-
-    <p><img border="0" style="margin:5px" src="images/07_Charge_Tab.png" />
-    <img border="0" style="margin:5px" src="images/08_Charge_Plugged_In.png" />
-    <img border="0" style="margin:5px" src="images/09_Charging.png" /></p>
-
-    <h3><a id="graphs_tab">Graphs Tab</a></h3>
-    <p>This tab tracks and graphs basic statistics about the vehicle as a line chart. The x-axis represents the time at
-        which the stats were gathered and the y-axis represents the values. An "Items" drop down list allows
-        you to select which statistics are displayed. It also gives a color-coded legend to so you can tell
-        which line represents which value. If you deselect a particular item it will not be displayed, but
-        the statistics for that item will continue to be gathered.
-    </p>
-    <p>Note that these statistics are only collected while VisibleTesla is running and only after you view the Graphs tab at least once. It will continue collecting stats in the background even if you move to another tab. If you quit the app the statistics will not be collected until the next time you restart VisibleTesla. If you have selected "File->Allow Sleep" and you don't use the app for 15 minutes, it will stop collecting samples. VisibleTesla does store the statistics it collects. If you quit the app and restart it later, it will display the old statistics and newly gathered ones. </p>
-    <p>When you start VisibleTesla it does not automatically start collecting graph data. It only starts collecting data when you select the Graphs tab. Once you go to the Graphs tab once, it will continue collecting information in the background even if you switch to another tab.
-    </p>
-    <p>You can interact with the line chart in several different ways.
-        <ul>
-            <li>Panning: If you wish to move the view forwarward or backward in time, simply grab the chart (mouse-down) and drag it to the right or the left. To pan the chart up or down, press the CTRL button while dragging the mouse. If you want to pan in both directions simultaneously, hold the SHIFT key while dragging.</li>
-            <li>Zooming: If you wish to  change the time-span that is displayed (zoom in on a small
-            range of time or zoom out to a large range of time) spin the scroll-wheel on your mouse up or down. To zoom in or out on the value (y) axis, press CTRL while scrolling. To zoom both axes simultaneously, press SHIFT while scrolling. When zooming, the app does so relative to the current mouse location. That is, the chart will seem to expand around the point under the mouse.</li>
-            <li>To select which statistics are displayed, click on the arrow to expand the Items dropdown.
-                Select or deselect the statistics as desired.</li>
-            <li>The app remembers which variables you have selected. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. All variables are collected whether they are selected or not.</li>
-            <li>In the lower left corner of the chart there is a reset button (backward pointing arrow icon). Clicking the  button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.</li>
-            <li>To see more data at once, simply the grow the window. The graph will expand and scale to fit.</li>
-            <li>To determine the specific value at any point in the graph, move your mouse over the spot to be
-                measured. A readout in the upper left corner of the chart is updated to display the time and value
-                corresponding to the location of the cursor.
-        </ul>
-    </p>
-    <p>The Graphs tab also allows you to select how you would like the information displayed. It can display a line chart, a line chart with markers (dots) at the points where readings were taken, or both. The default is to display both. You can choose your display option by bringing up a context menu on the chart. To do this, press the secondary mouse button (usually the right button) when the mouse is over the chart. A menu will appear with the three display choices (lines, markers, or both). Once you choose an option it will be stored on  your computer and used the next time you start the app.
-    </p>
-    <p>There is another item in the File menu titled "Export Graph Data...". It does just what the name implies;
-        exports all of the data collected by the Graphs tab.  It saves the data to a Microsoft Excel file in a location that you choose. When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like this:</p>
-    <table class="grid_table">
-            <tr>
-                <th>TIMESTAMP</th>
-                <th>C_AMP</th>
-                <th>C_BAM</th>
-                <th>C_EST</th>
-                <th>C_ROC</th>
-                <th>C_SOC</th>
-                <th>C_VLT</th>
-                <th>S_PWR</th>
-                <th>S_SPD</th>
-                <th>&nbsp;</th>
-            </tr>
-            <tr>
-                <td>1377743292</td>
-                <td>0</td>
-                <td></td>
-                <td>99.7</td>
-                <td>-1</td>
-                <td>55</td>
-                <td>0</td>
-                <td>24</td>
-                <td>14</td>
-                <td>8/28/13 18:28:12</td>
-            </tr>
-            <tr>
-                <td>1377746306</td>
-                <td>0</td>
-                <td></td>
-                <td>99.3</td>
-                <td>-1</td>
-                <td>50</td>
-                <td>0</td>
-                <td>21</td>
-                <td>16</td>
-                <td>8/28/13 19:18:26</td>
-            </tr>
-        </table>
-
-    <p>You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time.</p>
-    
-    <p>The following screenshots show the graph with the Items dropdown expanded. The first chart shows all
-        of the statistics displayed while the second shows the chart with several items de-selected. The last image shows
-        the "Export Graph Data..." item of the File menu. This screenshot is from Windows to give a feel for how the menu bar looks on that platform.
-    </p>
-    <p><img border="0" style="margin:5px" src="images/14_Graphs_All.png" /></p>
-    <p><img border="0" style="margin:5px" src="images/13_Graphs_Partial.png" /></p>
-    <p><img border="0" style="margin:5px" src="images/16_Export.png" /></p>
-
-    <h3><a id="scheduler_tab">Scheduler Tab</a></h3>
-    <p>VisibleTesla now includes a very basic capability for scheduled activities like charging your car or turning on/off your air conditioning. For scheduled events to be executed, Visible Tesla must be running. That is, if you schedule your vehicle to turn on the HVAC system at 7:30AM so that your car is warm by the time you get to it at 7:45, then VisibleTesla must be running at 7:30AM to issue the commands. The screenshot below shows the Scheduler Tab.</p>
-        <p><img border="0" style="margin:5px" src="images/17_Scheduler.png" /></p>
-<p>Each row represents a command that can be scheduled independently. There are 8 rows meaning that up to 8 distinct schedules can be set. The fields for each row are as follows:
-    <ul>
-<li>On?: If selected then this schedule is active. If not selected, VT will remember the scheduled event, but not execute it.</li>
-<li>Sunday-Saturday: The scheduled event will be executed only on the selected days.</li>
-<li>Time: The time at which the command will be executed. Minutes can be specified with a granularity of 5 minutes (00, 05, 10, ...)</li>
-<li>Safe: If selected, the command will only be executed if there is at least 25% charge remaining on the battery. Otherwise it will be ignored. Note that starting the charging process does not require a minimum charge regardless of this setting.</li>
-<li>Command: The command to execute. Choices are: HVAC On, HVAC Off, Start Charging, Stop Charging, and None.</li>
+<h1>VisibleTesla</h1>
+<p>
+	VisibleTesla lets you view, monitor, and control your Tesla Model S in much the same way as the official Tesla iPhone and Android apps do. Unlike those apps, VisibleTesla is not official, not from Tesla, and not supported.
+</p>
+<p>
+	VisibleTesla is free for personal and non-commercial use. It is based on the work of many members of the <a href="http://www.teslamotorsclub.com/forum.php">
+	Tesla Motors Club Forum</a>.
+</p>
+<p>
+	<strong>Disclaimer:</strong><em>Be careful</em> when using this software as it can lock and unlock your car as well as control various functions relating to the charging system, sun roof, lights, horn, and other subsystems of the car. Don't to send your login and password to anyone other than Tesla or you are giving away the authentication details required to control your car. VisibleTesla does not store your password and only communicates with Tesla.
+</p>
+<p>
+	Use this application at your own risk. The authors do not guarantee its proper functioning. This application attempts to use the same interfaces used by the official Tesla apps. However, it is possible that use of this application may cause unexpected damage for which nobody but you are responsible. Use of this application can change the settings on your car and may have negative consequences such as (but not limited to) unlocking the doors, opening the sun roof, or reducing the available charge in the battery.
+</p>
+<h2><a id="introduction" name="introduction">Topics</a></h2>
+<ul>
+	<li><a href="#introduction">Introduction</a></li>
+	<ul>
+		<li><a href="#login_tab">Login Tab</a></li>
+		<li><a href="#overview_tab">Overview Tab</a></li>
+		<li><a href="#hvac_tab">HVAC Tab</a></li>
+		<li><a href="#location_tab">Location Tab</a></li>
+		<li><a href="#charging_tab">Charge Tab</a></li>
+		<li><a href="#graphs_tab">Graphs Tab</a></li>
+		<li><a href="#scheduler_tab">Scheduler Tab</a></li>
+		<li><a href="#autorefresh">Auto-Refresh</a></li>
+		<li><a href="#sleepmode">Sleep Mode</a></li>
+		<li><a href="#simulation">Simulation</a></li>
+	</ul>
+	<li><a href="#installation">Installing and Running</a></li>
+	<ul>
+		<li><a href="#java">Installing Java</a></li>
+		<li><a href="#running">Running VisibleTesla</a></li>
+	</ul>
 </ul>
+<h2><a id="introduction" name="introduction">Overview</a></h2>
+VisibleTesla has a tabbed interface with one tab per functional area. The following sections describe each of the tabs. The screenshots are representative and may not reflect exactly what you'll see. For example, these screen shots were taken on a Mac.
 </p>
-<p>Please remember that using this functionality can trigger activity that depletes your battery. Only yu are solely responsible for any negative consequences that this might produce.
+<p>
+The app has three menus: File, Options, and Help. The items of the first two menus will be described below. The Help menu allows you to bring up this documentation, the release notes, and a general "About" dialog.
+</p>
+<h3><a id="login_tab">Login Tab</a></h3>
+ When you launch the app you'll start out in a login tab. The other tabs will be disabled until you log in. The first time you use the app you'll need to enter the same username and password you use with the iPhone or Android app. If you'd like the app to remember you so you won't have to re-enter your details every time, check the "Remember Me" box before clocking the "Login" button. On subsequent runs of the app, you won't need to enter your credentials.
+</p>
+ Notes:
+<ul>
+<li>Even if you use the "Remember Me" feature, your username and password will not be stored on your computer. Instead, the app will store "cookies" which contain encoded information from Tesla. The cookies are stored in a file called cookies.txt. You should not share that file with others. Even though it does not contain your password, it can be used by others to connect to your car.</li>
+<li>If you don't want a cookies file to be created, don't check the "Remember Me" box. It is also perfectly fine to delete the cookies.txt file.
+<li>All communication between the app and Tesla are encrypted including the login process.</li>
+<li>If you logout of the application, you'll need to re-enter your credentials to use the app again.</li>
+</ul>
+<p>
+The following screenshot shows the logged-in state:
+</p>
+<p>
+<img alt="Login Tab" border="0" style="margin:5px" src="images/01_Login_Tab.png" />
+</p>
+<p>
+If you are lucky enough to own more than one Tesla, you'll need to select which one you want to use. After VisibleTesla has successfully logged in it checks to see if you have more than one car. If you do, a dialog will pop up with a list of your vehicles. Choose the vehicle you're interested in and hit OK. At the moment you must quit the app and restart to use another vehicle.
+</p>
+<h3><a id="overview_tab">Overview Tab</a></h3>
+<p>
+The Overview tab shows basic state about the vehicle and gives access to commands like locking and unlocking, operating the panoramic roof (if you have one), flashing the lights, etc. These screen shots show the overview tab reflecting various states of the car. The second screen shows an information dialog that gives details about your car. That dialog is displayed in response to pressing the "Details" button. If you scroll all the way tot he bottom of the presented details information you will see a very long line of low level details. Unless you are technically curious or have been requested to provide debugging information, you can ignore this.
+</p>
+<p>
+<img border="0" style="margin:5px" src="images/02_Overview_Tab.png" />
+</p>
+<p>
+<img border="0" style="margin:5px" src="images/02a_Overview_Details.png" />
+</p>
+<p>
+The next screen shot shows the panoramic roof in the vented state. The user vented the roof by pressing the Vent button. The next screenshot shows what the app will display when the driver's door and the rear trunk are open.
+<p>
+<p>
+	<img border="0" style="margin:5px" src="images/03_Overview_Vented.png" />
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/04_Overview_Door_Open.png" />
+</p>
+<h3><a id="hvac_tab">HVAC Tab</a></h3>
+<p>
+	Next we have the HVAC tab which shows the state of that system. It also allows you to set the target temperature and turn on or off the system. This tab will display whether the front or rear defrosters are on, but it cannot control the defrosters. The fan blades will fill in to show the speed at which the fan is blowing. All empty is off, all full is maximum, and partially full are levels in between.
+</p>
+<p>
+	This tab also displays the current interior and exterior temperature readings when they are available. The vehicle does not always supply this information. If no temperature readings are available, the tab will display "--" in place of the reading. It is not known when the vehicle decides to provide temperature readings and for how long. It is the case that if you activate the HVAC system, the readings will be made available and will remain available for an indeterminate period after the HVAC system is turned off.
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/05_HVAC_Tab.png" />
+</p>
+<h3><a id="location_tab">Location Tab</a></h3>
+<p>
+	The Location tab embeds a Google map to show the current location of your car with a marker. The marker is rotated to show your car's heading. There is a "Browse" button that will launch your default browser displaying a Google map with the car's location so you can get directions or perform any other Google map function.
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/06_Location_Tab.png" />
+</p>
+<p>
+	Like a normal Google Map, you can zoom in and out, you can pan, and switch to satellite mode. If you click on the arrow representing your Tesla, an info window will pop up displaying the street address that is closest to your car.
+</p>
+<p>
+	The map will keep the car centered <i>unless you manually pan the map</i>. If you do so, you are indicating that you want to view a specific location and the app will not recenter the map as the car moves. You may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.
+</p>
+<p>
+	If the user pans the map manually thereby exiting "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.
+</p>
+<p>
+	<b>Note</b>: The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again. 
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/06a_Location_Info.png" />
+</p>
+<h3><a id="charging_tab">Charge Tab</a></h3>
+<p>
+	The Charge tab shows the charge state and allows you to set the charge target and to start or stop charging. The slider allows you to specify how much charge you want the car to get. You can click on "Standard" or "Max" to make the slider jump to a preset value.
+</p>
+<p>
+	<b>Notes:</b>
+	<ul>
+		<li>VisibleTesla checks the version of firmware installed on your car. If it is an older version, the slider capability is not supported and you can only adjust the charge target by clicking on "Standard" or "Max".</li>
+		<li>The range of the slider is automatically adjusted to accommodate the range of values that the car will accept. For example, the minimum value may be 50 rather than 0.</li>
+		<li>The Tesla server may adjust the value you specify. The actual value will be reflected in the slider. you may see it jump to a slightly different value after you release it.</li>
+	</ul>
+</p>
+<p>
+	There are quite a few pieces of data in the Charge Tab. The following table lists the items and gives a brief description of what they represent.
+</p>
+<table class="grid_table">
+<tr>
+	<th>
+		Item
+	</th>
+	<th>
+		Description
+	</th>
+</tr>
+<tr>
+	<td>
+		Current
+	</td>
+	<td>
+		The amount of current being supplied to the vehicle
+	</td>
+</tr>
+<tr>
+	<td>
+		Voltage
+	</td>
+	<td>
+		The voltage being supplied to the vehicle
+	</td>
+</tr>
+<tr>
+	<td>
+		Charge Rate
+	</td>
+	<td>
+		How many miles of range are being recovered per hour of charging
+	</td>
+</tr>
+<tr>
+	<td>
+		Time Left
+	</td>
+	<td>
+		Estimated amount of time until the charge will be complete
+	</td>
+</tr>
+<tr>
+	<td>
+		State
+	</td>
+	<td>
+		Charging, Complete, Disconnected or Unknown
+	</td>
+</tr>
+<tr>
+	<td>
+		Pilot Current
+	</td>
+	<td>
+		The amount of current reported to be available from the attached power source
+	</td>
+</tr>
+<tr>
+	<td>
+		Battery Current
+	</td>
+	<td>
+		The current flowing into the battery (or out if negative)
+	</td>
+</tr>
+<tr>
+	<td>
+		Supercharger
+	</td>
+	<td>
+		Is the vehicle connected to a supercharger. HPWC does not qualify
+	</td>
+</tr>
+<tr>
+	<td>
+		Charger Power
+	</td>
+	<td>
+		The power in kW being supplied at the moment the reading was taken
+	</td>
+</tr>
+<tr>
+	<td>
+		# Range Charges
+	</td>
+	<td>
+		The number of consecutive range charges since the last standard charge. If you range charge three times in a row, this will display '3'. If you perform a Standard charge, it will be reset to 0.
+	</td>
+</tr>
+<tr>
+	<td>
+		Rated Range
+	</td>
+	<td>
+		The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is different for different vehicles (85kWh / 60kWh) and in different markets based on the regulatory test for that vehicle in that market. For example, in the US this is based on the EPA estimate.
+	</td>
+</tr>
+<tr>
+	<td>
+		Estimated Range
+	</td>
+	<td>
+		The car's predicted remaining range based on energy consumption during recent driving
+	</td>
+</tr>
+<tr>
+	<td>
+		Ideal Range
+	</td>
+	<td>
+		The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is an optimal figure determined by Tesla.
+	</td>
+</tr>
+<tr>
+	<td>
+		<b>Note</b>
+	</td>
+	<td>
+		It has been discovered that the range is derived slightly differently while the car is being charged vs. when it is not. This can cause the range to seem to drop by a couple of miles immediately after charging stops.
+	</td>
+</tr>
+</table>
+<p>
+	The screen shots show the car when not connected to a charger, connected but not charging, and charging. In this case it is connected to an HPWC which is set to 60A.
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/07_Charge_Tab.png" />
+	<img border="0" style="margin:5px" src="images/08_Charge_Plugged_In.png" />
+	<img border="0" style="margin:5px" src="images/09_Charging.png" />
+</p>
+<h3><a id="graphs_tab">Graphs Tab</a></h3>
+<p>
+	This tab tracks and graphs basic statistics about the vehicle as a line chart. The x-axis represents the time at which the stats were gathered and the y-axis represents the values. An "Items" drop down list allows you to select which statistics are displayed. It also gives a color-coded legend to so you can tell which line represents which value. If you deselect a particular item it will not be displayed, but the statistics for that item will continue to be gathered.
+</p>
+<p>
+	Note that these statistics are only collected while VisibleTesla is running and only after you view the Graphs tab at least once. It will continue collecting stats in the background even if you move to another tab. If you quit the app the statistics will not be collected until the next time you restart VisibleTesla. If you have selected "Options->Allow Sleeping" and you don't use the app for 15 minutes, it will stop collecting samples. VisibleTesla stores the statistics it collects. If you quit the app and restart it later, it will display the old statistics and newly gathered ones.
+</p>
+<p>
+	<strong>Note</strong>: When you start VisibleTesla it does not automatically start collecting graph data. It only starts collecting data when you select the Graphs tab. Once you go to the Graphs tab once, it will continue collecting information in the background even if you switch to another tab.
+</p>
+<p>
+	You can interact with the line chart in several different ways.
+	<ul>
+		<li>Panning: If you wish to move the view forward or backward in time, simply grab the chart (mouse-down) and drag it to the right or the left. To pan the chart up or down, press the CTRL button while dragging the mouse. If you want to pan in both directions simultaneously, hold the SHIFT key while dragging.</li>
+		<li>Zooming: If you wish to change the time-span that is displayed (zoom in on a small range of time or zoom out to a large range of time) spin the scroll-wheel on your mouse up or down. To zoom in or out on the value (y) axis, press CTRL while scrolling. To zoom both axes simultaneously, press SHIFT while scrolling. When zooming, the app does so relative to the current mouse location. That is, the chart will seem to expand around the point under the mouse.</li>
+		<li>To select which statistics are displayed, click on the arrow to expand the Items dropdown. Select or deselect the statistics as desired.</li>
+		<li>The app remembers which variables you have selected. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. All variables are collected whether they are selected or not.</li>
+		<li>In the lower left corner of the chart there is a reset button (backward pointing arrow icon). Clicking the button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.</li>
+		<li>To see more data at once, simply the grow the window. The graph will expand and scale to fit.</li>
+		<li>To determine the specific value at any point in the graph, move your mouse over the spot to be measured. A readout in the upper left corner of the chart is updated to display the time and value corresponding to the location of the cursor.
+	</ul>
+</p>
+<p>
+	The Graphs tab also allows you to select how you would like the information displayed. It can display a line chart, a line chart with markers (dots) at the points where readings were taken, or both. The default is to display both. You can choose your display option by bringing up a context menu on the chart. To do this, press the secondary mouse button (usually the right button) when the mouse is over the chart. A menu will appear with the three display choices (lines, markers, or both). Once you choose an option it will be stored on your computer and used the next time you start the app. You'll notice that if you choose the "both" option, the lines will be thin and semi-transparent to make the markers more visible. If you choose to display only lines, the lines will be more pronounced.
+</p>
+<p>
+	<strong>Note</strong>: Displaying markers for large amounts of information may cause a delay when the graph first loads or new variables are made visible for the first time.
+</p>
+<p>
+	There is another item in the File menu titled "Export Graph Data...". It does just what the name implies; exports all of the data collected by the Graphs tab. It saves the data to a Microsoft Excel file in a location that you choose. When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains is a long, unintelligible number that is an accurate, but obscure way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like this:
+</p>
+<table class="grid_table">
+<tr>
+	<th>
+		TIMESTAMP
+	</th>
+	<th>
+		C_AMP
+	</th>
+	<th>
+		C_BAM
+	</th>
+	<th>
+		C_EST
+	</th>
+	<th>
+		C_ROC
+	</th>
+	<th>
+		C_SOC
+	</th>
+	<th>
+		C_VLT
+	</th>
+	<th>
+		S_PWR
+	</th>
+	<th>
+		S_SPD
+	</th>
+	<th>
+		&nbsp;
+	</th>
+</tr>
+<tr>
+	<td>
+		1377743292
+	</td>
+	<td>
+		0
+	</td>
+	<td>
+	</td>
+	<td>
+		99.7
+	</td>
+	<td>
+		-1
+	</td>
+	<td>
+		55
+	</td>
+	<td>
+		0
+	</td>
+	<td>
+		24
+	</td>
+	<td>
+		14
+	</td>
+	<td>
+		8/28/13 18:28:12
+	</td>
+</tr>
+<tr>
+	<td>
+		1377746306
+	</td>
+	<td>
+		0
+	</td>
+	<td>
+	</td>
+	<td>
+		99.3
+	</td>
+	<td>
+		-1
+	</td>
+	<td>
+		50
+	</td>
+	<td>
+		0
+	</td>
+	<td>
+		21
+	</td>
+	<td>
+		16
+	</td>
+	<td>
+		8/28/13 19:18:26
+	</td>
+</tr>
+</table>
+<p>
+	You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time. The following screenshots show the Graphs tab in a number of different states.
+</p>
+<figure>
+    <img src='images/13_Graphs_Partial.png' alt='missing' />
+    <figcaption><center>The items dropdown showing which items are displayed</center></figcaption>
+</figure>
+
+<figure>
+    <img src='images/13a_Graphs_ContextMenu.png' alt='missing' />
+    <figcaption><center>The context menu lets you select the line/marker style</center></figcaption>
+</figure>
+
+<figure>
+    <img src='images/13b_Graphs_Markers.png' alt='missing' />
+    <figcaption><center>Displaying markers makes it easy to spot gaps in the data</center></figcaption>
+</figure>
+
+<figure>
+    <img src='images/13c_Graphs_Both.png' alt='missing' />
+    <figcaption><center>Displaying lines and markers makes can make it easier to follow trends</center></figcaption>
+</figure>
+
+<p>If you have a lot of data and have selected to display markers (even in combination with lines) it can take quite a while to load and display your data. While you're waiting, you'll see a "Loading..." message and a spinner. The spinner may stop spinning during the final phase of loading the data. This is a known problem.</p>
+<figure>
+    <img src='images/14_Graphs_Loading.png' alt='missing' />
+    <figcaption><center>Displayed while data is being loaded into the graph</center></figcaption>
+</figure>
+
+This screenshot shows the "File->Export Graph Data" menu in Windows.
+<figure>
+    <img src='images/16_Export.png' alt='missing' />
+    <figcaption><center>Choosing to export your data</center></figcaption>
+</figure>
+
+<h3><a id="scheduler_tab">Scheduler Tab</a></h3>
+<p>
+	VisibleTesla now includes a very basic capability for scheduled activities like charging your car or turning on or off your air conditioning. For scheduled events to be executed, Visible Tesla must be running. That is, if you schedule your vehicle to turn on the HVAC system at 7:30AM so that your car is warm by the time you get to it at 7:45, then VisibleTesla must be running at 7:30AM to issue the commands. The screenshot below shows the Scheduler Tab.
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/17_Scheduler.png" />
+</p>
+<p>
+	Each row represents a command that can be scheduled independently. There are 8 rows meaning that up to 8 distinct schedules can be set. The fields for each row are as follows:
+	<ul>
+		<li>On?: If selected then this schedule is active. If not selected, VT will remember the scheduled event, but not execute it.</li>
+		<li>Sunday-Saturday: The scheduled event will be executed only on the selected days.</li>
+		<li>Time: The time at which the command will be executed. Minutes can be specified with a granularity of 5 minutes (00, 05, 10, ...)</li>
+		<li>Safe: If selected, the command will only be executed if there is at least 25% charge remaining on the battery. Otherwise it will be ignored. Note that starting the charging process does not require a minimum charge regardless of this setting.</li>
+		<li>Command: The command to execute. Choices are: HVAC On, HVAC Off, Start Charging, Stop Charging, Sleep, Daydream, Awake and None. When Sleep, Daydream, or Awake are executed, it is equivalent to the user selecting "Stay Awake", "Allow Sleeping", or "Allow Daydreaming" from the "Options->Inactivity Mode" menu. This can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.</li>
+	</ul>
+</p>
+<p>
+	Please remember that using this functionality can trigger activity that depletes your battery. You are solely responsible for any negative consequences that this might produce.
+</p>
+<h3><a id="autorefresh">Auto-Refresh</a></h3>
+<p>
+	This screen shot shows the "spinner" that is displayed when the app is communicating with the vehicle. Each tab has a refresh button and the app auto-refreshes every 30 seconds. Switching tabs automatically refreshes the newly selected tab.
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/12_Auto_Refresh.png" />
+</p>
+<p>
+	 In order to ensure that Tesla's servers do not become overloaded, the app automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others. For example, the odometer reading on the <a href="#overview_tab">Overview Tab</a>. Since even at 60 mph the reading doesn't change much every minute, the app does not update it on every refresh. If the user presses the refresh button, it will force a new reading. Otherwise it is updated on every third auto-refresh.</a> 
 </p>
 
+<h3><a id="sleepmode">Sleep Mode</a></h3>
+<p>
+	If your car has version 5.0 or later firmware, it has a sleep mode which allows it to conserve power. When you connect to your car from VisibleTesla or one of Tesla's official apps, it will wake the car up if it is sleeping. You may want to avoid doing this accidentally, so when you log in to VisibleTesla, it determines whether the car is sleeping. If it is, you will be presented with a dialog asking if you want to wake up the car or let it sleep (see the screenshot below). If you click the "let it sleep" button, the app will exit without waking the car. Otherwise, the app will start normally.
+</p>
+<p>
+	<img border="0" style="margin:5px" src="images/15_Sleep_Dialog.png" />
+</p>
+<p>
+	When you are using VisibleTesla, it communicates with your car on a regular basis. This can have two potentially negative side-effects. First, this communication will keep your car from going to sleep. Second, it puts a continuous load on Tesla's servers. To deal with these issues there is an "Inactivity Mode" submenu of the Options menu. It lets you choose what you want the app to do when it has been idle (no user activity) for 15 minutes. There are three choices:
+	<ol>
+		<li>Allow Sleeping: When this mode is selected, VisibleTesla will go into sleep mode after 15 minutes of inactivity. When in this mode the app will not interact with your car which means it can go to sleep. To let you know that it is in inactive mode, the app will display an indication in the title bar. If you want the app to start communicating with your car again, simply click the refresh button on any tab or switch tabs to cause a refresh. The Graphs tab will not collect data while in sleep mode, but the scheduler will continue to operate which may send a command that wakes up your car.</li>
+		<li>Allow Daydreaming: In this mode the app won't go to sleep after 15 minutes, but it will get distracted. It will stop <a href="#autorefresh">auto-refreshing</a> but it will continue to collect graph data and run the scheduler. Like Sleep mode, you can snap the app out of its stupor by changing tabs or pressing a button.</li>
+		<li>Stay Awake: In this mode the just stays awake - it doesn't sleep or daydream.</li>
+	</ol>
+	 Your selection is remembered across runs of the application. The default is "Allow Daydreaming". If you have selected to Sleep or Daydream and the inactivity period passes, the window title will be updated to let you know that the app is sleeping or daydreaming. When the app is awake, no special indication is displayed in the title bar.
+</p>
+<figure>
+    <img src='images/18_Inactivity.png' alt='missing' />
+    <figcaption><center>The choices for Inactivity Mode shown on Windows</center></figcaption>
+</figure>
 
-    <h3><a id="autorefresh">Auto-Refresh</a></h3>
-    <p>This screen shot shows the "spinner" that is displayed when the app is
-    communicating with the vehicle. Each tab has a refresh button and the app
-    auto-refreshes once 15 seconds have elapsed since the last manual or
-    automatic refresh. Switching tabs automatically refreshes the newly
-    selected tab.</p>
-    <p>
-        In order to ensure that Tesla's servers do not become overloaded, the app
-        automatically monitors the rate at which it makes requests. If you manually press
-        refresh multiple times in rapid succession, you may find that the spinner rotates
-        for a longer than usual. The app is automatically slowing down its requests to Tesla's
-        servers in order to remain a good citizen.
-    </p>
+<h3><a id="simulation">Simulation Menu</a></h3>
+<p> The simulation menu can be found within the Options menu. It allows you to look at car configurations other than your own. These screen shots show changing the color to red and using 21" dark rims.</p>
 
-    <p><img border="0" style="margin:5px" src="images/12_Auto_Refresh.png" /></p>
+<figure>
+    <img src='images/10_Simulate_Color_Red.png' alt='missing' />
+    <figcaption><center>Choosing to simulate a red color car</center></figcaption>
+</figure>
 
-    <h3><a id="sleepmode">Sleep Mode</a></h3>
-    If your car has version 5.0 or later firmware, it has a sleep mode which allows it to conserve power. When you connect to your car from VisibleTesla or one of Tesla's official apps, it will wake the car up if it is sleeping. You may want to avoid doing this accidentally, so when you log in to VisibleTesla, it determines whether the car is sleeping. If it is, you will be presented with a dialog asking if you want to wake up the car or let it sleep (see the screenshot below). If you click the "let it sleep" button, the app will exit without waking the car. Otherwise, the app will start normally.
+<figure>
+    <img src='images/11_Simulate_Dark_Rims.png' alt='missing' />
+    <figcaption><center>Simulated red car with dark rims</center></figcaption>
+</figure>
 
-    <p><img border="0" style="margin:5px" src="images/15_Sleep_Dialog.png" /></p>
-
-    When you are using VisibleTesla, it communicates with your car on a regular basis. This communication will keep your car from going to sleep. This may be exactly what you want, but often you'll want to let the car go to sleep even when VisibleTesla is running. To do this, use the File->Allow Sleep menu. When checked, "Allow Sleep" will cause the app to go into an idle mode after 15 minutes of inactivity. When in this mode the app will not interact with your car which means it can go to sleep. To let you know that it is in inacative mode, the app will display an indication in the title bar. If you want the app to start communicating with your car again, simply click the refresh button on any tab or switch tabs to cause a refresh.
-
-    <h3><a id="simulation">Simulation Menu</a></h3>
-
-    <p>The simulation menu allows you to look at car configurations other than your own.
-        These screen shots show changing the
-    color to red and using 21" dark rims.</p>
-
-    <p><img border="0" style="margin:5px" src="images/10_Simulate_Color_Red.png" />
-    <img border="0" style="margin:5px" src="images/11_Simulate_Dark_Rims.png" /></p>
-
-    <hr>
-    <h2><a id="installation" name="installation">Installing and Running</a></h2>This
-    application has been installed and run on several variations of Windows 7
-    &amp; 8, 32 and 64 bit. It was developed and tested on Mac OS X 10.8 and
-    has been installed and run on several variants of Mac OS including 10.9
-    beta. I've done very limited testing on Linux (Mint 15 in particular) and
-    did not notice any problems. If you run the app in a virtualized environment using VMware, you may need to disable 3D acceleration in order to avoid screen display issues. This is a problem with JavaFX which is used by VisibleTesla.
-
-    <h3><a id="java">Java</a></h3>
-    VisibleTesla is a Java application and requires that you have
-    a recent version of Java installed on your system. If you already have Java
-    installed, you nay be able to skip this step. However, VisibleTesla requires a recent version of Java so you may have to update your Java installation if it is old. You can download Java for Windows, Mac,
-    and Linux from java.com using the links below:
-    <ul>
-        <li> <a target="_blank" href="http://www.java.com/en/download/help/windows_manual_download.xml">Windows</a> </li>
-        <li> <a target="_blank" href="http://www.java.com/en/download/help/mac_install.xml">Mac</a> </li>
-        <li> <a target="_blank" href="http://www.java.com/en/download/help/linux_install.xml">Linux</a> </li>
-    </ul>
-
-    <p>Be careful when installing Java for Windows. It may ask you to install
-    other software from partners. You do not need this software to run
-    VisibleTesla and may safely decline the installation.</p>
-
-    <h3><a id="running">Running VisibleTesla</a></h3>
-    If you haven't already done so, find the VisibleTesla zip file that you downloaded and extract the contents.
-    It will contain a single folder named something like "VisibleTesla 0.14". Within that folder you will find a file
-    named VisibleTesla.jar. This is the application. Simply double click on VisibleTesla.jar and the app will begin
-    running. If it doesn't, you may not have a recent version of Java installed. Please look at the 
-    <a href="#installation">installation notes</a>.
-
+<hr>
+<h2><a id="installation" name="installation">Installing and Running</a></h2>
+This application has been installed and run on several variations of Windows 7 &amp; 8, 32 and 64 bit. It was developed and tested on Mac OS X 10.8 and has been installed and run on several variants of Mac OS including 10.9 beta. I've done very limited testing on Linux (Mint 15 in particular) and did not notice any problems. If you run the app in a virtualized environment using VMware, you may need to disable 3D acceleration in order to avoid screen display issues. This is a problem with JavaFX which is used by VisibleTesla.
+<h3><a id="java">Java</a></h3>
+ VisibleTesla is a Java application and requires that you have a recent version of Java installed on your system. If you already have Java installed, you nay be able to skip this step. However, VisibleTesla requires a recent version of Java so you may have to update your Java installation if it is old. You can download Java for Windows, Mac, and Linux from Java.com using the links below:
+<ul>
+	<li><a target="_blank" href="http://www.java.com/en/download/help/windows_manual_download.xml">Windows</a></li>
+	<li><a target="_blank" href="http://www.java.com/en/download/help/mac_install.xml">Mac</a></li>
+	<li><a target="_blank" href="http://www.java.com/en/download/help/linux_install.xml">Linux</a></li>
+</ul>
+<p>
+	Be careful when installing Java for Windows. It may ask you to install other software from partners. You do not need this software to run VisibleTesla and may safely decline the installation.
+</p>
+<h3><a id="running">Running VisibleTesla</a></h3>
+ If you haven't already done so, find the VisibleTesla zip file that you downloaded and extract the contents. It will contain a single folder named something like "VisibleTesla 0.14". Within that folder you will find a file named VisibleTesla.jar. This is the application. Simply double click on VisibleTesla.jar and the app will begin running. If it doesn't, you may not have a recent version of Java installed. Please look at the <a href="#installation">installation notes</a>.
 </body>
 </html>

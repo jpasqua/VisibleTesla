@@ -110,7 +110,7 @@ public class HVACController extends BaseController {
         if (differentVehicle(controller, v)) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
             hvacState = new HVACState(v);
-            GUIState gs = v.cachedGUIState();
+            GUIState gs = appContext.cachedGUIState;
             useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
             updateWheelView();  // Make sure we show the right wheels from the get-go
         }            

@@ -165,7 +165,7 @@ public class ChargeController extends BaseController {
             chargeState = new ChargeState(v);
         }
         
-        GUIState gs = v.cachedGUIState();
+        GUIState gs = appContext.cachedGUIState;
         useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
         if (appContext.simulatedUnits.get() != null)
             useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
@@ -187,7 +187,7 @@ public class ChargeController extends BaseController {
         reflectChargeStatus();
         reflectProperties();
         chargeSlider.setDisable(Utils.compareVersions(
-            vehicle.cachedVehicleState().version(), MinVersionForChargePct) < 0);
+            appContext.cachedVehicleState.version(), MinVersionForChargePct) < 0);
         boolean isConnectedToPower = (chargeState.chargerPilotCurrent() > 0);
         startButton.setDisable(!isConnectedToPower);
         stopButton.setDisable(!isConnectedToPower);

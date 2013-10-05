@@ -23,6 +23,7 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
 
 /**
  * FXML Controller class
@@ -84,6 +85,18 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             case CHARGE_OFF: r = chargeController.stopCharing(); break;
             case HVAC_ON: r = hvacController.startAC(); break;
             case HVAC_OFF: r = hvacController.stopAC(); break;
+            case AWAKE:
+                appContext.requestInactivityMode(InactivityMode.StayAwake);
+                r = Result.Succeeded;
+                break;
+            case SLEEP:
+                appContext.requestInactivityMode(InactivityMode.AllowSleeping);
+                r = Result.Succeeded;
+                break;
+            case DAYDREAM:
+                appContext.requestInactivityMode(InactivityMode.AllowDaydreaming);
+                r = Result.Succeeded;
+                break;
         }
         String entry = String.format(
                 "%s: %s", ScheduleItem.commandToName(command),

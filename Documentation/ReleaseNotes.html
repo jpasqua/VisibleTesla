@@ -1,875 +1,949 @@
 <html>
-<head>
-  <title>VisibleTesla Release Notes</title>
-  <link rel="stylesheet" type="text/css" href="default.css">
-</head>
+    <head>
+        <title>VisibleTesla Release Notes</title>
+        <link rel="stylesheet" type="text/css" href="default.css">
+    </head>
+    <body style="max-width:800px">
+        <h1>VisibleTesla Release Notes</h1>
 
-<body style="max-width:800px">
-
-<h1>VisibleTesla Release Notes</h1>
-<hr>
-<h3>VisibleTesla 0.20.00 [2013-09-22]</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-					<li>A disclaimer dialog is displayed one time when first using the application. It will pop up after you successfully log in and displays a disclaimer like the one that can be found in the documentation. I added this in conjunction with the addition of the Scheduling functionality to remind users that they are using the application at their own risk. This dialog will be displayed once on each machine where the application is run.</li>
-					<li>The Excel file produced by the "File->Export Graph Data..." menu item now gets and includes the system time zone in the formula to determine the human readable time column.
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-					<li><b>Fixed</b>: Unusual usernames could cause login failures. That has been addressed.</li>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-					<li>Graphs can now be drawn with markers (dots) corresponding to every actual reading. Thin, semitransparent lines connect the dots for clarity, but do not represent readings. They represent the trendline between readings. Please refer to the documentation to learn how to select whether dots, lines, or both should be displayed.
-					</li>
-					<li><b>Fixed</b>: The app used to throw away intermediate duplicate values in a sequence of readings. For example, if the Voltage reading was the same 10 times in a row, it would only store the first and last of those ten duplicate readings. This lead to odd looking graphs in isolated cases and made it impossible to show markers where the actual readings took place, or gaps in the collection of data.</li>
-					<li>
-				</ul>
-			</li>
-			<li>
-				Scheduler
-				<ul>
-					<li>Added a very basic scheduling mechanism that allows users to do things like starting and stopping the HVAC system at certain times on certain days. Please refer to the documentation for more details.</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-			<li>Completely reworked the way statistics are stored. The new mechanism is compatible with older data files but stores the data in a manner that allows all data points to be maintained while not significantly increasing storage requirements. The ".aux" file is no longer required and will not be created by the application.
-			</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-			<li>The context menu in the Graphs tab should only ever show one checked item at a time. Occasionally it will show a check mark next to both the currently selected value and the last selected value. Moving your mouse over the last selected value will make it refresh and display correctly. The application functions properly, but the display can be confusing. This appears to be a problem with the underlying JavaFX system. I am looking for a workaround.</li>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.19.04 [2013-09-15]</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-					<li>The "File->Export Graph Data..." menu item has been revamped.
-						<ol>
-							<li>It now exports an excel spreadsheet rather than a CSV.</li>
-							<li>It creates a table with all the fields in each row for a given timestamp.</li>
-							<li>It appends a column with a human-readable date value corresponging to the timestamp so you don't have to add a formula for this yourself. It displays all dates in the US Pacific time zone. For other time zones look at the formula and replace the "-8" with the time zone offset you want.</li>
-						</ol>
-					</li>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-					<li>Added a label displaying the last part of the VIN of the vehicle; e.g., P08714.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-					<li>When the mouse enters the chart area it turns into a crosshair shape. This makes it easier to precisely position the mouse over a point whose value you want to see int he readout.</li>
-					<li><b>Fixed</b>: The readout showing the value currently under the mouse was off by a small amount. This has been fixed.</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-			<li><b>Fixed</b>: The Graphs tab would write duplicate entries to the data file. This would not show up to the user, but the entries would appear in the file created by "File -> Export Graph Data...".</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.19.03 [2013-09-13]</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-					<li><b>Fixed</b>: The application menu was not appearing in Windows or Linux. It was showing properly on the Mac. It now appears properly on all platforms.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-					<li>Minor changes to the tooltips based on observed behavior at a supercharger.</li>
-					<li><b>Fixed</b>: Made the app more tolerant to corruptions in the statistics log file. One user has been experiencing corruptions to that file which would make the app behave badly the next time it restarted.</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-<hr>
-<h3>VisibleTesla 0.19.02 [2013-09-06]</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-					<li><b>Fixed</b>: The Details button in the lower right area of the tab would not stay in the proper position when the window was resized.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-					<li>There is a new item in the File menu titled "Export Graph Data...". It does just what the name implies; namely, it exports all of the data collected by the graph tab. It saves it as a CSV file in a location that you choose. CSV files can be opened by Excel and many other applications.</li>
-					<li>Added tooltips to the labels in the "Show Items" list which give a bit more information on what each item represents.</li>
-					<li>Added a new variable: Battery Current.</li>
-					<li><b>Fixed</b>: The value readout was displaying the wrong values.</li>
-					<li><b>Fixed</b>: The reset button in the lower left corner of the chart would not stay in the proper position when the window was resized.</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-			<li>Added a FobIcon.ico file to the application folder for Windows users. You need not do anything with this file, but you may use it to add an icon to the app if you wish. This is in addition to the FobIcon.png file in the same location.</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.19 [2013-09-02]</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-					<li>Added a "Documentation" item to the "Help" menu. When selected, it displays the documentation in a web browser.</li>
-					<li>Added a "What's New" item to the "Help" menu. When selected, it displays the release notes in a web browser.</li>
-					<li>Sleep-Related</li>
-						<ul>
-							<li>Added an "Allow Sleep" item to the file menu. If selected, this will allow the app to go to sleep after 15 minutes of user inactivity. It will not collect data from the car and will allow the car to go to sleep. The setting of "Allow Sleep" is remembered between runs of the app. Any interaction with the app (e.g. selecting a new Tab) will cause an interaction with the car and will wake it from sleep.
-							</li>
-							<li>If the app goes into idle mode, it will display an indication in the title bar.</li>
-							<li>When VisibleTesla is launched and immediately after the user logs in, it checks to see whether the car is asleep (Tesla firmware 5.0 and later). If it is asleep, a dialog will be displayed that asks the user whether she wants to wake it up. If the user says no, the app will exit. <b>NOTE</b>: This functioanlity has only been tested in simulation and should be considered experimental.
-							</li>
-						</ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-					<li><b>Fixed</b>: Problem where cached odometer readings showed incorrectly if the car's units are set to metric.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-					<li>Overhauled the way map positioning is done. The map will now keep the car centered <i>unless the user explicitly pans the map</i>. If the user does so, she is indicating that she wants to view a specific location and the app will not recenter the map as the car moves. The user may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.</li>
-					<li>If the user pans the map manually thereby leaving "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</li>
-					<li>The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again.</li>
-					<li><b>Fixed</b>: When you click on the arrow that represents the car, an infowindow pops up that gives the nearest street address to the car's location. That was never being updated. It always reflected the car's location when the map was first displayed.
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-					<li>Changed the "Fast Charger" table entry to "Supercharger". This entry is true only for Superchargers, not HPWCs.</li>
-					<li>The Start and Stop buttons are only enabled if there is power connected to the car.</li>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-					<li>Added two new variables: speed and power.</li>
-					<li>Experimenting with auto-adjustments to the refresh interval. It will drop down to as little as 20 seconds if at least one variable is changing 20% or more from reading to reading. It will go up as high as 5 minutes if there are no changes to any variables. It starts at 2 minutes.</li>
-					<li>The app remembers which variables you had turned on / off between runs. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. All variables are collected whether they are selected or not.</li>
-					<li>Added a "reset" button in the lower left corner which is represented by a backward arrow icon. Clicking the  button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.</li>
-					<li>The scrolling and zooming behavior now work in both time (x axis) and value (y axis). With no modifier keys pressed, scrolling/zooming are constrained to the time axis. To scroll/zoom the value axis, press the CTRL key while operating the mouse. To scroll/zoom both, press the SHIFT key while operating the mouse. </li>
-					<li>Zooming is now relative to the current mouse position. The point under the mouse will stay fixed, and the chart will zoom around it. It used to zoom relative to the center of the chart which could be disconcerting at times.</li>
-					<li><b>Fixed</b>: The app  did not respect the units that are selected in the car's interface. Now it does.</li>
-					<li><b>Fixed</b>: There used to be a "dead area" where the dropdown list of items displayed. The mouse was non-responsive in that area. This problem has been fixed.</li>
-					<li><b>Fixed</b>: Scaling the chart to longer time frames could make it easy to lose your place in the chart. It now stays centered around the selected time frame.</li>
-
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-			<li>Applied the MIT Open Source license to all of the sources.</li>
-			<li>Fixed a bug that will cause problems when the app supports multiple cars.</li>
-			<li>Added an alternative method to collect the streaming data in the underlying TeslaClient library.</li>
-			<li>Starting to clean up the way simulated values work.</li>
-			<li>Gracefully shutdown background threads upon app exit.</li>
-			<li>Yet more code simplification.</li>
-			<li>Moved the reverse geo-coding mechanism from Java to javascript.</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-			<li>When quitting the app on a Mac, the app icon will sometimes linger in the dock.</li>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.18</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-					<li>Automatically switch to the Overview tab after a successful login</li>
-					<li>Change the auto-refresh time to 20 seconds</li>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-					<li>Enable the logout functionality.</li>
-					<li>Add a "Remember Me" checkbox to the login panel. If this is not set, no cookies will be saved and the user must log in each time.</li>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-					<li>Cache the odometer reading so something reasonable shows until a new reading is received.</li>
-					<li>Update the wheel view before the panel is displayed the first time.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-					<li>Update the wheel view before the panel is displayed the first time.</li>
-					<li>When no temp readings are available it used to show zero degrees. It now displays "…".</li>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-					<li>Adding experimental support for graphing certain statistics.</li>
-					<li>Please refer to the documentation for an overview.</li>
-					<li>The stats that are currently gathered are somewhat arbitrary. They are all
-						charge-related. I will update the set of stats that are gathered over time
-						based on what is of interest and practical to gather.</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-			<li>Code Refactoring to support the graphs tab.</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-			<li>There is a "dead area" on the chart where the Items dropdown list displays. Even when the Items list
-				is not showing, mouse activity in that area is ignored. For example, if you try to mousedown and
-				drag the chart, it will not respond.</li>
-			<li>The x-axis in the graph does not always reliably display dates - just times.</li>
-			<li>It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0.</li>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.17c</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-					<li>Several minor UI elements have been updated. Some ToggleButtons were changed to regular buttons. They no longer indicate state. They are just commands.</li>
-					<li>The documentation has been updated with new screen captures to reflect the UI changes. Explanations have been added for the elements of the Charge Tab.</li>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-			      <li>Fixed a problem handling passwords with certain special characters.</li>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-					<li>Fixes to the spoiler support. Get rid of "floaters" reported by @araxara. Move the spoiler to reflect the actual position on the car as opposed to where the iPhone app shows it.</li>
-					<li>the car's elements (eg wheel type, odometer reading, door state) still update as data becomes available, but the spinner should remain spinning until all data becomes available.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-					<li>Add support for charge percentages. Support is conditional on the car's firmware version. If it is not up to the right version, only standard and max settings are allowed.</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-	      <li>It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0</li>
-	      <li>I've seen, but been unable to reproduce, the charge cable appear, disappear, and reappear from the Overview Tab during charging.</li>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.16</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-    <li>Minor documentation changes</li>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-    <li>The app never used to display the spoiler on cars that had it. I've implemented experimental support for that. Since my car doesn't have a spoiler, I was only able to test through simulation. If you have a spoiler on your Model S, please give it a try. If possible, try it with your trunk open and closed and let me know if you have problems or notice anomalies. [Thanks @araxara for reminding me about this]</li>
-    <li>The details dialog in the Overview tab now lists the firmware version of the vehicle.</li>
-    <li>If your car has a black roof you may have noticed that the app displayed it as a solid body color. This should be fixed. Since I don't have this configuration, I'd appreciate some testing from someone who does. [Thanks to @JohnQ for point this out]</li>
-    <li>The controls for the panoramic roof (open, close, vent) used to be toggle buttons, now they are just regular buttons. This fits better with what they actually do and how they work.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-   			 <li>Minor code cleanup to the app and the underlying client library with no visible changes.</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.15</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-					<li>Basic documentation has been added. Click Overview.html in the Documentation folder.</li>
-    				<li>There were cases where auto refreshes never happened. They were scheduled for 300M years into the future rather than 15 seconds. That's fixed.</li>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-				    <li>The overview tab now displays the proper status of the charge port door and shows whether the charging cable is connected.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				    <li>The location tab no longer re-centers the map upon refresh. If, however, you pan the map such that the car marker is not visible, it will pan the map just enough to make sure the marker is showing.</li>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		    <li>Some code cleanup with no user-visible changes.</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.14</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-				    <li>Improved the odometer implementation. It now updates in the background properly - no refresh is necessary. The odometer is not updated during auto-refreshes, but is updated upon explicit refreshes via the refresh button</li>
-				    <li>There is now a "Details" button on the Overview tab. Pressing it pops up a dialog with a simple scrolling list of detailed data about the current vehicle.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-    				<li>Started to fix the "wrong wheel" problem on the HVAC page. The driver-side wheels are now reflected properly, but not the passenger side wheels. I don't have a good plan for how to deal with the passenger side.</li>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-    		<li>Simplified the implementation of the google maps code.</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.13</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-    				<li>A first cut at displaying the odometer reading on the Overview tab. It does respect the GUI units setting. This is not the final implementation but I wanted to get something out there. It has several limitations:</li>
-    				<ul>
-				    	<li>It usually requires a refresh before the odometer reading is displayed. In the future it will simply show up when a separate background task completes.</li>
-      					<li>Once displayed, it does not update if the vehicle is in motion.</li>
-    				</ul>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-					<li>If you click on the arrow that represents the car, a google maps info window will open with the address nearest to the given (lat,long) as determined by google's geocoding service.</li>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.12</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-			    	<li>Added 19" wheels to the Simulate menu.</li>
-				    <li>Added an About dialog which is accessed from the help menu.</li>
-				    <li>Acknowledged the work of the "API Detectives" from tmc that figured out the REST API</li>
-				    <li>Acknowledged that the images are derived form the Tesla iPhone app</li>
-				    <li>Noted that the app is free for non-commercial use</li>
-				    <li>Included the "fob" icon</li>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-    				<li>Added visual support for 19" wheels.</li>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-    				<li>Added visual support for 19" wheels.</li>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<hr>
-<h3>VisibleTesla 0.11</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-				    <li>Experimental support for metric units</li>
-				    <ul>
-				      <li>It now checks the car's GUI settings and follows the settings for F|C temp &amp; miles|km</li>
-				      <li>This is reflected in the Charge tab and the HVAC tab</li>
-				      <li>There is a new item in the Simulate menu that allows you to override your car's unit setting and choose Metric or Imperial. If you do this, you will need to change tabs before the simulated setting takes effect</li>
-				    </ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-    				<li>Minor changes to the UI (cosmetic changes and field traversal fix).</li>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		    <li>Minor internal tweaks that aren't visible in the GUI</li>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
-
-<!--
-<hr>
-<h3>VisibleTesla 0.00</h3>
-<ul>
-	<li>
-		User-Visible Changes
-		<ul>
-			<li>
-				General
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Login
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Overview
-				<ul>
-				</ul>
-			</li>
-			<li>
-				HVAC
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Location
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Charge
-				<ul>
-				</ul>
-			</li>
-			<li>
-				Graphs
-				<ul>
-				</ul>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Under-the-covers
-		<ul>
-		</ul>
-	</li>
-	<li>
-		Known problems
-		<ul>
-		</ul>
-	</li>
-</ul>
--->
-
-
-
-</body>
+        <hr>
+        <h3>VisibleTesla 0.20.01 [10-05-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added experimental support for multiple vehicles on the same account. When you log in, VisbleTesla will determine whether there are multiple vehicles on your account. If there are, you're a lucky devil! In this case you will be prompted to select which vehicle you want to use. There is currently no way to change the selection without restarting the app. Since I don't have more than one Tesla, I have not been able to test this.</li>
+                            <li>The auto-refresh time is now 30 seconds instead of 20 seconds.</li>
+                            <li>Pressing the refresh button repeatedly in rapid succession will <strong>not</strong> invoke the refresh function over and over. Rapid repeated presses will be ignored so a backlog of requests won't build up. This is true for all tabs.</li>
+                            <li>
+                                The Menu structure has been modified. The 3 top level menus are:
+                                <ul>
+                                    <li>File: contains "Export Graph Data..." and "Close".</li>
+                                    <li>Options: contains two submenus - "Inactivity Mode" and "Simulate".</li>
+                                    <li>Help: contains "About", "Documentation", and "What's new".</li>
+                                </ul>
+                            </li>
+                            <li>The "Allow Sleeping" menu item is now part of the Inactivity submenu of the options menu. The Inactivity submenu contians three mutually exclusive options - if you select one option, the previously selected option will be deselected. The options are "Allow Sleeping", "Allow Daydreaming", and "Stay Awake". "Allow Sleeping" acts just as before. When "Allow Daydreaming" is selected it tells the app to stop auto-refreshing after 15 minutes of inactivity. The scheduler will continue to run and the Graphs Tab will continue to collect data. Your vehicle will not be able to go to sleep in this mode, but the load on Tesla's servers is reduced. By default, this menu item is selected. When "Stay Awake" is selected the app will not sleep or daydream. VisibleTesla remembers which of these three choices you have selected even if you quit and restart. </li>
+                            <li><strong>Fixed</strong>: A new type of seat has been added to the list. This only shows up in the "Details" display from the Overview tab. The seat type hadn't been seen before. It is "Perf Leather with Grey Piping, White". The  code that Tesla uses for this is IZZW.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>The odometer reading is only available through the streaming API. In some cases this can require several requests to Tesla's servers to retreive. Since even at 60 mph the reading doesn't change much every minute, the app no longer updates the reading on every refresh. If the user presses the refresh button, it will force a new reading. Otherwise it is updated on every third auto-refresh.</li>
+                            <li>At the very bottom of the details dialog (presented when you press the Details button), there is a new item called "Low level information". It is one very long line of detailed information that is only of use for debugging or for the technically curious. This same line of information is written to the tesla.log file when the application starts. 
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Based on user feedback, I have modified the way lines are displayed in the graph. If you have chosen to display both lines and markers, the lines will display as thin and semi-transparent. This is the same as version 0.20.00. If you choose to display only the lines  (no markers) then the lines will be displayed thicker and solid.
+                            </li>
+                            <li>Loading a graph with many data points and a display mode that includes Markers (not just lines) can take a long time. The progress spinner is now displayed during this period as well as a "Loading" message.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                            <li>There are three new commands available to the scheduler: "Awake", "Sleep", and "Daydream". When one of these is executed, it is equivalent to the user selecting "Stay Awake", "Allow Sleeping", or "Allow Daydreaming" from the "Options->Inactivity Mode" menu. This can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Closed several loopholes that could cause more requests than desired to Tesla's servers. A new, more comprehensive, mechanism was added to the underlying TeslaClient library to do this.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>When loading data for the Graphs tab the interface can become unresponsive for a few seconds if you are loading lots of data and have selected to display markers. This is a problem with JavaFX and I don't yet have a workaround.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        
+        <h3>VisibleTesla 0.20.00 [2013-09-22]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>A disclaimer dialog is displayed one time when first using the application. It will pop up after you successfully log in and displays a disclaimer like the one that can be found in the documentation. I added this in conjunction with the addition of the Scheduling functionality to remind users that they are using the application at their own risk. This dialog will be displayed once on each machine where the application is run.</li>
+                            <li>The Excel file produced by the "File->Export Graph Data..." menu item now gets and includes the system time zone in the formula to determine the human readable time column.
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li><b>Fixed</b>: Unusual usernames could cause login failures. That has been addressed.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Graphs can now be drawn with markers (dots) corresponding to every actual reading. Thin, semitransparent lines connect the dots for clarity, but do not represent readings. They represent the trendline between readings. Please refer to the documentation to learn how to select whether dots, lines, or both should be displayed.
+                            </li>
+                            <li><b>Fixed</b>: The app used to throw away intermediate duplicate values in a sequence of readings. For example, if the Voltage reading was the same 10 times in a row, it would only store the first and last of those ten duplicate readings. This lead to odd looking graphs in isolated cases and made it impossible to show markers where the actual readings took place, or gaps in the collection of data.</li>
+                            <li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                            <li>Added a very basic scheduling mechanism that allows users to do things like starting and stopping the HVAC system at certain times on certain days. Please refer to the documentation for more details.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Completely reworked the way statistics are stored. The new mechanism is compatible with older data files but stores the data in a manner that allows all data points to be maintained while not significantly increasing storage requirements. The ".aux" file is no longer required and will not be created by the application.
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>The context menu in the Graphs tab should only ever show one checked item at a time. Occasionally it will show a check mark next to both the currently selected value and the last selected value. Moving your mouse over the last selected value will make it refresh and display correctly. The application functions properly, but the display can be confusing. This appears to be a problem with the underlying JavaFX system. I am looking for a workaround.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.19.04 [2013-09-15]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>
+                                The "File->Export Graph Data..." menu item has been revamped.
+                                <ol>
+                                    <li>It now exports an excel spreadsheet rather than a CSV.</li>
+                                    <li>It creates a table with all the fields in each row for a given timestamp.</li>
+                                    <li>It appends a column with a human-readable date value corresponging to the timestamp so you don't have to add a formula for this yourself. It displays all dates in the US Pacific time zone. For other time zones look at the formula and replace the "-8" with the time zone offset you want.</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Added a label displaying the last part of the VIN of the vehicle; e.g., P08714.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>When the mouse enters the chart area it turns into a crosshair shape. This makes it easier to precisely position the mouse over a point whose value you want to see int he readout.</li>
+                            <li><b>Fixed</b>: The readout showing the value currently under the mouse was off by a small amount. This has been fixed.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li><b>Fixed</b>: The Graphs tab would write duplicate entries to the data file. This would not show up to the user, but the entries would appear in the file created by "File -> Export Graph Data...".</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.19.03 [2013-09-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li><b>Fixed</b>: The application menu was not appearing in Windows or Linux. It was showing properly on the Mac. It now appears properly on all platforms.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Minor changes to the tooltips based on observed behavior at a supercharger.</li>
+                            <li><b>Fixed</b>: Made the app more tolerant to corruptions in the statistics log file. One user has been experiencing corruptions to that file which would make the app behave badly the next time it restarted.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.19.02 [2013-09-06]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li><b>Fixed</b>: The Details button in the lower right area of the tab would not stay in the proper position when the window was resized.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>There is a new item in the File menu titled "Export Graph Data...". It does just what the name implies; namely, it exports all of the data collected by the graph tab. It saves it as a CSV file in a location that you choose. CSV files can be opened by Excel and many other applications.</li>
+                            <li>Added tooltips to the labels in the "Show Items" list which give a bit more information on what each item represents.</li>
+                            <li>Added a new variable: Battery Current.</li>
+                            <li><b>Fixed</b>: The value readout was displaying the wrong values.</li>
+                            <li><b>Fixed</b>: The reset button in the lower left corner of the chart would not stay in the proper position when the window was resized.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Added a FobIcon.ico file to the application folder for Windows users. You need not do anything with this file, but you may use it to add an icon to the app if you wish. This is in addition to the FobIcon.png file in the same location.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.19 [2013-09-02]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added a "Documentation" item to the "Help" menu. When selected, it displays the documentation in a web browser.</li>
+                            <li>Added a "What's New" item to the "Help" menu. When selected, it displays the release notes in a web browser.</li>
+                            <li>Sleep-Related</li>
+                            <ul>
+                                <li>Added an "Allow Sleep" item to the file menu. If selected, this will allow the app to go to sleep after 15 minutes of user inactivity. It will not collect data from the car and will allow the car to go to sleep. The setting of "Allow Sleep" is remembered between runs of the app. Any interaction with the app (e.g. selecting a new Tab) will cause an interaction with the car and will wake it from sleep.
+                                </li>
+                                <li>If the app goes into idle mode, it will display an indication in the title bar.</li>
+                                <li>When VisibleTesla is launched and immediately after the user logs in, it checks to see whether the car is asleep (Tesla firmware 5.0 and later). If it is asleep, a dialog will be displayed that asks the user whether she wants to wake it up. If the user says no, the app will exit. <b>NOTE</b>: This functioanlity has only been tested in simulation and should be considered experimental.
+                                </li>
+                            </ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li><b>Fixed</b>: Problem where cached odometer readings showed incorrectly if the car's units are set to metric.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>Overhauled the way map positioning is done. The map will now keep the car centered <i>unless the user explicitly pans the map</i>. If the user does so, she is indicating that she wants to view a specific location and the app will not recenter the map as the car moves. The user may always get back to "center-on-car" mode by clicking on the car. That will recenter the map, enter "center-on-car" mode, and show the address nearest the car in a popup info window.</li>
+                            <li>If the user pans the map manually thereby leaving "center-on-car" mode, the car may eventually drive off the edge of the map. VisibleTesla doesn't allow that to happen. Instead it repositions the map slightly to keep the car just at the edge so at least part of it is visible.</li>
+                            <li>The contents of the info window will become stale as the car moves. To refresh it, simply close it and open it again.</li>
+                            <li><b>Fixed</b>: When you click on the arrow that represents the car, an infowindow pops up that gives the nearest street address to the car's location. That was never being updated. It always reflected the car's location when the map was first displayed.
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                            <li>Changed the "Fast Charger" table entry to "Supercharger". This entry is true only for Superchargers, not HPWCs.</li>
+                            <li>The Start and Stop buttons are only enabled if there is power connected to the car.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Added two new variables: speed and power.</li>
+                            <li>Experimenting with auto-adjustments to the refresh interval. It will drop down to as little as 20 seconds if at least one variable is changing 20% or more from reading to reading. It will go up as high as 5 minutes if there are no changes to any variables. It starts at 2 minutes.</li>
+                            <li>The app remembers which variables you had turned on / off between runs. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. All variables are collected whether they are selected or not.</li>
+                            <li>Added a "reset" button in the lower left corner which is represented by a backward arrow icon. Clicking the  button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.</li>
+                            <li>The scrolling and zooming behavior now work in both time (x axis) and value (y axis). With no modifier keys pressed, scrolling/zooming are constrained to the time axis. To scroll/zoom the value axis, press the CTRL key while operating the mouse. To scroll/zoom both, press the SHIFT key while operating the mouse. </li>
+                            <li>Zooming is now relative to the current mouse position. The point under the mouse will stay fixed, and the chart will zoom around it. It used to zoom relative to the center of the chart which could be disconcerting at times.</li>
+                            <li><b>Fixed</b>: The app  did not respect the units that are selected in the car's interface. Now it does.</li>
+                            <li><b>Fixed</b>: There used to be a "dead area" where the dropdown list of items displayed. The mouse was non-responsive in that area. This problem has been fixed.</li>
+                            <li><b>Fixed</b>: Scaling the chart to longer time frames could make it easy to lose your place in the chart. It now stays centered around the selected time frame.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Applied the MIT Open Source license to all of the sources.</li>
+                    <li>Fixed a bug that will cause problems when the app supports multiple cars.</li>
+                    <li>Added an alternative method to collect the streaming data in the underlying TeslaClient library.</li>
+                    <li>Starting to clean up the way simulated values work.</li>
+                    <li>Gracefully shutdown background threads upon app exit.</li>
+                    <li>Yet more code simplification.</li>
+                    <li>Moved the reverse geo-coding mechanism from Java to javascript.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>When quitting the app on a Mac, the app icon will sometimes linger in the dock.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.18</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Automatically switch to the Overview tab after a successful login</li>
+                            <li>Change the auto-refresh time to 20 seconds</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li>Enable the logout functionality.</li>
+                            <li>Add a "Remember Me" checkbox to the login panel. If this is not set, no cookies will be saved and the user must log in each time.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Cache the odometer reading so something reasonable shows until a new reading is received.</li>
+                            <li>Update the wheel view before the panel is displayed the first time.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                            <li>Update the wheel view before the panel is displayed the first time.</li>
+                            <li>When no temp readings are available it used to show zero degrees. It now displays "…".</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Adding experimental support for graphing certain statistics.</li>
+                            <li>Please refer to the documentation for an overview.</li>
+                            <li>The stats that are currently gathered are somewhat arbitrary. They are all
+                                charge-related. I will update the set of stats that are gathered over time
+                                based on what is of interest and practical to gather.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Code Refactoring to support the graphs tab.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>There is a "dead area" on the chart where the Items dropdown list displays. Even when the Items list
+                        is not showing, mouse activity in that area is ignored. For example, if you try to mousedown and
+                        drag the chart, it will not respond.
+                    </li>
+                    <li>The x-axis in the graph does not always reliably display dates - just times.</li>
+                    <li>It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.17c</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Several minor UI elements have been updated. Some ToggleButtons were changed to regular buttons. They no longer indicate state. They are just commands.</li>
+                            <li>The documentation has been updated with new screen captures to reflect the UI changes. Explanations have been added for the elements of the Charge Tab.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li>Fixed a problem handling passwords with certain special characters.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Fixes to the spoiler support. Get rid of "floaters" reported by @araxara. Move the spoiler to reflect the actual position on the car as opposed to where the iPhone app shows it.</li>
+                            <li>the car's elements (eg wheel type, odometer reading, door state) still update as data becomes available, but the spinner should remain spinning until all data becomes available.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                            <li>Add support for charge percentages. Support is conditional on the car's firmware version. If it is not up to the right version, only standard and max settings are allowed.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>It has been reported that the app has trouble starting up on a car that is asleep with firmware 5.0</li>
+                    <li>I've seen, but been unable to reproduce, the charge cable appear, disappear, and reappear from the Overview Tab during charging.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.16</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Minor documentation changes</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>The app never used to display the spoiler on cars that had it. I've implemented experimental support for that. Since my car doesn't have a spoiler, I was only able to test through simulation. If you have a spoiler on your Model S, please give it a try. If possible, try it with your trunk open and closed and let me know if you have problems or notice anomalies. [Thanks @araxara for reminding me about this]</li>
+                            <li>The details dialog in the Overview tab now lists the firmware version of the vehicle.</li>
+                            <li>If your car has a black roof you may have noticed that the app displayed it as a solid body color. This should be fixed. Since I don't have this configuration, I'd appreciate some testing from someone who does. [Thanks to @JohnQ for point this out]</li>
+                            <li>The controls for the panoramic roof (open, close, vent) used to be toggle buttons, now they are just regular buttons. This fits better with what they actually do and how they work.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Minor code cleanup to the app and the underlying client library with no visible changes.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.15</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Basic documentation has been added. Click Overview.html in the Documentation folder.</li>
+                            <li>There were cases where auto refreshes never happened. They were scheduled for 300M years into the future rather than 15 seconds. That's fixed.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>The overview tab now displays the proper status of the charge port door and shows whether the charging cable is connected.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>The location tab no longer re-centers the map upon refresh. If, however, you pan the map such that the car marker is not visible, it will pan the map just enough to make sure the marker is showing.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Some code cleanup with no user-visible changes.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.14</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Improved the odometer implementation. It now updates in the background properly - no refresh is necessary. The odometer is not updated during auto-refreshes, but is updated upon explicit refreshes via the refresh button</li>
+                            <li>There is now a "Details" button on the Overview tab. Pressing it pops up a dialog with a simple scrolling list of detailed data about the current vehicle.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                            <li>Started to fix the "wrong wheel" problem on the HVAC page. The driver-side wheels are now reflected properly, but not the passenger side wheels. I don't have a good plan for how to deal with the passenger side.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Simplified the implementation of the google maps code.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.13</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>A first cut at displaying the odometer reading on the Overview tab. It does respect the GUI units setting. This is not the final implementation but I wanted to get something out there. It has several limitations:</li>
+                            <ul>
+                                <li>It usually requires a refresh before the odometer reading is displayed. In the future it will simply show up when a separate background task completes.</li>
+                                <li>Once displayed, it does not update if the vehicle is in motion.</li>
+                            </ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>If you click on the arrow that represents the car, a google maps info window will open with the address nearest to the given (lat,long) as determined by google's geocoding service.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.12</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added 19" wheels to the Simulate menu.</li>
+                            <li>Added an About dialog which is accessed from the help menu.</li>
+                            <li>Acknowledged the work of the "API Detectives" from tmc that figured out the REST API</li>
+                            <li>Acknowledged that the images are derived form the Tesla iPhone app</li>
+                            <li>Noted that the app is free for non-commercial use</li>
+                            <li>Included the "fob" icon</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Added visual support for 19" wheels.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                            <li>Added visual support for 19" wheels.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.11</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Experimental support for metric units</li>
+                            <ul>
+                                <li>It now checks the car's GUI settings and follows the settings for F|C temp &amp; miles|km</li>
+                                <li>This is reflected in the Charge tab and the HVAC tab</li>
+                                <li>There is a new item in the Simulate menu that allows you to override your car's unit setting and choose Metric or Imperial. If you do this, you will need to change tabs before the simulated setting takes effect</li>
+                            </ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li>Minor changes to the UI (cosmetic changes and field traversal fix).</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Minor internal tweaks that aren't visible in the GUI</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+        <!--
+            <hr>
+            <h3>VisibleTesla 0.00 [09-30-13]</h3>
+            <ul>
+            	<li>
+            		User-Visible Changes
+            		<ul>
+            			<li>
+            				General
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				Login
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				Overview
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				HVAC
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				Location
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				Charge
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				Graphs
+            				<ul>
+            				</ul>
+            			</li>
+            			<li>
+            				Scheduler
+            				<ul>
+            				</ul>
+            			</li>
+            		</ul>
+            	</li>
+            	<li>
+            		Under-the-covers
+            		<ul>
+            		</ul>
+            	</li>
+            	<li>
+            		Known problems
+            		<ul>
+            		</ul>
+            	</li>
+            </ul>
+            -->
+    </body>
 </html>

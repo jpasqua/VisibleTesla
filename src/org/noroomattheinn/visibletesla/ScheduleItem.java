@@ -31,13 +31,17 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  * 
  *----------------------------------------------------------------------------*/
 
-    public enum Command {HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, None}
+    public enum Command {
+        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, AWAKE, SLEEP, DAYDREAM, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
         commandMap.put(Command.HVAC_ON, "HVAC On");
         commandMap.put(Command.HVAC_OFF, "HVAC Off");
         commandMap.put(Command.CHARGE_ON, "Start Charging");
         commandMap.put(Command.CHARGE_OFF, "Stop Charging");
+        commandMap.put(Command.AWAKE, "Awake");
+        commandMap.put(Command.SLEEP, "Sleep");
+        commandMap.put(Command.DAYDREAM, "Daydream");
     }
 
     public interface ScheduleOwner {

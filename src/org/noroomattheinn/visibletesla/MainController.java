@@ -6,9 +6,10 @@
 
 package org.noroomattheinn.visibletesla;
 
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -17,21 +18,25 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
+import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
+import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -46,7 +51,7 @@ import org.noroomattheinn.utils.Utils;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class MainController {
+public class MainController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
@@ -55,9 +60,9 @@ public class MainController {
  *----------------------------------------------------------------------------*/
 
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.20.00";
+    private static final String ProductVersion = "0.20.01";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
-
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -65,22 +70,17 @@ public class MainController {
  *----------------------------------------------------------------------------*/
 
     private Tesla tesla;
-    private List<Vehicle> vehicles;
     private Vehicle selectedVehicle;
-    private boolean allowSleep;
-    private AppContext appContext;
-
+    private InactivityMode inactivityMode;
+    private boolean initialSetup = false;
+    
 /*------------------------------------------------------------------------------
  *
  * UI Elements
  * 
  *----------------------------------------------------------------------------*/
 
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-    
     // The top level AnchorPane and the TabPane that sits inside it
-    @FXML private AnchorPane root;
     @FXML private TabPane tabPane;
 
     // The individual tabs that comprise the overall UI
@@ -91,8 +91,11 @@ public class MainController {
     @FXML private Tab locationTab;
     @FXML private Tab loginTab;
     @FXML private Tab overviewTab;
-    @FXML private CheckMenuItem allowSleepMenuItem;
     
+    // The menu items that are handled in this controller directly
+    @FXML private RadioMenuItem allowSleepMenuItem;
+    @FXML private RadioMenuItem allowIdlingMenuItem;
+    @FXML private RadioMenuItem stayAwakeMenuItem;
     
 /*==============================================================================
  * -------                                                               -------
@@ -109,14 +112,7 @@ public class MainController {
      */
     public void start(Application a, Stage s) {   
         appContext = new AppContext(a, s);
-        
-        allowSleep = allowSleepMenuItem.isSelected();
-        appContext.shouldBeSleeping.set(false);
-        appContext.shouldBeSleeping.addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(
-                ObservableValue<? extends Boolean> o, Boolean ov, Boolean nv)
-            { setTitle(); } });
-
+        inactivityMode = readInactivityMenu();
 
         setTitle();
         appContext.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
@@ -144,6 +140,16 @@ public class MainController {
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
         lc.getLoginCompleteProperty().addListener(new HandleLoginEvent());
         lc.attemptAutoLogin(tesla);
+        
+        appContext.inactivityState.addListener(new ChangeListener<InactivityMode>() {
+            @Override public void changed(
+                    ObservableValue<? extends InactivityMode> o,
+                    InactivityMode ov, InactivityMode nv) { setTitle(); }
+        });
+        appContext.setInactivityModeListener(new Utils.Callback<InactivityMode,Void>() {
+            @Override public Void call(InactivityMode mode) {
+                setInactivityMode(mode);
+                return null; }});
     }
     
     public void stop() {
@@ -152,9 +158,33 @@ public class MainController {
         sc.shutDown();
     }
     
-    // Not really a public interface, but this is called by the FXML plumbing
-    // to initialize the component
-    @FXML void initialize() { root.setUserData(this); }
+/*------------------------------------------------------------------------------
+ *
+ * Methods overridden from BaseController. We implement BaseController so that
+ * we can perform issueCommand operations.
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    @Override protected void fxInitialize() { }
+
+    @Override protected void prepForVehicle(Vehicle v) { }
+
+    @Override protected void refresh() { }
+
+    /**
+     * This is effectively the last half of the DoLogin process. We have to
+     * break it up because some bits run on the JavaFX UI thread and some have
+     * to run in the background.
+     */
+    @Override protected void reflectNewState() {
+        if (!initialSetup) return;
+        initialSetup = false;
+        trackInactivity();
+        setTabsEnabled(true);
+        SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
+        sc.activate(selectedVehicle);
+        jumpToTab(overviewTab);
+}
 
     
 /*------------------------------------------------------------------------------
@@ -177,6 +207,46 @@ public class MainController {
         }
     }
 
+    private Vehicle selectVehicle() {
+        int selectedVehicleIndex = 0;
+        List<Vehicle> vehicleList = tesla.getVehicles();
+        if (vehicleList.size() != 1) {
+            // Ask the  user to select a vehicle
+            List<String> cars = new ArrayList<>();
+            for (Vehicle v : vehicleList) {
+                StringBuilder descriptor = new StringBuilder();
+                descriptor.append(StringUtils.right(v.getVIN(), 6));
+                descriptor.append(": ");
+                descriptor.append(v.getOptions().paintColor());
+                descriptor.append(" ");
+                descriptor.append(v.getOptions().batteryType());
+                cars.add(descriptor.toString());
+            }
+            String selection = Dialogs.showInputDialog(
+                    appContext.stage,
+                    "Vehicle: ",
+                    "You lucky devil, you've got more than 1 Tesla!",
+                    "Select a vehicle", cars.get(0), cars);
+            selectedVehicleIndex = cars.indexOf(selection);
+            if (selectedVehicleIndex == -1) { selectedVehicleIndex = 0; }
+        }
+        return vehicleList.get(selectedVehicleIndex);
+    }
+
+    private void cacheBasics(Vehicle v) {
+        GUIState     gs = new GUIState(v);
+        VehicleState vs = new VehicleState(v);
+        
+        while (! (gs.hasValidData() &&  vs.hasValidData()) ) {
+            Utils.sleep(500);
+            if (!gs.hasValidData()) gs.refresh();
+            if (!vs.hasValidData()) vs.refresh();
+        }
+        
+        appContext.cachedGUIState = gs;
+        appContext.cachedVehicleState = vs;
+    }
+
     private class DoLogin implements Runnable {
         private boolean loginSucceeded;
         DoLogin(boolean loggedin) { loginSucceeded = loggedin; }
@@ -184,16 +254,20 @@ public class MainController {
         @Override
         public void run() {
             if (loginSucceeded) {
-                vehicles = tesla.getVehicles();
-                selectedVehicle = vehicles.get(0);  // TO DO: Allow user to select vehicle from list
-
+                selectedVehicle = selectVehicle();
+                Tesla.logger.log(
+                        Level.INFO, "Vehicle Info: {0}",
+                        selectedVehicle.getUnderlyingValues());
+                
                 if (selectedVehicle.status().equals("asleep")) {
                     if (letItSleep())
+                        Tesla.logger.log(
+                            Level.INFO, "Allowing vehicle to remain in sleep mode");
                         Platform.exit();
                 }
                 
                 boolean disclaimer = appContext.prefs.getBoolean(
-                        selectedVehicle.getVIN()+"Disclaimer", false);
+                        selectedVehicle.getVIN()+"_Disclaimer", false);
                 if (!disclaimer) {
                     Dialogs.showInformationDialog(
                             appContext.stage,
@@ -209,18 +283,23 @@ public class MainController {
                             "Please Read Carefully", "Disclaimer");
                 }
                 appContext.prefs.putBoolean(
-                        selectedVehicle.getVIN()+"Disclaimer", true);                
+                        selectedVehicle.getVIN()+"_Disclaimer", true);                
                 
-                allowSleep = appContext.prefs.getBoolean(
-                        selectedVehicle.getVIN()+"_AllowSleep", false);
-                allowSleepMenuItem.setSelected(allowSleep);
-                trackInactivity();
-                setTabsEnabled(true);
-                jumpToTab(overviewTab);
-                SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
-                sc.activate(selectedVehicle);
+                String modeName = appContext.prefs.get(
+                        selectedVehicle.getVIN()+"_InactivityMode",
+                        InactivityMode.AllowDaydreaming.name());
+                inactivityMode = InactivityMode.valueOf(modeName);
+                setInactivityMenu(inactivityMode);
+
+                issueCommand(new Callable<Result>() {
+                        public Result call() {
+                            initialSetup = true;
+                            cacheBasics(selectedVehicle);
+                            return Result.Succeeded;
+                        } },
+                        AfterCommand.Reflect);
+
             } else {
-                vehicles = null;
                 selectedVehicle = null;
                 setTabsEnabled(false);
             }
@@ -236,9 +315,12 @@ public class MainController {
 
     private void setTitle() {
         String title = ProductName + " " + ProductVersion;
-        if (appContext.shouldBeSleeping.get())
-            title = title + " [inactive]";
-                appContext.stage.setTitle(title);
+        switch (appContext.inactivityState.get()) {
+            case AllowSleeping: title = title + " [sleeping]"; break;
+            case AllowDaydreaming: title = title + " [daydreaming]"; break;
+            case StayAwake: break;
+        }
+        appContext.stage.setTitle(title);
     }
     
 
@@ -251,7 +333,42 @@ public class MainController {
         return wsd.letItSleep();
     }
     
-
+    private InactivityMode readInactivityMenu() {
+        if (allowSleepMenuItem.isSelected()) return InactivityMode.AllowSleeping;
+        if (allowIdlingMenuItem.isSelected()) return InactivityMode.AllowDaydreaming;
+        return InactivityMode.StayAwake;
+    }
+    
+    private void setInactivityMenu(InactivityMode mode) {
+        switch (mode) {
+            case StayAwake:
+                stayAwakeMenuItem.setSelected(true); break;
+            case AllowSleeping:
+                allowSleepMenuItem.setSelected(true); break;
+            case AllowDaydreaming:
+                allowIdlingMenuItem.setSelected(true); break;
+        }
+    }
+    
+    private void setInactivityMode(InactivityMode newMode) {
+        appContext.prefs.put(selectedVehicle.getVIN()+"_InactivityMode", newMode.name());
+        switch (inactivityMode) {
+            case StayAwake:
+                // If the old mode is AWAKE then the new mode is either SLEEP or
+                // DAYDREAM. In either case, don't change the current state
+                // because we need to be be idle for a while before we do that
+                break;
+            case AllowSleeping:
+            case AllowDaydreaming:
+                // If the old mode is SLEEP or DAYDREAM then we should update
+                // the current state.
+                appContext.inactivityState.set(newMode);
+                break;
+        }
+        inactivityMode = newMode;
+        setInactivityMenu(newMode);
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Private Utility Methods for Tab handling
@@ -307,15 +424,14 @@ public class MainController {
         gc.exportCSV();
     }
     
-    // File->Allow Sleep menu option
-    @FXML void allowSleepHandler(ActionEvent event) {
-        allowSleep = allowSleepMenuItem.isSelected();
-        if (allowSleep == false)
-            appContext.shouldBeSleeping.set(false);
-        appContext.prefs.putBoolean(
-                selectedVehicle.getVIN()+"_AllowSleep", allowSleep);
-
+    // Options->"Allow Sleep" and Options->"Allow Daydreaming" menu options
+    @FXML void inactivityOptionsHandler(ActionEvent event) {
+        InactivityMode mode = InactivityMode.StayAwake;
+        if (event.getTarget() == allowSleepMenuItem) mode = InactivityMode.AllowSleeping;
+        if (event.getTarget() == allowIdlingMenuItem) mode = InactivityMode.AllowDaydreaming;
+        setInactivityMode(mode);
     }
+    
     // Help->Documentation
     @FXML private void helpHandler(ActionEvent event) {
         appContext.app.getHostServices().showDocument(
@@ -366,8 +482,8 @@ public class MainController {
                 Utils.sleep(IdleThreshold/2);
                 if (appContext.shuttingDown.get())
                     return;
-                if (allowSleep && System.currentTimeMillis() - timeOfLastEvent > IdleThreshold) {
-                    appContext.shouldBeSleeping.set(true);
+                if (System.currentTimeMillis() - timeOfLastEvent > IdleThreshold) {
+                    appContext.inactivityState.set(inactivityMode);
                 }
             }
         }
@@ -376,8 +492,7 @@ public class MainController {
     class EventPassThrough implements EventHandler<InputEvent> {
         @Override public void handle(InputEvent t) {
             timeOfLastEvent = System.currentTimeMillis();
-            if (appContext.shouldBeSleeping.get() == true)
-                appContext.shouldBeSleeping.set(false);
+            appContext.inactivityState.set(InactivityMode.StayAwake);
         }
     }
     

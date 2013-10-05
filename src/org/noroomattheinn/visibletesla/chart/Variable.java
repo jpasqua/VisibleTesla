@@ -6,6 +6,8 @@
 
 package org.noroomattheinn.visibletesla.chart;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
@@ -24,6 +26,13 @@ import org.noroomattheinn.utils.Utils;
  */
 
 public class Variable implements Comparable {
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+
+    public enum LineType {Invisible, VisibleDefault, VisibleBolder};
     
 /*------------------------------------------------------------------------------
  *
@@ -47,7 +56,7 @@ public class Variable implements Comparable {
     public boolean visible;
     public CheckBox cb;
     public double minVal, maxVal;
-    private boolean linesVisible;
+    private LineType lineType;
     
     public Variable(CheckBox cb, String type, String color, Transform xform) {
         this.cb = cb;
@@ -59,31 +68,42 @@ public class Variable implements Comparable {
         seriesData = series.getData();
         visible = true;
         minVal = maxVal = 0;
-        linesVisible = true;
+        lineType = LineType.VisibleDefault;
     }
-
-// NOTE:
-//          We don't establish color programatically any more. This is left here
-//          as documentation in case we ever do so in the future
-//    public void establishColor(int seriesNumber) {
-//        //series.getNode().setStyle("-fx-stroke: " + color + ";");
-//        //series.getNode().setStyle("-fx-stroke: transparent;");
-//        //cb.setStyle("-fx-text-fill: " + color + ";");
-//        cb.getStyleClass().clear();
-//        cb.getStyleClass().add("cb"+seriesNumber);
-//    }
     
     public void reflectLineVisibility() {
-        if (linesVisible) {
-            series.getNode().setStyle("");
-        } else{
-            series.getNode().setStyle("-fx-stroke: transparent;");
+        switch (lineType) {
+            case Invisible:
+                series.getNode().setStyle("-fx-stroke: transparent;");
+                break;
+            case VisibleDefault:
+                series.getNode().setStyle("");
+                break;
+            case VisibleBolder:
+                series.getNode().setStyle("");
+                series.getNode().setStyle("-fx-opacity: 1.0; -fx-stroke-width: 2px;");
+                break;
         }
+        
     }
     
-    public void setLineVisibility(boolean displayLines) {
-        linesVisible = displayLines;
+    public void setLineVisibility(LineType type) {
+        lineType = type;
         reflectLineVisibility();
+    }
+    
+    public void addToSeries(long[] times, double[] vals) {
+        List<XYChart.Data<Number, Number>> entries = new ArrayList<>();
+        
+        int nEntries = times.length;
+        for (int i = 0; i < nEntries; i++) {
+            long time = times[i];
+            double value = vals[i];
+            if (value < minVal) minVal = value;
+            if (value > maxVal) maxVal = value;   
+            entries.add(new XYChart.Data<Number, Number>(time/(1000), xform.transform(value)));
+        }
+        seriesData.addAll(entries);
     }
     
     public void addToSeries(long time, double value) {

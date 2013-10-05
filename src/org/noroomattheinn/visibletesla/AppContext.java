@@ -6,16 +6,11 @@
 
 package org.noroomattheinn.visibletesla;
 
-import static java.lang.Thread.State.BLOCKED;
-import static java.lang.Thread.State.NEW;
-import static java.lang.Thread.State.RUNNABLE;
-import static java.lang.Thread.State.TERMINATED;
-import static java.lang.Thread.State.TIMED_WAITING;
-import static java.lang.Thread.State.WAITING;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.beans.property.BooleanProperty;
@@ -23,7 +18,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
+import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -34,11 +31,16 @@ import org.noroomattheinn.utils.Utils;
  */
 
 public class AppContext {
+    public enum InactivityMode {AllowSleeping, AllowDaydreaming, StayAwake};
+    
     public Application app;
     public Stage stage;
     public Preferences prefs;
     
-    public BooleanProperty shouldBeSleeping;
+    public GUIState cachedGUIState;
+    public VehicleState cachedVehicleState;
+    
+    public ObjectProperty<InactivityMode> inactivityState;
     public BooleanProperty shuttingDown;
     public Map properties;
     
@@ -48,13 +50,15 @@ public class AppContext {
     public ObjectProperty<Options.RoofType> simulatedRoof;
     
     private ArrayList<Thread> threads = new ArrayList<>();
+    private Utils.Callback<InactivityMode,Void> inactivityModeListener;
     
     AppContext(Application app, Stage stage) {
         this.app = app;
         this.stage = stage;
         this.prefs = Preferences.userNodeForPackage(this.getClass());
+        this.inactivityModeListener = null;
         
-        this.shouldBeSleeping = new SimpleBooleanProperty(false);
+        this.inactivityState = new SimpleObjectProperty<>(InactivityMode.StayAwake);
         this.shuttingDown = new SimpleBooleanProperty(false);
         this.properties = new HashMap();
         
@@ -62,6 +66,16 @@ public class AppContext {
         this.simulatedWheels = new SimpleObjectProperty<>();
         this.simulatedColor = new SimpleObjectProperty<>();
         this.simulatedRoof = new SimpleObjectProperty<>();
+    }
+
+    public void setInactivityModeListener(Utils.Callback<InactivityMode,Void> listener) {
+        inactivityModeListener = listener;
+    }
+    
+    public void requestInactivityMode(InactivityMode mode) {
+        if (inactivityModeListener != null) {
+            inactivityModeListener.call(mode);
+        }
     }
     
     private int threadID = 0;

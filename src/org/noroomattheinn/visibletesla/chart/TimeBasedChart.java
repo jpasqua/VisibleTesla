@@ -129,7 +129,7 @@ public class TimeBasedChart {
         AnchorPane.setBottomAnchor(lineChart, 0.0);
         AnchorPane.setLeftAnchor(lineChart, 0.0);
         AnchorPane.setRightAnchor(lineChart, 0.0);
-        root.getChildren().add(0, lineChart);
+        //root.getChildren().add(0, lineChart);
         
         // This is tricky. If you put the event filter on the line chart, the
         // event coords will be in the wrong space. It will be in a coord

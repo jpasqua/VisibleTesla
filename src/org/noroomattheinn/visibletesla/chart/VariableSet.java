@@ -71,8 +71,8 @@ public class VariableSet {
     
     public Collection<Variable> set() { return variables.values(); }
     
-    public void setLineVisibility(boolean displayLines) {
-        for (Variable v : variables.values()) { v.setLineVisibility(displayLines); }
+    public void setLineVisibility(Variable.LineType lineType) {
+        for (Variable v : variables.values()) { v.setLineVisibility(lineType); }
     }
     
     public static class Range {

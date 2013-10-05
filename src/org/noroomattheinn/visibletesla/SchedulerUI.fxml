@@ -71,6 +71,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -159,6 +162,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -227,6 +233,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -295,6 +304,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -363,6 +375,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -431,6 +446,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -499,6 +517,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
@@ -567,6 +588,9 @@
               <String fx:value="HVAC Off" />
               <String fx:value="Start Charging" />
               <String fx:value="Stop Charging" />
+              <String fx:value="Sleep" />
+              <String fx:value="Daydream" />
+              <String fx:value="Awake" />
               <String fx:value="-- None --" />
             </FXCollections>
           </items>
