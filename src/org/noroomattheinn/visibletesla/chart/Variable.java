@@ -112,6 +112,12 @@ public class Variable implements Comparable {
         seriesData.add(new XYChart.Data<Number, Number>(time/(1000), xform.transform(value)));
     }
 
+    public void prependToSeries(long time, double value) {
+        if (value < minVal) minVal = value;
+        if (value > maxVal) maxVal = value;
+        seriesData.add(0, new XYChart.Data<Number, Number>(time/(1000), xform.transform(value)));
+    }
+
     @Override public int compareTo(Object o) {
         return type.compareTo(((Variable)o).type);
     }

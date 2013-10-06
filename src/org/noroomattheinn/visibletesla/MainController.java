@@ -60,7 +60,7 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.20.01";
+    private static final String ProductVersion = "0.20.02";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
     
 /*------------------------------------------------------------------------------
@@ -479,7 +479,7 @@ public class MainController extends BaseController {
     class InactivityThread implements Runnable {
         @Override public void run() {
             while (true) {
-                Utils.sleep(IdleThreshold/2);
+                Utils.sleep(60 * 1000);
                 if (appContext.shuttingDown.get())
                     return;
                 if (System.currentTimeMillis() - timeOfLastEvent > IdleThreshold) {

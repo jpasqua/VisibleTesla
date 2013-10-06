@@ -65,7 +65,8 @@ public class StatsRepository {
             String tokens[] = line.split("\\s");
             
             if ((tokens.length-1)%2 != 0) {   // Malformed line
-                Tesla.logger.log(Level.INFO, "Malformed stats entry: Improper number of tokens: " + line);                
+                Tesla.logger.log(
+                    Level.INFO, "Malformed stats entry: Improper number of tokens: {0}", line);                
                 continue;
             }
             
@@ -84,6 +85,14 @@ public class StatsRepository {
         }
     }
     
+    void loadTimeRange(final long oldest, final long newest, final Recorder r) {
+        loadExistingData(new Recorder() {
+            @Override public void recordElement(long time, String type, double val) {
+                if (time >= oldest && time <= newest) r.recordElement(time, type, val);
+            }
+            
+        });
+    }
     
     void storeElement(String type, long time, double value) {
         if (statsWriter == null)  return;

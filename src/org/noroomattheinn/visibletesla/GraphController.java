@@ -8,8 +8,10 @@ package org.noroomattheinn.visibletesla;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -46,6 +48,7 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
+import org.noroomattheinn.visibletesla.StatsRepository.Recorder;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
 import org.noroomattheinn.visibletesla.chart.Variable;
 import org.noroomattheinn.visibletesla.chart.Variable.LineType;
@@ -62,7 +65,7 @@ import org.noroomattheinn.visibletesla.chart.VariableSet;
 //    2.1 Add a decalration for the checkbox and compile this source
 //    2.2 Open GraphUI.fxml and add a checkbox to the dropdown list
 // 3. Register the new variable in prepVariables()
-public class GraphController extends BaseController implements StatsRepository.Recorder {
+public class GraphController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
@@ -71,8 +74,10 @@ public class GraphController extends BaseController implements StatsRepository.R
  *----------------------------------------------------------------------------*/
     
     private static final long DefaultInterval = 2 * 60 * 1000;  // 2 Minutes
-    private static final long MinInterval = 30 * 1000;  // 30 Seconds
-    private static final long MaxInterval = 5 * 60 * 1000;  // 5 Minutes
+    private static final long MaxInterval =     5 * 60 * 1000;  // 5 Minutes
+    private static final long MinInterval =         30 * 1000;  // 30 Seconds
+    private static final long InitialPeriodToLoad =
+                                      2 * 24 * 60 * 60 * 1000;  // 2 Days
     
 /*------------------------------------------------------------------------------
  *
@@ -309,9 +314,26 @@ public class GraphController extends BaseController implements StatsRepository.R
         root.getChildren().remove(dummyChart);
         root.getChildren().add(0, lineChart);
         nowButton.setVisible(true);
-        ensureRefreshThread();  // If thread already exists, it unpauses
+        // We've finished loading the recent values, now trickle in anything that's left
+        Runnable trickler = new Runnable() {
+            @Override public void run() {
+                int batchSize = 25 * 3;
+                int lastIndex = trickleValues.size();
+                
+                while (lastIndex != 0) {
+                    int startIndex = lastIndex - batchSize;
+                    if (startIndex < 0) startIndex = 0;
+                    Platform.runLater(new AddBatch(trickleValues.subList(startIndex, lastIndex)));
+                    try { Thread.sleep(10); } catch (InterruptedException ex) { }
+                    lastIndex = startIndex;
+                }
+            ensureRefreshThread();  // If thread already exists, it unpauses
+            }
+        };
+        appContext.launchThread(trickler, "00 - VT Trickle");
     }
 
+    
     @Override protected void fxInitialize() {
         nowButton.setVisible(false);
         refreshButton.setDisable(true);
@@ -417,7 +439,7 @@ public class GraphController extends BaseController implements StatsRepository.R
         }
         // Round to 1 decimal place. The rest isn't really significant
         value = Math.round(value * 10.0) / 10.0;
-        recordElement(variable, time, value);
+        recordLater(variable, time, value);
         repo.storeElement(variable.type, time, value);
     }
     
@@ -427,14 +449,26 @@ public class GraphController extends BaseController implements StatsRepository.R
  * 
  *----------------------------------------------------------------------------*/
     
+    ArrayList<Object> trickleValues = new ArrayList<>();
+    
     private void loadExistingData() {
-        final StatsRepository.Recorder recorder = this;
 
         issueCommand(new Callable<Result>() {
             public Result call() {
                 try {
                     loadingLabel.setVisible(true);
-                    repo.loadExistingData(recorder);
+                    final long cutoff = System.currentTimeMillis() - InitialPeriodToLoad;
+                    repo.loadExistingData(new Recorder() {
+                        @Override public void recordElement(long time, String type, double val) {
+                            if (time >= cutoff)
+                                variables.get(type).addToSeries(time, val);
+                            else {
+                                trickleValues.add(time);
+                                trickleValues.add(type);
+                                trickleValues.add(val);
+                            }
+                        }
+                    });
                     variables.assignToChart(lineChart);
                     restoreLastSettings();
                     loadingLabel.setVisible(false);
@@ -446,13 +480,27 @@ public class GraphController extends BaseController implements StatsRepository.R
         }, AfterCommand.Reflect);
     }
     
-    // Implement StatsRepository.Recorder - Called when old stats are read in
-    // by the StatsRepository. All it does is record the data in memory.
-    @Override public void recordElement(long time, String type, double val) {
-        variables.get(type).addToSeries(time, val);
-    }
-
-    private void recordElement(final Variable variable, final long time, final double value) {
+    private class AddBatch implements Runnable {
+        private List<Object> trickle;
+        private int size;
+        
+        AddBatch(List<Object> trickle) {
+            this.trickle = trickle;
+            this.size = trickle.size();
+        }
+        
+        @Override public void run() {
+            for (int i = size - 1; i > 0; ) {
+                double value = (Double)trickle.get(i--);
+                String type = (String)trickle.get(i--);
+                long time = (Long)trickle.get(i--);
+                variables.get(type).prependToSeries(time, value);
+            }
+        }
+    
+    };
+    
+    void recordLater(final Variable variable, final long time, final double value) {
         // This can be called from a background thread. If we update the chart's
         // series data directly, that could cause a UI refresh which would
         // be happening from a non-UI thread. This will result in a 
