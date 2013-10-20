@@ -67,7 +67,7 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    protected void fxInitialize() {
+    @Override protected void fxInitialize() {
         engine = webView.getEngine();
         engine.setOnAlert(new EventHandler<WebEvent<String>>() {
                   @Override public void handle(WebEvent<String> event) {
@@ -78,7 +78,7 @@ public class LocationController extends BaseController {
         progressLabel.setVisible(false);
     }
     
-    protected void reflectNewState() {
+    @Override protected void reflectNewState() {
         if (!drivingState.hasValidData()) return;
         double jitter = 0;
 //        double jitter = (Math.random()-0.5)*0.003;    // For testing only!
@@ -95,7 +95,7 @@ public class LocationController extends BaseController {
         mapIsLoaded = true;
     }
 
-    protected void refresh() { updateState(drivingState); }
+    @Override protected void refresh() { updateState(drivingState); }
 
     @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle(drivingState, v)) {

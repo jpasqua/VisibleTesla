@@ -289,6 +289,7 @@ abstract class BaseController {
                 // The task succeeded, now check if the lookup succeeded!
                 result = w.getValue();
             }
+
             showProgressUI(false);
             switch (action) {
                 case Reflect: reflectNewState(); break;
@@ -361,6 +362,7 @@ abstract class BaseController {
         spuiCount = spuiCount + (show ? 1 : -1);
         progressIndicator.setVisible(spuiCount != 0);
         progressLabel.setVisible(false);    // Progress label is only used for debugging
+        
     }
     
     private static final String ProgressIndicatorColor = "darkgray";

@@ -7,12 +7,14 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.concurrent.Callable;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -45,7 +47,7 @@ public class LoginController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private BooleanProperty loginCompleteProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty loginCompleteProperty = new SimpleBooleanProperty(false);
     BooleanProperty getLoginCompleteProperty() { return loginCompleteProperty; }
     
 /*------------------------------------------------------------------------------
@@ -105,19 +107,23 @@ public class LoginController extends BaseController {
         attemptLogin(username, password);
     }
 
-    // Controller-specific initialization
-    protected void fxInitialize() {
-        showAutoLoginUI();
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * Methods overridden from BaseController
  * 
  *----------------------------------------------------------------------------*/
+
+    @Override protected void fxInitialize() { showAutoLoginUI(); }
     
-    protected void refresh() { }
-    
+    @Override protected void refresh() { }
+
+    @Override protected void prepForVehicle(Vehicle v) { }
+
+    @Override protected void reflectNewState() {
+        if (loginCompleteProperty.get()) showLoginSucceeded();
+        else { showManualLoginUI(); }
+    }
+
 /*------------------------------------------------------------------------------
  *
  * Methods to Reflect the desired state of the UI
@@ -157,14 +163,6 @@ public class LoginController extends BaseController {
         issueCommand(new AttemptLogin(username, password), AfterCommand.Reflect);
     }
 
-    @Override protected void reflectNewState() {
-        if (loginCompleteProperty.get()) showLoginSucceeded();
-        else showManualLoginUI();
-    }
-
-    // Nothing to do here, there is no vehicle established yet
-    @Override protected void prepForVehicle(Vehicle v) { }
-
     private class AttemptLogin implements Callable<Result> {
         String username, password;
         
@@ -178,8 +176,20 @@ public class LoginController extends BaseController {
             
             if (username == null)   // Try auto login
                 loggedIn = tesla.connect();
-            else    // Login with the specified username and password
+            else {   // Login with the specified username and password
                 loggedIn = tesla.connect(username, password, rememberMe.isSelected());
+                if (!loggedIn) {
+                    Platform.runLater(new Runnable() {
+                        @Override public void run() {
+                            Dialogs.showErrorDialog(
+                                    appContext.stage,
+                                    "Remember to use your email address as your username",
+                                    "Login failed - Please check your credentials",
+                                    "Problem logging in");
+                        }
+                    });
+                }
+            }
             
             loginCompleteProperty.set(loggedIn);
             return loggedIn ? Result.Succeeded : Result.Failed;

@@ -7,11 +7,9 @@
 }
 
 .toolbar-hbox {
-    -fx-border-color: dimgray; 
+    -fx-border-color: dimgray;
     -fx-padding: 3 ;
 }
-
-.progress-bar { -fx-box-border: goldenrod; }
 
 .green-bar  { -fx-accent: green;  }
 .yellow-bar { -fx-accent: yellow; }

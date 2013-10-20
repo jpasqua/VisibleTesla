@@ -14,17 +14,6 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane, GraphRoot" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.GraphController">
   <children>
-    <LineChart fx:id="dummyChart" alternativeColumnFillVisible="false" alternativeRowFillVisible="true" disable="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" verticalGridLinesVisible="true" verticalZeroLineVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <xAxis>
-        <NumberAxis side="BOTTOM" upperBound="100.0" />
-      </xAxis>
-      <yAxis>
-        <NumberAxis side="LEFT" />
-      </yAxis>
-      <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-      </padding>
-    </LineChart>
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
@@ -95,11 +84,12 @@
         </ImageView>
       </graphic>
     </Button>
-    <Label fx:id="loadingLabel" layoutX="209.0" layoutY="175.0" mouseTransparent="true" text="Loading..." textFill="#0c9900">
-      <font>
-        <Font name="Calibri Italic" size="24.0" />
-      </font>
-    </Label>
+    <HBox fx:id="progressPane" prefHeight="10.0" prefWidth="-1.0" spacing="-1.0" visible="false" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="110.0">
+      <children>
+        <ProgressBar id="bkgLoadProgress" fx:id="lpb1" prefWidth="640.0" progress="0.0" style="" styleClass="loading_pb1" visible="true" />
+        <ProgressBar id="bkgLoadProgress" fx:id="lpb2" focusTraversable="false" prefWidth="640.0" progress="0.0" styleClass="loading_pb2" visible="true" />
+      </children>
+    </HBox>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

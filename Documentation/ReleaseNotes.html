@@ -5,7 +5,76 @@
     </head>
     <body style="max-width:800px">
         <h1>VisibleTesla Release Notes</h1>
-
+            <hr>
+            <h3>VisibleTesla 0.21.00 [10-19-13]</h3>
+            <ul>
+                <li>
+                    User-Visible Changes
+                    <ul>
+                        <li>
+                            General
+                            <ul>
+                                <li>Additional error handling if VisibleTesla is unable to communicate with the car. For example, if the car is sleeping and can't be awoken.</li>
+                                <li>Fixes to a few edge cases in the way inactivity is handled.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Login
+                            <ul>
+                                <li>Added additional error handling and feedback for failed login attempts.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Overview
+                            <ul>
+                                <li>Added statistics to the Details dialog that reflect the amount of calls to Tesla's servers over the last 10 seconds, the last minute, and the last hour.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            HVAC
+                            <ul>
+                            </ul>
+                        </li>
+                        <li>
+                            Location
+                            <ul>
+                            </ul>
+                        </li>
+                        <li>
+                            Charge
+                            <ul>
+                            </ul>
+                        </li>
+                        <li>
+                            Graphs
+                            <ul>
+                                <li>More work to overcome limitations in the underlying graphing library. Statistics are now loaded in the background starting from the present time and working backwards to the oldest statistics. This allows the suer to see and start interacting with the most recent data in the graph right away.</li>
+                                <li>While loading the Graphs tab now displays a two-part progress bar along the bottom of the tab. The first part of the progress bar represents the progress in loading the visible series. Those are the series that are selected in the "Show Items" drop down list. Visible series are loaded first. The second part of the progress bar represents the progress in loading the currently hidden series. The size of these two parts are proportional to the number of hidden and visible series. For example, if 4 of the 8 possible series are visible, then the two parts of the progress bar will be the same size. If 2 of the 8 are visible, then the first part will be a quarter of the total size and the second part will be three quarters.</li>
+                                <li>The goal of all of this is to make the Graphs tab provide useful information as quickly as possible while loading all other data in the background.<li>
+                            </ul>
+                        </li>
+                        <li>
+                            Scheduler
+                            <ul>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    Under-the-covers
+                    <ul>
+                        <li>Changes to the TeslaClient library: Remove unused code, add usage statistics, update tests.</li>
+                        <li>Changes to the JavaFX LineChart and XYChart classes for better performance. This is achieved through subclassing, not changes to the core library.</li>
+                        <li>Fairly major changes to the code to work around graphics performance issues - at least to make performance tolerable for "large" datasets.</li>
+                    </ul>
+                </li>
+                <li>
+                    Known problems
+                    <ul>
+                        <li>The context menu in the Graphs tab should only ever show one checked item at a time. Occasionally it will show a check mark next to both the currently selected value and the last selected value. This appears to be fixed with the latest version of Java (1.7u45). This version is <strong>not</strong> recommended for developers, but seems to be fine for users.
+                    </ul>
+                </li>
+            </ul>
         <hr>
         <h3>VisibleTesla 0.20.01 [10-05-13]</h3>
         <ul>

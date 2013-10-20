@@ -34,6 +34,7 @@ import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.RestyWrapper;
 
 
 public class OverviewController extends BaseController {
@@ -118,7 +119,7 @@ public class OverviewController extends BaseController {
     @FXML void lockButtonHandler(ActionEvent event) {
         final Button source = (Button)event.getSource();
         issueCommand(new Callable<Result>() {
-            public Result call() {
+            @Override public Result call() {
                 return doorController.setLockState(source == lockButton); } }, AfterCommand.Refresh);
     }
 
@@ -135,7 +136,7 @@ public class OverviewController extends BaseController {
             source == ventPanoButton ? PanoCommand.vent :
                 ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
         issueCommand(new Callable<Result>() {
-            public Result call() { return doorController.setPano(cmd); } },
+            @Override public Result call() { return doorController.setPano(cmd); } },
             AfterCommand.Refresh);
     }
 
@@ -145,7 +146,14 @@ public class OverviewController extends BaseController {
                 "\nFirmware Version: " + vehicleState.version() +
                 "\nHas Spoiler: " + vehicleState.hasSpoiler() +
                 "\n--------------------------------------------" +
-                "\nLow level information: " + vehicle.getUnderlyingValues();
+                "\nLow level information: " + vehicle.getUnderlyingValues() +
+                "\nAPI Usage Rates:";
+        for (Map.Entry<Integer,Integer> e: RestyWrapper.stats().entrySet()) {
+            int seconds = e.getKey();
+            int calls = e.getValue();
+            info += "\n    "+ calls + " calls in the last " + seconds + " seconds";
+        }
+
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
@@ -160,9 +168,9 @@ public class OverviewController extends BaseController {
     
     @Override protected void fxInitialize() {
         odometerLabel.setVisible(true);
-        honkCB = new Callable<Result>() { public Result call() { return actions.honk(); } };
-        flashCB = new Callable<Result>() { public Result call() { return actions.flashLights(); } };
-        wakeupCB = new Callable<Result>() { public Result call() { return actions.wakeUp(); } };
+        honkCB = new Callable<Result>() {@Override public Result call() { return actions.honk(); } };
+        flashCB = new Callable<Result>() {@Override  public Result call() { return actions.flashLights(); } };
+        wakeupCB = new Callable<Result>() {@Override  public Result call() { return actions.wakeUp(); } };
     }
 
     @Override protected void appInitialize() {
@@ -184,7 +192,7 @@ public class OverviewController extends BaseController {
      * This keeps down our request rate to the tesla servers.
      * 
      */
-    protected void refresh() {
+    @Override protected void refresh() {
         updateState(vehicleState);
         updateState(chargeState);
         if (userInvokedRefresh || refreshCount % 3 == 0) {

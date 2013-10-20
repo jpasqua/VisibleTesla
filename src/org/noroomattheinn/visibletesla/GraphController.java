@@ -1,5 +1,5 @@
 /*
- * HVACController.java - Copyright(c) 2013 Joe Pasqua
+ * GraphController.java - Copyright(c) 2013 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
@@ -11,21 +11,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -33,8 +32,10 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import jxl.Workbook;
 import jxl.write.WritableSheet;
@@ -42,29 +43,26 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
-import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.SnapshotState;
-import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
 import org.noroomattheinn.visibletesla.StatsRepository.Recorder;
+import org.noroomattheinn.visibletesla.chart.VTLineChart;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
-import org.noroomattheinn.visibletesla.chart.Variable;
-import org.noroomattheinn.visibletesla.chart.Variable.LineType;
-import org.noroomattheinn.visibletesla.chart.VariableSet;
+import org.noroomattheinn.visibletesla.chart.VTSeries;
 
 // TO DO:
 //
-// To add a new variable:
-// 1. If the variable requires a new state object:
+// To add a new Series:
+// 1. If the series requires a new state object:
 //    1.1 Add the declaration of the object
 //    1.2 Initialize the object in prepForVehicle
-//    1.3 In getAndRecordStats: refresh the object and addElement on each variable
+//    1.3 In getAndRecordStats: refresh the object and addElement on each series
 // 2. Add the corresponding checkbox
 //    2.1 Add a decalration for the checkbox and compile this source
 //    2.2 Open GraphUI.fxml and add a checkbox to the dropdown list
-// 3. Register the new variable in prepVariables()
+// 3. Register the new series in prepSeries()
 public class GraphController extends BaseController {
 
 /*------------------------------------------------------------------------------
@@ -74,10 +72,9 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static final long DefaultInterval = 2 * 60 * 1000;  // 2 Minutes
-    private static final long MaxInterval =     5 * 60 * 1000;  // 5 Minutes
     private static final long MinInterval =         30 * 1000;  // 30 Seconds
-    private static final long InitialPeriodToLoad =
-                                      2 * 24 * 60 * 60 * 1000;  // 2 Days
+    private static final long InitialPeriodToLoad = 0;
+                                 //7L * 24L * 60L * 60L * 1000L;  // 7 Days
     
 /*------------------------------------------------------------------------------
  *
@@ -88,7 +85,6 @@ public class GraphController extends BaseController {
     private ChargeState chargeState;
     private SnapshotState snapshotState;
     private StatsRepository repo;
-    private VariableSet variables;
     private Map<String, Integer> valueMap = null;
     private boolean displayLines = true;
     private boolean displayMarkers = true;
@@ -100,7 +96,6 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @FXML private Label readout;
-    @FXML private Label loadingLabel;
     @FXML private CheckBox voltageCheckbox;
     @FXML private CheckBox currentCheckbox;
     @FXML private CheckBox rangeCheckbox;
@@ -113,14 +108,17 @@ public class GraphController extends BaseController {
     @FXML private Button showItemsButton;
     @FXML private Button nowButton;
     @FXML private AnchorPane arrow;
-    @FXML private LineChart<?, ?> dummyChart;
+    @FXML private ProgressBar lpb1;
+    @FXML private ProgressBar lpb2;
+    @FXML private HBox progressPane;
     
     private RadioMenuItem displayLinesMI;
     private RadioMenuItem displayMarkersMI;
     private RadioMenuItem displayBothMI;
     private TimeBasedChart chart;
-    private LineChart<Number,Number> lineChart = null;
-
+    private VTLineChart lineChart = null;
+    private boolean allDataLoaded = false;
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -128,7 +126,7 @@ public class GraphController extends BaseController {
  *============================================================================*/
     
     void exportCSV() {
-        if (variables == null) {
+        if (!allDataLoaded) {
             Dialogs.showWarningDialog(
                     appContext.stage,
                     "Your graph data hasn't been loaded yet.\n"
@@ -229,51 +227,70 @@ public class GraphController extends BaseController {
 
     @FXML void optionCheckboxHandler(ActionEvent event) {
         CheckBox cb = (CheckBox) event.getSource();
-        Variable var = variables.getByKey(cb);
-        var.visible = cb.isSelected();
-        variables.assignToChart(lineChart);
+        boolean visible = cb.isSelected();
+        VTSeries series = cbToSeries.get(cb);
+        lineChart.setVisible(series, visible);
+        lineChart.refreshChart();
+
         // Remember the value for next time we start up
-        appContext.prefs.putBoolean(prefKey(var.type), var.visible);
+        appContext.prefs.putBoolean(prefKey(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
  *
- * Variable Handling
+ * VTSeries Handling
  * 
  *----------------------------------------------------------------------------*/
     
-    private void prepVariables() {
+    private Map<CheckBox,VTSeries> cbToSeries = new LinkedHashMap<>(); // Preserves insertion order
+    private Map<String,VTSeries> typeToSeries = new HashMap<>();
+    
+    private void prepSeries() {
         GUIState gs = appContext.cachedGUIState;
-        Variable.Transform distTransform = gs.distanceUnits().startsWith("mi")
-                ? Variable.idTransform : Variable.mToKTransform;
-        variables.clear();
-        // NOTE: the colors specified below are ignored!!
-        // They are currently set via CSS rather than programmatically. I left the
-        // color specifications here just in case I figure out how to make the
-        // programmatic application of colors work. Right now I can't apply
-        // colors to series symbols. That's why it's done via CSS
-        variables.register(new Variable(voltageCheckbox, "C_VLT", "violet", Variable.idTransform));
-        variables.register(new Variable(currentCheckbox, "C_AMP", "aqua", Variable.idTransform));
-        variables.register(new Variable(rangeCheckbox, "C_EST", "red", distTransform));
-        variables.register(new Variable(socCheckbox, "C_SOC", "salmon", Variable.idTransform));
-        variables.register(new Variable(rocCheckbox, "C_ROC", "blue", distTransform));
-        variables.register(new Variable(powerCheckbox, "S_PWR", "gray", Variable.idTransform));
-        variables.register(new Variable(speedCheckbox, "S_SPD", "green", distTransform));
-        variables.register(new Variable(batteryCurrentCheckbox, "C_BAM", "black", Variable.idTransform));
+        VTSeries.Transform<Number> distTransform = gs.distanceUnits().startsWith("mi")
+                ? VTSeries.idTransform : VTSeries.mToKTransform;
+        lineChart.clearSeries();
+
+        cbToSeries.put(voltageCheckbox, lineChart.register(
+                new VTSeries("C_VLT", VTSeries.millisToSeconds, VTSeries.idTransform)));
+        cbToSeries.put(currentCheckbox, lineChart.register(
+                new VTSeries("C_AMP", VTSeries.millisToSeconds, VTSeries.idTransform)));
+        cbToSeries.put(rangeCheckbox, lineChart.register(
+                new VTSeries("C_EST", VTSeries.millisToSeconds, distTransform)));
+        cbToSeries.put(socCheckbox, lineChart.register(
+                new VTSeries("C_SOC", VTSeries.millisToSeconds, VTSeries.idTransform)));
+        cbToSeries.put(rocCheckbox, lineChart.register(
+                new VTSeries("C_ROC", VTSeries.millisToSeconds, distTransform)));
+        cbToSeries.put(powerCheckbox, lineChart.register(
+                new VTSeries("S_PWR", VTSeries.millisToSeconds, VTSeries.idTransform)));
+        cbToSeries.put(speedCheckbox, lineChart.register(
+                new VTSeries("S_SPD", VTSeries.millisToSeconds, distTransform)));
+        cbToSeries.put(batteryCurrentCheckbox, lineChart.register(
+                new VTSeries("C_BAM", VTSeries.millisToSeconds, VTSeries.idTransform)));
+        
+        // Make the checkbox colors match the series colors
+        int seriesNumber = 0;
+        for (Map.Entry<CheckBox,VTSeries> me: cbToSeries.entrySet()) {
+            CheckBox cb = me.getKey();
+            VTSeries s = me.getValue();
+            cb.getStyleClass().add("cb"+seriesNumber++);
+            typeToSeries.put(s.getName(), s);
+        }
     }
 
     private void restoreLastSettings() {
         // Restore the last settings of the checkboxes
-        for (Variable var : variables.set()) {
-            boolean selected = appContext.prefs.getBoolean(prefKey(var.type), true);
-            var.cb.setSelected((var.visible = selected));
+        for (CheckBox cb : cbToSeries.keySet()) {
+            VTSeries s = cbToSeries.get(cb);
+            boolean selected = appContext.prefs.getBoolean(prefKey(s.getName()), true);
+            cb.setSelected(selected);
+            lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
         displayLines = appContext.prefs.getBoolean(prefKey("DISPLAY_LINES"), true);
         displayMarkers = appContext.prefs.getBoolean(prefKey("DISPLAY_MARKERS"), true);
 
-        variables.assignToChart(lineChart);
         reflectDisplayOptions();
     }
 
@@ -287,10 +304,9 @@ public class GraphController extends BaseController {
         if (differentVehicle(chargeState, v)) {
             chargeState = new ChargeState(v);
             snapshotState = new SnapshotState(v);
-            variables = new VariableSet();
 
             pauseRefresh();
-            prepVariables();
+            prepSeries();
             if (repo != null) {
                 repo.close();
             }
@@ -301,37 +317,7 @@ public class GraphController extends BaseController {
 
     @Override protected void refresh() { }
 
-    /**
-     * This is essentially the last half of the loadExistingData() method.
-     * It does an issueCommand() to load the data in the background. When
-     * it's done, it reflects the new state. We reflect the state by
-     * adding the chart to the root AnchorPane to make it visible, then
-     * we start the refreshThread. We don't  that earlier because we'd
-     * intermix newly acquired data and the data that's being loaded.
-     */
-    @Override protected void reflectNewState() {
-        if (root.getChildren().contains(lineChart)) return;
-        root.getChildren().remove(dummyChart);
-        root.getChildren().add(0, lineChart);
-        nowButton.setVisible(true);
-        // We've finished loading the recent values, now trickle in anything that's left
-        Runnable trickler = new Runnable() {
-            @Override public void run() {
-                int batchSize = 25 * 3;
-                int lastIndex = trickleValues.size();
-                
-                while (lastIndex != 0) {
-                    int startIndex = lastIndex - batchSize;
-                    if (startIndex < 0) startIndex = 0;
-                    Platform.runLater(new AddBatch(trickleValues.subList(startIndex, lastIndex)));
-                    try { Thread.sleep(10); } catch (InterruptedException ex) { }
-                    lastIndex = startIndex;
-                }
-            ensureRefreshThread();  // If thread already exists, it unpauses
-            }
-        };
-        appContext.launchThread(trickler, "00 - VT Trickle");
-    }
+    @Override protected void reflectNewState() {    }
 
     
     @Override protected void fxInitialize() {
@@ -344,6 +330,8 @@ public class GraphController extends BaseController {
         lineChart = chart.getChart();
         createContextMenu();
         showItemList(false);
+        root.getChildren().add(0, lineChart);
+        nowButton.setVisible(true);
     }
 
     @Override protected void appInitialize() {
@@ -409,22 +397,19 @@ public class GraphController extends BaseController {
         }
     };
 
-    private void reflectDisplayOptions() {
-        Variable.LineType lineType;
-        
+    private void reflectDisplayOptions() {        
         if (displayMarkers && displayLines) {
-            lineType = LineType.VisibleDefault;
             displayBothMI.setSelected(true);
+            lineChart.setDisplayMode(VTLineChart.DisplayMode.Both);
         } else if (displayLines) {
-            lineType = LineType.VisibleBolder;
             displayLinesMI.setSelected(true);
+            displayBothMI.setSelected(false);
+            lineChart.setDisplayMode(VTLineChart.DisplayMode.LinesOnly);
         } else {
-            lineType = LineType.Invisible;
             displayMarkersMI.setSelected(true);
+            displayBothMI.setSelected(false);
+            lineChart.setDisplayMode(VTLineChart.DisplayMode.MarkersOnly);
         }
-
-        lineChart.setCreateSymbols(displayMarkers);
-        variables.setLineVisibility(lineType);
     }
 
 /*------------------------------------------------------------------------------
@@ -433,14 +418,14 @@ public class GraphController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void addElement(Variable variable, long time, double value) {
+    private void addElement(VTSeries series, long time, double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             value = 0;
         }
         // Round to 1 decimal place. The rest isn't really significant
         value = Math.round(value * 10.0) / 10.0;
-        recordLater(variable, time, value);
-        repo.storeElement(variable.type, time, value);
+        recordLater(series, time, value);
+        repo.storeElement(series.getName(), time, value);
     }
     
 /*------------------------------------------------------------------------------
@@ -448,65 +433,110 @@ public class GraphController extends BaseController {
  * PRIVATE - Loading existing data
  * 
  *----------------------------------------------------------------------------*/
+        
+    List<Entries> toProcess = new ArrayList<>();
+    Map<String,Entries> collector = new HashMap<>();
     
-    ArrayList<Object> trickleValues = new ArrayList<>();
-    
-    private void loadExistingData() {
-
-        issueCommand(new Callable<Result>() {
-            public Result call() {
-                try {
-                    loadingLabel.setVisible(true);
-                    final long cutoff = System.currentTimeMillis() - InitialPeriodToLoad;
-                    repo.loadExistingData(new Recorder() {
-                        @Override public void recordElement(long time, String type, double val) {
-                            if (time >= cutoff)
-                                variables.get(type).addToSeries(time, val);
-                            else {
-                                trickleValues.add(time);
-                                trickleValues.add(type);
-                                trickleValues.add(val);
-                            }
-                        }
-                    });
-                    variables.assignToChart(lineChart);
-                    restoreLastSettings();
-                    loadingLabel.setVisible(false);
-                } catch (Exception e) {
-                    Tesla.logger.log(Level.SEVERE, "Error while loading data!", e);
-                }
-                return Result.Succeeded;
-            }
-        }, AfterCommand.Reflect);
+    private class Entries {
+        String type;
+        List<Number> times = new ArrayList<>();
+        List<Number> values = new ArrayList<>();
+        Entries(String type) { this.type = type; }
+        void addEntry(long time, double value) {
+            times.add(time);
+            values.add(value);
+        }
     }
     
-    private class AddBatch implements Runnable {
-        private List<Object> trickle;
-        private int size;
+    private void loadExistingData() {
+        lineChart.applySeriesToChart();
+        restoreLastSettings();
         
-        AddBatch(List<Object> trickle) {
-            this.trickle = trickle;
-            this.size = trickle.size();
-        }
-        
-        @Override public void run() {
-            for (int i = size - 1; i > 0; ) {
-                double value = (Double)trickle.get(i--);
-                String type = (String)trickle.get(i--);
-                long time = (Long)trickle.get(i--);
-                variables.get(type).prependToSeries(time, value);
+        final int batchSize = 250;  // Determined Emprically
+        repo.loadExistingData(new Recorder() {
+            @Override public void recordElement(long time, String type, double val) {
+                Entries e = collector.get(type);
+                if (e == null) {e = new Entries(type); collector.put(type, e); }
+                e.addEntry(time, val);
+                if (e.times.size() > batchSize) {
+                    toProcess.add(e);
+                    collector.remove(type);
+                }
             }
-        }
-    
-    };
-    
-    void recordLater(final Variable variable, final long time, final double value) {
-        // This can be called from a background thread. If we update the chart's
-        // series data directly, that could cause a UI refresh which would
-        // be happening from a non-UI thread. This will result in a 
-        // concurrentModificationException, so do it later on the app thread.
+        });
+        for (Entries e : collector.values()) toProcess.add(e);
+        collector.clear();
+                
+        ensureRefreshThread();  // If thread already exists, it unpauses
+
+        // Load up the data
+        Runnable trickler = new Runnable() {
+            
+            private void prepProgressBars(double ratio) {
+                progressPane.setVisible(true);
+                double progressPaneWidth = progressPane.getWidth();
+                double newlb1 = progressPaneWidth * ratio;
+                double newlb2 = progressPaneWidth - newlb1;
+                lpb1.setPrefWidth(newlb1);
+                lpb2.setPrefWidth(newlb2);
+                lpb1.setProgress(0.0); lpb2.setProgress(0.0);
+            }
+            
+            private void doAdd(
+                    final Entries e, final double progress, final ProgressBar pb) {
+                final VTSeries series = typeToSeries.get(e.type);
+                Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        series.addAll(e.times, e.values, true);
+                        pb.setProgress(progress);
+                } });
+                Utils.yieldFor(75);
+            }
+
+            @Override public void run() {
+                int totalChunksToProcess = toProcess.size();
+                List<Entries> secondary = new ArrayList<>();
+                Iterator<Entries> iterator = toProcess.iterator();
+                while (iterator.hasNext()) {
+                    Entries e = iterator.next();
+                    if (!lineChart.isSeriesVisible(typeToSeries.get(e.type))) {
+                        secondary.add(e);
+                        iterator.remove();
+                    }
+                }
+
+                prepProgressBars(((double)toProcess.size())/totalChunksToProcess);
+
+                double nProcessed = 0;
+                for (int i = toProcess.size()-1; i >= 0; i--) {
+                    final double pct = nProcessed/toProcess.size();
+                    doAdd(toProcess.get(i), pct, lpb1);
+                    nProcessed++;
+                }
+
+                nProcessed = 0;
+                for (int i = secondary.size()-1; i >= 0; i--) {
+                    final double pct = nProcessed/secondary.size();
+                    doAdd(secondary.get(i), pct, lpb2);
+                    nProcessed++;
+                }
+                
+                // Queue this up to be performed when the loading finishes
+                Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        allDataLoaded = true;
+                        progressPane.setVisible(false);
+                    }
+                });
+            }
+        };
+        appContext.launchThread(trickler, "00 - VT Trickle");
+    }
+        
+    void recordLater(final VTSeries series, final long time, final double value) {
+        // This can be called from a background thread, hence the Platform.runLater()
         Platform.runLater(new Runnable() {
-            @Override public void run() { variable.addToSeries(time, value); } });
+            @Override public void run() { series.addToSeries(time, value, false); } });
     }
 
     /**
@@ -522,17 +552,17 @@ public class GraphController extends BaseController {
 
         long time = System.currentTimeMillis();
         if (chargeState.hasValidData()) {
-            addElement(variables.get("C_VLT"), time, chargeState.chargerVoltage());
-            addElement(variables.get("C_AMP"), time, chargeState.chargerActualCurrent());
-            addElement(variables.get("C_EST"), time, chargeState.range());
-            addElement(variables.get("C_SOC"), time, chargeState.batteryPercent());
-            addElement(variables.get("C_ROC"), time, chargeState.chargeRate());
-            addElement(variables.get("C_BAM"), time, chargeState.batteryCurrent());
+            addElement(typeToSeries.get("C_VLT"), time, chargeState.chargerVoltage());
+            addElement(typeToSeries.get("C_AMP"), time, chargeState.chargerActualCurrent());
+            addElement(typeToSeries.get("C_EST"), time, chargeState.range());
+            addElement(typeToSeries.get("C_SOC"), time, chargeState.batteryPercent());
+            addElement(typeToSeries.get("C_ROC"), time, chargeState.chargeRate());
+            addElement(typeToSeries.get("C_BAM"), time, chargeState.batteryCurrent());
         }
         if (snapshotState.hasValidData()) {
             speed = snapshotState.speed();
-            addElement(variables.get("S_PWR"), time, snapshotState.power());
-            addElement(variables.get("S_SPD"), time, speed);
+            addElement(typeToSeries.get("S_PWR"), time, snapshotState.power());
+            addElement(typeToSeries.get("S_SPD"), time, speed);
         }
         repo.flushElements();
 
@@ -553,25 +583,24 @@ public class GraphController extends BaseController {
         valueMap = new HashMap<>();
 
         int i = 0;
-        Set<Variable> sorted = new TreeSet<>(variables.set());
-        for (Variable v : sorted) {
-            valueMap.put(v.type, i);
-            i++;
+        Set<VTSeries> sorted = new TreeSet<>(lineChart.set());
+        for (VTSeries v : sorted) {
+            valueMap.put(v.getName(), i++);
         }
 
     }
 
     private TreeMap<Long, Double[]> collectIntoTable(Map<String, Integer> typeToIndex) {
         TreeMap<Long, Double[]> table = new TreeMap<>();
-        int nVars = variables.set().size();
-        for (Variable v : variables.set()) {
-            int valueIndex = typeToIndex.get(v.type);
-            for (Data<Number, Number> data : v.seriesData) {
+        int nSeries = lineChart.set().size();
+        for (VTSeries s : lineChart.set()) {
+            int valueIndex = typeToIndex.get(s.getName());
+            for (Data<Number,Number> data : s.getSeries().getData()) {
                 long timeIndex = data.getXValue().longValue();
                 Double[] vals = table.get(timeIndex);
                 if (vals == null) {
-                    vals = new Double[nVars];
-                    for (int i = 0; i < nVars; i++) {
+                    vals = new Double[nSeries];
+                    for (int i = 0; i < nSeries; i++) {
                         vals[i] = Double.NaN;
                     }
                     table.put(timeIndex, vals);

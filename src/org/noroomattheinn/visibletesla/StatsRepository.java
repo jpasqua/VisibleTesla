@@ -34,10 +34,11 @@ public class StatsRepository {
  * 
  *----------------------------------------------------------------------------*/
 
-    private String vin;
+    private final String vin;
+    private final List<StatsEntry> entriesSinceLastFlush = new ArrayList<>();
+    
     private PrintStream statsWriter;
     private Map<String,Double> lastRowWritten = new HashMap<>();
-    private List<Entry> entriesSinceLastFlush = new ArrayList<>();
     
 /*==============================================================================
  * -------                                                               -------
@@ -96,7 +97,7 @@ public class StatsRepository {
     
     void storeElement(String type, long time, double value) {
         if (statsWriter == null)  return;
-        entriesSinceLastFlush.add(new Entry(time, type, value));
+        entriesSinceLastFlush.add(new StatsEntry(time, type, value));
     }
     
     void close() {
@@ -110,7 +111,7 @@ public class StatsRepository {
         // It's possible that there are entries for multiple points in time
         // Create a map with a key for each unique time where the value
         // is a list of Entries with that time
-        for (Entry entry : entriesSinceLastFlush) {
+        for (StatsEntry entry : entriesSinceLastFlush) {
             Map<String,Double> row = rows.get(entry.time);
             if (row == null) {
                 row = new HashMap<>();
@@ -220,16 +221,6 @@ public class StatsRepository {
     
     private String fileNameForVIN(String vin) { return vin + ".stats.log"; }
     
-    private class Entry {
-        public final long time;
-        public final double value;
-        public final String type;
-        Entry(long time, String type, double value) {
-            this.time = time;
-            this.type = type;
-            this.value = value;
-        }
-    }
     
 
 }

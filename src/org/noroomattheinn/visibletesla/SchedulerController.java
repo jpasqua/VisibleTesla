@@ -79,7 +79,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             }
         }        
         
-        Result r = Result.Failed;
+        Result r = Result.Succeeded;
         switch (command) {
             case CHARGE_ON: r = chargeController.startCharing(); break;
             case CHARGE_OFF: r = chargeController.stopCharing(); break;
@@ -87,15 +87,12 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             case HVAC_OFF: r = hvacController.stopAC(); break;
             case AWAKE:
                 appContext.requestInactivityMode(InactivityMode.StayAwake);
-                r = Result.Succeeded;
                 break;
             case SLEEP:
                 appContext.requestInactivityMode(InactivityMode.AllowSleeping);
-                r = Result.Succeeded;
                 break;
             case DAYDREAM:
                 appContext.requestInactivityMode(InactivityMode.AllowDaydreaming);
-                r = Result.Succeeded;
                 break;
         }
         String entry = String.format(

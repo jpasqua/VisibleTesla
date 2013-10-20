@@ -23,6 +23,16 @@
     -fx-effect: null;
 }
 
+.default-color0.chart-line-symbol { -fx-fill: Series00Color; }
+.default-color1.chart-line-symbol { -fx-fill: Series01Color; }
+.default-color2.chart-line-symbol { -fx-fill: Series02Color; }
+.default-color3.chart-line-symbol { -fx-fill: Series03Color; }
+.default-color4.chart-line-symbol { -fx-fill: Series04Color; }
+.default-color5.chart-line-symbol { -fx-fill: Series05Color; }
+.default-color6.chart-line-symbol { -fx-fill: Series06Color; }
+.default-color7.chart-line-symbol { -fx-fill: Series07Color; }
+
+/*
 .default-color0.chart-line-symbol { -fx-background-color: Series00Color; }
 .default-color1.chart-line-symbol { -fx-background-color: Series01Color; }
 .default-color2.chart-line-symbol { -fx-background-color: Series02Color; }
@@ -31,7 +41,7 @@
 .default-color5.chart-line-symbol { -fx-background-color: Series05Color; }
 .default-color6.chart-line-symbol { -fx-background-color: Series06Color; }
 .default-color7.chart-line-symbol { -fx-background-color: Series07Color; }
-/*
+
 .default-color0.chart-series-line { -fx-stroke: transparent; }
 .default-color1.chart-series-line { -fx-stroke: transparent; }
 .default-color2.chart-series-line { -fx-stroke: transparent; }
@@ -59,3 +69,7 @@
 .cb5 {-fx-text-fill: Series05Color;}
 .cb6 {-fx-text-fill: Series06Color;}
 .cb7 {-fx-text-fill: Series07Color;}
+
+.loading_pb1 .bar {-fx-background-color: -fx-box-border, slateblue}
+.loading_pb2 .bar {-fx-background-color: -fx-box-border, slategrey}
+

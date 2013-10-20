@@ -60,8 +60,9 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.20.02";
+    private static final String ProductVersion = "0.21.00";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
+    private static final int MaxTriesToStart = 20;
     
 /*------------------------------------------------------------------------------
  *
@@ -121,7 +122,7 @@ public class MainController extends BaseController {
         tesla = new Tesla();
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
+            @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
                 BaseController c = controllerFromTab(t1);
                 if (c != null) {
                     c.activate(selectedVehicle);
@@ -179,6 +180,22 @@ public class MainController extends BaseController {
     @Override protected void reflectNewState() {
         if (!initialSetup) return;
         initialSetup = false;
+        
+        if (appContext.cachedGUIState == null ||
+            appContext.cachedVehicleState == null ||
+            !appContext.cachedGUIState.hasValidData() ||
+            !appContext.cachedVehicleState.hasValidData()) {
+            // Couldn't wake up the vehicle and get the gui and vehicle state!
+            Dialogs.showErrorDialog(appContext.stage,
+                    "Failed to connect to your vehicle even after a successful " +
+                    "login. It may be in a deep sleep and can't be woken up.\n"  +
+                    "\nPlease try to wake your Tesla and then try VisibleTesla again.",
+                    "Unable to communicate with your Tesla", "Communication Problem");
+            Tesla.logger.log(Level.SEVERE, "Can't communicate with vehicle - exiting.");
+            Platform.exit();
+            return;
+        }
+        
         trackInactivity();
         setTabsEnabled(true);
         SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
@@ -233,22 +250,28 @@ public class MainController extends BaseController {
         return vehicleList.get(selectedVehicleIndex);
     }
 
-    private void cacheBasics(Vehicle v) {
+    private boolean cacheBasics(Vehicle v) {
         GUIState     gs = new GUIState(v);
         VehicleState vs = new VehicleState(v);
         
+        int tries = 0;
         while (! (gs.hasValidData() &&  vs.hasValidData()) ) {
-            Utils.sleep(500);
+            if (tries++ > MaxTriesToStart)
+                return false;
             if (!gs.hasValidData()) gs.refresh();
             if (!vs.hasValidData()) vs.refresh();
+
+            Utils.sleep(500);
+            if (appContext.shuttingDown.get()) return false;
         }
         
         appContext.cachedGUIState = gs;
         appContext.cachedVehicleState = vs;
+        return true;
     }
 
     private class DoLogin implements Runnable {
-        private boolean loginSucceeded;
+        private final boolean loginSucceeded;
         DoLogin(boolean loggedin) { loginSucceeded = loggedin; }
         
         @Override
@@ -260,10 +283,14 @@ public class MainController extends BaseController {
                         selectedVehicle.getUnderlyingValues());
                 
                 if (selectedVehicle.status().equals("asleep")) {
-                    if (letItSleep())
+                    if (letItSleep()) {
                         Tesla.logger.log(
                             Level.INFO, "Allowing vehicle to remain in sleep mode");
                         Platform.exit();
+                        return;
+                    } else {
+                        Tesla.logger.log(Level.INFO, "Waking up your vehicle");
+                    }
                 }
                 
                 boolean disclaimer = appContext.prefs.getBoolean(
@@ -292,10 +319,10 @@ public class MainController extends BaseController {
                 setInactivityMenu(inactivityMode);
 
                 issueCommand(new Callable<Result>() {
-                        public Result call() {
+                        @Override public Result call() {
                             initialSetup = true;
-                            cacheBasics(selectedVehicle);
-                            return Result.Succeeded;
+                            return cacheBasics(selectedVehicle) ?
+                                    Result.Succeeded : Result.Failed;
                         } },
                         AfterCommand.Reflect);
 
@@ -351,22 +378,11 @@ public class MainController extends BaseController {
     }
     
     private void setInactivityMode(InactivityMode newMode) {
+        setInactivityMenu(inactivityMode = newMode);        
         appContext.prefs.put(selectedVehicle.getVIN()+"_InactivityMode", newMode.name());
-        switch (inactivityMode) {
-            case StayAwake:
-                // If the old mode is AWAKE then the new mode is either SLEEP or
-                // DAYDREAM. In either case, don't change the current state
-                // because we need to be be idle for a while before we do that
-                break;
-            case AllowSleeping:
-            case AllowDaydreaming:
-                // If the old mode is SLEEP or DAYDREAM then we should update
-                // the current state.
-                appContext.inactivityState.set(newMode);
-                break;
-        }
-        inactivityMode = newMode;
-        setInactivityMenu(newMode);
+        
+        if (appContext.inactivityState.get() == InactivityMode.StayAwake) return;
+        appContext.inactivityState.set(newMode);
     }
     
 /*------------------------------------------------------------------------------
