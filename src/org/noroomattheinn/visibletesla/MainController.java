@@ -19,6 +19,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Dialogs;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Tab;
@@ -27,6 +29,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.GUIState;
@@ -36,6 +39,8 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.utils.Versions;
+import org.noroomattheinn.utils.Versions.Release;
 import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
 
 /**
@@ -63,7 +68,8 @@ public class MainController extends BaseController {
     private static final String ProductVersion = "0.21.00";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
     private static final int MaxTriesToStart = 20;
-    
+    private static final String VersionsFile = 
+        "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/versions.xml";
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -312,6 +318,8 @@ public class MainController extends BaseController {
                 appContext.prefs.putBoolean(
                         selectedVehicle.getVIN()+"_Disclaimer", true);                
                 
+                conditionalCheckVersion();
+                                
                 String modeName = appContext.prefs.get(
                         selectedVehicle.getVIN()+"_InactivityMode",
                         InactivityMode.AllowDaydreaming.name());
@@ -385,6 +393,61 @@ public class MainController extends BaseController {
         appContext.inactivityState.set(newMode);
     }
     
+    private void conditionalCheckVersion() {
+        long lastVersionCheck = appContext.prefs.getLong(
+                selectedVehicle.getVIN() + "_LastVersionCheck", 0);
+        long now = System.currentTimeMillis();
+        if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
+            checkForNewerVersion();
+        }
+    }
+    
+    private boolean checkForNewerVersion() {
+        appContext.prefs.putLong(
+                selectedVehicle.getVIN() + "_LastVersionCheck", System.currentTimeMillis());
+        
+        final Versions versions = Versions.getVersionInfo(VersionsFile);
+        List<Release> releases = versions.getReleases();
+
+        if (releases != null && !releases.isEmpty()) {
+            final Release lastRelease = releases.get(0);
+            String releaseNumber = lastRelease.getReleaseNumber();
+            if (Utils.compareVersions(ProductVersion, releaseNumber) < 0) {
+                VBox customPane = new VBox();
+                String msgText = String.format(
+                        "A newer version of VisibleTesla is available:\n" +
+                        "Version: %s, Date: %tD",
+                        releaseNumber, lastRelease.getReleaseDate());
+                Label msg = new Label(msgText);
+                Hyperlink downloadLink = new Hyperlink("Click to download the new release");
+                Hyperlink rnLink = new Hyperlink("Click to view the release notes");
+                downloadLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
+                downloadLink.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent t) {
+                        appContext.app.getHostServices().showDocument(
+                                lastRelease.getReleaseURL().toExternalForm());
+
+                    }
+                });
+                rnLink.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent t) {
+                        appContext.app.getHostServices().showDocument(
+                                versions.getReleaseNotes().toExternalForm());
+
+                    }
+                });
+                customPane.getChildren().addAll(msg, rnLink, downloadLink);
+                Dialogs.showCustomDialog(
+                        appContext.stage, customPane,
+                        "Newer Version Available",
+                        "Checking for Updates", Dialogs.DialogOptions.OK, null);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+
 /*------------------------------------------------------------------------------
  *
  * Private Utility Methods for Tab handling
@@ -474,6 +537,16 @@ public class MainController extends BaseController {
                 ProductName + " " + ProductVersion, "About " + ProductName);
     }
 
+    // Help->Check for Updates
+    @FXML private void updatesHandler(ActionEvent event) {
+        boolean newer = checkForNewerVersion();
+        if (!newer) 
+            Dialogs.showInformationDialog(
+                    appContext.stage,
+                    "There is no newer version available.",
+                    "Update Check Results", "Checking for Updates");
+    }
+    
 /*------------------------------------------------------------------------------
  * 
  * This section implements the mechanism that tracks whether the app is idle.

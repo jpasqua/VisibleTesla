@@ -87,6 +87,7 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    map.setCenter(latLng);  // Seemingly redundant but needed for subsequent panTo()'s
     geocoder = new google.maps.Geocoder();
     infowindow = new google.maps.InfoWindow();
 
@@ -146,7 +147,8 @@ function moveMarker(lat, lng, heading) {
     rm.setContent(content.innerHTML);
     rm.setPosition(newLL);
     if (centerOnCar) {
-        map.setCenter(newLL);
+        //map.setCenter(newLL);
+        map.panTo(newLL);
         if (debug) alert("Panning to center car");
     }
     else if (!map.getBounds().contains(rm.getPosition())) {

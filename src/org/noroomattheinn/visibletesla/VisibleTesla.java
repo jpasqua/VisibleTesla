@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Dialogs;
 import javafx.stage.Stage;
 import org.noroomattheinn.utils.Utils;
 
@@ -48,6 +49,7 @@ public class VisibleTesla extends Application {
         // Everything above is boilerplate. The only thing this method does that
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
+        Dialogs.useNativeChrome(true);
         mainController = Utils.cast(root.getUserData());
         mainController.start(this, stage);
     }

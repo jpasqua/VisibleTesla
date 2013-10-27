@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -17,9 +20,11 @@ import javafx.scene.control.Button;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
-import org.noroomattheinn.tesla.DrivingState;
+import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
 
 
 public class LocationController extends BaseController {
@@ -36,9 +41,13 @@ public class LocationController extends BaseController {
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
-    private DrivingState drivingState;
+    
+    private final Object lock = false;
+    private SnapshotState snapshotState;
     private boolean mapIsLoaded = false;
     private WebEngine engine;
+    
+    private Thread streamer = null;
 
 /*------------------------------------------------------------------------------
  *
@@ -57,7 +66,7 @@ public class LocationController extends BaseController {
     @FXML void launchButtonHandler(ActionEvent event) {
         String url = String.format(
                 "https://maps.google.com/maps?q=%f,%f(Tesla)&z=18&output=embed",
-                drivingState.latitude(), drivingState.longitude());
+                snapshotState.estLat(), snapshotState.estLng());
         appContext.app.getHostServices().showDocument(url);
     }
     
@@ -79,27 +88,17 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void reflectNewState() {
-        if (!drivingState.hasValidData()) return;
-        double jitter = 0;
-//        double jitter = (Math.random()-0.5)*0.003;    // For testing only!
-        String latitude = String.valueOf(drivingState.latitude() + jitter);
-        String longitude = String.valueOf(drivingState.longitude() - jitter);
-        String heading = String.valueOf(drivingState.heading());
-        if (!mapIsLoaded) {
-            String mapHTML = getMapFromTemplate(latitude, longitude, heading);
-            engine.loadContent(mapHTML);
-        } else {
-            engine.executeScript(String.format(
-                "moveMarker(%s, %s, %s)", latitude, longitude, heading));
-        }
-        mapIsLoaded = true;
+        if (!snapshotState.hasValidData()) return;
+        reflectInternal(snapshotState.estLat(), snapshotState.estLng(), snapshotState.estHeading());
     }
 
-    @Override protected void refresh() { updateState(drivingState); }
+    @Override protected void refresh() { 
+        synchronized(lock) { lock.notify(); } }
 
     @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle(drivingState, v)) {
-            drivingState = new DrivingState(v);
+        if (differentVehicle(snapshotState, v)) {
+            snapshotState = new SnapshotState(v);
+            ensureStreamer();
         }
     }
     
@@ -109,6 +108,29 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
+    private void reflectInternal(double lat, double lng, int theHeading) {
+        if (!snapshotState.hasValidData()) return;
+        String latitude = String.valueOf(lat);
+        String longitude = String.valueOf(lng);
+        String heading = String.valueOf(theHeading);
+        if (!mapIsLoaded) {
+            String mapHTML = getMapFromTemplate(latitude, longitude, heading);
+            engine.loadContent(mapHTML);
+        } else {
+            engine.executeScript(String.format(
+                "moveMarker(%s, %s, %s)", latitude, longitude, heading));
+        }
+        mapIsLoaded = true;
+    }
+    
+    private void ensureStreamer() {
+        if (streamer == null) {
+            streamer = appContext.launchThread(new LocationStreamer(lock), "00 LocationStreamer");
+            while (streamer.getState() != Thread.State.WAITING) {
+                Utils.yieldFor(10);
+            }
+        }
+    }
     private void replaceField(StringBuilder sb, String placeholder, String newText) {
         int length = placeholder.length();
         int loc = sb.indexOf(placeholder);
@@ -137,4 +159,49 @@ public class LocationController extends BaseController {
         return sb.toString();
     }
     
+    private class LocationStreamer implements Runnable, ChangeListener<AppContext.InactivityMode> {
+        private static final long StreamingThreshold = 400;
+        final Object lock;
+        private InactivityMode inactivityState = InactivityMode.StayAwake;
+        
+        @Override public void
+        changed(ObservableValue<? extends InactivityMode> o, InactivityMode ov, InactivityMode nv) {
+            inactivityState = nv;
+        }
+
+        LocationStreamer(Object lock) {
+            this.lock = lock;
+        }
+
+        private void doUpdateLater(final SnapshotState ss) {
+            Platform.runLater(new Runnable() {
+                @Override public void run() {
+                    reflectInternal(ss.estLat(), ss.estLng(), ss.estHeading());
+                } });
+        }
+        
+        @Override public void run() {
+            while (!appContext.shuttingDown.get()) {
+                try {
+                    synchronized (lock) { lock.wait(); }
+                    snapshotState.refresh();
+                    if (snapshotState.hasValidData()) {
+                        long lastSnapshot = snapshotState.timestamp().getTime();
+                        doUpdateLater(snapshotState);
+                        // Now, stream data as long as it comes...
+                        while (snapshotState.refreshFromStream()) {
+                            if (inactivityState != InactivityMode.StayAwake)
+                                break;
+                            if (snapshotState.timestamp().getTime() - lastSnapshot > StreamingThreshold) {
+                                doUpdateLater(snapshotState);
+                                lastSnapshot = snapshotState.timestamp().getTime();
+                            }
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                    Tesla.logger.log(Level.INFO, "LocationStreamer Interrupted");
+                }
+            }
+        }
+    }
 }

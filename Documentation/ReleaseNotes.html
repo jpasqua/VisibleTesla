@@ -6,7 +6,7 @@
     <body style="max-width:800px">
         <h1>VisibleTesla Release Notes</h1>
             <hr>
-            <h3>VisibleTesla 0.21.00 [10-19-13]</h3>
+            <h3>VisibleTesla 0.21.00 [10-27-13]</h3>
             <ul>
                 <li>
                     User-Visible Changes
@@ -14,8 +14,10 @@
                         <li>
                             General
                             <ul>
+                                <li>Added "Check for Updates" functionality. This is the first step towards auto update. When the app launches it will check the web for a newer version. If there is one, a dialog box will be displayed with a download link and a link to the new release notes. It will only do this once per week. If you want to check for a newer version earlier than that, use the "Help->Check For Updates" menu item.</li>
                                 <li>Additional error handling if VisibleTesla is unable to communicate with the car. For example, if the car is sleeping and can't be awoken.</li>
                                 <li>Fixes to a few edge cases in the way inactivity is handled.</li>
+                                <li>Updated the look of dialog boxes to be more native to the platorm (Windows, Mac, Linux) than they used to be. This primarily affects the window borders and controls. The content of the dialog boxes remains the same.</li>
                             </ul>
                         </li>
                         <li>
@@ -28,6 +30,7 @@
                             Overview
                             <ul>
                                 <li>Added statistics to the Details dialog that reflect the amount of calls to Tesla's servers over the last 10 seconds, the last minute, and the last hour.</li>
+                                <li>Several new vehicle options are now recognized and will be displayed in the Details dialog. These include things like the Cold Weather Package, the Parking Sensor option, the Lighting package, and the Security Package.</li>
                             </ul>
                         </li>
                         <li>
@@ -38,6 +41,7 @@
                         <li>
                             Location
                             <ul>
+                                <li><strong>Experimental</strong> support for streaming updates to the map location. In this version the location of the marker will update in near-real-time as the car is moving. The frequency of updates is a maximum of 4 times/second, but may not be at that rate. There may be times when Tesla's servers do not stream at that rate or network delays slow down the updates. It will continue to auto-refresh every 20 seconds as usual.
                             </ul>
                         </li>
                         <li>
@@ -66,6 +70,7 @@
                         <li>Changes to the TeslaClient library: Remove unused code, add usage statistics, update tests.</li>
                         <li>Changes to the JavaFX LineChart and XYChart classes for better performance. This is achieved through subclassing, not changes to the core library.</li>
                         <li>Fairly major changes to the code to work around graphics performance issues - at least to make performance tolerable for "large" datasets.</li>
+                        <li>Forked the javafx-dialogs code to add the ability to get a more native look on each platform. Updated the README.md file to reflect where to download my forked version. Trying to figure out how to get it integrated into the main repository.</li>
                     </ul>
                 </li>
                 <li>

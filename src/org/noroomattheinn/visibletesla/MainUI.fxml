@@ -123,6 +123,7 @@
                 <MenuItem mnemonicParsing="false" onAction="#aboutHandler" text="About" />
                 <MenuItem mnemonicParsing="false" onAction="#helpHandler" text="Documentation" />
                 <MenuItem mnemonicParsing="false" onAction="#whatsNewHandler" text="What's New" />
+                <MenuItem mnemonicParsing="false" onAction="#updatesHandler" text="Check for Updates" />
               </items>
             </Menu>
           </menus>

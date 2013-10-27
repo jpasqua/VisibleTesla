@@ -130,7 +130,8 @@ public class GraphController extends BaseController {
             Dialogs.showWarningDialog(
                     appContext.stage,
                     "Your graph data hasn't been loaded yet.\n"
-                    + "Please select the Graphs tab then try again");
+                    + "Please select the Graphs tab then try again",
+                    "Graph Data Export Process", "Not Ready for Export");
             return;
         }
 
@@ -196,10 +197,12 @@ public class GraphController extends BaseController {
             workbook.close();
 
             Dialogs.showInformationDialog(
-                    appContext.stage, "Your data has been exported");
+                    appContext.stage, "Your data has been exported",
+                    "Graph Data Export Process" , "Export Complete");
         } catch (IOException | WriteException ex) {
             Dialogs.showErrorDialog(
-                    appContext.stage, "Unable to save to: " + file);
+                    appContext.stage, "Unable to save to: " + file,
+                    "Graph Data Export Process" , "Export Failed");
         }
     }
 
