@@ -26,7 +26,7 @@
         <Image url="@../TeslaResources/Icon@2x.png" />
       </image>
     </ImageView>
-    <CheckBox fx:id="rememberMe" layoutX="261.0" layoutY="221.0" mnemonicParsing="false" text="Remember Me" />
+    <CheckBox fx:id="rememberMe" layoutX="261.0" layoutY="221.0" mnemonicParsing="false" onAction="#rememberMeHandler" text="Remember Me" />
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

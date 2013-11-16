@@ -67,10 +67,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -158,10 +161,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -229,10 +235,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -300,10 +309,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -371,10 +383,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -442,10 +457,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -513,10 +531,13 @@
         <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />
@@ -584,10 +605,13 @@
         <ComboBox id="elevenEight" styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER">
           <items>
             <FXCollections fx:factory="observableArrayList">
-              <String fx:value="HVAC On" />
-              <String fx:value="HVAC Off" />
-              <String fx:value="Start Charging" />
-              <String fx:value="Stop Charging" />
+              <String fx:value="HVAC: On" />
+              <String fx:value="HVAC: Off" />
+              <String fx:value="Charge: Start" />
+              <String fx:value="Charge: Stop" />
+              <String fx:value="Charge: Std" />
+              <String fx:value="Charge: Max" />
+              <String fx:value="Charge: Low" />
               <String fx:value="Sleep" />
               <String fx:value="Daydream" />
               <String fx:value="Awake" />

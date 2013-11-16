@@ -32,18 +32,31 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  *----------------------------------------------------------------------------*/
 
     public enum Command {
-        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, AWAKE, SLEEP, DAYDREAM, None}
+        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, AWAKE, SLEEP, DAYDREAM,
+        CHARGE_STD, CHARGE_MAX, CHARGE_MIN, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
-        commandMap.put(Command.HVAC_ON, "HVAC On");
-        commandMap.put(Command.HVAC_OFF, "HVAC Off");
-        commandMap.put(Command.CHARGE_ON, "Start Charging");
-        commandMap.put(Command.CHARGE_OFF, "Stop Charging");
+        commandMap.put(Command.HVAC_ON, "HVAC: On");
+        commandMap.put(Command.HVAC_OFF, "HVAC: Off");
+        commandMap.put(Command.CHARGE_ON, "Charge: Start");
+        commandMap.put(Command.CHARGE_OFF, "Charge: Stop");
         commandMap.put(Command.AWAKE, "Awake");
         commandMap.put(Command.SLEEP, "Sleep");
         commandMap.put(Command.DAYDREAM, "Daydream");
+        commandMap.put(Command.CHARGE_STD, "Charge: Std");
+        commandMap.put(Command.CHARGE_MAX, "Charge: Max");
+        commandMap.put(Command.CHARGE_MIN, "Charge: Low");
     }
-
+    // the following map is here to keep track of any changes to the command names
+    // We store the command names in the prefs file (MISTAKE) so we need to track
+    // any changes so that when we internalize, we get the new names, not the old ones.
+    private static final Map<String,String> UpdatedCommandNames = Utils.newHashMap(
+        "HVAC On", "HVAC: On",
+        "HVAC Off", "HVAC: Off",
+        "Start Charging", "Charge: Start",
+        "Stop Charging", "Charge: Stop"
+    );
+    
     public interface ScheduleOwner {
         public String getExternalKey();
         public Preferences getPreferences();
@@ -174,9 +187,15 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         }
         time.setHoursAndMinutes(Integer.valueOf(elements[8]));
         minCharge.setSelected(elements[9].equals("1"));
-        command.getSelectionModel().select(elements[10]);
+        command.getSelectionModel().select(properCommandName(elements[10]));
     }
-
+    
+    private String properCommandName(String cmd) {
+        String newName = UpdatedCommandNames.get(cmd);
+        if (newName == null) return cmd;
+        return newName;
+    }
+    
     private String onOff(boolean b) { return b ? "1" : "0"; }
 
 /*------------------------------------------------------------------------------
@@ -248,7 +267,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         return String.format("%s_SCHED_%02d", owner.getExternalKey(), id);
     }
     
-    public void handle(ActionEvent event) {
+    @Override public void handle(ActionEvent event) {
         String key = getFullKey();
         String encoded = externalize();
         owner.getPreferences().put(key, encoded);   // Save the updated ScheduleItem

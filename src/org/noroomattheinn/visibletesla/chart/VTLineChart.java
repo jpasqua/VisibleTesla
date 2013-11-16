@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 
 /**
  * A custom subclass of LineChart that knows how to display lines,
@@ -48,8 +48,8 @@ public class VTLineChart extends LineChart<Number,Number> {
     private final BiMap<Integer,VTSeries> seriesNumberToSeries = HashBiMap.create();
     private final Map<Integer,Boolean> visibilityMap = new HashMap<>();
     private DisplayMode displayMode = DisplayMode.LinesOnly;
-    private double minX, minY = Double.POSITIVE_INFINITY;
-    private double maxX, maxY = Double.NEGATIVE_INFINITY;
+    private double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
+    private double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
     
 /*==============================================================================
  * -------                                                               -------
@@ -107,7 +107,7 @@ public class VTLineChart extends LineChart<Number,Number> {
         visibilityMap.put(seriesNumberToSeries.inverse().get(s), visible);
     }
     
-    public boolean isSeriesVisible(VTSeries s) {
+    public boolean isVisible(VTSeries s) {
         return visibilityMap.get(seriesNumberToSeries.inverse().get(s));
     }
     
@@ -125,17 +125,35 @@ public class VTLineChart extends LineChart<Number,Number> {
 
     private void applyLineStyleToSeries(XYChart.Series<Number,Number> series) {
         switch (displayMode) {
-            case MarkersOnly:
-                series.getNode().setStyle("-fx-stroke: transparent;");
-                break;
             case Both:
-                series.getNode().setStyle("");
+                series.getNode().setStyle("");  // Use default style from stylesheet
                 break;
+            case MarkersOnly:
             case LinesOnly:
                 series.getNode().setStyle("");
                 series.getNode().setStyle("-fx-opacity: 1.0; -fx-stroke-width: 2px;");
                 break;
         }
+    }
+    
+    private void addLineSegment(ObservableList<PathElement> path, MutablePoint2D point) {
+        if (displayMode != DisplayMode.MarkersOnly) path.add(new LineTo(point.x, point.y));
+    }
+    
+    private void addMarker(ObservableList<PathElement> path, MutablePoint2D point) {
+        if (displayMode != DisplayMode.LinesOnly) {
+            path.add(new MoveTo(point.x - 1, point.y - 1));
+            path.add(new LineTo(point.x + 1, point.y - 1));
+            path.add(new MoveTo(point.x - 1, point.y));
+            path.add(new LineTo(point.x + 1, point.y));
+            path.add(new MoveTo(point.x - 1, point.y + 1));
+            path.add(new LineTo(point.x + 1, point.y + 1));
+        }
+    }
+    
+    private void trackMinMax(MutablePoint2D point) {
+        if (point.y < minY) minY = point.y; if (point.y > maxY) maxY = point.y;
+        if (point.x < minX) minX = point.x; if (point.x > maxX) maxX = point.x;
     }
     
 /*------------------------------------------------------------------------------
@@ -144,52 +162,69 @@ public class VTLineChart extends LineChart<Number,Number> {
  * 
  *----------------------------------------------------------------------------*/
     
+    
     @Override protected void layoutPlotChildren() {
+        
         NumberAxis xAxis = (NumberAxis)getXAxis();
         NumberAxis yAxis = (NumberAxis)getYAxis();
+        double xAxisMin = xAxis.getLowerBound();
+        double xAxisMax = xAxis.getUpperBound();
         
+
         minX = minY = Double.POSITIVE_INFINITY;
         maxX = maxY = Double.NEGATIVE_INFINITY;
         
-        for (int seriesIndex=0; seriesIndex < getData().size(); seriesIndex++) {
+        for (int seriesIndex = 0; seriesIndex < getData().size(); seriesIndex++) {
             XYChart.Series<Number,Number> series = getData().get(seriesIndex);
-            boolean isFirst = true;
+            ObservableList<PathElement> markerPath = (new Path()).getElements();
             if (series.getNode() instanceof  Path) {
-                Path seriesLine = (Path)series.getNode();
-                seriesLine.getElements().clear();
-                Boolean visible = visibilityMap.get(seriesIndex);
+                ObservableList<PathElement> line = ((Path)series.getNode()).getElements();
+                line.clear();
+                if (!visibilityMap.get(seriesIndex)) continue;
+
+                line.add(new MoveTo(0,0));  // We need an initial MoveTo...
+                                            // Set the actual values at the end
+                
+                MutablePoint2D start = null, end = null;
+                MutablePoint2D previous = MutablePoint2D.negativeInfinity();
+                
                 for (XYChart.Data<Number,Number> item : series.getData()) {
-                    if (!visible) {
-                        Node symbol = item.getNode();
-                        if (symbol != null) symbol.setStyle("-fx-fill: transparent");
+                    MutablePoint2D cur = new MutablePoint2D(
+                        xAxis.toNumericValue(item.getXValue()),
+                        yAxis.toNumericValue(item.getYValue()));
+                    
+                    trackMinMax(cur);
+                    
+                    MutablePoint2D display = new MutablePoint2D(
+                        xAxis.getDisplayPosition(cur.x),
+                        yAxis.getDisplayPosition(yAxis.toRealValue(cur.y)));
+                    
+                    if (cur.x < xAxisMin) {
+                        if (start == null) start = new MutablePoint2D(display);
+                        else start.copy(display);
+                        continue;
+                    }
+                        
+                    if (cur.x > xAxisMax)  {
+                        if (end == null) end = new MutablePoint2D(display.x, display.y);
                         continue;
                     }
                     
-                    // Keep track of the range of visible values on each axis
-                    double curY = yAxis.toNumericValue(item.getYValue());
-                    double curX = xAxis.toNumericValue(item.getXValue());
-                    if (curY < minY) minY = curY;
-                    if (curY > maxY) maxY = curY;
-                    if (curX < minX) minX = curX;
-                    if (curX > maxX) maxX = curX;
-                    
-                    double x = xAxis.getDisplayPosition(item.getXValue());
-                    double y = yAxis.getDisplayPosition(yAxis.toRealValue(curY));
-                    if (isFirst) {
-                        isFirst = false;
-                        seriesLine.getElements().add(new MoveTo(x, y));
-                    } else {
-                        seriesLine.getElements().add(new LineTo(x, y));
-                    }
-                    Node symbol = item.getNode();
-                    if (symbol != null) {
-                        final double w = symbol.prefWidth(-1);
-                        final double h = symbol.prefHeight(-1);
-                        symbol.resizeRelocate(x-(w/2), y-(h/2),w,h);
-                        if (displayMode == DisplayMode.LinesOnly) symbol.setStyle("-fx-fill: transparent");
-                        else symbol.setStyle("");
+                    if (Math.abs(display.x - previous.x) + Math.abs(display.y - previous.y) > 2) {
+                        if (start == null) start = new MutablePoint2D(display);
+                        addLineSegment(line, display);
+                        addMarker(markerPath, display);
+                        previous.copy(display);
                     }
                 }
+                
+                if (displayMode != DisplayMode.MarkersOnly) {
+                    // Fix the coords of the initial MoveTo...
+                    if (start != null)  line.set(0, new MoveTo(start.x, start.y));
+                    // Add a final line segment if necessary
+                    if (end != null) line.add(new LineTo(end.x, end.y));
+                }
+                line.addAll(markerPath);
             }
         }
         updateAxisRange();
@@ -216,5 +251,33 @@ public class VTLineChart extends LineChart<Number,Number> {
             ya.invalidateRange(yData);
         }
     }
+    
+}
+class MutablePoint2D {
 
+    public double x;
+    public double y;
+
+    MutablePoint2D(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    MutablePoint2D(MutablePoint2D orig) {
+        this.x = orig.x;
+        this.y = orig.y;
+    }
+
+    void copy(MutablePoint2D orig) {
+        this.x = orig.x;
+        this.y = orig.y;
+    }
+    
+    static MutablePoint2D negativeInfinity() {
+        return new MutablePoint2D(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+    }
+    
+    static MutablePoint2D positiveInfinity() {
+        return new MutablePoint2D(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+    }
 }

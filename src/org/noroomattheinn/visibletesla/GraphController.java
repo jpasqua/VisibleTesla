@@ -5,11 +5,15 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Range;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -70,6 +74,20 @@ public class GraphController extends BaseController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
+    
+    public enum LoadPeriod {Last7, Last14, Last30, ThisWeek, ThisMonth, All};
+    public static final String GraphPeriodPrefKey = "GRAPH_PERIOD";
+    public static final String GraphIncLoadPrefKey = "GRAPH_INC_LOAD";
+    
+    public static final BiMap<String,LoadPeriod> nameToLoadPeriod = HashBiMap.create();
+    static {
+        nameToLoadPeriod.put("Last 7 days", LoadPeriod.Last7);
+        nameToLoadPeriod.put("Last 14 days", LoadPeriod.Last14);
+        nameToLoadPeriod.put("Last 30 days", LoadPeriod.Last30);
+        nameToLoadPeriod.put("This week", LoadPeriod.ThisWeek);
+        nameToLoadPeriod.put("This month", LoadPeriod.ThisMonth);
+        nameToLoadPeriod.put("All", LoadPeriod.All);
+    }
     
     private static final long DefaultInterval = 2 * 60 * 1000;  // 2 Minutes
     private static final long MinInterval =         30 * 1000;  // 30 Seconds
@@ -313,8 +331,8 @@ public class GraphController extends BaseController {
             if (repo != null) {
                 repo.close();
             }
-            repo = new StatsRepository(v.getVIN());
-            loadExistingData();
+            repo = new StatsRepository(appContext.appFilesFolder, v.getVIN());
+            loadExistingData(getLoadPeriod());
         }
     }
 
@@ -451,11 +469,13 @@ public class GraphController extends BaseController {
         }
     }
     
-    private void loadExistingData() {
+    private void loadExistingData(Range<Long> period) {
         lineChart.applySeriesToChart();
         restoreLastSettings();
         
-        final int batchSize = 250;  // Determined Emprically
+        final int batchSize =
+            appContext.prefs.getBoolean(prefKey(GraphIncLoadPrefKey), true)  ? 250 : 50000;
+
         repo.loadExistingData(new Recorder() {
             @Override public void recordElement(long time, String type, double val) {
                 Entries e = collector.get(type);
@@ -466,7 +486,7 @@ public class GraphController extends BaseController {
                     collector.remove(type);
                 }
             }
-        });
+        }, period);
         for (Entries e : collector.values()) toProcess.add(e);
         collector.clear();
                 
@@ -502,7 +522,7 @@ public class GraphController extends BaseController {
                 Iterator<Entries> iterator = toProcess.iterator();
                 while (iterator.hasNext()) {
                     Entries e = iterator.next();
-                    if (!lineChart.isSeriesVisible(typeToSeries.get(e.type))) {
+                    if (!lineChart.isVisible(typeToSeries.get(e.type))) {
                         secondary.add(e);
                         iterator.remove();
                     }
@@ -529,13 +549,15 @@ public class GraphController extends BaseController {
                     @Override public void run() {
                         allDataLoaded = true;
                         progressPane.setVisible(false);
+                        toProcess = new ArrayList<>();
+                        collector = new HashMap<>();
                     }
                 });
             }
         };
         appContext.launchThread(trickler, "00 - VT Trickle");
     }
-        
+    
     void recordLater(final VTSeries series, final long time, final double value) {
         // This can be called from a background thread, hence the Platform.runLater()
         Platform.runLater(new Runnable() {
@@ -572,10 +594,59 @@ public class GraphController extends BaseController {
         return Double.isNaN(speed) ? false : (speed > 1.0);
     }
 
-    private String prefKey(String key) {
-        return vehicle.getVIN() + "_" + key;
+    private Range<Long> getLoadPeriod() {
+        Range<Long> loadPeriod = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
+
+        long now = System.currentTimeMillis();
+        String periodName = appContext.prefs.get(
+                prefKey(GraphPeriodPrefKey), LoadPeriod.All.name());
+        switch (LoadPeriod.valueOf(periodName)) {
+            case Last7:
+                loadPeriod = Range.closed(now - (7 * 24 * 60 * 60 * 1000L), now);
+                break;
+            case Last14:
+                loadPeriod = Range.closed(now - (14 * 24 * 60 * 60 * 1000L), now);
+                break;
+            case Last30:
+                loadPeriod = Range.closed(now - (30 * 24 * 60 * 60 * 1000L), now);
+                break;
+            case ThisWeek:
+                Range<Date> thisWeek = getThisWeek();
+                loadPeriod = Range.closed(
+                        thisWeek.lowerEndpoint().getTime(),
+                        thisWeek.upperEndpoint().getTime());
+                break;
+            case ThisMonth:
+                Range<Date> thisMonth = getThisMonth();
+                loadPeriod = Range.closed(
+                        thisMonth.lowerEndpoint().getTime(),
+                        thisMonth.upperEndpoint().getTime());
+                break;
+            case All:
+            default:
+                break;
+
+        }
+        return loadPeriod;
     }
 
+    private Range<Date> getThisWeek() {
+        return getDateRange(Calendar.DAY_OF_WEEK);
+    }
+    
+    private Range<Date> getThisMonth() {
+        return getDateRange(Calendar.DATE);
+    }
+    
+    private Range<Date> getDateRange(int dateField) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(dateField, 1);
+        Date start = cal.getTime();
+        cal.set(dateField, cal.getActualMaximum(dateField));
+        Date end = cal.getTime();
+        return Range.closed(start, end);
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Utility methods for exporting data to an Excel file

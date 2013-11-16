@@ -127,7 +127,8 @@ public class ChargeController extends BaseController {
     @FXML void chargeButtonHandler(ActionEvent event) {
         final Button b = (Button)event.getSource();
         issueCommand(new Callable<Result>() {
-            public Result call() { return chargeController.setChargeState(b == startButton); } },
+            @Override public Result call() {
+                return chargeController.setChargeState(b == startButton); } },
             AfterCommand.Refresh);
     }
     
@@ -135,7 +136,7 @@ public class ChargeController extends BaseController {
         chargeSlider.setValue(percent);
         chargeSetting.setText(percent + " %");
         issueCommand(new Callable<Result>() {
-            public Result call() {
+            @Override public Result call() {
                 return chargeController.setChargePercent(percent); } },
             AfterCommand.Refresh);
     }
@@ -147,7 +148,7 @@ public class ChargeController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    protected void fxInitialize() {
+    @Override protected void fxInitialize() {
         // Prepare the property table
         propNameColumn.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("name") );
         propValColumn.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("value") );
@@ -159,7 +160,7 @@ public class ChargeController extends BaseController {
         chargeSlider.setDisable(true);
     }
 
-    protected void prepForVehicle(Vehicle v) {
+    @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle(chargeController, v)) {
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             chargeState = new ChargeState(v);
@@ -177,9 +178,9 @@ public class ChargeController extends BaseController {
         chargeRate.setUnits(useMiles ? "mph" : "kph");
     }
 
-    protected void refresh() {  updateState(chargeState); }
+    @Override protected void refresh() {  updateState(chargeState); }
     
-    protected void reflectNewState() {
+    @Override protected void reflectNewState() {
         if (!chargeState.hasValidData()) return; // No Data Yet...
         
         reflectRange();
@@ -203,10 +204,10 @@ public class ChargeController extends BaseController {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         pilotCurrent.setValue(String.valueOf(chargeState.chargerPilotCurrent()));
         voltage.setValue(String.valueOf(chargeState.chargerVoltage()));
-        batteryCurrent.setValue(String.valueOf(chargeState.batteryCurrent()));
+        batteryCurrent.setValue(String.valueOf(osd(chargeState.batteryCurrent())));
         nRangeCharges.setValue(String.valueOf(chargeState.maxRangeCharges()));
         fastCharger.setValue(chargeState.fastChargerPresent() ? "Yes":"No");
-        chargeRate.setValue(String.valueOf(chargeState.chargeRate()*conversionFactor));
+        chargeRate.setValue(String.valueOf(osd(chargeState.chargeRate()*conversionFactor)));
         remaining.setValue(getDurationString(chargeState.timeToFullCharge()));
         actualCurrent.setValue(String.valueOf(chargeState.chargerActualCurrent()));
         chargerPower.setValue(String.valueOf(chargeState.chargerPower()));
@@ -251,9 +252,9 @@ public class ChargeController extends BaseController {
 
     private void reflectRange() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        estOdometer.setValue(chargeState.estimatedRange() * conversionFactor);
-        idealOdometer.setValue(chargeState.idealRange() * conversionFactor);
-        ratedOdometer.setValue(chargeState.range() * conversionFactor);
+        estOdometer.setValue(osd(chargeState.estimatedRange() * conversionFactor));
+        idealOdometer.setValue(osd(chargeState.idealRange() * conversionFactor));
+        ratedOdometer.setValue(osd(chargeState.range() * conversionFactor));
     }
     
     private void updatePendingChargeLabels(boolean show) {
@@ -261,6 +262,12 @@ public class ChargeController extends BaseController {
         scheduledTimeLabel.setVisible(show);
     }
     
+    /**
+     * Return the given value with just one significant decimal place
+     * @param value The value whose precision is to be altered
+     * @return      The value with just one significant decimal place
+     */
+    private double osd(double value) { return Math.round(value * 10.0) / 10.0; }
     
 /*------------------------------------------------------------------------------
  *

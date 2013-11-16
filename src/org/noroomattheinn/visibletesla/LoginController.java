@@ -43,6 +43,14 @@ public class LoginController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    public static final String RememberMePrefKey = "GRAPH_PERIOD";
+    
+    
+/*------------------------------------------------------------------------------
+ *
  * Observable State
  * 
  *----------------------------------------------------------------------------*/
@@ -81,6 +89,9 @@ public class LoginController extends BaseController {
     
     void attemptAutoLogin(Tesla t) {
         this.tesla = t;
+        Boolean rememberPref = appContext.prefs.getBoolean(RememberMePrefKey, false);
+        rememberMe.setSelected(rememberPref);
+
         attemptLogin(null, null);
     }
     
@@ -105,6 +116,12 @@ public class LoginController extends BaseController {
             return;
         }
         attemptLogin(username, password);
+    }
+    
+    @FXML void rememberMeHandler(ActionEvent event) {
+        appContext.prefs.putBoolean(RememberMePrefKey, rememberMe.isSelected());
+        if (!rememberMe.isSelected())
+            tesla.clearCookies();
     }
 
 /*------------------------------------------------------------------------------

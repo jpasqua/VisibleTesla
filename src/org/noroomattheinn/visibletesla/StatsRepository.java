@@ -6,7 +6,9 @@
 
 package org.noroomattheinn.visibletesla;
 
+import com.google.common.collect.Range;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -38,6 +40,7 @@ public class StatsRepository {
     private final List<StatsEntry> entriesSinceLastFlush = new ArrayList<>();
     
     private PrintStream statsWriter;
+    private File containingFolder = null;
     private Map<String,Double> lastRowWritten = new HashMap<>();
     
 /*==============================================================================
@@ -46,8 +49,9 @@ public class StatsRepository {
  * -------                                                               -------
  *============================================================================*/
 
-    StatsRepository(String forVIN) {
+    StatsRepository(File folder, String forVIN) {
         this.vin = forVIN;
+        this.containingFolder = folder;
         prepRepository();
     }
     
@@ -86,10 +90,10 @@ public class StatsRepository {
         }
     }
     
-    void loadTimeRange(final long oldest, final long newest, final Recorder r) {
+    void loadExistingData(final Recorder r, final Range<Long> period) {
         loadExistingData(new Recorder() {
             @Override public void recordElement(long time, String type, double val) {
-                if (time >= oldest && time <= newest) r.recordElement(time, type, val);
+                if (period.contains(time)) r.recordElement(time, type, val);
             }
             
         });
@@ -219,8 +223,12 @@ public class StatsRepository {
         return null;
     }
     
-    private String fileNameForVIN(String vin) { return vin + ".stats.log"; }
+    private String fileNameForVIN(String vin) {
+        String fName = vin + ".stats.log";
+        if (containingFolder != null) {
+            fName = containingFolder.getAbsolutePath() + File.separatorChar + fName;
+        }
+        return fName;
+    }
     
-    
-
 }

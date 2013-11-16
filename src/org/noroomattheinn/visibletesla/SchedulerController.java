@@ -31,6 +31,8 @@ import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class SchedulerController extends BaseController implements ScheduleItem.ScheduleOwner {
+
+    public static final String SchedMinChargeKey = "SCHED_MIN_CHARGE";
     private static final int Safe_Threshold = 25;
     
 /*------------------------------------------------------------------------------
@@ -47,6 +49,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     private org.noroomattheinn.tesla.HVACController hvacController;
 
     private List<ScheduleItem> schedulers = new ArrayList<>();
+    private int maxCharge, minCharge, stdCharge;
     
 /*==============================================================================
  * -------                                                               -------
@@ -69,10 +72,10 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     @Override public String getExternalKey() { return vehicle.getVIN(); }
     @Override public Preferences getPreferences() { return appContext.prefs; }
     
-    @Override public void runCommand(ScheduleItem.Command command, boolean minCharge) {
-        // Only apply minCharge to commands that turn things on. Turning things
-        // off or starting charging doesn't require a minCharge
-        if (minCharge && (command == ScheduleItem.Command.HVAC_ON)) {
+    @Override public void runCommand(ScheduleItem.Command command, boolean safe) {
+        // Only apply 'safe' to commands that turn things on. Turning things
+        // off or starting charging doesn't require a minimum charge level
+        if (safe && (command == ScheduleItem.Command.HVAC_ON)) {
             chargeState.refresh();
             if (!chargeState.hasValidData() || chargeState.batteryPercent() < Safe_Threshold) {
                 logActivity("Insufficient charge to execute command: " + command);
@@ -83,6 +86,9 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         switch (command) {
             case CHARGE_ON: r = chargeController.startCharing(); break;
             case CHARGE_OFF: r = chargeController.stopCharing(); break;
+            case CHARGE_STD: r = chargeController.setChargePercent(stdCharge); break;
+            case CHARGE_MAX: r = chargeController.setChargePercent(maxCharge); break;
+            case CHARGE_MIN: r = chargeController.setChargePercent(minCharge); break;
             case HVAC_ON: r = hvacController.startAC(); break;
             case HVAC_OFF: r = hvacController.stopAC(); break;
             case AWAKE:
@@ -170,6 +176,16 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             chargeState = new ChargeState(v);
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             hvacController = new org.noroomattheinn.tesla.HVACController(v);
+            chargeState.refresh();
+            if (chargeState.hasValidData()) {
+                maxCharge = chargeState.chargeLimitSOCMax();
+                stdCharge = chargeState.chargeLimitSOCStd();
+                minCharge = appContext.prefs.getInt(
+                        prefKey(SchedulerController.SchedMinChargeKey),
+                        chargeState.chargeLimitSOCMin());
+            } else {
+                
+            }
         }
         
         for (ScheduleItem item : schedulers) { item.loadExistingSchedule(); }

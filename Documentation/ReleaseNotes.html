@@ -5,81 +5,306 @@
     </head>
     <body style="max-width:800px">
         <h1>VisibleTesla Release Notes</h1>
-            <hr>
-            <h3>VisibleTesla 0.21.00 [10-27-13]</h3>
-            <ul>
-                <li>
-                    User-Visible Changes
-                    <ul>
-                        <li>
-                            General
-                            <ul>
-                                <li>Added "Check for Updates" functionality. This is the first step towards auto update. When the app launches it will check the web for a newer version. If there is one, a dialog box will be displayed with a download link and a link to the new release notes. It will only do this once per week. If you want to check for a newer version earlier than that, use the "Help->Check For Updates" menu item.</li>
-                                <li>Additional error handling if VisibleTesla is unable to communicate with the car. For example, if the car is sleeping and can't be awoken.</li>
-                                <li>Fixes to a few edge cases in the way inactivity is handled.</li>
-                                <li>Updated the look of dialog boxes to be more native to the platorm (Windows, Mac, Linux) than they used to be. This primarily affects the window borders and controls. The content of the dialog boxes remains the same.</li>
+        <hr>
+        <h3>VisibleTesla 0.22.00 [11-15-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>When the app is in either Daydreaming mode or Sleeping mode, it will display the time that the mode was entered in the title bar.
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>Add a "Locating your Tesla" screen while the initial load of the Google Map is hapenning.
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Minor tweak to transparency settings.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                            <li>Add three new commands: "Charge: Low", "Charge: Std", and "Charge: Max". These set the charge target for your Tesla. If you use "Charge: Max" or "Charge: Std" it will set the charge limit to these predefined set points. "Charge: Low" will default to the car's notion of minimum (50% these days), but you can set it to whatever value you'd like in the Scheduler preferences. See below.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>The Scheduler preferences now contain an option that allows you to set the value for "Charge: Low". By default this is set to the car's notion of minimum charging level. You can use the slider to set it to some other value.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Minor refactoring of functionality and code cleanup.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
+
+        <hr>
+        <h3>VisibleTesla 0.21.02 [11-09-13]</h3>
+        <Blockquote>
+        <p><strong>Special Notice</strong>: This version changes the folder in which VisibleTesla stores its data files by default. If you are using VisibleTesla for the first time, you can ignore this. For existing users, please note that the stats file and the cookies file will be moved from within the app folder to a location within your user folder. See below for details. The best way to have a smooth transition is to follow these steps:</p>
+            <ol>
+                <li>You must manually copy these files from your previous version of VisibleTesla to the newly installed version just as you have always had to do. This is the last time you'll need to do that.</li>
+                <li>Start VisibleTesla, let it load completely, then quit and restart it. Technically this is not necessary, but it is somewhat safer to do so.</li>
+            </ol>
+        </Blockquote>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Updating to new versions will no longer requires manually moving the stats file and cookies file form the existing app folder to the new folder. NOTE: You must still do this when upgrading to verion 0.21.02, but will not have to do it for future versions.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li><strong>Fixed</strong>: Correctly remember and display the "Remember Me" selection between runs. Unchecking the "Remember Me" deletes the cookies file from your system and will force you to log in manually the next time the app starts.</li>
+                            <li>Try harder to wake up a sleeping Tesla when asked to do so.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Various changes to reduce the memory consumption and increase the performance of the Graphs tab. The changes result in slight visual differences from earlier versions. <ul>
+                                <li>The first change comes in the way that markers are drawn. I do it manually now as opposed to letting the underlying graphics library do it for me.</li>
+                                <li>The second change has to do with sampling. If you are zoomed out and consequently displaying a lot of data, many of the points may be right on top of one another. For example, if you are showing a month's worth of data, you can't possibly see separate data points that were taken 30 seconds apart. They'll fall right on top of each other on the screen. Rather than draw all of those overlapping data points, I only draw one. As you zoom in, you'll see a single data point resolve into multiple data points.</li>
                             </ul>
-                        </li>
-                        <li>
-                            Login
-                            <ul>
-                                <li>Added additional error handling and feedback for failed login attempts.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            Overview
-                            <ul>
-                                <li>Added statistics to the Details dialog that reflect the amount of calls to Tesla's servers over the last 10 seconds, the last minute, and the last hour.</li>
-                                <li>Several new vehicle options are now recognized and will be displayed in the Details dialog. These include things like the Cold Weather Package, the Parking Sensor option, the Lighting package, and the Security Package.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            HVAC
-                            <ul>
-                            </ul>
-                        </li>
-                        <li>
-                            Location
-                            <ul>
-                                <li><strong>Experimental</strong> support for streaming updates to the map location. In this version the location of the marker will update in near-real-time as the car is moving. The frequency of updates is a maximum of 4 times/second, but may not be at that rate. There may be times when Tesla's servers do not stream at that rate or network delays slow down the updates. It will continue to auto-refresh every 20 seconds as usual.
-                            </ul>
-                        </li>
-                        <li>
-                            Charge
-                            <ul>
-                            </ul>
-                        </li>
-                        <li>
-                            Graphs
-                            <ul>
-                                <li>More work to overcome limitations in the underlying graphing library. Statistics are now loaded in the background starting from the present time and working backwards to the oldest statistics. This allows the suer to see and start interacting with the most recent data in the graph right away.</li>
-                                <li>While loading the Graphs tab now displays a two-part progress bar along the bottom of the tab. The first part of the progress bar represents the progress in loading the visible series. Those are the series that are selected in the "Show Items" drop down list. Visible series are loaded first. The second part of the progress bar represents the progress in loading the currently hidden series. The size of these two parts are proportional to the number of hidden and visible series. For example, if 4 of the 8 possible series are visible, then the two parts of the progress bar will be the same size. If 2 of the 8 are visible, then the first part will be a quarter of the total size and the second part will be three quarters.</li>
-                                <li>The goal of all of this is to make the Graphs tab provide useful information as quickly as possible while loading all other data in the background.<li>
-                            </ul>
-                        </li>
-                        <li>
-                            Scheduler
-                            <ul>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    Under-the-covers
-                    <ul>
-                        <li>Changes to the TeslaClient library: Remove unused code, add usage statistics, update tests.</li>
-                        <li>Changes to the JavaFX LineChart and XYChart classes for better performance. This is achieved through subclassing, not changes to the core library.</li>
-                        <li>Fairly major changes to the code to work around graphics performance issues - at least to make performance tolerable for "large" datasets.</li>
-                        <li>Forked the javafx-dialogs code to add the ability to get a more native look on each platform. Updated the README.md file to reflect where to download my forked version. Trying to figure out how to get it integrated into the main repository.</li>
-                    </ul>
-                </li>
-                <li>
-                    Known problems
-                    <ul>
-                        <li>The context menu in the Graphs tab should only ever show one checked item at a time. Occasionally it will show a check mark next to both the currently selected value and the last selected value. This appears to be fixed with the latest version of Java (1.7u45). This version is <strong>not</strong> recommended for developers, but seems to be fine for users.
-                    </ul>
-                </li>
-            </ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>General Preferences: Added an Advanced option that allows the user to select where to store internal application files. In general users should not change this setting. It is provided for power users and to maintain compatibility with older versions. The default setting will cause these application internal files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show" button in the General preferences panel.</li>
+                            <li>Graphs Preferences: Split into Basic and Advanced preferences. Added an Advanced preference that lets users select whether data should be loaded into the graph incrementally or all at once. Incrementally is the current behavior and default. Loading the data all at once is faster, but the app becomes unresponsive while loading.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Code reorganization and simplification in a couple of spots.</li>
+                    <li>I'm overriding more of the JavaFX LineChart class in order to avoid more of its inefficiencies.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>Unchanged from the previous release.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.21.01 [10-31-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added the beginnings of a preferences tab. See Below for details.</LI>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>Loads only the amount of data specified in the Graphs preferences panel.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>The new Preferences tab allows users to set preferences for the app in general and tab-specific preferences for each of the tabs. At the moment it is almost completely empty.</li>
+                            <li>The Graphs section of the preferences tab does have one entry which controls how much data should be loaded. You can load the last 7, 14, or 30 days, the last week, the last month, or all of your data.</li>
+                            <li>If you've already loaded your graph data and then change the preference, it will not reload your data according to that setting. The preference will be honored the next time the app starts.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>Unchanged from the previous release.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <hr>
+        <h3>VisibleTesla 0.21.00 [10-27-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added "Check for Updates" functionality. This is the first step towards auto update. When the app launches it will check the web for a newer version. If there is one, a dialog box will be displayed with a download link and a link to the new release notes. It will only do this once per week. If you want to check for a newer version earlier than that, use the "Help->Check For Updates" menu item.</li>
+                            <li>Additional error handling if VisibleTesla is unable to communicate with the car. For example, if the car is sleeping and can't be awoken.</li>
+                            <li>Fixes to a few edge cases in the way inactivity is handled.</li>
+                            <li>Updated the look of dialog boxes to be more native to the platorm (Windows, Mac, Linux) than they used to be. This primarily affects the window borders and controls. The content of the dialog boxes remains the same.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li>Added additional error handling and feedback for failed login attempts.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Added statistics to the Details dialog that reflect the amount of calls to Tesla's servers over the last 10 seconds, the last minute, and the last hour.</li>
+                            <li>Several new vehicle options are now recognized and will be displayed in the Details dialog. These include things like the Cold Weather Package, the Parking Sensor option, the Lighting package, and the Security Package.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li><strong>Experimental</strong> support for streaming updates to the map location. In this version the location of the marker will update in near-real-time as the car is moving. The frequency of updates is a maximum of 4 times/second, but may not be at that rate. There may be times when Tesla's servers do not stream at that rate or network delays slow down the updates. It will continue to auto-refresh every 20 seconds as usual.
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>More work to overcome limitations in the underlying graphing library. Statistics are now loaded in the background starting from the present time and working backwards to the oldest statistics. This allows the suer to see and start interacting with the most recent data in the graph right away.</li>
+                            <li>While loading the Graphs tab now displays a two-part progress bar along the bottom of the tab. The first part of the progress bar represents the progress in loading the visible series. Those are the series that are selected in the "Show Items" drop down list. Visible series are loaded first. The second part of the progress bar represents the progress in loading the currently hidden series. The size of these two parts are proportional to the number of hidden and visible series. For example, if 4 of the 8 possible series are visible, then the two parts of the progress bar will be the same size. If 2 of the 8 are visible, then the first part will be a quarter of the total size and the second part will be three quarters.</li>
+                            <li>The goal of all of this is to make the Graphs tab provide useful information as quickly as possible while loading all other data in the background.<li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Changes to the TeslaClient library: Remove unused code, add usage statistics, update tests.</li>
+                    <li>Changes to the JavaFX LineChart and XYChart classes for better performance. This is achieved through subclassing, not changes to the core library.</li>
+                    <li>Fairly major changes to the code to work around graphics performance issues - at least to make performance tolerable for "large" datasets.</li>
+                    <li>Forked the javafx-dialogs code to add the ability to get a more native look on each platform. Updated the README.md file to reflect where to download my forked version. Trying to figure out how to get it integrated into the main repository.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>The context menu in the Graphs tab should only ever show one checked item at a time. Occasionally it will show a check mark next to both the currently selected value and the last selected value. This appears to be fixed with the latest version of Java (1.7u45). This version is <strong>not</strong> recommended for developers, but seems to be fine for users.
+                </ul>
+            </li>
+        </ul>
         <hr>
         <h3>VisibleTesla 0.20.01 [10-05-13]</h3>
         <ul>
@@ -959,65 +1184,70 @@
             </li>
         </ul>
         <!--
-            <hr>
-            <h3>VisibleTesla 0.00 [09-30-13]</h3>
-            <ul>
-            	<li>
-            		User-Visible Changes
-            		<ul>
-            			<li>
-            				General
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				Login
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				Overview
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				HVAC
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				Location
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				Charge
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				Graphs
-            				<ul>
-            				</ul>
-            			</li>
-            			<li>
-            				Scheduler
-            				<ul>
-            				</ul>
-            			</li>
-            		</ul>
-            	</li>
-            	<li>
-            		Under-the-covers
-            		<ul>
-            		</ul>
-            	</li>
-            	<li>
-            		Known problems
-            		<ul>
-            		</ul>
-            	</li>
-            </ul>
+        <hr>
+        <h3>VisibleTesla 0.00 [09-30-13]</h3>
+        <ul>
+        	<li>
+        		User-Visible Changes
+        		<ul>
+        			<li>
+        				General
+        				<ul>
+        				</ul>
+        			</li>
+        			<li>
+        				Login
+        				<ul>
+        				</ul>
+        			</li>
+        			<li>
+        				Overview
+        				<ul>
+        				</ul>
+        			</li>
+        			<li>
+        				HVAC
+        				<ul>
+        				</ul>
+        			</li>
+        			<li>
+        				Location
+        				<ul>
+        				</ul>
+        			</li>
+        			<li>
+        				Charge
+        				<ul>
+        				</ul>
+        			</li>
+        			<li>
+        				Graphs
+        				<ul>
+        				</ul>
+        			</li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                        </ul>
+                    </li>
+        		</ul>
+        	</li>
+        	<li>
+        		Under-the-covers
+        		<ul>
+        		</ul>
+        	</li>
+        	<li>
+        		Known problems
+        		<ul>
+        		</ul>
+        	</li>
+        </ul>
             -->
     </body>
 </html>

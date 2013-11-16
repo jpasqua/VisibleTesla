@@ -9,7 +9,6 @@ package org.noroomattheinn.visibletesla.chart;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.chart.XYChart;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import org.noroomattheinn.utils.Utils;
 
@@ -119,7 +118,8 @@ public class VTSeries implements Comparable {
     }
     
     private Shape newMarker() {
-        return new Rectangle(3,3);
+        return null;
+        //return new Rectangle(3,3);
         //return new Circle(2);
     }
     

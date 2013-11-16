@@ -35,6 +35,8 @@ public class LocationController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static final String MapTemplateFileName = "MapTemplate.html";
+    private static final String MapLoadingFileName = "MapLoading.html";
+    private static final String RadarFileName = AppContext.ResourceDir + "MapLoading.jpg";
     
 /*------------------------------------------------------------------------------
  *
@@ -48,7 +50,8 @@ public class LocationController extends BaseController {
     private WebEngine engine;
     
     private Thread streamer = null;
-
+    private String loading = null;
+    
 /*------------------------------------------------------------------------------
  *
  * UI Elements
@@ -97,6 +100,8 @@ public class LocationController extends BaseController {
 
     @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle(snapshotState, v)) {
+            if (loading == null) { loading = getLoadingPage(); }
+            engine.loadContent(loading);
             snapshotState = new SnapshotState(v);
             ensureStreamer();
         }
@@ -131,6 +136,13 @@ public class LocationController extends BaseController {
             }
         }
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Methods to load and customize html templates
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private void replaceField(StringBuilder sb, String placeholder, String newText) {
         int length = placeholder.length();
         int loc = sb.indexOf(placeholder);
@@ -149,7 +161,15 @@ public class LocationController extends BaseController {
         return sb;
     }
     
-    String getMapFromTemplate(String lat, String lng, String heading) {
+    private String getLoadingPage() {
+        StringBuilder sb = fromInputStream(
+                getClass().getResourceAsStream(MapLoadingFileName));
+        String imageLoc = getClass().getResource(RadarFileName).toExternalForm();
+        replaceField(sb, "IMAGE", imageLoc);
+        return sb.toString();
+    }
+    
+    private String getMapFromTemplate(String lat, String lng, String heading) {
         StringBuilder sb = fromInputStream(getClass().getResourceAsStream(MapTemplateFileName));
         // TO DO: replaceField scans from the beginning each time which is dumb, 
         // but this approach is quick and easy to implement...
@@ -158,6 +178,12 @@ public class LocationController extends BaseController {
         replaceField(sb, "LONG", lng);
         return sb.toString();
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - The class that enables streaming of location data
+ * 
+ *----------------------------------------------------------------------------*/
     
     private class LocationStreamer implements Runnable, ChangeListener<AppContext.InactivityMode> {
         private static final long StreamingThreshold = 400;

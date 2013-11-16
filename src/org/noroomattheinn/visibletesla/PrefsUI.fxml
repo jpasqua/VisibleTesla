@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.PrefsController">
+  <children>
+    <Accordion prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <expandedPane>
+        <TitledPane fx:id="x7" animated="false" text="Scheduler">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <Slider fx:id="minChargeVal" layoutX="178.0" layoutY="14.0" min="50.0" prefWidth="256.0" showTickLabels="true" showTickMarks="true" />
+                <Label layoutX="14.0" layoutY="14.0" text="Value for &quot;Charge: Low&quot;" />
+                <Label fx:id="minChargeDisplay" alignment="CENTER_RIGHT" layoutX="434.0" layoutY="14.0" prefWidth="37.0" text="50" textAlignment="RIGHT" />
+                <Label layoutX="472.0" layoutY="14.0" prefWidth="16.0" text="\%" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </expandedPane>
+      <panes>
+        <TitledPane animated="false" text="Login">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="198.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="63.0">
+                  <image>
+                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                  </image>
+                </ImageView>
+                <Label text="Nothing to see here, keep driving..." AnchorPane.leftAnchor="148.0" AnchorPane.rightAnchor="188.0" AnchorPane.topAnchor="167.0">
+                  <font>
+                    <Font name="Arial Bold Italic" size="18.0" fx:id="x2" />
+                  </font>
+                  <textFill>
+                    <Color blue="0.000" green="0.000" red="0.600" fx:id="x3" />
+                  </textFill>
+                </Label>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <TitledPane animated="false" text="Overview">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="198.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="48.0">
+                  <image>
+                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                  </image>
+                </ImageView>
+                <Label font="$x2" text="Nothing to see here, keep driving..." textFill="$x3" AnchorPane.leftAnchor="148.0" AnchorPane.rightAnchor="148.0" AnchorPane.topAnchor="152.0" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <TitledPane animated="false" text="HVAC">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="198.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="48.0">
+                  <image>
+                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                  </image>
+                </ImageView>
+                <Label font="$x2" text="Nothing to see here, keep driving..." textFill="$x3" AnchorPane.leftAnchor="148.0" AnchorPane.rightAnchor="148.0" AnchorPane.topAnchor="152.0" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <TitledPane animated="false" text="Location">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="198.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="48.0">
+                  <image>
+                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                  </image>
+                </ImageView>
+                <Label font="$x2" text="Nothing to see here, keep driving..." textFill="$x3" AnchorPane.leftAnchor="148.0" AnchorPane.rightAnchor="148.0" AnchorPane.topAnchor="152.0" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <TitledPane animated="false" text="Charge">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="198.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="48.0">
+                  <image>
+                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                  </image>
+                </ImageView>
+                <Label font="$x2" text="Nothing to see here, keep driving..." textFill="$x3" AnchorPane.leftAnchor="148.0" AnchorPane.rightAnchor="148.0" AnchorPane.topAnchor="152.0" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <TitledPane fx:id="graphTile" animated="false" style="-fx-background-color: gray&#10;" text="Graphs">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: gray">
+              <children>
+                <Accordion prefHeight="220.0" prefWidth="636.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <expandedPane>
+                    <TitledPane fx:id="x6" animated="false" text="Basic">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <ComboBox fx:id="graphsTimePeriod" onAction="#graphSetTimePeriod" value="Last 7 days" AnchorPane.leftAnchor="148.0" AnchorPane.topAnchor="10.0">
+                              <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                  <String fx:value="Last 7 days" />
+                                  <String fx:value="Last 14 days" />
+                                  <String fx:value="Last 30 days" />
+                                  <String fx:value="This week" />
+                                  <String fx:value="This month" />
+                                  <String fx:value="All" />
+                                </FXCollections>
+                              </items>
+                            </ComboBox>
+                            <Label text="Time Period to Load" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <fx:reference source="x6" />
+                    <TitledPane fx:id="x5" animated="false" text="Advanced">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <CheckBox fx:id="incrementalLoad" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" onAction="#graphIncremental" selected="true" text="Load incrementally">
+                              <tooltip>
+                                <Tooltip text="Deselecting this will cause&#10;data to load more quickly,&#10;but the app will be unresponsive&#10;while loading" />
+                              </tooltip>
+                            </CheckBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </panes>
+                </Accordion>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <fx:reference source="x7" />
+        <TitledPane fx:id="x1" animated="false" text="General">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: gray">
+              <children>
+                <Accordion prefHeight="220.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <expandedPane>
+                    <TitledPane fx:id="x4" animated="false" prefHeight="198.0" prefWidth="591.0" style="-fx-background-color: blue&#10;" text="Basic">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="197.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true">
+                              <image>
+                                <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                              </image>
+                            </ImageView>
+                            <Label font="$x2" layoutX="144.0" layoutY="132.0" prefWidth="307.0" text="Nothing to see here, keep driving..." textFill="$x3" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <fx:reference source="x4" />
+                    <TitledPane animated="false" text="Advanced">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <Label text="Where should app files be stored?" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                            <RadioButton fx:id="generalAFFApp" mnemonicParsing="false" onAction="#generalHandleAFF" selected="false" text="With App" AnchorPane.leftAnchor="245.0" AnchorPane.topAnchor="15.0">
+                              <toggleGroup>
+                                <ToggleGroup fx:id="affTG" />
+                              </toggleGroup>
+                            </RadioButton>
+                            <RadioButton fx:id="generalAFFUserDir" mnemonicParsing="false" onAction="#generalHandleAFF" selected="true" text="User Directory" toggleGroup="$affTG" AnchorPane.leftAnchor="332.0" AnchorPane.topAnchor="15.0" />
+                            <Button mnemonicParsing="false" onAction="#showUserDirectory" text="Show" AnchorPane.leftAnchor="463.0" AnchorPane.topAnchor="14.0" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </panes>
+                </Accordion>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </panes>
+    </Accordion>
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>

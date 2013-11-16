@@ -7,6 +7,7 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -32,6 +33,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
+import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
@@ -64,10 +66,8 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final String ProductName = "VisibleTesla";
-    private static final String ProductVersion = "0.21.00";
     private static final long IdleThreshold = 15 * 60 * 1000;   // 15 Minutes
-    private static final int MaxTriesToStart = 20;
+    private static final int MaxTriesToStart = 10;
     private static final String VersionsFile = 
         "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/versions.xml";
 /*------------------------------------------------------------------------------
@@ -91,6 +91,7 @@ public class MainController extends BaseController {
     @FXML private TabPane tabPane;
 
     // The individual tabs that comprise the overall UI
+    @FXML private Tab prefsTab;
     @FXML private Tab schedulerTab;
     @FXML private Tab graphTab;
     @FXML private Tab chargeTab;
@@ -117,7 +118,7 @@ public class MainController extends BaseController {
      * completion and try and automatic login.
      * @param a 
      */
-    public void start(Application a, Stage s) {   
+    public void start(Application a, Stage s) {
         appContext = new AppContext(a, s);
         inactivityMode = readInactivityMenu();
 
@@ -126,6 +127,7 @@ public class MainController extends BaseController {
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
 
         tesla = new Tesla();
+        tesla.setCookieDir(appContext.appFilesFolder);
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
@@ -137,6 +139,7 @@ public class MainController extends BaseController {
         });
 
         controllerFromTab(loginTab).setAppContext(appContext);
+        controllerFromTab(prefsTab).setAppContext(appContext);
         controllerFromTab(schedulerTab).setAppContext(appContext);
         controllerFromTab(graphTab).setAppContext(appContext);
         controllerFromTab(chargeTab).setAppContext(appContext);
@@ -259,16 +262,21 @@ public class MainController extends BaseController {
     private boolean cacheBasics(Vehicle v) {
         GUIState     gs = new GUIState(v);
         VehicleState vs = new VehicleState(v);
+        ActionController action = new ActionController(v);
         
         int tries = 0;
+        gs.refresh();
+        vs.refresh();
         while (! (gs.hasValidData() &&  vs.hasValidData()) ) {
             if (tries++ > MaxTriesToStart)
                 return false;
-            if (!gs.hasValidData()) gs.refresh();
-            if (!vs.hasValidData()) vs.refresh();
-
+            
+            action.wakeUp();
             Utils.sleep(500);
             if (appContext.shuttingDown.get()) return false;
+            
+            if (!gs.hasValidData()) gs.refresh();
+            if (!vs.hasValidData()) vs.refresh();
         }
         
         appContext.cachedGUIState = gs;
@@ -348,11 +356,13 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
+    
     private void setTitle() {
-        String title = ProductName + " " + ProductVersion;
+        String title = AppContext.ProductName + " " + AppContext.ProductVersion;
+        String time = String.format("%1$tH:%1$tM", new Date());
         switch (appContext.inactivityState.get()) {
-            case AllowSleeping: title = title + " [sleeping]"; break;
-            case AllowDaydreaming: title = title + " [daydreaming]"; break;
+            case AllowSleeping: title = title + " [sleeping at " + time + "]"; break;
+            case AllowDaydreaming: title = title + " [daydreaming at " + time + "]"; break;
             case StayAwake: break;
         }
         appContext.stage.setTitle(title);
@@ -412,7 +422,7 @@ public class MainController extends BaseController {
         if (releases != null && !releases.isEmpty()) {
             final Release lastRelease = releases.get(0);
             String releaseNumber = lastRelease.getReleaseNumber();
-            if (Utils.compareVersions(ProductVersion, releaseNumber) < 0) {
+            if (Utils.compareVersions(AppContext.ProductVersion, releaseNumber) < 0) {
                 VBox customPane = new VBox();
                 String msgText = String.format(
                         "A newer version of VisibleTesla is available:\n" +
@@ -456,6 +466,7 @@ public class MainController extends BaseController {
     
 
     private void setTabsEnabled(boolean enabled) {
+        prefsTab.setDisable(!enabled);
         schedulerTab.setDisable(!enabled);
         graphTab.setDisable(!enabled);
         chargeTab.setDisable(!enabled);
@@ -534,7 +545,8 @@ public class MainController extends BaseController {
                 "Based on the great API detective work of many members\n" +
                 "of teslamotorsclub.com.  All Tesla imagery derives\n" +
                 "from the official Tesla iPhone app.",
-                ProductName + " " + ProductVersion, "About " + ProductName);
+                AppContext.ProductName + " " + AppContext.ProductVersion,
+                "About " + AppContext.ProductName);
     }
 
     // Help->Check for Updates

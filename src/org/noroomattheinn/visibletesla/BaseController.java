@@ -251,6 +251,10 @@ abstract class BaseController {
         return !state.getVehicle().getVIN().equals(v.getVIN());
     }
     
+    protected String prefKey(String key) {
+        return vehicle.getVIN() + "_" + key;
+    }
+    
 /*------------------------------------------------------------------------------
  * 
  * The following methods and classes implement background tasks for issuing
@@ -371,13 +375,15 @@ abstract class BaseController {
     private static final double RefreshButtonOffset = 14.0;
     
     private void prepCommonElements() {
-        // Set the size, color, and location/anchor of the progressIndicator
-        progressIndicator.setStyle("-fx-progress-color: " + ProgressIndicatorColor + ";");
-        progressIndicator.setMaxWidth(ProgressIndicatorSize);
-        progressIndicator.setMaxHeight(ProgressIndicatorSize);
-        // Place the indicator at a fixed offset from the lower left corner
-        AnchorPane.setLeftAnchor(progressIndicator, ProgressIndicatorOffset);
-        AnchorPane.setBottomAnchor(progressIndicator, ProgressIndicatorOffset);
+        if (progressIndicator != null) {
+            // Set the size, color, and location/anchor of the progressIndicator
+            progressIndicator.setStyle("-fx-progress-color: " + ProgressIndicatorColor + ";");
+            progressIndicator.setMaxWidth(ProgressIndicatorSize);
+            progressIndicator.setMaxHeight(ProgressIndicatorSize);
+            // Place the indicator at a fixed offset from the lower left corner
+            AnchorPane.setLeftAnchor(progressIndicator, ProgressIndicatorOffset);
+            AnchorPane.setBottomAnchor(progressIndicator, ProgressIndicatorOffset);
+        }
         
         // Set the location/anchor of the refresh button
         if (refreshButton != null) {    // Some controllers don't have a refresh button

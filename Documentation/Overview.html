@@ -15,10 +15,10 @@
 	Tesla Motors Club Forum</a>.
 </p>
 <p>
-	<strong>Disclaimer:</strong><em>Be careful</em> when using this software as it can lock and unlock your car as well as control various functions relating to the charging system, sun roof, lights, horn, and other subsystems of the car. Don't to send your login and password to anyone other than Tesla or you are giving away the authentication details required to control your car. VisibleTesla does not store your password and only communicates with Tesla.
+	<strong>Disclaimer:</strong> <em>Be careful</em> when using this software as it can lock and unlock your car as well as control various functions relating to the charging system, sun roof, lights, horn, and other subsystems of the car. Don't to send your login and password to anyone other than Tesla or you are giving away the authentication details required to control your car. VisibleTesla does not store your password and only communicates with Tesla.
 </p>
 <p>
-	Use this application at your own risk. The authors do not guarantee its proper functioning. This application attempts to use the same interfaces used by the official Tesla apps. However, it is possible that use of this application may cause unexpected damage for which nobody but you are responsible. Use of this application can change the settings on your car and may have negative consequences such as (but not limited to) unlocking the doors, opening the sun roof, or reducing the available charge in the battery.
+	Use this application at your own risk. The author does not guarantee its proper functioning. This application attempts to use the same interfaces used by the official Tesla apps. However, it is possible that use of this application may cause unexpected damage for which nobody but you are responsible. Use of this application can change the settings on your car and may have negative consequences such as (but not limited to) unlocking the doors, opening the sun roof, or reducing the available charge in the battery.
 </p>
 <h2><a id="introduction" name="introduction">Topics</a></h2>
 <ul>
@@ -31,6 +31,7 @@
 		<li><a href="#charging_tab">Charge Tab</a></li>
 		<li><a href="#graphs_tab">Graphs Tab</a></li>
 		<li><a href="#scheduler_tab">Scheduler Tab</a></li>
+		<li><a href="#prefs_tab">Preferences Tab</a></li>
 		<li><a href="#autorefresh">Auto-Refresh</a></li>
 		<li><a href="#sleepmode">Sleep Mode</a></li>
 		<li><a href="#simulation">Simulation</a></li>
@@ -295,98 +296,40 @@ The next screen shot shows the panoramic roof in the vented state. The user vent
 </p>
 <table class="grid_table">
 <tr>
-	<th>
-		TIMESTAMP
-	</th>
-	<th>
-		C_AMP
-	</th>
-	<th>
-		C_BAM
-	</th>
-	<th>
-		C_EST
-	</th>
-	<th>
-		C_ROC
-	</th>
-	<th>
-		C_SOC
-	</th>
-	<th>
-		C_VLT
-	</th>
-	<th>
-		S_PWR
-	</th>
-	<th>
-		S_SPD
-	</th>
-	<th>
-		&nbsp;
-	</th>
+	<th>TIMESTAMP</th>
+	<th>C_AMP</th>
+	<th>C_BAM</th>
+	<th>C_EST</th>
+	<th>C_ROC</th>
+	<th>C_SOC</th>
+	<th>C_VLT</th>
+	<th>S_PWR</th>
+	<th>S_SPD</th>
+	<th>&nbsp;</th>
 </tr>
 <tr>
-	<td>
-		1377743292
-	</td>
-	<td>
-		0
-	</td>
-	<td>
-	</td>
-	<td>
-		99.7
-	</td>
-	<td>
-		-1
-	</td>
-	<td>
-		55
-	</td>
-	<td>
-		0
-	</td>
-	<td>
-		24
-	</td>
-	<td>
-		14
-	</td>
-	<td>
-		8/28/13 18:28:12
-	</td>
+	<td>1377743292</td>
+	<td>0</td>
+	<td></td>
+	<td>99.7</td>
+	<td>-1</td>
+	<td>55</td>
+	<td>0</td>
+	<td>24</td>
+	<td>14</td>
+	<td>8/28/13 18:28:12</td>
 </tr>
 <tr>
-	<td>
-		1377746306
-	</td>
-	<td>
-		0
-	</td>
-	<td>
-	</td>
-	<td>
-		99.3
-	</td>
-	<td>
-		-1
-	</td>
-	<td>
-		50
-	</td>
-	<td>
-		0
-	</td>
-	<td>
-		21
-	</td>
-	<td>
-		16
-	</td>
-	<td>
-		8/28/13 19:18:26
-	</td>
+	<td>1377746306 </td>
+	<td> 0 </td>
+	<td> </td>
+	<td> 99.3 </td>
+	<td> -1 </td>
+	<td> 50 </td>
+	<td> 0 </td>
+	<td> 21 </td>
+	<td> 16 </td>
+	<td> 8/28/13 19:18:26 </td>
 </tr>
 </table>
 <p>
@@ -412,7 +355,9 @@ The next screen shot shows the panoramic roof in the vented state. The user vent
     <figcaption><center>Displaying lines and markers makes can make it easier to follow trends</center></figcaption>
 </figure>
 
-<p>If you have a lot of data and have selected to display markers (even in combination with lines) it can take quite a while to load and display your data. While you're waiting, you'll see a "Loading..." message and a spinner. The spinner may stop spinning during the final phase of loading the data. This is a known problem.</p>
+<p>If you have a lot of data accumulated, it can take quite a while to load it all. Please see the <a href="#loadPrefs">Graphs preferences</a> which allow you to select how much data to load. To make this more palatable, VisibleTesla loads the data from most recent to oldest so that you can see and start interacting with the graph right away. Older data will continue to load in the background. Also, the visible data (the items you have selected) will load first, then the unselected items will load to make them ready to be displayed if you select them.</P>
+	
+<p>As your data is loading you'll notice a progress bar at the bottom of the window. The bar is split into two pieces. The first piece represents the progress loading the visible items, and the second part represents the invisible items. You'll notice that the size of these two parts is proportional to how many of each type of item you have. For example, if you have selected to display 4 items and hide 4 items, then the two parts will be the same size. If you're diplaying only 2 of the 8 items, then the first part of the bar will consume only 25% of the total length.</p>
 <figure>
     <img src='images/14_Graphs_Loading.png' alt='missing' />
     <figcaption><center>Displayed while data is being loaded into the graph</center></figcaption>
@@ -438,12 +383,86 @@ This screenshot shows the "File->Export Graph Data" menu in Windows.
 		<li>Sunday-Saturday: The scheduled event will be executed only on the selected days.</li>
 		<li>Time: The time at which the command will be executed. Minutes can be specified with a granularity of 5 minutes (00, 05, 10, ...)</li>
 		<li>Safe: If selected, the command will only be executed if there is at least 25% charge remaining on the battery. Otherwise it will be ignored. Note that starting the charging process does not require a minimum charge regardless of this setting.</li>
-		<li>Command: The command to execute. Choices are: HVAC On, HVAC Off, Start Charging, Stop Charging, Sleep, Daydream, Awake and None. When Sleep, Daydream, or Awake are executed, it is equivalent to the user selecting "Stay Awake", "Allow Sleeping", or "Allow Daydreaming" from the "Options->Inactivity Mode" menu. This can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.</li>
+		<li>Command: The command to execute. Choices are:
+			<table class="grid_table">
+				<tr><td>HVAC: On</td><td>Turn on the HVAC system.</td></tr>
+				<tr>	<td>HVAC: Off</td><td>Turn off the HVAC system.</td></tr>
+				<tr>	<td>Charge: Start</td><td>Start Charging the vehicle.</td></tr>
+				<tr>	<td>Charge: Stop</td><<td>Stop Charging the vehicle.</td>/tr>
+				<tr>	<td>Charge: Low</td><td>Set the charge target to the car's minimum value or the value specified in the preferences pane.</td></tr>
+				<tr>	<td>Charge: Std</td><td>Set the charge target to the car's default standard charge.</td></tr>
+				<tr>	<td>Charge: Max</td><td>Set the charge target to the car's maximum charge.</td></tr>
+				<tr>	<td>Sleep</td><<td>Equivalent to the user selecting "Allow Sleeping"from the "Options->Inactivity Mode" menu.</td>/tr>
+				<tr>	<td>Daydream</td><td>Equivalent to the user selecting "Allow Daydreaming"from the "Options->Inactivity Mode" menu.</td></tr>
+				<tr>	<td>Awake</td><td>Equivalent to the user selecting "Stay Awake"from the "Options->Inactivity Mode" menu.</td></tr>
+				<tr>	<td>None</td><td>Don't execute a command of any type.</td> </tr>
+			</table>
+				The Sleep, Daydream, and Stay Awake commands can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.</li>
 	</ul>
 </p>
 <p>
 	Please remember that using this functionality can trigger activity that depletes your battery. You are solely responsible for any negative consequences that this might produce.
 </p>
+
+<h3><a id="prefs_tab">Preferences Tab</a></h3>
+<p>The Preferences tab allows users to control various options for the application as a whole and individual tabs within the application. Each Tab in VisibleTesla has it's own section within the preferences tab. There are also general preferences for the app as a whole. To set the preferences associated with a given tab, click the arrow next to the Tab name. The screenshot below shows the Preferences tab with the Login preferences selected. As you can see, there are currently no preferences available for this tab.</p>
+	<img border="0" style="margin:5px" src="images/19_Prefs.png" />
+<p>The preferences associated with some tabs are split into two groups: Basic and Advanced. In general, you should <strong>avoid changing the advanced options</strong>. In the screenshot below, you can see that the Graphs preferences are split into basic and advanced.</p>
+	<img border="0" style="margin:5px" src="images/20_Prefs_Graphs.png" />
+<p>The available preferences are shown in the table below. All entries in <font color="red">red</font> refer to advanced preferences.</p>
+<table  class="grid_table">
+	<tr>
+		<th>Tab</th>
+		<th>Preference</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td>Login</td>
+		<td>None</td>
+		<td>N/A</td>
+	</tr>
+	<tr>
+		<td>Overview</td>
+		<td>None</td>
+		<td>N/A</td>
+	</tr>
+	<tr>
+		<td>Login</td>
+		<td>HVAC</td>
+		<td>N/A</td>
+	</tr>
+	<tr>
+		<td>Location</td>
+		<td>None</td>
+		<td>N/A</td>
+	</tr>
+	<tr>
+		<td>Charge</td>
+		<td>None</td>
+		<td>N/A</td>
+	</tr>
+	<tr>
+		<td>Graphs</td>
+		<a id="loadPrefs"> <td>Time Period to Load</td> </a>
+		<td>Controls how much data should be loaded. You can load the last 7, 14, or 30 days, the last week, the last month, or all of your data. This preference will be honored the next time VisibleTesla is launched. Changing this preference will not cause exisitng graph data to reload.</td>
+	</tr>
+	<tr>
+		<td>Graphs</td>
+		<td><font color="red">Load Incrementally</font></td>
+		<td>Determines whether graph data should be loaded incrementally or all at once. Loading incrementally is the default behavior. Loading the data all at once is faster, but the app becomes unresponsive while the load is happening.</td>
+	</tr>
+	<tr>
+		<td>Schedule</td>
+		<td>None</td>
+		<td>N/A</td>
+	</tr>
+	<tr>
+		<td>General</td>
+		<td><font color="red">Where should app files be stored?</font></td>
+		<td>Allows the user to select where to store internal application data files. In general users should not change this setting. It is provided for power-users and to maintain compatibility with older versions. The default setting will cause internal application data files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show" button next to the preference settings.</td>
+	</tr>
+</table>
+
 <h3><a id="autorefresh">Auto-Refresh</a></h3>
 <p>
 	This screen shot shows the "spinner" that is displayed when the app is communicating with the vehicle. Each tab has a refresh button and the app auto-refreshes every 30 seconds. Switching tabs automatically refreshes the newly selected tab.
