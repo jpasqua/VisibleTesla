@@ -90,8 +90,10 @@ The next screen shot shows the panoramic roof in the vented state. The user vent
 <p>
 	Next we have the HVAC tab which shows the state of that system. It also allows you to set the target temperature and turn on or off the system. This tab will display whether the front or rear defrosters are on, but it cannot control the defrosters. The fan blades will fill in to show the speed at which the fan is blowing. All empty is off, all full is maximum, and partially full are levels in between.
 </p>
+<p>A temperature slider allows the user to select a specific target temperature for the vehicle. Unlike the car's internal controls,
+rather than clicking the up or down arrows to increase or decrease the temperature, the user simply moves the slider to the desired temperature. When the car is in Celsius mode, the slider ranges from 18 to 27 degrees and has steps at every half degree (18, 18.5, 19, 195, etc.). When the car is in Fahrenheit mode, the slider ranges from 65 to 80 degrees with stops at every degree. VisibleTesla displays the numberic temperature corresponding to the slider position in real time as the slider moves, however, the app only sends a command to the car when the user finally stops moving the slider. This reduces unneccesary communication with Tesla's servers and with the car.</p>
 <p>
-	This tab also displays the current interior and exterior temperature readings when they are available. The vehicle does not always supply this information. If no temperature readings are available, the tab will display "--" in place of the reading. It is not known when the vehicle decides to provide temperature readings and for how long. It is the case that if you activate the HVAC system, the readings will be made available and will remain available for an indeterminate period after the HVAC system is turned off.
+	This tab also displays the current interior and exterior temperature readings when they are available. The vehicle does not always supply this information. If no temperature readings are available, the tab will display "..." in place of the reading. It is not known when the vehicle decides to provide temperature readings and for how long. It is the case that if you activate the HVAC system, the readings will be made available and will remain available for an indeterminate period after the HVAC system is turned off.
 </p>
 <p>
 	<img border="0" style="margin:5px" src="images/05_HVAC_Tab.png" />
@@ -377,27 +379,44 @@ This screenshot shows the "File->Export Graph Data" menu in Windows.
 	<img border="0" style="margin:5px" src="images/17_Scheduler.png" />
 </p>
 <p>
-	Each row represents a command that can be scheduled independently. There are 8 rows meaning that up to 8 distinct schedules can be set. The fields for each row are as follows:
+	Each row represents a command that can be scheduled independently. There are 8 rows meaning that up to
+	8 distinct schedules can be set. The fields for each row are as follows:
 	<ul>
 		<li>On?: If selected then this schedule is active. If not selected, VT will remember the scheduled event, but not execute it.</li>
 		<li>Sunday-Saturday: The scheduled event will be executed only on the selected days.</li>
-		<li>Time: The time at which the command will be executed. Minutes can be specified with a granularity of 5 minutes (00, 05, 10, ...)</li>
-		<li>Safe: If selected, the command will only be executed if there is at least 25% charge remaining on the battery. Otherwise it will be ignored. Note that starting the charging process does not require a minimum charge regardless of this setting.</li>
+		<li>Time: The time at which the command will be executed. Minutes can be specified with a
+			granularity of 5 minutes (00, 05, 10, ...)</li>
+		<li>Safe: If selected, the command will only be executed if there is sufficient power available. What constitutes safety is defined in the <a href="#pref_table_sched">Scheduler preferences</a>. It can consist of a minimum battery level, the car being plugged-in, or both. If "Safe" is selected but the specified requirements are not met, the command will not be executed.</li>
 		<li>Command: The command to execute. Choices are:
 			<table class="grid_table">
-				<tr><td>HVAC: On</td><td>Turn on the HVAC system.</td></tr>
-				<tr>	<td>HVAC: Off</td><td>Turn off the HVAC system.</td></tr>
-				<tr>	<td>Charge: Start</td><td>Start Charging the vehicle.</td></tr>
-				<tr>	<td>Charge: Stop</td><<td>Stop Charging the vehicle.</td>/tr>
-				<tr>	<td>Charge: Low</td><td>Set the charge target to the car's minimum value or the value specified in the preferences pane.</td></tr>
-				<tr>	<td>Charge: Std</td><td>Set the charge target to the car's default standard charge.</td></tr>
-				<tr>	<td>Charge: Max</td><td>Set the charge target to the car's maximum charge.</td></tr>
-				<tr>	<td>Sleep</td><<td>Equivalent to the user selecting "Allow Sleeping"from the "Options->Inactivity Mode" menu.</td>/tr>
-				<tr>	<td>Daydream</td><td>Equivalent to the user selecting "Allow Daydreaming"from the "Options->Inactivity Mode" menu.</td></tr>
-				<tr>	<td>Awake</td><td>Equivalent to the user selecting "Stay Awake"from the "Options->Inactivity Mode" menu.</td></tr>
-				<tr>	<td>None</td><td>Don't execute a command of any type.</td> </tr>
+				<tr> 	<th>Command</th> 		<th>Description                                 </th></tr>
+				<tr>    <td>HVAC: On </td>		<td>Turn on the HVAC system.					</td></tr>
+				<tr>	<td>HVAC: Off</td>		<td>Turn off the HVAC system.					</td></tr>
+				<tr>	<td>Charge: Start</td>	<td>Start Charging the vehicle.					</td></tr>
+				<tr>	<td>Charge: Stop</td>	<td>Stop Charging the vehicle.					</td></tr>
+				<tr>	<td>Charge: Low</td>	<td>Set the charge target to the car's minimum
+													value or the value specified in the
+													preferences pane.							</td></tr>
+				<tr>	<td>Charge: Std</td>	<td>Set the charge target to the car's default
+													standard charge.							</td></tr>
+				<tr>	<td>Charge: Max</td>	<td>Set the charge target to the car's maximum
+													charge.										</td></tr>
+				<tr>	<td>Sleep</td>			<td>Equivalent to the user selecting "Allow
+													Sleeping"from the "Options->Inactivity Mode"
+													menu.										</td></tr>
+				<tr>	<td>Daydream</td>		<td>Equivalent to the user selecting "Allow
+													Daydreaming"from the "Options->Inactivity 
+													Mode" menu.									</td></tr>
+				<tr>	<td>Awake</td>			<td>Equivalent to the user selecting "Stay
+													Awake"from the "Options->Inactivity Mode"
+													menu.										</td></tr>
+				<tr>	<td>None</td>			<td>Don't execute a command of any type.		</td> </tr>
 			</table>
-				The Sleep, Daydream, and Stay Awake commands can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.</li>
+				The Sleep, Daydream, and Stay Awake commands can be used, for example, to tell the app to sleep
+				at night and daydream during the day. Note that executing one of these commands simply causes
+				the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before
+				it will sleep or daydream.
+		</li>
 	</ul>
 </p>
 <p>
@@ -410,56 +429,70 @@ This screenshot shows the "File->Export Graph Data" menu in Windows.
 <p>The preferences associated with some tabs are split into two groups: Basic and Advanced. In general, you should <strong>avoid changing the advanced options</strong>. In the screenshot below, you can see that the Graphs preferences are split into basic and advanced.</p>
 	<img border="0" style="margin:5px" src="images/20_Prefs_Graphs.png" />
 <p>The available preferences are shown in the table below. All entries in <font color="red">red</font> refer to advanced preferences.</p>
+
 <table  class="grid_table">
 	<tr>
-		<th>Tab</th>
-		<th>Preference</th>
-		<th>Description</th>
+		<th>Tab</th> <th>Preference</th> <th>Description</th>
 	</tr>
 	<tr>
-		<td>Login</td>
-		<td>None</td>
-		<td>N/A</td>
+		<td>Login</td> <td>None</td> <td>N/A</td>
 	</tr>
-	<tr>
-		<td>Overview</td>
-		<td>None</td>
-		<td>N/A</td>
+	<tr class="firstRowOfGroup">
+		<td>Overview</td> <td>None</td> <td>N/A</td>
 	</tr>
-	<tr>
-		<td>Login</td>
-		<td>HVAC</td>
-		<td>N/A</td>
+	<tr class="firstRowOfGroup">
+		<td>HVAC</td> <td>None</td> <td>N/A</td>
 	</tr>
-	<tr>
-		<td>Location</td>
-		<td>None</td>
-		<td>N/A</td>
+	<tr class="firstRowOfGroup">
+		<td>Location</td> <td>None</td> <td>N/A</td>
 	</tr>
-	<tr>
-		<td>Charge</td>
-		<td>None</td>
-		<td>N/A</td>
+	<tr class="firstRowOfGroup">
+		<td>Charge</td> <td>None</td> <td>N/A</td>
 	</tr>
-	<tr>
+	<tr class="firstRowOfGroup">
 		<td>Graphs</td>
 		<a id="loadPrefs"> <td>Time Period to Load</td> </a>
-		<td>Controls how much data should be loaded. You can load the last 7, 14, or 30 days, the last week, the last month, or all of your data. This preference will be honored the next time VisibleTesla is launched. Changing this preference will not cause exisitng graph data to reload.</td>
+		<td>Controls how much data should be loaded. You can load the last 7, 14, or 30 days, the last week, the last month, all of your data, or none of your data. If you select to load none of your data, the graph will start out empty and add data points as usual. Normally this preference will be honored the next time VisibleTesla is launched. Changing this preference will not cause exisitng graph data to reload. However, if you change this preference before going to the Graphs tab, it will be honored immediately.</td>
 	</tr>
 	<tr>
-		<td>Graphs</td>
+		<td>&nbsp;</td>
 		<td><font color="red">Load Incrementally</font></td>
 		<td>Determines whether graph data should be loaded incrementally or all at once. Loading incrementally is the default behavior. Loading the data all at once is faster, but the app becomes unresponsive while the load is happening.</td>
 	</tr>
-	<tr>
-		<td>Schedule</td>
-		<td>None</td>
-		<td>N/A</td>
+	<tr class="firstRowOfGroup">
+		<a id="pref_table_sched"><td>Scheduler</td></a>
+		<td>Value for "Charge: Low"</td>
+		<td>Allows you to set the value used by the "Charge: Low" Scheduler command. By default this is set to the car's notion of minimum charging level. You can use the slider to set it to some other value.</td>
 	</tr>
 	<tr>
+		<td>&nbsp;</td>
+		<td>"Safe" includes:</td>
+		<td>These checkboxes allow the user to determine what "Safe?" means when it it selected in the Scheduler UI. In the past it meant that the battery must have a minimum charge remaining for the command to execute. Now users may select "Minimum Battery Power" or "Vehicle Plugged-In" or both.</td>
+	</tr>
+	<tr class="firstRowOfGroup">
 		<td>General</td>
-		<td><font color="red">Where should app files be stored?</font></td>
-		<td>Allows the user to select where to store internal application data files. In general users should not change this setting. It is provided for power-users and to maintain compatibility with older versions. The default setting will cause internal application data files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show" button next to the preference settings.</td>
+		<td>Wake on Tab change</td>
+		<td>Lets the user determine whether clicking on a tab should cause a refresh and consequently wake up the car if it is sleeping. If this box is unchecked, clicking on a tab while in sleep mode will not refresh the data (meaning it will be stale). This allows the user to look at the last data displayed in a tab without waking the car up.</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>Idle Threshold</td>
+		<td>Alows the user to set the Idle Threshold. This determines how long VisibleTesla will look for inactivity before entering Sleep or Daydream mode. The default is 15 minutes. It can be set to anywhere between 1 and 90 minutes.</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>Offer Experimental Versions</td>
+		<td>If this box is checked, the app will offer experimental versions as part of the normal process of checking for updates. The box is not checked by default. If an experimental version is available and this box is not checked, it will not be offered to the user.</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><font color="red">Store files with app?</font></td>
+		<td>Allows the user to select where to store internal application data files. In general users should not check this box. It is provided for power-users and to maintain compatibility with older versions. The default setting will cause internal application data files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show User Folder" button.</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><font color="red">Enable Proxy</font></td>
+		<td>Allows the user to specify an http proxy to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. Note that this is an HTTP proxy, not a SOCKS proxy. <strong>Note</strong>: This feature has not yet been field tested. It should be considered experimental.</td>
 	</tr>
 </table>
 

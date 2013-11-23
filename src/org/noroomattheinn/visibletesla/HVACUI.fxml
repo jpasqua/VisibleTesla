@@ -66,41 +66,12 @@
     <Label id="insideTmpLable" fx:id="insideTmpLabel" layoutX="109.0" layoutY="40.0" text="..." textFill="BLACK" />
     <Label id="OutsideTempLabel" fx:id="outsideTempLabel" layoutX="109.0" layoutY="60.0" text="..." textFill="BLACK" />
     <Label layoutX="50.0" layoutY="21.0" text="Temperatures" />
-    <AnchorPane id="AnchorPane" layoutX="303.0" layoutY="293.0" minHeight="67.75" minWidth="55.5" prefHeight="67.75" prefWidth="55.5">
-      <children>
-        <Button fx:id="driverTempDownButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="-83.0" layoutY="-27.0" mnemonicParsing="false" onAction="#tempTargetHandler" scaleX="0.25" scaleY="0.25" styleClass="TransparentBG" text="" textAlignment="LEFT">
-          <graphic>
-            <ImageView>
-              <image>
-                <Image url="@../TeslaResources/05_climate_temp_control_down_hit@2x.png" />
-              </image>
-            </ImageView>
-          </graphic>
-        </Button>
-        <Button fx:id="driverTempUpButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="-83.0" layoutY="-48.0" mnemonicParsing="false" onAction="#tempTargetHandler" scaleX="0.25" scaleY="0.25" styleClass="TransparentBG" text="" textAlignment="LEFT">
-          <graphic>
-            <ImageView>
-              <image>
-                <Image url="@../TeslaResources/05_climate_temp_control_up_hit@2x.png" />
-              </image>
-            </ImageView>
-          </graphic>
-        </Button>
-        <ImageView id="05_climate_temp_control_well@2x.png" layoutX="-37.0" layoutY="-13.0" scaleX="0.25" scaleY="0.25">
-          <image>
-            <Image url="@../TeslaResources/05_climate_temp_control_well@2x.png" preserveRatio="true" smooth="true" />
-          </image>
-        </ImageView>
-        <Label fx:id="driverTempLabel" layoutX="16.0" layoutY="22.0" text="65" textAlignment="CENTER" textFill="WHITE" />
-        <Label layoutX="33.0" layoutY="22.0" prefWidth="10.0" text="º" textFill="WHITE" />
-      </children>
-    </AnchorPane>
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
-    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
-    <Group id="Group" layoutX="250.0" layoutY="306.0">
+    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
+    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
+    <Group id="Group" layoutX="116.0" layoutY="304.0">
       <children>
-        <ImageView fx:id="fan0" fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="true">
+        <ImageView fx:id="fan0" fitHeight="0.0" fitWidth="0.0" layoutX="-6.0" layoutY="-3.0" pickOnBounds="true" preserveRatio="true" visible="true">
           <image>
             <Image url="@../TeslaResources/05_climate_fan0@2x.png" />
           </image>
@@ -127,7 +98,13 @@
         </ImageView>
       </children>
     </Group>
-    <HBox id="HBox" alignment="CENTER" layoutX="359.0" layoutY="311.0" prefHeight="26.0" prefWidth="88.0" spacing="-1.0">
+    <Slider fx:id="tempSlider" disable="false" layoutX="163.0" layoutY="303.0" majorTickUnit="1.0" max="27.0" min="18.0" minorTickCount="1" onMouseReleased="#tempChangeHandler" prefWidth="293.0" showTickLabels="true" showTickMarks="true" style="" value="19.5" />
+    <HBox id="HBox" alignment="CENTER" layoutX="460.0" layoutY="304.0" prefWidth="70.0" spacing="5.0" style="    -fx-border-insets: 0;&#10;    -fx-border-width: 2px;&#10;    -fx-border-color: #111 lightgray lightgray #111;&#10;-fx-background-color: #eee&#10;">
+      <children>
+        <Label id="driverTempLabel" fx:id="targetTempLabel" alignment="BASELINE_RIGHT" prefWidth="62.0" text="19.5 ºC" />
+      </children>
+    </HBox>
+    <HBox id="HBox" alignment="CENTER" layoutX="266.0" layoutY="345.0" prefHeight="26.0" prefWidth="88.0" spacing="-1.0">
       <children>
         <ToggleButton id="hvacOn" fx:id="hvacOnButton" mnemonicParsing="false" onAction="#hvacOnOffHandler" selected="false" styleClass="pill-left" text="On">
           <toggleGroup>

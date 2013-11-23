@@ -247,7 +247,13 @@ public class VTLineChart extends LineChart<Number,Number> {
         }
         if (ya.isAutoRanging()) {
             List<Number> yData = new ArrayList<>();
-            yData.add(minY); yData.add(maxY);
+            if (minY == Double.POSITIVE_INFINITY || maxY == Double.NEGATIVE_INFINITY ||
+                (Math.abs(minY - maxY) < 1.0)) {
+                yData.add(0); yData.add(100);
+            }
+            else {
+                yData.add(minY); yData.add(maxY);
+            }
             ya.invalidateRange(yData);
         }
     }

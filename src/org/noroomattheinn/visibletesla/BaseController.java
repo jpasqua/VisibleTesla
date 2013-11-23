@@ -29,7 +29,7 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
+import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
@@ -57,7 +57,7 @@ abstract class BaseController {
     protected static final long AutoRefreshInterval = 30 * 1000;
     protected static final long MinRefreshInterval =   2 * 1000;
     
-    enum AfterCommand {Reflect, Refresh, Nothing};
+    enum AfterCommand {Reflect, Refresh, RefreshLater, Nothing};
     
 /*------------------------------------------------------------------------------
  *
@@ -126,7 +126,16 @@ abstract class BaseController {
         this.vehicle = v;
         prepForVehicle(v);      // This is an activation hook for subclasses
         activeController = this;
-        doRefresh();
+        if (appContext.isSleeping()) {
+            if (appContext.thePrefs.wakeOnTabChange.get()) {
+                appContext.wakeup();
+                doRefresh();
+            }
+        } else {
+            doRefresh();
+        }
+        
+        
     }
     
 /*------------------------------------------------------------------------------
@@ -142,7 +151,7 @@ abstract class BaseController {
             return;
         }
         userInvokedRefresh = true;
-        doRefresh();
+            doRefresh();
         userInvokedRefresh = false;
     }
 
@@ -297,6 +306,7 @@ abstract class BaseController {
             showProgressUI(false);
             switch (action) {
                 case Reflect: reflectNewState(); break;
+                case RefreshLater: Utils.sleep(500); doRefresh(); break;
                 case Refresh: doRefresh(); break;
                 case Nothing:
                 default: break;
@@ -311,11 +321,11 @@ abstract class BaseController {
         }
     }
     
-    class AutoRefresh implements Runnable, ChangeListener<InactivityMode> {
-        private InactivityMode inactivityState = InactivityMode.StayAwake;
+    class AutoRefresh implements Runnable, ChangeListener<InactivityType> {
+        private InactivityType inactivityState = InactivityType.Awake;
         
         @Override public void
-        changed(ObservableValue<? extends InactivityMode> o, InactivityMode ov, InactivityMode nv) {
+        changed(ObservableValue<? extends InactivityType> o, InactivityType ov, InactivityType nv) {
             inactivityState = nv;
         }
 
@@ -332,7 +342,7 @@ abstract class BaseController {
                             (System.currentTimeMillis() - lastRefreshTime);
                     timeToSleep = Math.min(timeToSleep, AutoRefreshInterval);
                 }
-                if (inactivityState == InactivityMode.StayAwake)
+                if (inactivityState == InactivityType.Awake)
                     Platform.runLater(new FireRefresh());
             }
         }

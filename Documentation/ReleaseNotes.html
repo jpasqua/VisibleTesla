@@ -6,6 +6,156 @@
     <body style="max-width:800px">
         <h1>VisibleTesla Release Notes</h1>
         <hr>
+        <h3>VisibleTesla 0.23.00 [11-22-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added experimental support for proxy servers. If you don't know what proxy servers are and are able to login using VisibleTesla, you can completely ignore this feature. I don't have a great way to test this, hence the experimental status. I will work on creating a test network environment with an http proxy but also welcome feedback from users.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                            <li>Changed the temperature control interface. Rather than simulating the car's actual temperature control which has buttons that move the target temperature up or down by one degree, there is now a slider that allows the user to select a specific temperature without having to click repeatedly. When the car is in Celsius mode, the slider ranges from 18 to 27 degrees and has steps at every half degree (18, 18.5, 19, 195, etc.). When the car is in Fahrenheit mode, the slider ranges from 65 to 80 degrees with stops at every degree. VisibleTesla displays the numberic temperature corresponding to the slider position in real time as the slider moves, however, the app only sends a command to the car when the user finally stops moving the slider. This reduces unneccesary communication with the car and with Tesla's servers.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                            <li><strong>Fixed</strong>: Problem introduced in version 0.22.01 where "Charge: Low", "Charge: Std", and "Charge: Max" would fail.</li>
+                            <li>For commands other than going into Sleep mode, VisibleTesla will attempt to wake the car before the command is issued. It will also retry any command that fails on the first attempt.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>General: <font color=red>Experimental</font>. Added a set of fields to the advanced preferences that allow the user to specify an http proxy to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. Note that this is an HTTP proxy, not a SOCKS proxy.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Added a RefreshLater mechanism. Sometimes when issuing a command, the effect does not take place immediately and therefore is not reflected in the UI until the next refresh. The refreshlater mechanism allows VisibleTesla to wait a short period after issuing a command to do the automatic refresh.
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>Same "heading after sleep" problem as the previous release.
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.22.01 [11-16-13]</h3>
+        <P><font color=red>Experimental</font>: This version has a lot of changes to the preferences code and a number of other places. Thank you to the adventurous of you who try this version out. I will remove the experimental label once I get enough feedback to let me know that this release is working. Otherwise I'll make the required fixes and the next version won't be marked as experimental. Note that one of the new features in this version is that the auto-update mechanism can look for and either ignore or offer experimental versions based on your preferences. </P>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>There have been major changes to the way that preferences work under the covers. As a result, you may find that one or two of your old settings may need to be manually reset. I tried to catch all of the cases where changes may lead to this, but I can't guarantee that I did. For example, if you have the Graph Load Period set to "7 Days", please go check that it didn't get reset to antoher value (like "All"). I apologize for any inconvenience.</li>
+                            <li>When checking for updates the app will test whether an available update is an experimental version. If it is, it will only be offered for download if the "Offer Experimental Versions" checkbox is selected in the General preferences.</li>
+                            <li>Now that I have a vehicle with version 5.8, I can start testing more of the sleep-related areas. Several changes have been made to better accomodate waking from sleep mode. I'm sure more will be necessary.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>Changes to the "loading" screen to display a little "radar blip" while the actual location is being determined and the Google map is loading. This was more for my amusement than anything practical.</li>
+                            <li>The heading for a car that is coming out of sleep mode is not accurate. I do what I can to choose an accurate value, but ultimately Tesla needs to address this since it affects them also.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>General: Added a checkbox that lets the user determine whether clicking on a tab should cause a refresh and consequently wake up the car if it is sleeping. If this box is unchecked, clicking on a tab while in sleep mode will not refresh the data (meaning it will be stale). This allows the user to look at the last data displayed in a tab without waking the car up.</li>
+                            <li>General: Added a slider to allow the user to set the Idle Threshold. This determines how long the app will look for inactivity before entering Sleep or Daydream mode. The default is 15 minutes. It can be set to anywhere between 1 and 90 minutes.</li>
+                            <li>General: Added a checkbox labeled "Offer Experimental Versions". It is unchecked by default. If it is checked, then the app will offer experimental versions as part of the normal process of checking for updates.</li>
+                            <li>General (Advanced): Rearranged the UI a little and added a warning. No change in functionality, just presentation.</li>
+                            <li>Graphs: Added a "None" option to the "Time Period to Load" preference. In this case none of your existing data will be loaded. The graph will stsart out empty and then will fill with new data as it becomes available.
+                            <li>Scheduler: Added checkboxes that allow the user to determine what "Safe?" means when it it selected in the Scheduler UI. In the past it meant that the battery must have a minimum charge remaining for the command to execute. Now users can select "Minimum Battery Power" or "Vehicle Plugged-In" or both.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    Major refactoring of the way preferences work in the code. This will allow changes to be visible immediately rather than after a restart. For some things this doesn't make sense and a notice will be given if a restart is necessary. This also makes it much easier to add preferences in the future. 
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>Cars with version 5.8 (perhaps earlier versions of 5 also) will report inaccurate heading information after being asleep. NOTE: The in-car map also displays faulty heading information after sleep mode. This is something Tesla needs to fix.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <hr>
         <h3>VisibleTesla 0.22.00 [11-15-13]</h3>
         <ul>
             <li>

@@ -43,8 +43,8 @@
     </TableView>
     <Label font="$x1" layoutX="405.0" layoutY="9.0" text="Charging Data" />
     <Button id="refreshButton" fx:id="refresh" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="17.0" />
-    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
-    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
+    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
+    <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
     <VBox id="VBox" alignment="CENTER" layoutX="299.0" layoutY="347.0" spacing="5.0">
       <children>
         <Label fx:id="chargeScheduledLabel" text="Charge Scheduled" textFill="WHITE">

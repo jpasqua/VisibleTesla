@@ -59,3 +59,7 @@ ul.li {list-style-type: disc}
 ul.li.li {list-style-type: circle}
 ul.li.li.li {list-style-type: square}
 ul.li.li.li.li {list-style-type: square}
+
+tr.firstRowOfGroup {
+	border-top: solid thick #888888;
+}

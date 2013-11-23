@@ -49,11 +49,14 @@ public class AppContext {
  *----------------------------------------------------------------------------*/
 
     public static final String AppFilesFolderKey = "APP_AFF";
+    public static final String WakeOnTCKey = "APP_WAKE_ON_TC";
+    public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
+    
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.22.00";
+    public static final String ProductVersion = "0.23.00";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     
-    public enum InactivityMode {AllowSleeping, AllowDaydreaming, StayAwake};
+    public enum InactivityType {Sleep, Daydream, Awake};
     
 /*------------------------------------------------------------------------------
  *
@@ -64,12 +67,13 @@ public class AppContext {
     public Application app;
     public Stage stage;
     public Preferences prefs;
+    public Prefs thePrefs;
     public File appFilesFolder;
     
     public GUIState cachedGUIState;
     public VehicleState cachedVehicleState;
     
-    public ObjectProperty<InactivityMode> inactivityState;
+    public ObjectProperty<InactivityType> inactivityState;
     public BooleanProperty shuttingDown;
     public Map properties;
     
@@ -85,7 +89,7 @@ public class AppContext {
  *----------------------------------------------------------------------------*/
     
     private ArrayList<Thread> threads = new ArrayList<>();
-    private Utils.Callback<InactivityMode,Void> inactivityModeListener;
+    private Utils.Callback<InactivityType,Void> inactivityModeListener;
     
 /*==============================================================================
  * -------                                                               -------
@@ -99,7 +103,7 @@ public class AppContext {
         this.prefs = Preferences.userNodeForPackage(this.getClass());
         this.inactivityModeListener = null;
         
-        this.inactivityState = new SimpleObjectProperty<>(InactivityMode.StayAwake);
+        this.inactivityState = new SimpleObjectProperty<>(InactivityType.Awake);
         this.shuttingDown = new SimpleBooleanProperty(false);
         this.properties = new HashMap();
         
@@ -108,18 +112,35 @@ public class AppContext {
         this.simulatedColor = new SimpleObjectProperty<>();
         this.simulatedRoof = new SimpleObjectProperty<>();
         
+        this.thePrefs = new Prefs(this);
+        
         appFilesFolder = ensureAppFilesFolder();
+        
+        establishProxy();
     }
 
-    public void setInactivityModeListener(Utils.Callback<InactivityMode,Void> listener) {
+    public void setInactivityModeListener(Utils.Callback<InactivityType,Void> listener) {
         inactivityModeListener = listener;
     }
     
-    public void requestInactivityMode(InactivityMode mode) {
+    public void requestInactivityMode(InactivityType mode) {
         if (inactivityModeListener != null) {
             inactivityModeListener.call(mode);
         }
     }
+    
+    public void wakeup() {
+        InactivityType current = inactivityState.get();
+        if (current != InactivityType.Awake) {
+            requestInactivityMode(InactivityType.Awake);
+            requestInactivityMode(current);
+        }
+    }
+    
+    public boolean isSleeping() { return inactivityState.get() == InactivityType.Sleep; }
+    public boolean isDaydreaming() { return inactivityState.get() == InactivityType.Daydream; }
+    public boolean isAwake() { return inactivityState.get() == InactivityType.Awake; }
+    
     
 /*------------------------------------------------------------------------------
  *
@@ -128,7 +149,7 @@ public class AppContext {
  *----------------------------------------------------------------------------*/
     
     public final File ensureAppFilesFolder() {
-        boolean storeFilesWithApp = prefs.getBoolean(AppFilesFolderKey, false);
+        boolean storeFilesWithApp = thePrefs.storeFilesWithApp.get();
         if (storeFilesWithApp)  return null;
 
         File aff = getAppFileFolder();
@@ -173,6 +194,14 @@ public class AppContext {
         return (path == null) ? null : new File(path);
     }
     
+    private void establishProxy() {
+        if (thePrefs.enableProxy.get()) {
+            System.setProperty("http.proxyHost", thePrefs.proxyHost.get());
+            System.setProperty("http.proxyPort", String.valueOf(thePrefs.proxyPort.get()));
+            System.setProperty("https.proxyHost", thePrefs.proxyHost.get());
+            System.setProperty("https.proxyPort", String.valueOf(thePrefs.proxyPort.get()));
+        }
+    }
     
 /*------------------------------------------------------------------------------
  *

@@ -7,13 +7,17 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.concurrent.Callable;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
-import org.noroomattheinn.tesla.GUIState;
+import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.HVACState;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
@@ -28,10 +32,10 @@ public class HVACController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final String degreesF = "º F";
-    private static final String degreesC = "º C";
+    private static final String DegreesF = "ºF";
+    private static final String DegreesC = "ºC";
 
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  *
  * Internal State
  * 
@@ -40,6 +44,7 @@ public class HVACController extends BaseController {
     private org.noroomattheinn.tesla.HVACController controller;
     private HVACState hvacState;
     private boolean useDegreesF = false;
+    DoubleProperty sliderValue = new SimpleDoubleProperty(70);
     
 /*------------------------------------------------------------------------------
  *
@@ -49,7 +54,7 @@ public class HVACController extends BaseController {
     
     // Temperature Readouts    
     @FXML private Label insideTmpLabel, outsideTempLabel;
-    @FXML private Label driverTempLabel;
+    @FXML private Label targetTempLabel;
     
     // Cold / Medium / Hot Images    
     @FXML private ImageView climateColdImg;
@@ -71,8 +76,8 @@ public class HVACController extends BaseController {
 
     // Controls
     @FXML private ToggleButton  hvacOffButton, hvacOnButton;
-    @FXML private Button    driverTempUpButton, driverTempDownButton;
-
+    @FXML private Slider        tempSlider;
+    
 /*------------------------------------------------------------------------------
  *
  *  UI Action Handlers
@@ -81,24 +86,30 @@ public class HVACController extends BaseController {
     
     @FXML void hvacOnOffHandler(ActionEvent event) {
         issueCommand(new Callable<Result>() {
-            public Result call() {
+            @Override public Result call() {
                 return controller.setAC(hvacOnButton.isSelected()); } },
-                AfterCommand.Refresh);
+                AfterCommand.RefreshLater);
+    }
+    
+    @FXML void tempChangeHandler(MouseEvent event) {
+        double temp = tempSlider.valueProperty().doubleValue();
+        if (useDegreesF) temp = Math.round(temp);
+        else temp = nearestHalf(temp);
+        //targetTempLabel.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
+        tempSlider.setValue(temp);
+        setTemp(temp);
     }
 
-
-    @FXML void tempTargetHandler(ActionEvent event) {
-        Button source = (Button)event.getSource();
-        int increment = (source == driverTempUpButton) ? 1 : -1;
-        double tempC = hvacState.driverTemp();
-        final double temp = (useDegreesF ? Utils.cToF(tempC) : tempC) + increment;
+    private void setTemp(final double temp) {
         final boolean setF = useDegreesF;   // Must be final, so copy it...
         issueCommand(new Callable<Result>() {
-            public Result call() { 
+            @Override public Result call() { 
                 if (setF) return controller.setTempF(temp, temp);
                 return controller.setTempC(temp, temp); }
             }, AfterCommand.Refresh);
     }
+    
+    private double nearestHalf(double val) { return Math.floor(val*2.0)/2.0; }
     
 /*------------------------------------------------------------------------------
  *
@@ -106,32 +117,52 @@ public class HVACController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    protected void prepForVehicle(Vehicle v) {
+    @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle(controller, v)) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
             hvacState = new HVACState(v);
-            GUIState gs = appContext.cachedGUIState;
-            useDegreesF = gs.temperatureUnits().equalsIgnoreCase("F");
+            useDegreesF =  appContext.cachedGUIState.temperatureUnits().equalsIgnoreCase("F");
             updateWheelView();  // Make sure we show the right wheels from the get-go
         }            
         if (appContext.simulatedUnits.get() != null)
             useDegreesF = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
+        
+        if (useDegreesF) {
+            tempSlider.setMin(65);
+            tempSlider.setMax(80);
+            tempSlider.setMajorTickUnit(5);
+            tempSlider.setMinorTickCount(4);
+        } else {
+            tempSlider.setMin(18.0);
+            tempSlider.setMax(27.0);
+            tempSlider.setMajorTickUnit(1);
+            tempSlider.setMinorTickCount(1);
+        }
     }
 
-    protected void refresh() { updateState(hvacState); }
+    @Override protected void refresh() { updateState(hvacState); }
 
-    protected void reflectNewState() {
+    @Override protected void reflectNewState() {
         updateWheelView();
         reflectHVACOnState();
         reflectActualTemps();
         reflectDefrosterState();
     }
-
     
     // Controller-specific initialization
-    protected void fxInitialize() {    }    
+    @Override protected void fxInitialize() {
+        tempSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> ov,
+                                          Number old, Number cur) {
+                double temp = adjustedTemp(tempSlider.valueProperty().doubleValue());
+                targetTempLabel.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
+            }
+        });
+    }    
     
-    
+    private double adjustedTemp(double temp) {
+        return (useDegreesF) ? Math.round(temp): nearestHalf(temp);
+    }
 /*------------------------------------------------------------------------------
  *
  * Methods to Reflect the State of the HVAC System
@@ -146,11 +177,13 @@ public class HVACController extends BaseController {
         // the temp vs. temp set point to determine whether it is heating or cooling.
         boolean hvacOn = (hvacState.fanStatus() > 0);
         hvacOnButton.setSelected(hvacOn);
-        driverTempUpButton.setDisable(!hvacOn);
-        driverTempDownButton.setDisable(!hvacOn);
+        hvacOffButton.setSelected(!hvacOn);
         reflectFanStatus();
         updateCoolHotImages();
-        setTempLabel(driverTempLabel, hvacState.driverTemp(), false);
+        double temp = hvacState.driverTemp();
+        if (useDegreesF) temp = Math.round(Utils.cToF(temp));
+        else temp = nearestHalf(temp);
+        tempSlider.setValue(temp);
     }
     
     private void reflectFanStatus() {
@@ -173,11 +206,11 @@ public class HVACController extends BaseController {
     }
     
     private void reflectActualTemps() {
-        setTempLabel(insideTmpLabel, hvacState.insideTemp(), true);
-        setTempLabel(outsideTempLabel, hvacState.outsideTemp(), true);
+        setTempLabel(insideTmpLabel, hvacState.insideTemp());
+        setTempLabel(outsideTempLabel, hvacState.outsideTemp());
     }
     
-    public void updateCoolHotImages() {
+    private void updateCoolHotImages() {
         climateColdImg.setVisible(false);
         climateHotImg.setVisible(false);
         
@@ -191,15 +224,13 @@ public class HVACController extends BaseController {
         }
     } 
 
-    private void setTempLabel(Label label, double temp, boolean displayUnits) {
-        if (Double.isNaN(temp)) {   // No value is available
+    private void setTempLabel(Label label, double tempC) {
+        if (Double.isNaN(tempC)) {   // No value is available
             label.setText("...");
             return;
         }
-        if (useDegreesF) temp = Utils.cToF(temp);
-        String tempAsString = String.valueOf((int)(temp + 0.5));
-        if (displayUnits) tempAsString = tempAsString + (useDegreesF ? degreesF : degreesC);
-        label.setText(tempAsString);
+        double temp = adjustedTemp((useDegreesF) ? Utils.cToF(tempC) : tempC);
+        label.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
     }
 
     

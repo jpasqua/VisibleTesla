@@ -5,8 +5,10 @@
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
 
 <AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="600.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.LocationController">
@@ -16,6 +18,19 @@
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
     <Button fx:id="launchButton" mnemonicParsing="false" onAction="#launchButtonHandler" text="Browse" AnchorPane.bottomAnchor="13.0" AnchorPane.rightAnchor="93.0" />
+    <ImageView fx:id="loadingImage" fitHeight="399.9999694824219" fitWidth="669.6397952449237" layoutX="-30.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../TeslaResources/MapLoading.jpg" />
+      </image>
+    </ImageView>
+    <Label fx:id="loadingImageLabel" layoutX="364.0" layoutY="190.0" text="Locating your Tesla..." textFill="WHITE">
+      <effect>
+        <DropShadow color="#dfdfdf" />
+      </effect>
+      <font>
+        <Font name="Arial Bold Italic" size="18.0" />
+      </font>
+    </Label>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

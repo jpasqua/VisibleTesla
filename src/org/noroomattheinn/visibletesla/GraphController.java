@@ -50,23 +50,28 @@ import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext.InactivityMode;
+import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 import org.noroomattheinn.visibletesla.StatsRepository.Recorder;
 import org.noroomattheinn.visibletesla.chart.VTLineChart;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
 import org.noroomattheinn.visibletesla.chart.VTSeries;
 
-// TO DO:
-//
-// To add a new Series:
-// 1. If the series requires a new state object:
-//    1.1 Add the declaration of the object
-//    1.2 Initialize the object in prepForVehicle
-//    1.3 In getAndRecordStats: refresh the object and addElement on each series
-// 2. Add the corresponding checkbox
-//    2.1 Add a decalration for the checkbox and compile this source
-//    2.2 Open GraphUI.fxml and add a checkbox to the dropdown list
-// 3. Register the new series in prepSeries()
+/**
+ * GraphController: Handles the capture and display of vehicle statistics
+ * 
+ * NOTES:
+ * To add a new Series:
+ * 1. If the series requires a new state object:
+ *    1.1 Add the declaration of the object
+ *    1.2 Initialize the object in prepForVehicle
+ *    1.3 In getAndRecordStats: refresh the object and addElement on each series
+ * 2. Add the corresponding checkbox
+ *    2.1 Add a decalration for the checkbox and compile this source
+ *    2.2 Open GraphUI.fxml and add a checkbox to the dropdown list
+ * 3. Register the new series in prepSeries()
+
+ * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
+ */
 public class GraphController extends BaseController {
 
 /*------------------------------------------------------------------------------
@@ -75,9 +80,7 @@ public class GraphController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    public enum LoadPeriod {Last7, Last14, Last30, ThisWeek, ThisMonth, All};
-    public static final String GraphPeriodPrefKey = "GRAPH_PERIOD";
-    public static final String GraphIncLoadPrefKey = "GRAPH_INC_LOAD";
+    public enum LoadPeriod {Last7, Last14, Last30, ThisWeek, ThisMonth, All, None};
     
     public static final BiMap<String,LoadPeriod> nameToLoadPeriod = HashBiMap.create();
     static {
@@ -87,12 +90,11 @@ public class GraphController extends BaseController {
         nameToLoadPeriod.put("This week", LoadPeriod.ThisWeek);
         nameToLoadPeriod.put("This month", LoadPeriod.ThisMonth);
         nameToLoadPeriod.put("All", LoadPeriod.All);
+        nameToLoadPeriod.put("None", LoadPeriod.None);
     }
     
     private static final long DefaultInterval = 2 * 60 * 1000;  // 2 Minutes
     private static final long MinInterval =         30 * 1000;  // 30 Seconds
-    private static final long InitialPeriodToLoad = 0;
-                                 //7L * 24L * 60L * 60L * 1000L;  // 7 Days
     
 /*------------------------------------------------------------------------------
  *
@@ -473,8 +475,7 @@ public class GraphController extends BaseController {
         lineChart.applySeriesToChart();
         restoreLastSettings();
         
-        final int batchSize =
-            appContext.prefs.getBoolean(prefKey(GraphIncLoadPrefKey), true)  ? 250 : 50000;
+        final int batchSize = appContext.thePrefs.incrementalLoad.get() ? 250 : 50000;
 
         repo.loadExistingData(new Recorder() {
             @Override public void recordElement(long time, String type, double val) {
@@ -530,7 +531,7 @@ public class GraphController extends BaseController {
 
                 prepProgressBars(((double)toProcess.size())/totalChunksToProcess);
 
-                double nProcessed = 0;
+                double nProcessed = 1;
                 for (int i = toProcess.size()-1; i >= 0; i--) {
                     final double pct = nProcessed/toProcess.size();
                     doAdd(toProcess.get(i), pct, lpb1);
@@ -598,9 +599,15 @@ public class GraphController extends BaseController {
         Range<Long> loadPeriod = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
 
         long now = System.currentTimeMillis();
-        String periodName = appContext.prefs.get(
-                prefKey(GraphPeriodPrefKey), LoadPeriod.All.name());
-        switch (LoadPeriod.valueOf(periodName)) {
+        LoadPeriod period = nameToLoadPeriod.get(appContext.thePrefs.loadPeriod.get());
+        if (period == null) {
+            period = LoadPeriod.All;
+            appContext.thePrefs.loadPeriod.set(nameToLoadPeriod.inverse().get(period));
+        }
+        switch (period) {
+            case None:
+                loadPeriod = Range.closed(now + 1000, now + 1000L); // Empty Range
+                break;
             case Last7:
                 loadPeriod = Range.closed(now - (7 * 24 * 60 * 60 * 1000L), now);
                 break;
@@ -706,11 +713,11 @@ public class GraphController extends BaseController {
         }
     }
 
-    private class AutoCollect implements Runnable, ChangeListener<InactivityMode> {
-        private InactivityMode inactivityState = AppContext.InactivityMode.StayAwake;
+    private class AutoCollect implements Runnable, ChangeListener<InactivityType> {
+        private InactivityType inactivityState = AppContext.InactivityType.Awake;
 
         @Override
-        public void changed(ObservableValue<? extends InactivityMode> o, InactivityMode ov, InactivityMode nv) {
+        public void changed(ObservableValue<? extends InactivityType> o, InactivityType ov, InactivityType nv) {
             inactivityState = nv;
         }
 
@@ -720,7 +727,7 @@ public class GraphController extends BaseController {
             long collectionInterval = DefaultInterval;
             int decay = 0;
             while (true) {
-                if (!collectionPaused && inactivityState != InactivityMode.AllowSleeping) {
+                if (!collectionPaused && inactivityState != InactivityType.Sleep) {
                     Boolean inMotion = getAndRecordStats();
                     if (inMotion != null) {
                         if (inMotion) {

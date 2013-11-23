@@ -22,7 +22,14 @@ import org.noroomattheinn.utils.Utils;
 
 
 
-
+/**
+ * ScheduleItem: Represents a single item to be scheduled.
+ * TO DO: Right now this class directly persists state to the preference
+ * store. It gets the appropriate key and the pref store from the "owner".
+ * Instead it should just be calling the owner and asking it to read and write 
+ * persistent state.
+ * @author joe at NoRoomAtTheInn dot org
+ */
 class ScheduleItem implements EventHandler<ActionEvent> {
 
 /*------------------------------------------------------------------------------
@@ -60,7 +67,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     public interface ScheduleOwner {
         public String getExternalKey();
         public Preferences getPreferences();
-        public void runCommand(ScheduleItem.Command command, boolean minCharge);
+        public void runCommand(ScheduleItem.Command command, boolean safe);
     }
 
 /*------------------------------------------------------------------------------
@@ -73,7 +80,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private CheckBox enabled;
     private CheckBox[] days = new CheckBox[7];
     private TimeSelector time;
-    private CheckBox minCharge;
+    private CheckBox safe;
     private ComboBox<String> command;
     
     private int id; // Externally assigned ID of this instance
@@ -119,7 +126,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(0))),
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(1))),
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(2))));
-        minCharge = (CheckBox)prepNode(row.get(9));
+        safe = (CheckBox)prepNode(row.get(9));
         command = Utils.<ComboBox<String>>cast(prepNode(row.get(10)));        
     }
     
@@ -169,7 +176,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
             sb.append('_');
         }
         sb.append(String.format("%04d_", time.getHoursAndMinutes()));
-        sb.append(onOff(minCharge.isSelected()));
+        sb.append(onOff(safe.isSelected()));
         sb.append('_');
         sb.append(command.getSelectionModel().selectedItemProperty().getValue());
 
@@ -186,7 +193,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
             days[i].setSelected(elements[i + 1].equals("1"));
         }
         time.setHoursAndMinutes(Integer.valueOf(elements[8]));
-        minCharge.setSelected(elements[9].equals("1"));
+        safe.setSelected(elements[9].equals("1"));
         command.getSelectionModel().select(properCommandName(elements[10]));
     }
     
@@ -224,7 +231,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                 if (!enabled.isSelected() || cmd == Command.None)
                     return;
                 
-                owner.runCommand(cmd, minCharge.isSelected());
+                owner.runCommand(cmd, safe.isSelected());
             }
         });
         

@@ -5,6 +5,10 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -13,45 +17,72 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.visibletesla.GraphController.LoadPeriod;
 
 public class PrefsController extends BaseController {
-
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    private boolean loaded = false;
+    
 /*------------------------------------------------------------------------------
  *
  * General Application Preferences
  * 
  *----------------------------------------------------------------------------*/
 
-    @FXML private RadioButton generalAFFApp;
-    @FXML private RadioButton generalAFFUserDir;   
+    //
+    // UI Elements
+    //
+    @FXML private CheckBox      storeFilesWithApp;
+    @FXML private CheckBox      wakeOnTabChange;
+    @FXML private Slider        idleThresholdSlider;
+    @FXML private Label         idleThresholdLabel;
+    @FXML private CheckBox      offerExperimental;
+    @FXML private CheckBox      enableProxy;
+    @FXML private TextField     proxyHost;
+    @FXML private TextField     proxyPort;
     
+    
+    
+    //
+    // Action Handlers
+    //
     @FXML void showUserDirectory(ActionEvent event) {
         Dialogs.showInformationDialog(appContext.stage, 
             appContext.getAppFileFolder().getAbsolutePath(),
             "User Directory", "General Preferences");
     }
     
+    @FXML void wakeOnTCHandler(ActionEvent event) {
+    }
+    
     @FXML void generalHandleAFF(ActionEvent event) {
-        RadioButton rb = (RadioButton)event.getSource();
-        boolean storeFilesWithApp = (rb == generalAFFApp);
-        appContext.prefs.putBoolean(AppContext.AppFilesFolderKey, storeFilesWithApp);
         Dialogs.showInformationDialog(appContext.stage, 
             "This change will take effect the next time the application is started.\n",
             "Please Note...", "General Preferences");
     }
     
-    private void loadGeneralPrefs() {
-        boolean storeFilesWithApp =
-                appContext.prefs.getBoolean(AppContext.AppFilesFolderKey, false);
-        if (storeFilesWithApp) generalAFFApp.setSelected(true);
-        else generalAFFUserDir.setSelected(true);
+    //
+    // Intialize the UI
+    //
+    private void initGeneralPrefsUI() {
+        // Basic
+        bindToCheckBox(wakeOnTabChange, appContext.thePrefs.wakeOnTabChange);
+        bindToCheckBox(offerExperimental, appContext.thePrefs.offerExperimental);
+        bindToIntegerProperty(idleThresholdSlider, idleThresholdLabel,
+                              appContext.thePrefs.idleThresholdInMinutes);
         
-        // Write back the result in case we were reading a default value...
-        appContext.prefs.putBoolean(AppContext.AppFilesFolderKey, false);
+        // Advanced
+        bindToCheckBox(storeFilesWithApp, appContext.thePrefs.storeFilesWithApp);
+        bindToCheckBox(enableProxy, appContext.thePrefs.enableProxy);
+        bindToTextField(proxyHost, appContext.thePrefs.proxyHost);
+        bindToTextField(proxyPort, appContext.thePrefs.proxyPort);
     }
     
 /*------------------------------------------------------------------------------
@@ -60,28 +91,24 @@ public class PrefsController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
+    //
+    // UI Elements
+    //
     @FXML private ComboBox<String> graphsTimePeriod;
     @FXML private CheckBox incrementalLoad;
     
-    @FXML void graphIncremental(ActionEvent event) {
-        appContext.prefs.putBoolean(
-            prefKey(GraphController.GraphIncLoadPrefKey), incrementalLoad.isSelected());
-    }
-    
-    @FXML void graphSetTimePeriod(ActionEvent event) {
-        Object item = ((ComboBox)event.getSource()).getSelectionModel().getSelectedItem();
-        LoadPeriod period = GraphController.nameToLoadPeriod.get((String)item);
-        appContext.prefs.put(prefKey(GraphController.GraphPeriodPrefKey), period.name());
-    }
+    //
+    // Action Handlers
+    //
+    @FXML void graphIncremental(ActionEvent event) { }
+    @FXML void graphSetTimePeriod(ActionEvent event) { }
 
-    private void loadGraphPrefs() {
-        String periodName = appContext.prefs.get(
-                prefKey(GraphController.GraphPeriodPrefKey), LoadPeriod.All.name());
-        String choice = GraphController.nameToLoadPeriod.inverse().get(LoadPeriod.valueOf(periodName));
-        graphsTimePeriod.getSelectionModel().select(choice);
-        
-        incrementalLoad.setSelected(appContext.prefs.getBoolean(
-                prefKey(GraphController.GraphIncLoadPrefKey), true));
+    //
+    // Initialize the UI
+    //
+    private void initGraphPrefsUI() {
+        bindToComboBox(graphsTimePeriod, appContext.thePrefs.loadPeriod);
+        bindToCheckBox(incrementalLoad, appContext.thePrefs.incrementalLoad);
     }
     
 /*------------------------------------------------------------------------------
@@ -92,42 +119,95 @@ public class PrefsController extends BaseController {
 
     @FXML private Slider minChargeVal;
     @FXML private Label  minChargeDisplay;
+    @FXML private CheckBox safeMinCharge;
+    @FXML private CheckBox safePlugged;
     
-    private void loadSchedulerPrefs() {
-        final String key = prefKey(SchedulerController.SchedMinChargeKey);
-        
-        minChargeVal.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(
-                ObservableValue<? extends Number> ov, Number old, Number newVal) {
-                    minChargeDisplay.setText(String.valueOf(newVal.intValue()));
-                    appContext.prefs.putInt(key, newVal.intValue());
-            }
-        });
-        
-        int val = appContext.prefs.getInt(key, 50);
-        if (val < 50 || val > 100) {
-            val = 50;
-            appContext.prefs.putInt(key, val);
-        }
-        minChargeVal.setValue(val);
+    private void initSchedulerPrefsUI() {
+        bindToIntegerProperty(minChargeVal, minChargeDisplay, appContext.thePrefs.lowChargeValue);
+        bindToCheckBox(safeMinCharge, appContext.thePrefs.safeIncludesMinCharge);
+        bindToCheckBox(safePlugged, appContext.thePrefs.safeIncludesPluggedIn);
     }
     
 /*------------------------------------------------------------------------------
  *
- * Methods overridden from BaseController
+ * Methods overriden from BaseController
  * 
  *----------------------------------------------------------------------------*/
     
     @Override protected void fxInitialize() { }
 
     @Override protected void prepForVehicle(Vehicle v) {
-        loadGeneralPrefs();
-        loadGraphPrefs();
-        loadSchedulerPrefs();
+        if (!loaded) {
+            initGeneralPrefsUI();
+            initGraphPrefsUI();
+            initSchedulerPrefsUI();
+            loaded = true;
+        }
     }
 
     @Override protected void refresh() { }
 
     @Override protected void reflectNewState() { }
+
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
     
+    private void bindToComboBox(final ComboBox<String> cb, final StringProperty property) {
+        cb.getSelectionModel().select(property.get());
+
+        cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override public void changed(ObservableValue<? extends String> ov, String old, String cur) {
+                if (cur != null) {
+                    property.set(cur);
+                }
+            }
+        });
+        
+        property.addListener(new ChangeListener<String>() {
+            @Override public void changed(ObservableValue<? extends String> ov, String old, String cur) {
+                cb.getSelectionModel().select(cur);
+            }
+        });
+    }
+    
+    private void bindToCheckBox(final CheckBox cb, final BooleanProperty property) {
+        cb.setSelected(property.get());
+        property.bindBidirectional(cb.selectedProperty());
+    }
+    
+    private void bindToTextField(TextField tf, StringProperty property) {
+        tf.setText(property.get());
+        property.bindBidirectional(tf.textProperty());
+    }
+    
+    private void bindToTextField(TextField tf, IntegerProperty property) {
+        tf.setText(property.getValue().toString());
+        Bindings.bindBidirectional(tf.textProperty(), property, new NumberStringConverter("####"));
+    }
+    
+    private void bindToIntegerProperty(
+            final Slider slider, final Label label, final IntegerProperty property) {
+        
+        // Watch for any changes tot he property and update the UI appropriately
+        property.addListener(new ChangeListener<Number>() {
+            @Override public void changed(
+                ObservableValue<? extends Number> ov, Number old, Number cur) {
+                    slider.setValue(cur.intValue());
+                    label.setText(String.valueOf(cur.intValue()));
+            }
+        });        
+        slider.setValue(property.get());
+        label.setText(String.valueOf(property.get()));
+        
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(
+                ObservableValue<? extends Number> ov, Number old, Number cur) {
+                    property.set(cur.intValue());
+                    label.setText(String.valueOf(cur.intValue()));
+            }
+        });
+    }
 }
