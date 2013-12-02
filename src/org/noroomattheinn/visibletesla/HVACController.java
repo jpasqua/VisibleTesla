@@ -42,7 +42,7 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private org.noroomattheinn.tesla.HVACController controller;
-    private HVACState hvacState;
+    private HVACState hvac;
     private boolean useDegreesF = false;
     DoubleProperty sliderValue = new SimpleDoubleProperty(70);
     
@@ -73,7 +73,9 @@ public class HVACController extends BaseController {
     // Wheel Images
     @FXML private ImageView darkRimFront, darkRimRear;
     @FXML private ImageView nineteenRimFront, nineteenRimRear;
-
+    @FXML private ImageView aeroFront, aeroRear;
+    @FXML private ImageView cycloneFront, cycloneRear;
+    
     // Controls
     @FXML private ToggleButton  hvacOffButton, hvacOnButton;
     @FXML private Slider        tempSlider;
@@ -118,10 +120,10 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle(controller, v)) {
+        if (differentVehicle()) {
             controller = new org.noroomattheinn.tesla.HVACController(v);
-            hvacState = new HVACState(v);
-            useDegreesF =  appContext.cachedGUIState.temperatureUnits().equalsIgnoreCase("F");
+            hvac = new HVACState(v);
+            useDegreesF = appContext.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F");
             updateWheelView();  // Make sure we show the right wheels from the get-go
         }            
         if (appContext.simulatedUnits.get() != null)
@@ -140,9 +142,10 @@ public class HVACController extends BaseController {
         }
     }
 
-    @Override protected void refresh() { updateState(hvacState); }
+    @Override protected void refresh() { updateState(hvac); }
 
     @Override protected void reflectNewState() {
+        if (hvac.state == null) return; // State is not ready...
         updateWheelView();
         reflectHVACOnState();
         reflectActualTemps();
@@ -171,16 +174,16 @@ public class HVACController extends BaseController {
     
     private void reflectHVACOnState() {
         // Determining whether the HVAC is on is a little tricky. You'd think
-        // you could just look at hvacState.autoConditioning, but that only tells
+        // you could just look at hvac.state.autoConditioning, but that only tells
         // you whether the AC is running - not the heat. Until I determine a better
         // way, I'm using the fan speed to indicate whether the HVAC is on and using
         // the temp vs. temp set point to determine whether it is heating or cooling.
-        boolean hvacOn = (hvacState.fanStatus() > 0);
+        boolean hvacOn = (hvac.state.fanStatus > 0);
         hvacOnButton.setSelected(hvacOn);
         hvacOffButton.setSelected(!hvacOn);
         reflectFanStatus();
         updateCoolHotImages();
-        double temp = hvacState.driverTemp();
+        double temp = hvac.state.driverTemp;
         if (useDegreesF) temp = Math.round(Utils.cToF(temp));
         else temp = nearestHalf(temp);
         tempSlider.setValue(temp);
@@ -192,7 +195,7 @@ public class HVACController extends BaseController {
         fan2.setVisible(false); fan3.setVisible(false); fan4.setVisible(false);
         
         // Now turn on the right one...
-        int fanSpeed = hvacState.fanStatus();   // Range of 0-7
+        int fanSpeed = hvac.state.fanStatus;   // Range of 0-7
         if (fanSpeed >= 6) fan4.setVisible(true);
         else if (fanSpeed >= 4) fan3.setVisible(true);
         else if (fanSpeed >= 2) fan2.setVisible(true);
@@ -201,24 +204,24 @@ public class HVACController extends BaseController {
     }
     
     private void reflectDefrosterState() {
-        setOptionState(hvacState.isFrontDefrosterOn() != 0, frontDefOnImg, frontDefOffImg);
-        setOptionState(hvacState.isRearDefrosterOn(), rearDefOnImg, rearDefOffImg);
+        setOptionState(hvac.state.isFrontDefrosterOn != 0, frontDefOnImg, frontDefOffImg);
+        setOptionState(hvac.state.isRearDefrosterOn, rearDefOnImg, rearDefOffImg);
     }
     
     private void reflectActualTemps() {
-        setTempLabel(insideTmpLabel, hvacState.insideTemp());
-        setTempLabel(outsideTempLabel, hvacState.outsideTemp());
+        setTempLabel(insideTmpLabel, hvac.state.insideTemp);
+        setTempLabel(outsideTempLabel, hvac.state.outsideTemp);
     }
     
     private void updateCoolHotImages() {
         climateColdImg.setVisible(false);
         climateHotImg.setVisible(false);
         
-        if (hvacState.fanStatus() > 0) {
-            double insideTemp = hvacState.insideTemp();
-            if (insideTemp > hvacState.driverTemp())
+        if (hvac.state.fanStatus > 0) {
+            double insideTemp = hvac.state.insideTemp;
+            if (insideTemp > hvac.state.driverTemp)
                 climateColdImg.setVisible(true);
-            else if (insideTemp < hvacState.driverTemp()) {
+            else if (insideTemp < hvac.state.driverTemp) {
                 climateHotImg.setVisible(true);
             }
         }
@@ -240,11 +243,19 @@ public class HVACController extends BaseController {
         WheelType wt = (appContext.simulatedWheels.get() == null) ?
                 vehicle.getOptions().wheelType() : appContext.simulatedWheels.get();
         
-        nineteenRimFront.setVisible(false);
-        nineteenRimRear.setVisible(false);
-        darkRimFront.setVisible(false);
-        darkRimRear.setVisible(false);
+        nineteenRimFront.setVisible(false); nineteenRimRear.setVisible(false);
+        darkRimFront.setVisible(false); darkRimRear.setVisible(false);
+        aeroFront.setVisible(false);  aeroRear.setVisible(false);
+        cycloneFront.setVisible(false); cycloneRear.setVisible(false);
         switch (wt) {
+            case WTAE:
+                aeroFront.setVisible(true);
+                aeroRear.setVisible(true);
+                break;
+            case WTCY:
+                cycloneFront.setVisible(true);
+                cycloneRear.setVisible(true);
+                break;
             case WT19:
                 nineteenRimFront.setVisible(true);
                 nineteenRimRear.setVisible(true);

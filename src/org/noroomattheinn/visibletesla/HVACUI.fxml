@@ -11,7 +11,7 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.HVACController">
   <children>
-    <ImageView fitHeight="0.0" fitWidth="0.0" layoutX="7.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true">
+    <ImageView fitHeight="0.0" fitWidth="0.0" layoutX="7.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true" visible="true">
       <image>
         <Image url="@../TeslaResources/05_climate_car@2x.png" />
       </image>
@@ -114,24 +114,44 @@
         <ToggleButton id="hvacOff" fx:id="hvacOffButton" mnemonicParsing="false" onAction="#hvacOnOffHandler" selected="true" styleClass="pill-right" text="Off" toggleGroup="$x1" />
       </children>
     </HBox>
-    <ImageView fx:id="darkRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="122.0" layoutY="223.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="darkRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="117.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/rims_dark_front@2x.png" />
+        <Image url="@../TeslaResources/wheel_front_21_dark@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="darkRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="450.0" layoutY="223.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="darkRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="440.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/rims_dark_rear@2x.png" />
+        <Image url="@../TeslaResources/wheel_rear_21_dark@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="123.0" layoutY="221.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="117.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/19r1.png" />
+        <Image url="@../TeslaResources/wheel_front_19@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="nineteenRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="450.0" layoutY="222.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="nineteenRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="440.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/19r1.png" />
+        <Image url="@../TeslaResources/wheel_rear_19@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="nineteenRimRear" fx:id="cycloneRear" fitHeight="0.0" fitWidth="0.0" layoutX="440.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_rear_turbine@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimFront" fx:id="cycloneFront" fitHeight="0.0" fitWidth="0.0" layoutX="117.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_front_turbine@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimRear" fx:id="aeroRear" fitHeight="0.0" fitWidth="0.0" layoutX="440.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_rear_aero@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="nineteenRimFront" fx:id="aeroFront" fitHeight="0.0" fitWidth="0.0" layoutX="117.0" layoutY="216.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_front_aero@2x.png" />
       </image>
     </ImageView>
   </children>

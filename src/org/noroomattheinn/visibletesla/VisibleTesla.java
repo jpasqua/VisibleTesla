@@ -6,6 +6,11 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -42,10 +47,13 @@ public class VisibleTesla extends Application {
      * @throws Exception
      */
     @Override public void start(Stage stage) throws Exception {
+        setupLogger();
+
         Parent root = FXMLLoader.load(getClass().getResource("MainUI.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+        
         // Everything above is boilerplate. The only thing this method does that
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
@@ -54,7 +62,7 @@ public class VisibleTesla extends Application {
         mainController.start(this, stage);
     }
     
-    public void stop() {
+    @Override public void stop() {
         mainController.stop();
     }
     
@@ -70,4 +78,16 @@ public class VisibleTesla extends Application {
         launch(args);
     }
 
+    private void setupLogger() {
+        Logger logger = Logger.getLogger("");
+        FileHandler fileHandler;
+        try {
+            fileHandler = new FileHandler("visibletesla.log");
+            fileHandler.setFormatter(new SimpleFormatter());
+            fileHandler.setLevel(Level.ALL);
+            logger.addHandler(fileHandler);
+        } catch (IOException | SecurityException ex) {
+            logger.log(Level.SEVERE, "Unable to establish log file");
+        }
+    }
 }

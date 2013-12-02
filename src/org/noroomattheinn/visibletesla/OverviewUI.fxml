@@ -125,14 +125,14 @@
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
-    <ImageView fx:id="darkRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="103.0" layoutY="233.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="darkRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/rims_dark_front@2x.png" />
+        <Image url="@../TeslaResources/wheel_front_21_dark@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="darkRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="431.0" layoutY="233.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="darkRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="422.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/rims_dark_rear@2x.png" />
+        <Image url="@../TeslaResources/wheel_rear_21_dark@2x.png" />
       </image>
     </ImageView>
     <HBox id="HBox" alignment="CENTER" layoutX="115.0" layoutY="323.0" spacing="-1.0">
@@ -141,14 +141,14 @@
         <Button fx:id="unlockButton" mnemonicParsing="false" onAction="#lockButtonHandler" styleClass="pill-right" text="Unlock" />
       </children>
     </HBox>
-    <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="104.0" layoutY="231.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="nineteenRimFront" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/19r1.png" />
+        <Image url="@../TeslaResources/wheel_front_19@2x.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="nineteenRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="431.0" layoutY="232.0" pickOnBounds="true" preserveRatio="true" visible="false">
+    <ImageView fx:id="nineteenRimRear" fitHeight="0.0" fitWidth="0.0" layoutX="422.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
-        <Image url="@../TeslaResources/19r1.png" />
+        <Image url="@../TeslaResources/wheel_rear_19@2x.png" />
       </image>
     </ImageView>
     <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" minHeight="13.9998779296875" prefHeight="13.9998779296875" text="Odometer: ..." visible="true" />
@@ -195,6 +195,26 @@
       </effect>
     </Rectangle>
     <Label fx:id="vinLabel" layoutX="21.0" layoutY="25.0" text="VIN P08714" textFill="BLACK" />
+    <ImageView id="darkRimFront" fx:id="aeroFront" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_front_aero@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimFront" fx:id="aeroRear" fitHeight="0.0" fitWidth="0.0" layoutX="422.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_rear_aero@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimFront" fx:id="cycloneRear" fitHeight="0.0" fitWidth="0.0" layoutX="422.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_rear_turbine@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimFront" fx:id="cycloneFront" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_front_turbine@2x.png" />
+      </image>
+    </ImageView>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

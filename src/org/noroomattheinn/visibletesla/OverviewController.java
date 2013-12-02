@@ -27,7 +27,6 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DoorController;
 import org.noroomattheinn.tesla.DoorController.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
-import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Options.PaintColor;
 import org.noroomattheinn.tesla.Options.WheelType;
@@ -49,13 +48,13 @@ public class OverviewController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
- * Internal State
+ * Internal Status
  * 
  *----------------------------------------------------------------------------*/
 
-    private VehicleState        vehicleState;   // The primary door state
-    private SnapshotState       snapshotState;  // For odometer reading
-    private ChargeState         chargeState;    // For chargePortDoor status
+    private VehicleState        car;            // The primary door state
+    private SnapshotState       snapshot;       // For odometer reading
+    private ChargeState         charge;         // For chargePortDoor status
     private DoorController      doorController; // For primary door controller
     private ActionController    actions;        // For honk, flash, wake commands
     private double              storedOdometerReading;
@@ -77,6 +76,9 @@ public class OverviewController extends BaseController {
     @FXML private ImageView bodyImg;
     @FXML private ImageView darkRimFront, darkRimRear;
     @FXML private ImageView nineteenRimFront, nineteenRimRear;
+    @FXML private ImageView aeroFront, aeroRear;
+    @FXML private ImageView cycloneFront, cycloneRear;
+    
 
     // Driver Side
     @FXML private ImageView dfOpenImg, dfClosedImg;
@@ -143,8 +145,8 @@ public class OverviewController extends BaseController {
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
         String info = vehicle.toString() +
-                "\nFirmware Version: " + vehicleState.version() +
-                "\nHas Spoiler: " + vehicleState.hasSpoiler() +
+                "\nFirmware Version: " + car.state.version +
+                "\nHas Spoiler: " + car.state.hasSpoiler +
                 "\n--------------------------------------------" +
                 "\nLow level information: " + vehicle.getUnderlyingValues() +
                 "\nAPI Usage Rates:";
@@ -185,34 +187,34 @@ public class OverviewController extends BaseController {
     
     /**
      * Refresh the state either because the user requested it or because the 
-     * auto-refresh interval has passed. We always update the vehicleState and
-     * chargeState. Getting the odometer reading can be more burdensome because
+     * auto-refresh interval has passed. We always update the car and
+     * charge. Getting the odometer reading can be more burdensome because
      * it has to be done through the streaming API. We only do that every 3rd
      * time refresh is invoked, or if the user pressed the refresh button.
      * This keeps down our request rate to the tesla servers.
      * 
      */
     @Override protected void refresh() {
-        updateState(vehicleState);
-        updateState(chargeState);
+        updateState(car);
+        updateState(charge);
         if (userInvokedRefresh || refreshCount % 3 == 0) {
-            updateState(snapshotState);
+            updateState(snapshot);
         }
         refreshCount++;
     }
     static private int refreshCount = 0;
     
     @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle(actions, v)) {
+        if (differentVehicle()) {
             actions = new ActionController(v);
             doorController = new DoorController(v);
             getAppropriateImages(v);
 
-            vehicleState = new VehicleState(v);
-            snapshotState = new SnapshotState(v);
-            chargeState = new ChargeState(v);
+            car = new VehicleState(v);
+            snapshot = new SnapshotState(v);
+            charge = new ChargeState(v);
             
-            storedOdometerReading = appContext.prefs.getDouble(v.getVIN()+"_odometer", 0);
+            storedOdometerReading = appContext.persistentState.getDouble(v.getVIN()+"_odometer", 0);
 
             updateWheelView();  // Make sure we display the right wheels from the get-go
             updateRoofView();   // Make sure we display the right roof from the get-go
@@ -224,8 +226,7 @@ public class OverviewController extends BaseController {
     }
     
     @Override protected void reflectNewState() {
-        if (!vehicleState.hasValidData())    // Data's not ready yet
-            return;
+        if (car.state == null) return;   // State's not ready yet
 
         updateWheelView();
         updateRoofView();
@@ -244,19 +245,19 @@ public class OverviewController extends BaseController {
     
     
     private void updateDoorView() {
-        boolean rtOpen = vehicleState.isRTOpen();
+        boolean rtOpen = car.state.isRTOpen;
         
         // Show the open/closed state of the doors and trunks
-        setOptionState(vehicleState.isFTOpen(), ftOpenImg, ftClosedImg);
+        setOptionState(car.state.isFTOpen, ftOpenImg, ftClosedImg);
         setOptionState(rtOpen, rtOpenImg, rtClosedImg);
-        setOptionState(vehicleState.isDFOpen(), dfOpenImg, dfClosedImg);
-        setOptionState(vehicleState.isPFOpen(), pfOpenImg, null);
-        setOptionState(vehicleState.isDROpen(), drOpenImg, drClosedImg);
-        setOptionState(vehicleState.isPROpen(), prOpenImg, null);
-        setOptionState(vehicleState.locked(), lockedImg, unlockedImg);
+        setOptionState(car.state.isDFOpen, dfOpenImg, dfClosedImg);
+        setOptionState(car.state.isPFOpen, pfOpenImg, null);
+        setOptionState(car.state.isDROpen, drOpenImg, drClosedImg);
+        setOptionState(car.state.isPROpen, prOpenImg, null);
+        setOptionState(car.state.locked, lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
-        if (vehicleState.hasSpoiler()) {
+        if (car.state.hasSpoiler) {
             setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         }        
     }
@@ -285,7 +286,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updatePanoView() {
-        int pct = (vehicleState.hasValidData()) ? vehicleState.panoPercent() : 0;
+        int pct = (car.state != null) ? car.state.panoPercent : 0;
         
         if (pct == 0) panoClosedImg.setVisible(true);
         else if (pct > 0 && pct < 90) panoVentImg.setVisible(true);
@@ -297,11 +298,19 @@ public class OverviewController extends BaseController {
         WheelType wt = (appContext.simulatedWheels.get() == null) ?
                 vehicle.getOptions().wheelType() : appContext.simulatedWheels.get();
         
-        nineteenRimFront.setVisible(false);
-        nineteenRimRear.setVisible(false);
-        darkRimFront.setVisible(false);
-        darkRimRear.setVisible(false);
+        nineteenRimFront.setVisible(false); nineteenRimRear.setVisible(false);
+        darkRimFront.setVisible(false); darkRimRear.setVisible(false);
+        aeroFront.setVisible(false);  aeroRear.setVisible(false);
+        cycloneFront.setVisible(false); cycloneRear.setVisible(false);
         switch (wt) {
+            case WTAE:
+                aeroFront.setVisible(true);
+                aeroRear.setVisible(true);
+                break;
+            case WTCY:
+                cycloneFront.setVisible(true);
+                cycloneRear.setVisible(true);
+                break;
             case WT19:
                 nineteenRimFront.setVisible(true);
                 nineteenRimRear.setVisible(true);
@@ -318,24 +327,23 @@ public class OverviewController extends BaseController {
     }
       
     private void updateChargePort() {
-        if (!chargeState.hasValidData()) return; // No data available yet...
+        if (charge.state == null) return; // No state available yet...
         
-        int pilotCurrent = chargeState.chargerPilotCurrent();
-        boolean chargePortDoorOpen = (chargeState.chargePortOpen() || pilotCurrent > 0);
+        int pilotCurrent = charge.state.chargerPilotCurrent;
+        boolean chargePortDoorOpen = (charge.state.chargePortOpen || pilotCurrent > 0);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
-        greenGlowImage.setVisible(chargeState.chargingState() == ChargeState.State.Charging);
+        greenGlowImage.setVisible(charge.state.chargingState == ChargeState.Status.Charging);
     }
     
     private void updateOdometer() {
-        double odometerReading = (snapshotState.hasValidData()) ?
-                snapshotState.odometer() : storedOdometerReading;
+        double odometerReading = (snapshot.state != null) ?
+                snapshot.state.odometer : storedOdometerReading;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
         // Save off the odometer reading (in miles)
-        appContext.prefs.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
-        GUIState gs = appContext.cachedGUIState;
-        boolean useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
+        appContext.persistentState.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
+        boolean useMiles = appContext.lastKnownGUIState.get().distanceUnits.equalsIgnoreCase("mi/hr");
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
@@ -344,7 +352,7 @@ public class OverviewController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
- * Data and Methods for locating the right images based on vehicle parameters
+ * State and Methods for locating the right images based on vehicle parameters
  * 
  *----------------------------------------------------------------------------*/
 

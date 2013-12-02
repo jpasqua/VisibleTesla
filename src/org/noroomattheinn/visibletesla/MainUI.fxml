@@ -44,6 +44,11 @@
                 <fx:include source="GraphUI.fxml" minHeight="400.0" />
               </content>
             </Tab>
+            <Tab fx:id="tripsTab" disable="true" text="Trips">
+              <content>
+                <fx:include source="TripsUI.fxml" minHeight="400.0" />
+              </content>
+            </Tab>
             <Tab fx:id="schedulerTab" disable="true" text="Scheduler">
               <content>
                 <fx:include source="SchedulerUI.fxml" minHeight="400.0" />
@@ -62,7 +67,8 @@
           <menus>
             <Menu mnemonicParsing="false" text="File">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Graph Data..." />
+                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Stats Data..." fx:id="exportStatsMenuItem" />
+                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Location Data..." fx:id="exportLocMenuItem" />
                 <MenuItem mnemonicParsing="false" onAction="#closeHandler" text="Close">
                   <accelerator>
                     <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
@@ -104,6 +110,8 @@
                         <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Silver 21" fx:id="lightRims" />
                         <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Gray 21" fx:id="darkRims" />
                         <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Silver 19" fx:id="silver19Rims" />
+                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Aero 19" fx:id="aeroRims" />
+                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Cyclone 19" fx:id="cycloneRims" />
                       </items>
                     </Menu>
                     <Menu mnemonicParsing="false" text="Roof">

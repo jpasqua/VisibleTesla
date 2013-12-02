@@ -45,7 +45,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     @FXML private GridPane gridPane;
     @FXML private TextArea activityLog;
     
-    private ChargeState chargeState;
+    private ChargeState charge;
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private org.noroomattheinn.tesla.HVACController hvacController;
 
@@ -71,7 +71,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
  *----------------------------------------------------------------------------*/
     
     @Override public String getExternalKey() { return vehicle.getVIN(); }
-    @Override public Preferences getPreferences() { return appContext.prefs; }
+    @Override public Preferences getPreferences() { return appContext.persistentState; }
     
     @Override public void runCommand(ScheduleItem.Command command, boolean safe) {
         if (command != ScheduleItem.Command.SLEEP) {
@@ -97,7 +97,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             case CHARGE_STD: r = chargeController.setChargePercent(stdCharge); break;
             case CHARGE_MAX: r = chargeController.setChargePercent(maxCharge); break;
             case CHARGE_MIN: r = chargeController.setChargePercent(
-                    appContext.thePrefs.lowChargeValue.get()); break;
+                    appContext.prefs.lowChargeValue.get()); break;
             case HVAC_ON: r = hvacController.startAC(); break;
             case HVAC_OFF: r = hvacController.stopAC();break;
             case AWAKE: appContext.requestInactivityMode(InactivityType.Awake); break;
@@ -113,18 +113,18 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     private boolean safeToRun(ScheduleItem.Command command, boolean safe) {
         String name = ScheduleItem.commandToName(command);
         if (safe && (command == ScheduleItem.Command.HVAC_ON)) {
-            if (appContext.thePrefs.safeIncludesMinCharge.get() &&
-                chargeState.batteryPercent() < Safe_Threshold) {
+            if (appContext.prefs.safeIncludesMinCharge.get() &&
+                charge.state.batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
                 logActivity(entry);
                 return false;
             }
             
-            if (appContext.thePrefs.safeIncludesPluggedIn.get()) {
-                if (chargeState.chargerPilotCurrent() < 1) {
-                    chargeState.refresh();  // Be double sure!
-                    if (chargeState.chargerPilotCurrent() < 1) {
+            if (appContext.prefs.safeIncludesPluggedIn.get()) {
+                if (charge.state.chargerPilotCurrent < 1) {
+                    charge.refresh();  // Be double sure!
+                    if (charge.state.chargerPilotCurrent < 1) {
                         String entry = String.format(
                                 "%s: Vehicle not plugged in - aborted", name);
                         logActivity(entry);
@@ -137,13 +137,13 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     }
     
     private boolean wakeAndGetChargeState() {
-        if (chargeState.refresh()) return true;
+        if (charge.refresh()) return true;
         
         ActionController a = new ActionController(vehicle);
         for (int i = 0; i < 20; i++) {
             a.wakeUp();
             Utils.sleep(500);
-            if (chargeState.refresh())
+            if (charge.refresh())
                 return true;
         }
         return false;
@@ -212,14 +212,14 @@ public class SchedulerController extends BaseController implements ScheduleItem.
 
     @Override
     protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle(chargeController, v)) {
-            chargeState = new ChargeState(v);
+        if (differentVehicle()) {
+            charge = new ChargeState(v);
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             hvacController = new org.noroomattheinn.tesla.HVACController(v);
 
-            if (chargeState.refresh()) {
-                maxCharge = chargeState.chargeLimitSOCMax();
-                stdCharge = chargeState.chargeLimitSOCStd();
+            if (charge.refresh()) {
+                maxCharge = charge.state.chargeLimitSOCMax;
+                stdCharge = charge.state.chargeLimitSOCStd;
             } else {
                 Tesla.logger.log(Level.WARNING,
                     "Unable to get charge information for use by scheduler. Using defaults");

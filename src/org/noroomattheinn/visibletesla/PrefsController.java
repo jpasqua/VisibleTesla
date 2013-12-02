@@ -47,8 +47,7 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox      enableProxy;
     @FXML private TextField     proxyHost;
     @FXML private TextField     proxyPort;
-    
-    
+    @FXML private ComboBox<String> graphsTimePeriod;
     
     //
     // Action Handlers
@@ -73,44 +72,42 @@ public class PrefsController extends BaseController {
     //
     private void initGeneralPrefsUI() {
         // Basic
-        bindToCheckBox(wakeOnTabChange, appContext.thePrefs.wakeOnTabChange);
-        bindToCheckBox(offerExperimental, appContext.thePrefs.offerExperimental);
+        bindToCheckBox(wakeOnTabChange, appContext.prefs.wakeOnTabChange);
         bindToIntegerProperty(idleThresholdSlider, idleThresholdLabel,
-                              appContext.thePrefs.idleThresholdInMinutes);
+                              appContext.prefs.idleThresholdInMinutes);
+        bindToComboBox(graphsTimePeriod, appContext.prefs.loadPeriod);
         
         // Advanced
-        bindToCheckBox(storeFilesWithApp, appContext.thePrefs.storeFilesWithApp);
-        bindToCheckBox(enableProxy, appContext.thePrefs.enableProxy);
-        bindToTextField(proxyHost, appContext.thePrefs.proxyHost);
-        bindToTextField(proxyPort, appContext.thePrefs.proxyPort);
+        bindToCheckBox(storeFilesWithApp, appContext.prefs.storeFilesWithApp);
+        bindToCheckBox(enableProxy, appContext.prefs.enableProxy);
+        bindToTextField(proxyHost, appContext.prefs.proxyHost);
+        bindToTextField(proxyPort, appContext.prefs.proxyPort);
+        bindToCheckBox(offerExperimental, appContext.prefs.offerExperimental);
     }
     
 /*------------------------------------------------------------------------------
  *
- * Preferences related to the Graphs Tab
+ * Preferences related to the Location Tab
  * 
  *----------------------------------------------------------------------------*/
 
     //
     // UI Elements
     //
-    @FXML private ComboBox<String> graphsTimePeriod;
-    @FXML private CheckBox incrementalLoad;
-    
-    //
-    // Action Handlers
-    //
-    @FXML void graphIncremental(ActionEvent event) { }
-    @FXML void graphSetTimePeriod(ActionEvent event) { }
-
+    @FXML private CheckBox collectLocationData;
+    @FXML private Slider locMinTime;
+    @FXML private Label locMinTimeDisplay;
+    @FXML private Slider locMinDist;
+    @FXML private Label locMinDistDisplay;
     //
     // Initialize the UI
     //
-    private void initGraphPrefsUI() {
-        bindToComboBox(graphsTimePeriod, appContext.thePrefs.loadPeriod);
-        bindToCheckBox(incrementalLoad, appContext.thePrefs.incrementalLoad);
+    private void initLocationPrefsUI() {
+        bindToCheckBox(collectLocationData, appContext.prefs.collectLocationData);
+        bindToIntegerProperty(locMinTime, locMinTimeDisplay, appContext.prefs.locMinTime);
+        bindToIntegerProperty(locMinDist, locMinDistDisplay, appContext.prefs.locMinDist);
     }
-    
+
 /*------------------------------------------------------------------------------
  *
  * Preferences related to the Scheduler Tab
@@ -123,9 +120,9 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox safePlugged;
     
     private void initSchedulerPrefsUI() {
-        bindToIntegerProperty(minChargeVal, minChargeDisplay, appContext.thePrefs.lowChargeValue);
-        bindToCheckBox(safeMinCharge, appContext.thePrefs.safeIncludesMinCharge);
-        bindToCheckBox(safePlugged, appContext.thePrefs.safeIncludesPluggedIn);
+        bindToIntegerProperty(minChargeVal, minChargeDisplay, appContext.prefs.lowChargeValue);
+        bindToCheckBox(safeMinCharge, appContext.prefs.safeIncludesMinCharge);
+        bindToCheckBox(safePlugged, appContext.prefs.safeIncludesPluggedIn);
     }
     
 /*------------------------------------------------------------------------------
@@ -139,8 +136,8 @@ public class PrefsController extends BaseController {
     @Override protected void prepForVehicle(Vehicle v) {
         if (!loaded) {
             initGeneralPrefsUI();
-            initGraphPrefsUI();
             initSchedulerPrefsUI();
+            initLocationPrefsUI();
             loaded = true;
         }
     }
@@ -191,7 +188,7 @@ public class PrefsController extends BaseController {
     private void bindToIntegerProperty(
             final Slider slider, final Label label, final IntegerProperty property) {
         
-        // Watch for any changes tot he property and update the UI appropriately
+        // Watch for any changes to the property and update the UI appropriately
         property.addListener(new ChangeListener<Number>() {
             @Override public void changed(
                 ObservableValue<? extends Number> ov, Number old, Number cur) {

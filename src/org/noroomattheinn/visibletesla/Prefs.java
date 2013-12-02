@@ -28,6 +28,7 @@ public class Prefs {
         loadGeneralPrefs();
         loadGraphPrefs();
         loadSchedulerPrefs();
+        loadLocationPrefs();
     }
     
 /*------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ public class Prefs {
     private static final String GraphIncLoadPrefKey = "GRAPH_INC_LOAD";
     
     private void loadGraphPrefs() {
-        stringPref(GraphPeriodPrefKey, loadPeriod, GraphController.LoadPeriod.All.name());
+        stringPref(GraphPeriodPrefKey, loadPeriod, StatsStore.LoadPeriod.All.name());
         booleanPref(GraphIncLoadPrefKey, incrementalLoad, true);
     }
     
@@ -101,36 +102,56 @@ public class Prefs {
     
 /*------------------------------------------------------------------------------
  *
+ * Preferences related to the Location Tab
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public BooleanProperty collectLocationData = new SimpleBooleanProperty();
+    public IntegerProperty locMinTime = new SimpleIntegerProperty();
+    public IntegerProperty locMinDist = new SimpleIntegerProperty();
+    
+    private static final String LocCollectData = "LOC_COLLECT_DATA";
+    private static final String LocMinTime = "LOC_MIN_TIME";
+    private static final String LocMinDist = "LOC_MIN_DIST";
+    
+    private void loadLocationPrefs() {
+        booleanPref(LocCollectData, collectLocationData, false);
+        integerPref(LocMinTime, locMinTime, 5); // 5 Seconds
+        integerPref(LocMinDist, locMinDist, 5); // 5 Meters
+    }
+    
+/*------------------------------------------------------------------------------
+ *
  * PRIVATE - Convenience Methods for handling preferences
  * 
  *----------------------------------------------------------------------------*/
 
     private void integerPref(final String key, IntegerProperty property, int defaultValue) {
-        property.set(appContext.prefs.getInt(key, defaultValue));
+        property.set(appContext.persistentState.getInt(key, defaultValue));
         property.addListener(new ChangeListener<Number>() {
             @Override public void changed(
                 ObservableValue<? extends Number> ov, Number old, Number cur) {
-                    appContext.prefs.putInt(key, cur.intValue());
+                    appContext.persistentState.putInt(key, cur.intValue());
             }
         });
     }
     
     private void booleanPref(final String key, BooleanProperty property, boolean defaultValue) {
-        property.set(appContext.prefs.getBoolean(key, defaultValue));
+        property.set(appContext.persistentState.getBoolean(key, defaultValue));
         property.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-                    appContext.prefs.putBoolean(key, cur);
+                    appContext.persistentState.putBoolean(key, cur);
             }
         });
     }
     
     private void stringPref(final String key, StringProperty property, String defaultValue) {
-        property.set(appContext.prefs.get(key, defaultValue));
+        property.set(appContext.persistentState.get(key, defaultValue));
         property.addListener(new ChangeListener<String>() {
             @Override public void changed(
                 ObservableValue<? extends String> ov, String old, String cur) {
-                    appContext.prefs.put(key, cur);
+                    appContext.persistentState.put(key, cur);
             }
         });
     }

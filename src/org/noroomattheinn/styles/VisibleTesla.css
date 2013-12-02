@@ -85,3 +85,6 @@
     -fx-padding: 3px;
 }
 
+.CalendarPickerControlSkin .weeknumber { 
+	-fx-text-fill: transparent;
+}

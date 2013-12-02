@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TITLE</title>
+
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCjGYtiv3uD2JytDbT7CPmDawOTbjKe9QM&sensor=false">
+    </script>
+  </head>
+  <body>
+
+    <script type="text/javascript">
+    function initialize() {
+
+          var poly;
+
+          var wayPoints = WAYPOINTS
+
+          var mapOptions = {
+            zoom: 0,
+            center: new google.maps.LatLng(0, 0),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+          };
+
+        var polyOptions = {
+            strokeColor: '#0088FF',
+            strokeOpacity: 1.0,
+            strokeWeight: 4
+        }
+
+        var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+        poly = new google.maps.Polyline(polyOptions);
+        poly.setMap(map);
+
+        var path = poly.getPath();
+     
+        var latlngbounds = new google.maps.LatLngBounds( );
+        var image = {
+          //url: 'http://maps.google.com/mapfiles/kml/shapes/placemark_circle_maps.png',
+          url: 'https://dl.dropboxusercontent.com/u/7045813/Stable/placemark_arrow.png',
+          anchor: new google.maps.Point(7,10) 
+          };
+        for ( var i = 0; i < wayPoints.length; i++ ) {
+            var pos = new google.maps.LatLng(wayPoints[i].lat, wayPoints[i].lng);
+
+            var markerFillColor = 'red';
+            var markerOpacity = 1;
+
+            if (i == 0) {
+                markerFillColor = "darkgreen";
+            } else if (i == wayPoints.length-1) {
+                markerFillColor = "black";
+            } else {
+                markerOpacity = 0.5;
+            }
+            new google.maps.Marker( {
+                position: pos,
+                map: map,
+                title: wayPoints[i].timestamp+", "+wayPoints[i].speed,
+                icon: {
+                  path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                  scale:4,
+                  strokeColor: 'black',
+                  fillColor: markerFillColor,
+                  fillOpacity: markerOpacity,
+                  strokeWeight:1,
+                  rotation: wayPoints[i].heading
+                }
+                //icon: image
+            } );
+
+            path.push(pos);
+            latlngbounds.extend( pos );
+        }
+
+
+        map.fitBounds( latlngbounds );
+
+    }
+
+    google.maps.event.addDomListener( window, 'load', initialize );
+
+    </script>
+
+
+    <div id="map_canvas" ></div>
+  </body>
+</html>

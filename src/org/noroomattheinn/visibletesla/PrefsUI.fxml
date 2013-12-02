@@ -10,68 +10,13 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 <?import jfxtras.labs.scene.control.gauge.*?>
-<?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2.jar?>
+<?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130815.133831-3.jar?>
 
 <AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.PrefsController">
   <children>
     <Accordion prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <expandedPane>
-        <TitledPane fx:id="x1" animated="false" text="General">
-          <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: gray">
-              <children>
-                <Accordion prefHeight="220.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                  <expandedPane>
-                    <TitledPane fx:id="x8" animated="false" text="Advanced">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                          <children>
-                            <Label prefWidth="138.0" text="Store files with app?" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="15.0" />
-                            <Button mnemonicParsing="false" onAction="#showUserDirectory" prefWidth="149.0" text="Show User Folder" AnchorPane.rightAnchor="431.0" AnchorPane.topAnchor="40.0" />
-                            <CheckBox fx:id="storeFilesWithApp" mnemonicParsing="false" text="" AnchorPane.leftAnchor="151.0" AnchorPane.topAnchor="15.0" />
-                            <Label alignment="BASELINE_CENTER" layoutX="184.0" layoutY="15.0" prefHeight="50.0" prefWidth="290.0" style="-fx-border-color: black" text="Not Recommended.&#10;Leaving this unselected will store files in&#10;a User Folder which will faciltate upgrades." wrapText="true" />
-                            <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="88.0" />
-                            <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="88.0" />
-                            <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="109.0" />
-                            <TextField fx:id="proxyHost" prefWidth="371.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="85.0" />
-                            <TextField fx:id="proxyPort" prefWidth="55.0" text="8080" AnchorPane.rightAnchor="328.0" AnchorPane.topAnchor="107.0" />
-                            <Separator layoutX="-2.0" layoutY="76.0" prefWidth="598.0" style="&#10;" />
-                          </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
-                  </expandedPane>
-                  <panes>
-                    <TitledPane fx:id="x4" animated="false" prefHeight="198.0" prefWidth="591.0" style="-fx-background-color: blue&#10;" text="Basic">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                          <children>
-                            <CheckBox fx:id="wakeOnTabChange" contentDisplay="LEFT" mnemonicParsing="false" onAction="#wakeOnTCHandler" selected="true" text="" AnchorPane.leftAnchor="152.0" AnchorPane.topAnchor="7.0" />
-                            <Label layoutX="14.0" layoutY="31.0" text="Idle Threshold:" />
-                            <Label layoutX="14.0" layoutY="7.0" text="Wake on Tab change:" />
-                            <Slider fx:id="idleThresholdSlider" layoutX="118.0" layoutY="31.0" max="90.0" min="1.0" value="15.0" />
-                            <Label fx:id="idleThresholdLabel" layoutX="269.0" layoutY="31.0" text="15" />
-                            <Label layoutX="289.0" layoutY="31.0" text="Minute(s)" />
-                            <Label layoutX="14.0" layoutY="54.0" text="Offer experimental versions:">
-                              <labelFor>
-                                <CheckBox fx:id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" AnchorPane.leftAnchor="197.0" AnchorPane.topAnchor="55.0" />
-                              </labelFor>
-                            </Label>
-                            <fx:reference source="offerExperimental" />
-                          </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
-                    <fx:reference source="x8" />
-                  </panes>
-                </Accordion>
-              </children>
-            </AnchorPane>
-          </content>
-        </TitledPane>
-      </expandedPane>
-      <panes>
-        <TitledPane animated="false" text="Login">
+        <TitledPane fx:id="x5" animated="false" text="Login">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
@@ -92,6 +37,9 @@
             </AnchorPane>
           </content>
         </TitledPane>
+      </expandedPane>
+      <panes>
+        <fx:reference source="x5" />
         <TitledPane animated="false" text="Overview">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -120,16 +68,17 @@
             </AnchorPane>
           </content>
         </TitledPane>
-        <TitledPane animated="false" text="Location">
+        <TitledPane fx:id="x9" animated="false" text="Location">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
-                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="198.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="48.0">
-                  <image>
-                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
-                  </image>
-                </ImageView>
-                <Label font="$x2" text="Nothing to see here, keep driving..." textFill="$x3" AnchorPane.leftAnchor="148.0" AnchorPane.rightAnchor="148.0" AnchorPane.topAnchor="152.0" />
+                <CheckBox fx:id="collectLocationData" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" text="Collect Location Data" />
+                <Label layoutX="372.0" layoutY="17.0" text="(Minimum seconds between samples)" />
+                <Label layoutX="372.0" layoutY="69.0" text="(Minimum meters between samples)" />
+                <Slider fx:id="locMinTime" layoutX="178.0" layoutY="17.0" majorTickUnit="5.0" max="30.0" min="5.0" prefWidth="162.0" showTickLabels="true" showTickMarks="true" value="10.0" />
+                <Slider fx:id="locMinDist" blockIncrement="1.0" layoutX="178.0" layoutY="69.0" majorTickUnit="1.0" max="10.0" min="2.0" minorTickCount="0" prefWidth="162.0" showTickLabels="true" showTickMarks="true" value="3.0" />
+                <Label fx:id="locMinDistDisplay" layoutX="348.0" layoutY="69.0" prefWidth="36.0" text="3" />
+                <Label fx:id="locMinTimeDisplay" layoutX="348.0" layoutY="17.0" prefWidth="36.0" text="10" />
               </children>
             </AnchorPane>
           </content>
@@ -148,52 +97,16 @@
             </AnchorPane>
           </content>
         </TitledPane>
-        <TitledPane fx:id="graphTile" animated="false" style="-fx-background-color: gray&#10;" text="Graphs">
+        <TitledPane fx:id="graphTile" animated="false" style="&#10;" text="Graphs">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: gray">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="">
               <children>
-                <Accordion prefHeight="220.0" prefWidth="636.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                  <expandedPane>
-                    <TitledPane fx:id="x6" animated="false" text="Basic">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                          <children>
-                            <ComboBox fx:id="graphsTimePeriod" onAction="#graphSetTimePeriod" value="Last 7 days" AnchorPane.leftAnchor="148.0" AnchorPane.topAnchor="10.0">
-                              <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                  <String fx:value="Last 7 days" />
-                                  <String fx:value="Last 14 days" />
-                                  <String fx:value="Last 30 days" />
-                                  <String fx:value="This week" />
-                                  <String fx:value="This month" />
-                                  <String fx:value="All" />
-                                  <String fx:value="None" />
-                                </FXCollections>
-                              </items>
-                            </ComboBox>
-                            <Label text="Time Period to Load" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
-                          </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
-                  </expandedPane>
-                  <panes>
-                    <fx:reference source="x6" />
-                    <TitledPane fx:id="x5" animated="false" text="Advanced">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                          <children>
-                            <CheckBox fx:id="incrementalLoad" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" onAction="#graphIncremental" selected="true" text="Load incrementally">
-                              <tooltip>
-                                <Tooltip text="Deselecting this will cause&#10;data to load more quickly,&#10;but the app will be unresponsive&#10;while loading" />
-                              </tooltip>
-                            </CheckBox>
-                          </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
-                  </panes>
-                </Accordion>
+                <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="198.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
+                  </image>
+                </ImageView>
+                <Label font="$x2" layoutX="148.0" layoutY="152.0" prefWidth="340.0" text="Nothing to see here, keep driving..." textFill="$x3" />
               </children>
             </AnchorPane>
           </content>
@@ -213,7 +126,75 @@
             </AnchorPane>
           </content>
         </TitledPane>
-        <fx:reference source="x1" />
+        <TitledPane fx:id="x1" animated="false" text="General">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: gray">
+              <children>
+                <Accordion prefHeight="220.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <expandedPane>
+                    <TitledPane fx:id="x4" animated="false" prefHeight="198.0" prefWidth="591.0" style="-fx-background-color: blue&#10;" text="Basic">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <CheckBox fx:id="wakeOnTabChange" contentDisplay="LEFT" mnemonicParsing="false" onAction="#wakeOnTCHandler" selected="true" text="" AnchorPane.leftAnchor="152.0" AnchorPane.topAnchor="7.0" />
+                            <Label layoutX="14.0" layoutY="31.0" text="Idle Threshold:" />
+                            <Label layoutX="14.0" layoutY="7.0" text="Wake on Tab change:" />
+                            <Slider fx:id="idleThresholdSlider" layoutX="118.0" layoutY="31.0" max="90.0" min="1.0" value="15.0" />
+                            <Label fx:id="idleThresholdLabel" layoutX="269.0" layoutY="31.0" text="15" />
+                            <Label layoutX="289.0" layoutY="31.0" text="Minute(s)" />
+                            <ComboBox fx:id="graphsTimePeriod" layoutX="108.0" layoutY="66.0" value="Last 7 days">
+                              <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                  <String fx:value="Last 7 days" />
+                                  <String fx:value="Last 14 days" />
+                                  <String fx:value="Last 30 days" />
+                                  <String fx:value="This week" />
+                                  <String fx:value="This month" />
+                                  <String fx:value="All" />
+                                  <String fx:value="None" />
+                                </FXCollections>
+                              </items>
+                            </ComboBox>
+                            <Label layoutX="14.0" layoutY="70.0" text="Load data for:" />
+                            <Separator layoutX="0.0" layoutY="56.0" prefWidth="598.0" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <fx:reference source="x4" />
+                    <TitledPane fx:id="x8" animated="false" text="Advanced">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <Label prefWidth="138.0" text="Store files with app?" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="15.0" />
+                            <Button mnemonicParsing="false" onAction="#showUserDirectory" prefWidth="149.0" text="Show User Folder" AnchorPane.rightAnchor="431.0" AnchorPane.topAnchor="40.0" />
+                            <CheckBox fx:id="storeFilesWithApp" mnemonicParsing="false" text="" AnchorPane.leftAnchor="151.0" AnchorPane.topAnchor="15.0" />
+                            <Label alignment="BASELINE_CENTER" layoutX="184.0" layoutY="15.0" prefHeight="50.0" prefWidth="290.0" style="-fx-border-color: black" text="Not Recommended.&#10;Leaving this unselected will store files in&#10;a User Folder which will faciltate upgrades." wrapText="true" />
+                            <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="88.0" />
+                            <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="88.0" />
+                            <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="109.0" />
+                            <TextField fx:id="proxyHost" prefWidth="371.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="85.0" />
+                            <Label layoutX="14.0" layoutY="142.0" text="Offer experimental versions:">
+                              <labelFor>
+                                <CheckBox fx:id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" AnchorPane.leftAnchor="198.0" AnchorPane.topAnchor="143.0" />
+                              </labelFor>
+                            </Label>
+                            <TextField fx:id="proxyPort" prefWidth="55.0" text="8080" AnchorPane.rightAnchor="328.0" AnchorPane.topAnchor="107.0" />
+                            <fx:reference source="offerExperimental" />
+                            <Separator layoutX="-2.0" layoutY="76.0" prefWidth="598.0" style="&#10;" />
+                            <Separator layoutX="0.0" layoutY="134.0" prefWidth="598.0" style="&#10;" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </panes>
+                </Accordion>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
       </panes>
     </Accordion>
   </children>

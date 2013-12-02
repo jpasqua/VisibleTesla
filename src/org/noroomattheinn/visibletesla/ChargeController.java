@@ -9,7 +9,6 @@ package org.noroomattheinn.visibletesla;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -45,11 +44,11 @@ public class ChargeController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
- * Internal State
+ * Internal Status
  * 
  *----------------------------------------------------------------------------*/
     
-    private ChargeState chargeState;
+    private ChargeState charge;
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private boolean useMiles;
     
@@ -119,7 +118,7 @@ public class ChargeController extends BaseController {
     @FXML void rangeLinkHandler(ActionEvent event) {
         Hyperlink h = (Hyperlink)event.getSource();
         int percent = (h == stdLink) ?
-                chargeState.chargeLimitSOCStd() : chargeState.chargeLimitSOCMax();
+                charge.state.chargeLimitSOCStd : charge.state.chargeLimitSOCMax;
         setChargePercent(percent);
     }
 
@@ -161,13 +160,13 @@ public class ChargeController extends BaseController {
     }
 
     @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle(chargeController, v)) {
+        if (differentVehicle()) {
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
-            chargeState = new ChargeState(v);
+            charge = new ChargeState(v);
         }
         
-        GUIState gs = appContext.cachedGUIState;
-        useMiles = gs.distanceUnits().equalsIgnoreCase("mi/hr");
+        GUIState.State guiState = appContext.lastKnownGUIState.get();
+        useMiles = guiState.distanceUnits.equalsIgnoreCase("mi/hr");
         if (appContext.simulatedUnits.get() != null)
             useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
         String units = useMiles ? "Miles" : "Km";
@@ -178,57 +177,56 @@ public class ChargeController extends BaseController {
         chargeRate.setUnits(useMiles ? "mph" : "kph");
     }
 
-    @Override protected void refresh() {  updateState(chargeState); }
+    @Override protected void refresh() {  updateState(charge); }
     
     @Override protected void reflectNewState() {
-        if (!chargeState.hasValidData()) return; // No Data Yet...
+        if (charge.state == null) return; // No State Yet...
         
         reflectRange();
         reflectBatteryStats();
         reflectChargeStatus();
         reflectProperties();
         chargeSlider.setDisable(Utils.compareVersions(
-            appContext.cachedVehicleState.version(), MinVersionForChargePct) < 0);
-        boolean isConnectedToPower = (chargeState.chargerPilotCurrent() > 0);
+            appContext.lastKnownVehicleState.get().version, MinVersionForChargePct) < 0);
+        boolean isConnectedToPower = (charge.state.chargerPilotCurrent > 0);
         startButton.setDisable(!isConnectedToPower);
         stopButton.setDisable(!isConnectedToPower);
     }
     
 /*------------------------------------------------------------------------------
  *
- * Methods to Reflect the State of the Charge
+ * Methods to Reflect the Status of the Charge
  * 
  *----------------------------------------------------------------------------*/
     
     private void reflectProperties() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        pilotCurrent.setValue(String.valueOf(chargeState.chargerPilotCurrent()));
-        voltage.setValue(String.valueOf(chargeState.chargerVoltage()));
-        batteryCurrent.setValue(String.valueOf(osd(chargeState.batteryCurrent())));
-        nRangeCharges.setValue(String.valueOf(chargeState.maxRangeCharges()));
-        fastCharger.setValue(chargeState.fastChargerPresent() ? "Yes":"No");
-        chargeRate.setValue(String.valueOf(osd(chargeState.chargeRate()*conversionFactor)));
-        remaining.setValue(getDurationString(chargeState.timeToFullCharge()));
-        actualCurrent.setValue(String.valueOf(chargeState.chargerActualCurrent()));
-        chargerPower.setValue(String.valueOf(chargeState.chargerPower()));
-        chargingState.setValue(chargeState.chargingState().name());
+        pilotCurrent.setValue(String.valueOf(charge.state.chargerPilotCurrent));
+        voltage.setValue(String.valueOf(charge.state.chargerVoltage));
+        batteryCurrent.setValue(String.valueOf(osd(charge.state.batteryCurrent)));
+        nRangeCharges.setValue(String.valueOf(charge.state.maxRangeCharges));
+        fastCharger.setValue(charge.state.fastChargerPresent ? "Yes":"No");
+        chargeRate.setValue(String.valueOf(osd(charge.state.chargeRate*conversionFactor)));
+        remaining.setValue(getDurationString(charge.state.timeToFullCharge));
+        actualCurrent.setValue(String.valueOf(charge.state.chargerActualCurrent));
+        chargerPower.setValue(String.valueOf(charge.state.chargerPower));
+        chargingState.setValue(charge.state.chargingState.name());
     }
     
     private void reflectChargeStatus() {
-        int percent = chargeState.chargeLimitSOC();
-        chargeSlider.setMin((chargeState.chargeLimitSOCMin()/10)*10);
+        int percent = charge.state.chargeLimitSOC;
+        chargeSlider.setMin((charge.state.chargeLimitSOCMin/10)*10);
         chargeSlider.setMax(100);
         chargeSlider.setMajorTickUnit(10);
         chargeSlider.setMinorTickCount(4);
         chargeSlider.setBlockIncrement(10);
         chargeSlider.setValue(percent);
         chargeSetting.setText(percent + " %");
-        stdLink.setVisited(percent == chargeState.chargeLimitSOCStd());
-        maxLink.setVisited(percent == chargeState.chargeLimitSOCMax());
-        
+        stdLink.setVisited(percent == charge.state.chargeLimitSOCStd);
+        maxLink.setVisited(percent == charge.state.chargeLimitSOCMax);      
         // Set the labels that indicate a charge is pending
-        if (chargeState.scheduledChargePending()) {
-            Date d = new Date(chargeState.scheduledStart()*1000);
+        if (charge.state.scheduledChargePending) {
+            Date d = new Date(charge.state.scheduledStart*1000);
             String time = new SimpleDateFormat("hh:mm a").format(d);
             scheduledTimeLabel.setText("Charging will start at " + time);
             updatePendingChargeLabels(true);
@@ -238,8 +236,8 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectBatteryStats() {
-        batteryGauge.setChargingLevel(chargeState.batteryPercent()/100.0);
-        switch (chargeState.chargingState()) {
+        batteryGauge.setChargingLevel(charge.state.batteryPercent/100.0);
+        switch (charge.state.chargingState) {
             case Complete:
             case Charging:
                 batteryGauge.setCharging(true); break;
@@ -247,14 +245,14 @@ public class ChargeController extends BaseController {
             case Unknown:
                 batteryGauge.setCharging(false); break;
         }
-        batteryPercentLabel.setText(String.valueOf(chargeState.batteryPercent()));
+        batteryPercentLabel.setText(String.valueOf(charge.state.batteryPercent));
     }
 
     private void reflectRange() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        estOdometer.setValue(osd(chargeState.estimatedRange() * conversionFactor));
-        idealOdometer.setValue(osd(chargeState.idealRange() * conversionFactor));
-        ratedOdometer.setValue(osd(chargeState.range() * conversionFactor));
+        estOdometer.setValue(osd(charge.state.estimatedRange * conversionFactor));
+        idealOdometer.setValue(osd(charge.state.idealRange * conversionFactor));
+        ratedOdometer.setValue(osd(charge.state.range * conversionFactor));
     }
     
     private void updatePendingChargeLabels(boolean show) {
@@ -283,30 +281,5 @@ public class ChargeController extends BaseController {
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
     
-    public static class GenericProperty {
-        private final SimpleStringProperty name;
-        private final SimpleStringProperty value;
-        private final SimpleStringProperty units;
-
-        private GenericProperty(String name, String value, String units) {
-            this.name = new SimpleStringProperty(name);
-            this.value = new SimpleStringProperty(value);
-            this.units = new SimpleStringProperty(units);
-        }
-
-        public SimpleStringProperty nameProperty() { return name; }
-        public SimpleStringProperty valueProperty() { return value; }
-        public SimpleStringProperty unitsProperty() { return units; }
-
-        public String getName() { return name.get(); }
-        public void setName(String newName) { name.set(newName); }
-
-        public String getValue() { return value.get(); }
-        public void setValue(String newValue) { value.set(newValue); }
-
-        public String getUnits() { return units.get(); }
-        public void setUnits(String newUnits) { units.set(newUnits); }
-
-    }
 
 }

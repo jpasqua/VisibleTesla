@@ -4,7 +4,7 @@
  * Created: Aug 25, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.stats;
 
 import com.google.common.collect.Range;
 import java.io.BufferedReader;
@@ -16,8 +16,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import org.noroomattheinn.tesla.Tesla;
@@ -36,8 +38,8 @@ public class StatsRepository {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final String vin;
-    private final List<StatsEntry> entriesSinceLastFlush = new ArrayList<>();
+    private final File statsFile;
+    private final List<Stat> entriesSinceLastFlush = new ArrayList<>();
     
     private PrintStream statsWriter;
     private File containingFolder = null;
@@ -49,18 +51,17 @@ public class StatsRepository {
  * -------                                                               -------
  *============================================================================*/
 
-    StatsRepository(File folder, String forVIN) {
-        this.vin = forVIN;
-        this.containingFolder = folder;
+    public StatsRepository(File statsFile) {
+        this.statsFile = statsFile;
         prepRepository();
     }
     
-    interface Recorder {
+    public interface Recorder {
         void recordElement(long time, String type, double val);
     }
     
-    void loadExistingData(Recorder r) {
-        BufferedReader rdr = getReaderForFile(fileNameForVIN(vin));
+    public synchronized void loadExistingData(Recorder r) {
+        BufferedReader rdr = getReaderForFile(statsFile);
         if (rdr == null) return;
         
         String line;
@@ -90,7 +91,7 @@ public class StatsRepository {
         }
     }
     
-    void loadExistingData(final Recorder r, final Range<Long> period) {
+    public synchronized void loadExistingData(final Recorder r, final Range<Long> period) {
         loadExistingData(new Recorder() {
             @Override public void recordElement(long time, String type, double val) {
                 if (period.contains(time)) r.recordElement(time, type, val);
@@ -99,48 +100,68 @@ public class StatsRepository {
         });
     }
     
-    void storeElement(String type, long time, double value) {
+    public synchronized void storeElement(String type, long time, double value) {
         if (statsWriter == null)  return;
-        entriesSinceLastFlush.add(new StatsEntry(time, type, value));
+        if (Double.isNaN(value) || Double.isInfinite(value)) value = 0.0;
+        entriesSinceLastFlush.add(new Stat(time, type, value));
     }
     
-    void close() {
+    public synchronized void close() {
         if (statsWriter != null) statsWriter.close();
     }
 
+    private Map<String,Double> lastValForType = new HashMap<>();
+    private Set<String> columnsInLastRow = new HashSet<>();
     
-    void flushElements() {
+    private boolean sameColumnsAsLastTime(Map<String,Double> thisRow) {
+        if (thisRow.size() != columnsInLastRow.size()) return false;
+        for (String columnName : columnsInLastRow) {
+            if (thisRow.get(columnName) == null) return false;
+        }
+        return true;
+    }
+    
+    public synchronized void flushElements() {
         Map<Long,Map<String,Double>> rows = new TreeMap<>();
         
         // It's possible that there are entries for multiple points in time
         // Create a map with a key for each unique time where the value
         // is a list of Entries with that time
-        for (StatsEntry entry : entriesSinceLastFlush) {
-            Map<String,Double> row = rows.get(entry.time);
+        for (Stat entry : entriesSinceLastFlush) {
+            Map<String,Double> row = rows.get(entry.sample.timestamp);
             if (row == null) {
                 row = new HashMap<>();
-                rows.put(entry.time, row);
+                rows.put(entry.sample.timestamp, row);
             }
-            row.put(entry.type, entry.value);
+            row.put(entry.type, entry.sample.value);
         }
-        
         
         for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
             long time = row.getKey();
-            Map<String,Double> currentEntries = row.getValue();
-            Map<String,Double> uniqueEntries = mergeOutput(lastRowWritten, currentEntries);
-            boolean hasDupes = uniqueEntries.size() != currentEntries.size();
+            Map<String,Double> thisRow = row.getValue();
+            if (!sameColumnsAsLastTime(thisRow)) { lastValForType.clear(); }
             
-            statsWriter.print(time );
-            if (hasDupes)
-                statsWriter.print(" * *");
-            for (Map.Entry<String,Double> entry:uniqueEntries.entrySet()) {
-                statsWriter.print(" " + entry.getKey() + " " + entry.getValue());
+            StringBuilder newValues = new StringBuilder();
+            boolean hasDupes = false;
+            Set<String> columnsInThisRow = new HashSet<>();
+            for (Map.Entry<String,Double> column : thisRow.entrySet()) {
+                String type = column.getKey();
+                double value = column.getValue();
+                columnsInThisRow.add(type);
+                Double lastValue = lastValForType.get(type);
+                if (lastValue == null || lastValue != value) {
+                    lastValForType.put(type, value);
+                    newValues.append(" ").append(type).append(" ").append(value);
+                } else {
+                    hasDupes = true;
+                }
             }
-            statsWriter.println();
-            lastRowWritten = currentEntries;
+            statsWriter.print(time);
+            if (hasDupes) statsWriter.print(" * *");
+            statsWriter.println(newValues.toString());
+            columnsInLastRow = columnsInThisRow;
         }
-        
+
         statsWriter.flush();
         entriesSinceLastFlush.clear();
     }
@@ -154,7 +175,7 @@ public class StatsRepository {
  *----------------------------------------------------------------------------*/
     
     private Map<String,String> mergeEntries(String[] newTokens, Map<String,String>lastEntries) {
-        // If the newTokens contains a "*" entry, then start by copying the last
+        // If the newTokens contains a "*" column, then start by copying the last
         // set of values. If not, start with an empty Map.
         Map<String,String> vals = null;
         for (String token : newTokens) {
@@ -176,18 +197,6 @@ public class StatsRepository {
         return vals;
     }
     
-    private Map<String,Double> mergeOutput(Map<String,Double> old, Map<String,Double> current) {
-        Map<String,Double> merged = new HashMap<>(current);
-        for (Map.Entry<String,Double> entry : old.entrySet()) {
-            String oldType = entry.getKey();
-            Double oldVal = entry.getValue();
-            Double curVal = current.get(oldType);
-            if (curVal != null && curVal.equals(oldVal))
-                merged.remove(oldType);
-        }
-        return merged;
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * Private Utility Methods and Classes
@@ -196,18 +205,17 @@ public class StatsRepository {
     
     private void prepRepository() {
         if (statsWriter != null) { statsWriter.close(); }
-        String statsFileName = fileNameForVIN(vin);
         try {
-            statsWriter = new PrintStream(new FileOutputStream(statsFileName, true));
+            statsWriter = new PrintStream(new FileOutputStream(statsFile, true));
         } catch (FileNotFoundException ex) {
-            Tesla.logger.log(Level.WARNING, "Can't create stats file: " + statsFileName, ex);
+            Tesla.logger.log(Level.WARNING, "Can't create stats file: " + statsFile.getName(), ex);
             statsWriter = null;
         }
     }
     
-    private BufferedReader getReaderForFile(String fileName) {
+    private BufferedReader getReaderForFile(File file) {
         try {
-            return new BufferedReader(new FileReader(fileName));
+            return new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException ex) {
             Tesla.logger.log(Level.INFO, "Could not open file", ex);
         }
@@ -222,13 +230,5 @@ public class StatsRepository {
         }
         return null;
     }
-    
-    private String fileNameForVIN(String vin) {
-        String fName = vin + ".stats.log";
-        if (containingFolder != null) {
-            fName = containingFolder.getAbsolutePath() + File.separatorChar + fName;
-        }
-        return fName;
-    }
-    
+        
 }

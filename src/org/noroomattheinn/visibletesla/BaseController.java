@@ -68,6 +68,7 @@ abstract class BaseController {
     private static BaseController activeController = null;    
     protected static long lastRefreshTime;  // Primarily sed by AutoRefresh
     protected Vehicle vehicle;              // The current vehicle
+    protected Vehicle lastVehicle ;         // The last vehicle we had
     protected AppContext appContext;        // The overall app context
     protected boolean userInvokedRefresh;   // Is the current refresh a result
                                             // of the user pressing the refresh
@@ -95,6 +96,7 @@ abstract class BaseController {
     @FXML final void initialize() {
         root.setUserData(this);
         prepCommonElements();
+        lastVehicle = null;
         fxInitialize();     // This is an initialization hook for subclasses
     }
     
@@ -123,11 +125,13 @@ abstract class BaseController {
      * @param v The vehicle object that we're being asked to control.
      */
     public final void activate(Vehicle v) {
+        this.lastVehicle = vehicle;
         this.vehicle = v;
-        prepForVehicle(v);      // This is an activation hook for subclasses
+        prepForVehicle(v);              // Notify subclasses
+        appContext.prepForVehicle(v);   // Notify the appContext machinery
         activeController = this;
         if (appContext.isSleeping()) {
-            if (appContext.thePrefs.wakeOnTabChange.get()) {
+            if (appContext.prefs.wakeOnTabChange.get()) {
                 appContext.wakeup();
                 doRefresh();
             }
@@ -239,7 +243,12 @@ abstract class BaseController {
     protected final void updateState(final APICall state) {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                return state.refresh() ? Result.Succeeded : Result.Failed;
+                if (state.refresh()) {
+                    appContext.noteUpdatedState(state);
+                    return Result.Succeeded;
+                } else {
+                    return Result.Failed;
+                }
             }
         }, AfterCommand.Reflect);
     }
@@ -255,9 +264,9 @@ abstract class BaseController {
         if (selImg != null) selImg.setVisible(selected);
     }
     
-    protected final boolean differentVehicle(APICall state, Vehicle v) {
-        if (state == null) return true;
-        return !state.getVehicle().getVIN().equals(v.getVIN());
+    protected final boolean differentVehicle() {
+        if (lastVehicle == null) return true;
+        return !lastVehicle.getVIN().equals(vehicle.getVIN());
     }
     
     protected String prefKey(String key) {

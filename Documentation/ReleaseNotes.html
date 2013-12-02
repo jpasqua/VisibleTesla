@@ -6,6 +6,107 @@
     <body style="max-width:800px">
         <h1>VisibleTesla Release Notes</h1>
         <hr>
+        <h3>VisibleTesla 0.24.00 [11-28-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Added the Trips tab. See below for details.</li>
+                            <li>Changed the "File->Export Graph Data" menu item to "File->Export Stats Data"</li>
+                            <li>Added a "File->Export Location Data" menu item. If you are collecting location data (see the new preference) then this will allow you to export that data.</li>
+                            <li>When data is exported to Excel format (either stats or location data), the header row is frozen. When you open the file in Excel (or similar) the header row will remain stationary when you scroll the data up and down. This allows you to always see the column labels.</li>
+                            <li>Hopefully you'll never see this, but the way error logging is done has changed. The log is now stored in a file called "visibletesla.log" and captures more information than it used to. This file is stored in the application folder and you should never have to look at it.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                            <li><strong>Fixed:</strong> A problem remembering the "Remember Me" option. I know - ironic.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Added the underlying support for Aero and Cyclone (19" Turbine) wheels. They are supported in simulation, but more work is necessary to determine the actual codes used for these wheels by Tesla.</li>
+                            <li>Used new images from the lastest version of the iPhone app for the Grey 21" wheels, the standard 19" wheels, the Aero wheels and the Cyclone wheels.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                            <li>Added the underlying support for Aero and Cyclone (19" Turbine) wheels. They are supported in simulation, but more work is necessary to determine the actual codes used for these wheels by Tesla.</li>
+                            <li>Used new images from the lastest version of the iPhone app for the Grey 21" wheels, the standard 19" wheels, the Aero wheels and the Cyclone wheels.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>Location data is now stored persistently by the application. This information is used by the new Trips tab. The amount of data that gets stored is controlled by the Location preferences.</li>
+                            <li>This data can also be exported using the "File->Export Location Data" menu item.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                            <li>VisibleTesla starts collecting statistics at launch. You no longer need to go to the Graphs tab to start the collection process.</li>
+                            <li>The Graphs tab now collects data whenever any part of the app probes the vehicle. It collects statistics on a regular basis as always, but it will also store statistics opportunistically when another part of the application happens to have additional data. This is most relevant when you are on the Location tab. As it collects location data, that information is now shared with the Graphs tab so that it will have additional samples. This means you may see more samples than you normally would.</li>
+                            <li>The way data is loaded has completely changed. It no longer loads incrementally with the progress bar displayed at the bottom of the window. It now loads all at once when you select the Graph tab. This may take a few seconds depending on how much data you've chosen to import. The overall load time is much shorter.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Trips
+                        <ul>
+                            <li>This new tab allows you to view previous trips that have been captured by VisibleTesla. The app looks at stored location information and tries to break the data up into separate trips. Your drive to work in the morning would be one trip, your drive home at night would be another. An outing to a restaurant would be another.</li>
+                            <li>The tab displays a calendar and allows you to select the day or days that contain the trips you're interested in reviewing. When you select a day (or range of days), a drop down list is populated with all of the trips in that time span. Select any trip and click the "Map It" button. A new browser window will appear with a Google map that plots your trip.</li>
+                            <li>The map will contain a marker showing the location of the vehicle every time a reading was taken. If you hover your mouse above one of these markers, it will show you the date and time that the car was at that location and the speed it was traveling at the time.</li>
+                            <li>When a trip is selected from the dropdown, some basic information about the trip is displayed in a table in the tab. The table shows the following information (if available):<ul>
+                                <li>Starting and Ending Range</li>
+                                <li>Starting and Ending SOC (state of charge)</li>
+                                <li>Starting and Ending Odometer reading</li>
+                            </ul>
+                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>Location: Add a "Collect Location Data" checkbox. If this is checked, the application will store location data captured by the Location tab, the Graphs tab, or any other part of the application that happens to have location data available. This stored information can be used by the Trips tab. Along with this checkbox there are two new sliders that govern how much location information to collect. One slider puts a limit on how much time must elapse between stored samples and the other indicates the minimum distance between samples. For example, you might say not to store a new sample until 10 seconds have elapsed between the last sample. You might also say not to store a new sample until the car has moved at least 10 meters from the previous sample.</li>
+                            <li>Graphs: There are no longer any Graphs preferences. The preference for how much data to load is now part of General preferences. The incremental load option (under advanced) has been removed.</li>
+                            <li>General: Moved the preference for how much data to load into General preferences from Graphs preferences. Moved "Offer Experimental Versions" to the Advanced section</li>
+                            <li>Some minor cleanup.</li>  
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Extensive, but fairly mechanical, changes to the way state is handled and shared in the application. Similarly extensive changes were made to the underlying client library (TeslaClient).</li>
+                    <li>Reworked the way data is collected and loaded. This enables several of the new capabilities.</li>
+                    <li>Cleaned up the login code a bit.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>Same "heading after sleep" problem as previous releases. This is a Tesla problem.</li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
         <h3>VisibleTesla 0.23.00 [11-22-13]</h3>
         <ul>
             <li>
@@ -72,7 +173,7 @@
             <li>
                 Known problems
                 <ul>
-                    <li>Same "heading after sleep" problem as the previous release.
+                    <li>Same "heading after sleep" problem as the previous release.</li>
                 </ul>
             </li>
         </ul>
@@ -1370,11 +1471,16 @@
         				<ul>
         				</ul>
         			</li>
-        			<li>
-        				Graphs
-        				<ul>
-        				</ul>
-        			</li>
+                    <li>
+                        Graphs
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Trips
+                        <ul>
+                        </ul>
+                    </li>
                     <li>
                         Scheduler
                         <ul>

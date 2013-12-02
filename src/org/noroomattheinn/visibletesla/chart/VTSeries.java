@@ -7,7 +7,10 @@
 package org.noroomattheinn.visibletesla.chart;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Shape;
 import org.noroomattheinn.utils.Utils;
@@ -22,12 +25,7 @@ import org.noroomattheinn.utils.Utils;
  */
 
 public class VTSeries implements Comparable {
-/*------------------------------------------------------------------------------
- *
- * Constants and Enums
- * 
- *----------------------------------------------------------------------------*/
-    
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -54,6 +52,13 @@ public class VTSeries implements Comparable {
         seriesLock = new Object();
     }
 
+    public Transform<Number> getXformX() { return xXform; }
+    public Transform<Number> getXformY() { return yXform; }
+    
+    public void setData(ObservableList<XYChart.Data<Number,Number>> data) {
+        series.setData(data);
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * "Getters" for various fields

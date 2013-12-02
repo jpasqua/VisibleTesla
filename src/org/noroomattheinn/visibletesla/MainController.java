@@ -103,7 +103,10 @@ public class MainController extends BaseController {
     @FXML private Tab locationTab;
     @FXML private Tab loginTab;
     @FXML private Tab overviewTab;
+    @FXML private Tab tripsTab;
     private List<Tab> tabs;
+    
+    @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem;
     
     // The menu items that are handled in this controller directly
     @FXML private RadioMenuItem allowSleepMenuItem;
@@ -146,7 +149,7 @@ public class MainController extends BaseController {
         });
 
         tabs = Arrays.asList(prefsTab, loginTab, schedulerTab, graphTab,
-                chargeTab, hvacTab, locationTab, overviewTab);
+                chargeTab, hvacTab, locationTab, overviewTab, tripsTab);
         for (Tab t : tabs) { controllerFromTab(t).setAppContext(appContext); }
         
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
@@ -183,36 +186,7 @@ public class MainController extends BaseController {
 
     @Override protected void refresh() { }
 
-    /**
-     * This is effectively the last half of the DoLogin process. We have to
-     * break it up because some bits run on the JavaFX UI thread and some have
-     * to run in the background.
-     */
-    @Override protected void reflectNewState() {
-        if (!initialSetup) return;
-        initialSetup = false;
-        
-        if (appContext.cachedGUIState == null ||
-            appContext.cachedVehicleState == null ||
-            !appContext.cachedGUIState.hasValidData() ||
-            !appContext.cachedVehicleState.hasValidData()) {
-            // Couldn't wake up the vehicle and get the gui and vehicle state!
-            Dialogs.showErrorDialog(appContext.stage,
-                    "Failed to connect to your vehicle even after a successful " +
-                    "login. It may be in a deep sleep and can't be woken up.\n"  +
-                    "\nPlease try to wake your Tesla and then try VisibleTesla again.",
-                    "Unable to communicate with your Tesla", "Communication Problem");
-            Tesla.logger.log(Level.SEVERE, "Can't communicate with vehicle - exiting.");
-            Platform.exit();
-            return;
-        }
-                
-        trackInactivity();
-        setTabsEnabled(true);
-        SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
-        sc.activate(selectedVehicle);
-        jumpToTab(overviewTab);
-}
+    @Override protected void reflectNewState() { }
 
     
 /*------------------------------------------------------------------------------
@@ -269,20 +243,20 @@ public class MainController extends BaseController {
         int tries = 0;
         gs.refresh();
         vs.refresh();
-        while (! (gs.hasValidData() &&  vs.hasValidData()) ) {
+        while (gs.state == null ||  vs.state == null) {
             if (tries++ > MaxTriesToStart)
                 return false;
             
             action.wakeUp();
-            Utils.sleep(500);
+            Utils.sleep(2000);
             if (appContext.shuttingDown.get()) return false;
             
-            if (!gs.hasValidData()) gs.refresh();
-            if (!vs.hasValidData()) vs.refresh();
+            if (gs.state == null) gs.refresh();
+            if (vs.state == null) vs.refresh();
         }
         
-        appContext.cachedGUIState = gs;
-        appContext.cachedVehicleState = vs;
+        appContext.lastKnownGUIState.set(gs.state);
+        appContext.lastKnownVehicleState.set(vs.state);
         return true;
     }
 
@@ -309,7 +283,7 @@ public class MainController extends BaseController {
                     }
                 }
                 
-                boolean disclaimer = appContext.prefs.getBoolean(
+                boolean disclaimer = appContext.persistentState.getBoolean(
                         selectedVehicle.getVIN()+"_Disclaimer", false);
                 if (!disclaimer) {
                     Dialogs.showInformationDialog(
@@ -325,12 +299,12 @@ public class MainController extends BaseController {
                             "reducing the available charge in the battery.",
                             "Please Read Carefully", "Disclaimer");
                 }
-                appContext.prefs.putBoolean(
+                appContext.persistentState.putBoolean(
                         selectedVehicle.getVIN()+"_Disclaimer", true);                
                 
                 conditionalCheckVersion();
                                 
-                String modeName = appContext.prefs.get(
+                String modeName = appContext.persistentState.get(
                         selectedVehicle.getVIN()+"_InactivityMode",
                         InactivityType.Daydream.name());
                 // The names changed, do any required fixup of old stored values!
@@ -343,19 +317,44 @@ public class MainController extends BaseController {
 
                 issueCommand(new Callable<Result>() {
                         @Override public Result call() {
-                            initialSetup = true;
-                            return cacheBasics(selectedVehicle) ?
-                                    Result.Succeeded : Result.Failed;
+                            if (cacheBasics(selectedVehicle)) {
+                                Platform.runLater(completeLogin);
+                                return Result.Succeeded;
+                            } else {
+                                return Result.Failed;
+                            }
                         } },
-                        AfterCommand.Reflect);
+                        AfterCommand.Nothing);
 
             } else {
                 selectedVehicle = null;
                 setTabsEnabled(false);
             }
         }
-        
     }
+    
+    private Runnable completeLogin = new Runnable() {
+        @Override public void run() {
+            if (appContext.lastKnownGUIState.get() == null ||
+                appContext.lastKnownVehicleState.get() == null) {
+                // Couldn't wake up the vehicle and get the gui and vehicle state!
+                Dialogs.showErrorDialog(appContext.stage,
+                        "Failed to connect to your vehicle even after a successful " +
+                        "login. It may be in a deep sleep and can't be woken up.\n"  +
+                        "\nPlease try to wake your Tesla and then try VisibleTesla again.",
+                        "Unable to communicate with your Tesla", "Communication Problem");
+                Tesla.logger.log(Level.SEVERE, "Can't communicate with vehicle - exiting.");
+                Platform.exit();
+                return;
+            }
+
+            trackInactivity();
+            setTabsEnabled(true);
+            SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
+            sc.activate(selectedVehicle);
+            jumpToTab(overviewTab);
+        }
+    };
     
 /*------------------------------------------------------------------------------
  *
@@ -364,12 +363,12 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void setupProxy() {
-        if (appContext.thePrefs.enableProxy.get()) {
+        if (appContext.prefs.enableProxy.get()) {
             Properties properties = System.getProperties();
-            properties.put("http.proxyHost", appContext.thePrefs.proxyHost);
-            properties.put("http.proxyPort", appContext.thePrefs.proxyPort);
-            properties.put("https.proxyHost", appContext.thePrefs.proxyHost);
-            properties.put("https.proxyPort", appContext.thePrefs.proxyPort);
+            properties.put("http.proxyHost", appContext.prefs.proxyHost);
+            properties.put("http.proxyPort", appContext.prefs.proxyPort);
+            properties.put("https.proxyHost", appContext.prefs.proxyHost);
+            properties.put("https.proxyPort", appContext.prefs.proxyPort);
         }
     }
 
@@ -413,14 +412,14 @@ public class MainController extends BaseController {
     
     private void setInactivityMode(InactivityType newMode) {
         setInactivityMenu(inactivityMode = newMode);        
-        appContext.prefs.put(selectedVehicle.getVIN()+"_InactivityMode", newMode.name());
+        appContext.persistentState.put(selectedVehicle.getVIN()+"_InactivityMode", newMode.name());
         
         if (appContext.inactivityState.get() == InactivityType.Awake) return;
         appContext.inactivityState.set(newMode);
     }
     
     private void conditionalCheckVersion() {
-        long lastVersionCheck = appContext.prefs.getLong(
+        long lastVersionCheck = appContext.persistentState.getLong(
                 selectedVehicle.getVIN() + "_LastVersionCheck", 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
@@ -429,7 +428,7 @@ public class MainController extends BaseController {
     }
     
     private boolean checkForNewerVersion() {
-        appContext.prefs.putLong(
+        appContext.persistentState.putLong(
                 selectedVehicle.getVIN() + "_LastVersionCheck", System.currentTimeMillis());
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
@@ -438,7 +437,7 @@ public class MainController extends BaseController {
         if (releases != null && !releases.isEmpty()) {
             final Release lastRelease = releases.get(0);
             if (lastRelease.getExperimental() &&  
-                !appContext.thePrefs.offerExperimental.get())
+                !appContext.prefs.offerExperimental.get())
                 return false;
             String releaseNumber = lastRelease.getReleaseNumber();
             if (Utils.compareVersions(AppContext.ProductVersion, releaseNumber) < 0) {
@@ -523,10 +522,13 @@ public class MainController extends BaseController {
         Platform.exit();
     }
     
-    // File->Export Graph Data...
+    // File->Export * Data...
     @FXML void exportHandler(ActionEvent event) {
-        GraphController gc = Utils.cast(controllerFromTab(graphTab));
-        gc.exportCSV();
+        MenuItem mi = (MenuItem)event.getSource();
+        if (mi == exportStatsMenuItem)
+            appContext.statsStore.exportCSV();
+        if (mi == exportLocMenuItem)
+            appContext.locationStore.exportCSV();
     }
     
     // Options->"Allow Sleep" and Options->"Allow Daydreaming" menu options
@@ -601,7 +603,7 @@ public class MainController extends BaseController {
                 Utils.sleep(60 * 1000);
                 if (appContext.shuttingDown.get())
                     return;
-                long idleThreshold = appContext.thePrefs.idleThresholdInMinutes.get() * 60 * 1000;
+                long idleThreshold = appContext.prefs.idleThresholdInMinutes.get() * 60 * 1000;
                 if (System.currentTimeMillis() - timeOfLastEvent > idleThreshold) {
                     appContext.inactivityState.set(inactivityMode);
                 }
@@ -632,7 +634,7 @@ public class MainController extends BaseController {
     
     @FXML MenuItem simColorRed, simColorBlue, simColorGreen, simColorBrown, simColorBlack;
     @FXML MenuItem simColorSigRed, simColorSilver, simColorGray, simColorPearl, simColorWhite;
-    @FXML MenuItem darkRims, lightRims, silver19Rims;
+    @FXML MenuItem darkRims, lightRims, silver19Rims, aeroRims, cycloneRims;
     @FXML MenuItem simSolidRoof, simPanoRoof, simBlackRoof;
     @FXML private MenuItem simImperialUnits, simMetricUnits;
 
@@ -649,6 +651,8 @@ public class MainController extends BaseController {
         if (source == darkRims) simWheels = Options.WheelType.WTSP;
         else if (source == lightRims) simWheels = Options.WheelType.WT21;
         else if (source == silver19Rims) simWheels = Options.WheelType.WT19;
+        else if (source == aeroRims) simWheels = Options.WheelType.WTAE;
+        else if (source == cycloneRims) simWheels = Options.WheelType.WTCY;
         
         if (simWheels != null)
             appContext.simulatedWheels.set(simWheels);

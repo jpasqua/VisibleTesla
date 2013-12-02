@@ -6,9 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.logging.Level;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -35,6 +32,7 @@ import javafx.util.Duration;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 
@@ -47,8 +45,6 @@ public class LocationController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static final String MapTemplateFileName = "MapTemplate.html";
-    private static final String MapLoadingFileName = "MapLoading.html";
-    private static final String RadarFileName = AppContext.ResourceDir + "MapLoading.jpg";
     
 /*------------------------------------------------------------------------------
  *
@@ -57,12 +53,11 @@ public class LocationController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private final Object lock = false;
-    private SnapshotState snapshotState;
+    private SnapshotState snapshot;
     private boolean mapIsLoaded = false;
     private WebEngine engine;
     
     private Thread streamer = null;
-    private String loading = null;
     private Animation blipAnimation = null;
     
 /*------------------------------------------------------------------------------
@@ -83,9 +78,11 @@ public class LocationController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     @FXML void launchButtonHandler(ActionEvent event) {
+        SnapshotState.State state = appContext.lastKnownSnapshotState.get();
+        if (state == null) return;
         String url = String.format(
                 "https://maps.google.com/maps?q=%f,%f(Tesla)&z=18&output=embed",
-                snapshotState.estLat(), snapshotState.estLng());
+                state.estLat, state.estLng);
         appContext.app.getHostServices().showDocument(url);
     }
     
@@ -102,19 +99,17 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void reflectNewState() {
-        if (!snapshotState.hasValidData()) return;
-        reflectInternal(snapshotState.estLat(), snapshotState.estLng(), snapshotState.estHeading());
+        if (snapshot.state == null) return;
+        reflectInternal(snapshot.state.estLat, snapshot.state.estLng, snapshot.state.estHeading);
     }
 
     @Override protected void refresh() { 
         synchronized(lock) { lock.notify(); } }
 
     @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle(snapshotState, v)) {
-            //if (loading == null) { loading = getLoadingPage(); }
-            //engine.loadContent(loading);
+        if (differentVehicle()) {
             blipAnimation = animateBlip();
-            snapshotState = new SnapshotState(v);
+            snapshot = new SnapshotState(v);
             ensureStreamer();
         }
     }
@@ -159,6 +154,27 @@ public class LocationController extends BaseController {
 
         }
     }
+    
+    
+    private void ensureStreamer() {
+        if (streamer == null) {
+            streamer = appContext.launchThread(new LocationStreamer(lock), "00 LocationStreamer");
+            while (streamer.getState() != Thread.State.WAITING) {
+                Utils.yieldFor(10);
+            }
+        }
+    }
+    
+    private String getMapFromTemplate(String lat, String lng, String heading) {
+        SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(MapTemplateFileName));
+        return template.fillIn("DIRECTION", heading, "LAT", lat, "LONG", lng);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Handle the anitmation associated with the "loading" screen
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void stopBlip(Animation blip) {
         EventHandler<ActionEvent> cleanup = blip.getOnFinished();
@@ -210,59 +226,7 @@ public class LocationController extends BaseController {
         sequence.play();
         return sequence;
     }
-    
-    
-    private void ensureStreamer() {
-        if (streamer == null) {
-            streamer = appContext.launchThread(new LocationStreamer(lock), "00 LocationStreamer");
-            while (streamer.getState() != Thread.State.WAITING) {
-                Utils.yieldFor(10);
-            }
-        }
-    }
-    
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - Methods to load and customize html templates
- * 
- *----------------------------------------------------------------------------*/
-    
-    private void replaceField(StringBuilder sb, String placeholder, String newText) {
-        int length = placeholder.length();
-        int loc = sb.indexOf(placeholder);
-        sb.replace(loc, loc+length, newText);
-    }
-    
-    private StringBuilder fromInputStream(InputStream is) {
-        InputStreamReader r = new InputStreamReader(is);
-        StringBuilder sb = new StringBuilder();
-        try {
-            int c;
-            while ((c = r.read()) != -1) { sb.append((char) c); }
-        } catch (IOException ex) {
-            Tesla.logger.log(Level.SEVERE, null, ex);
-        }
-        return sb;
-    }
-    
-    private String getLoadingPage() {
-        StringBuilder sb = fromInputStream(
-                getClass().getResourceAsStream(MapLoadingFileName));
-        String imageLoc = getClass().getResource(RadarFileName).toExternalForm();
-        replaceField(sb, "IMAGE", imageLoc);
-        return sb.toString();
-    }
-    
-    private String getMapFromTemplate(String lat, String lng, String heading) {
-        StringBuilder sb = fromInputStream(getClass().getResourceAsStream(MapTemplateFileName));
-        // TO DO: replaceField scans from the beginning each time which is dumb, 
-        // but this approach is quick and easy to implement...
-        replaceField(sb, "DIRECTION", heading);
-        replaceField(sb, "LAT", lat);
-        replaceField(sb, "LONG", lng);
-        return sb.toString();
-    }
-    
+        
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - The class that enables streaming of location data
@@ -283,31 +247,35 @@ public class LocationController extends BaseController {
             this.lock = lock;
         }
 
-        private void doUpdateLater(final SnapshotState ss) {
+        private void doUpdateLater(final SnapshotState.State state) {
+            final int heading = (state.speed > 10) ? state.estHeading : state.heading;
+            appContext.lastKnownSnapshotState.set(state);
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    int heading = (ss.speed() > 10) ? ss.estHeading() : ss.heading();
-                    reflectInternal(ss.estLat(), ss.estLng(), heading);
+                    reflectInternal(state.estLat, state.estLng, heading);
                 } });
         }
         
         @Override public void run() {
+            appContext.inactivityState.addListener(this);
+            inactivityState = appContext.inactivityState.get();
+
             while (!appContext.shuttingDown.get()) {
                 try {
                     synchronized (lock) { lock.wait(); }
-                    if (!snapshotState.refresh()) 
+                    if (!snapshot.refresh()) 
                         continue;
                     
-                    long lastSnapshot = snapshotState.timestamp().getTime();
-                    doUpdateLater(snapshotState);
+                    long lastSnapshot = snapshot.state.vehicleTimestamp;
+                    doUpdateLater(snapshot.state);
 
                     // Now, stream data as long as it comes...
-                    while (snapshotState.refreshFromStream()) {
+                    while (snapshot.refreshFromStream()) {
                         if (inactivityState != InactivityType.Awake)
                             break;
-                        if (snapshotState.timestamp().getTime() - lastSnapshot > StreamingThreshold) {
-                            doUpdateLater(snapshotState);
-                            lastSnapshot = snapshotState.timestamp().getTime();
+                        if (snapshot.state.vehicleTimestamp - lastSnapshot > StreamingThreshold) {
+                            doUpdateLater(snapshot.state);
+                            lastSnapshot = snapshot.state.vehicleTimestamp;
                         }
                     }
                 } catch (InterruptedException ex) {
