@@ -58,4 +58,24 @@
     nbproject/build-impl.xml and nbproject/jfx-impl.xml.
 
     -->
+<property environment="env" />
+
+<taskdef name="bundleapp"
+         classname="com.oracle.appbundler.AppBundlerTask"
+         classpath="../../ThirdParty/appbundler-1.0.jar" />
+
+<target name="bundle-VisableTesla">
+    <bundleapp outputdirectory="dist"
+        name="VisableTesla"
+        icon="Tesla Keyfob.icns"
+        displayname="Visable Tesla"
+        identifier="org.noroomattheinn.visibletesla"
+        mainclassname="org.noroomattheinn.visibletesla.VisibleTesla">
+        <runtime dir="${env.JAVA_HOME}" />
+        <classpath file="${env.JAVA_HOME}/jre/lib/jfxrt.jar" />
+        <classpath dir="dist/lib" />
+        <classpath file="dist/VisibleTesla.jar" />
+    </bundleapp>
+</target>
+
 </project>
