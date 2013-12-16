@@ -86,7 +86,7 @@ Be sure to either set these variables or adapt the commands below. Note that the
 
 Once you've built the application, you can run it simply by double-clicking <code>VisibleTesla.jar</code>in Tesla/VisibleTesla/dist. For details, refer to the documentation and release notes in Tesla/VisibleTesla/Documentation.
 
-#Building Mac OS X Bunddled Clickable Application
+#Building Mac OS X Bundled Clickable Application
 
 You can build a version of VisibleTesla that has the Java runtime bundled and is a self contained Mac OS X application by issuing the command
 
