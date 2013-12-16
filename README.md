@@ -88,8 +88,9 @@ Once you've built the application, you can run it simply by double-clicking <cod
 
 #Building Mac OS X Bundled Clickable Application
 
-You can build a version of VisibleTesla that has the Java runtime bundled and is a self contained Mac OS X application by issuing the command
+You can build a version of VisibleTesla that has the Java runtime bundled and is a self contained Mac OS X application by issuing the commands
 
+	export JAVA_HOME=`/usr/libexec/java_home`
 	ant bundle-VisableTesla
 	
 Furthermore, if you wish to distribute the application, you can also codesign it by issuing the command
