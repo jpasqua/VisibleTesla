@@ -29,6 +29,7 @@ This project assumes a directory structure that looks like this:
 		jfxtras
 		jexcelapi
 		google-guava
+		appbundler-1.0.jar	-- Optional if you want to create Mac OS X bundled application
 
 The Tesla/VisibleTesla directory corrsponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
 [TeslaClient](https://github.com/jpasqua/TeslaClient.git)
@@ -75,9 +76,22 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20130815.133831-3.jar
     ln -s jfxtras-labs-2.2-r6-20130815.133831-3.jar jfxtras-labs-2.2.jar
 
-
+	# If you want to create a Mac OS X bundled application, you will need the Java application bundler file.
+	cd ..
+	curl -s -O  https://java.net/projects/appbundler/downloads/download/appbundler-1.0.jar
 
 
 #Installing and Running VisibleTesla
 
 Once you've built the application, you can run it simply by double-clicking <code>VisibleTesla.jar</code>in Tesla/VisibleTesla/dist. For details, refer to the documentation and release notes in Tesla/VisibleTesla/Documentation.
+
+#Building Mac OS X Bunddled Clickable Application
+
+You can build a version of VisibleTesla that has the Java runtime bundled and is a self contained Mac OS X application by issuing the command
+
+	ant bundle-VisableTesla
+	
+Furthermore, if you wish to distribute the application, you can also codesign it by issuing the command
+
+	codesign -s "Developer ID Application: <Your Developer ID>"  dist/VisableTesla.app --deep
+	
