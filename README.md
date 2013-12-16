@@ -14,6 +14,7 @@ Use this application at your own risk. The authors do not guarantee its proper f
 
 #Contributors
 [Joe Pasqua](https://github.com/jpasqua)
+[Alex Karahalios](https://github.com/araxara)
 
 #Preparing your build environment
 
