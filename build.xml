@@ -64,9 +64,9 @@
          classname="com.oracle.appbundler.AppBundlerTask"
          classpath="../../ThirdParty/appbundler-1.0.jar" />
 
-<target name="bundle-VisableTesla">
+<target name="bundle-VisibleTesla">
     <bundleapp outputdirectory="dist"
-        name="VisableTesla"
+        name="VisibleTesla"
         icon="Tesla Keyfob.icns"
         displayname="Visable Tesla"
         identifier="org.noroomattheinn.visibletesla"
