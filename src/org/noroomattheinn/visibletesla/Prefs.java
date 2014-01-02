@@ -21,7 +21,7 @@ import javafx.beans.value.ObservableValue;
  */
 public class Prefs {
     
-    private AppContext appContext;
+    private final AppContext appContext;
     
     public Prefs(AppContext ac) {
         appContext = ac;
@@ -29,6 +29,7 @@ public class Prefs {
         loadGraphPrefs();
         loadSchedulerPrefs();
         loadLocationPrefs();
+        loadOtherPrefs();
     }
     
 /*------------------------------------------------------------------------------
@@ -44,6 +45,8 @@ public class Prefs {
     public BooleanProperty  enableProxy = new SimpleBooleanProperty();
     public StringProperty   proxyHost = new SimpleStringProperty();
     public IntegerProperty  proxyPort = new SimpleIntegerProperty();
+    public BooleanProperty  useCustomGoogleAPIKey = new SimpleBooleanProperty();
+    public StringProperty   googleAPIKey = new SimpleStringProperty();
     
     private static final String AppFilesFolderKey = "APP_AFF";
     private static final String WakeOnTCKey = "APP_WAKE_ON_TC";
@@ -52,6 +55,8 @@ public class Prefs {
     private static final String EnableProxyKey = "APP_ENABLE_PROXY";
     private static final String ProxyHostKey = "APP_PROXY_HOST";
     private static final String ProxyPortKey = "APP_PROXY_PORT";
+    private static final String UseCustomGoogleKey = "APP_USE_CUSTOM_GKEY";
+    private static final String CustomGoogleKey = "APP_CUSTOM_GKEY";
     
     private void loadGeneralPrefs() {
         booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
@@ -61,6 +66,8 @@ public class Prefs {
         booleanPref(EnableProxyKey, enableProxy, false);
         stringPref(ProxyHostKey, proxyHost, "");
         integerPref(ProxyPortKey, proxyPort, 8080);
+        booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
+        stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
     }
     
 /*------------------------------------------------------------------------------
@@ -115,9 +122,24 @@ public class Prefs {
     private static final String LocMinDist = "LOC_MIN_DIST";
     
     private void loadLocationPrefs() {
-        booleanPref(LocCollectData, collectLocationData, false);
+        booleanPref(LocCollectData, collectLocationData, true);
         integerPref(LocMinTime, locMinTime, 5); // 5 Seconds
         integerPref(LocMinDist, locMinDist, 5); // 5 Meters
+    }
+    
+
+/*------------------------------------------------------------------------------
+ *
+ * OTHER Preferences
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public StringProperty   notificationAddress = new SimpleStringProperty();
+
+    private static final String NotificationAddressKey = "NOTIFICATION_ADDR";
+    
+    private void loadOtherPrefs() {
+        stringPref(NotificationAddressKey, notificationAddress, "");
     }
     
 /*------------------------------------------------------------------------------

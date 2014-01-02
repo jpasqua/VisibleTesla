@@ -45,7 +45,7 @@ public class StatsStore extends DataStore {
  * 
  *----------------------------------------------------------------------------*/
     
-    private Timer timer;
+    private final Timer timer;
 
 /*==============================================================================
  * -------                                                               -------
@@ -99,16 +99,16 @@ public class StatsStore extends DataStore {
                 repo.flushElements();
         }
     };
-    
+        
     private synchronized void processChargeState(ChargeState.State state) {
         long timestamp = state.timestamp;
 
-        repo.storeElement(VoltageKey, timestamp, state.chargerVoltage);
-        repo.storeElement(CurrentKey, timestamp, state.chargerActualCurrent);
-        repo.storeElement(EstRangeKey, timestamp, state.range);
-        repo.storeElement(SOCKey, timestamp, state.batteryPercent);
-        repo.storeElement(ROCKey, timestamp, state.chargeRate);
-        repo.storeElement(BatteryAmpsKey, timestamp, state.batteryCurrent);
+        storeItem(VoltageKey, timestamp, state.chargerVoltage);
+        storeItem(CurrentKey, timestamp, state.chargerActualCurrent);
+        storeItem(EstRangeKey, timestamp, state.range);
+        storeItem(SOCKey, timestamp, state.batteryPercent);
+        storeItem(ROCKey, timestamp, state.chargeRate);
+        storeItem(BatteryAmpsKey, timestamp, state.batteryCurrent);
         lastUpdate = timestamp;
     }
     
@@ -117,8 +117,8 @@ public class StatsStore extends DataStore {
         long timestamp = state.timestamp;
         double speed = Math.round(state.speed*10.0)/10.0;
         
-        repo.storeElement(PowerKey, timestamp, state.power);
-        repo.storeElement(SpeedKey, timestamp, speed);
+        storeItem(PowerKey, timestamp, state.power);
+        storeItem(SpeedKey, timestamp, speed);
         lastUpdate = timestamp;
     }
     

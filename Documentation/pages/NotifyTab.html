@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>
+			The Notify Tab
+		</title>
+		<link rel="stylesheet" href="../default.css" type="text/css">
+	</head>
+	<body>
+		<div id="header">
+			<div class="wrap">
+				<a href="#"><img src="../images/Banner.png"></a>
+			</div>
+		</div>
+		<div id="sidebar">
+			<iframe src="toc.html" frameborder="0"></iframe>
+		</div>
+		<div id="content">
+			<h1>
+				The Notify Tab
+			</h1>
+			<p>
+				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. The following screen shot gives an emaple of what the Notify Tab looks like. Each notification can be enabled or disabled individually using the associated checkbox.
+			</p>
+			<img class="screenshot" src='../images/24_Notify_Tab.png' alt='Notify Tab'>
+			<p>
+				Notifications are sent via email using the address specified in the <a href="PrefsTab.html">Prefs Tab</a>. Many wireless carriers provide an email-to-text gateway. You are provided an email address that corresponds to your cell phone's phone number. This will allow you to receive notifications as text messages. Please note that if you do so, normal text message rates may apply. Consult your carrier.
+			</p>
+			<p>
+				The following types of notifications are supported:
+			</p>
+			<table class="grid_table">
+				<thead>
+					<tr>
+						<th>
+							Notification
+						</th>
+						<th>
+							Target
+						</th>
+						<th>
+							Description
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							SOC Hits or Exceeds
+						</td>
+						<td>
+							State of Charge percentage (0-100)
+						</td>
+						<td>
+							A notification will be sent if the SOC changes from a value that is below the target value to one that is equal to or greater than the target. You can use this notification if you want to be alerted when your car reaches a certain charge level. Note that the SOC must cross a threshold to get to this value. For example, if you specifiy 85% as the target, the SOC must go from a value below 85% to 85% or above for a notification to be sent. A notification will not be sent if the SOC is already at or above 85% when the app starts up.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							SOC Falls Below
+						</td>
+						<td>
+							State of Charge percentage (0-100)
+						</td>
+						<td>
+							A notification will be sent if the SOC changes from a value that is above the target value to one that is less than the target. You can use this notification if you want to be alerted when your car's avaialble charge drops to a certain level.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Charge State Becoms
+						</td>
+						<td>
+							Charging, Disconnected, Complete, Unknown, Anything
+						</td>
+						<td>
+							A notification will be sent if the car's charge state changes from some existing value to the specified target value. For example, it might change to "Disconnected" when you remove the power cord. If you select "Anything" as the target value, then any change in the charge state will cause a notification.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Speed Hits or Exceeds
+						</td>
+						<td>
+							Speed in mph or km/h
+						</td>
+						<td>
+							A notification will be sent if the speed changes from a value that is below the target value to one that is equal to or greater than the target. This notification will not be sent more frequently than once per 30 minutes. Let's say you set the target to 75 mph and are driving very near that speed. Normal fluctuations in your driving might cause you to drop below then go above 75 mph many times. VisibleTesla will not issue a notification each time that happens. It will issue the first notification and then will not issue another until at least 30 minutes passes.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Scheduler Event Triggered
+						</td>
+						<td>
+							N/A
+						</td>
+						<td>
+							A notification will be sent if any scheduled activity occurs.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				Notifications are sent via a hosted service and will not require you to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored.
+			</p>
+		</div>
+		<div id="footer"></div>
+	</body>
+</html>

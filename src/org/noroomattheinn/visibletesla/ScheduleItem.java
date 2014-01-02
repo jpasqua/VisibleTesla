@@ -11,6 +11,8 @@ import com.google.common.collect.HashBiMap;
 import it.sauronsoftware.cron4j.Scheduler;
 import java.util.Map;
 import java.util.prefs.Preferences;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -40,7 +42,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
 
     public enum Command {
         HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, AWAKE, SLEEP, DAYDREAM,
-        CHARGE_STD, CHARGE_MAX, CHARGE_MIN, None}
+        CHARGE_STD, CHARGE_MAX, CHARGE_MIN, UNPLUGGED, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
         commandMap.put(Command.HVAC_ON, "HVAC: On");
@@ -53,6 +55,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         commandMap.put(Command.CHARGE_STD, "Charge: Std");
         commandMap.put(Command.CHARGE_MAX, "Charge: Max");
         commandMap.put(Command.CHARGE_MIN, "Charge: Low");
+        commandMap.put(Command.UNPLUGGED, "Unplugged?");
     }
     // the following map is here to keep track of any changes to the command names
     // We store the command names in the prefs file (MISTAKE) so we need to track
@@ -77,15 +80,15 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  *----------------------------------------------------------------------------*/
 
     // The UI Elements comprising a ScheduleItem
-    private CheckBox enabled;
-    private CheckBox[] days = new CheckBox[7];
-    private TimeSelector time;
-    private CheckBox safe;
-    private ComboBox<String> command;
+    private final CheckBox enabled;
+    private final CheckBox[] days = new CheckBox[7];
+    private final TimeSelector time;
+    private final CheckBox safe;
+    private final ComboBox<String> command;
     
-    private int id; // Externally assigned ID of this instance
+    private final int id; // Externally assigned ID of this instance
     private String schedulerID = null;  // ID of the cron4j instance
-    private ScheduleOwner owner;
+    private final ScheduleOwner owner;
     
     private static final Scheduler scheduler = new Scheduler();
     static {
@@ -117,17 +120,21 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         this.owner = owner;
         
         enabled = (CheckBox)prepNode(row.get(0));
-
-        for (int i = 0; i < 7; i++) {
-            days[i] = (CheckBox)prepNode(row.get(i+1));
-        }
+        for (int i = 0; i < 7; i++) { days[i] = (CheckBox)prepNode(row.get(i+1)); }
         HBox hbox = (HBox)row.get(8);
         time = new TimeSelector(
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(0))),
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(1))),
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(2))));
         safe = (CheckBox)prepNode(row.get(9));
-        command = Utils.<ComboBox<String>>cast(prepNode(row.get(10)));        
+        command = Utils.<ComboBox<String>>cast(prepNode(row.get(10)));       
+        
+        enabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                enableItems(t1);
+            } });
+        
+        enableItems(enabled.isSelected());
     }
     
     /**
@@ -286,12 +293,19 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         if (n instanceof ComboBox) {
             ComboBox<String> cbs = Utils.<ComboBox<String>>cast(n);
             cbs.setOnAction(this);
-            cbs.setVisibleRowCount(12);
+            cbs.setVisibleRowCount(13);
         } else if (n instanceof ButtonBase) {
             ((ButtonBase) n).setOnAction(this);
         }
         n.setStyle("-fx-focus-color: transparent;");
         return n;
+    }
+    
+    private void enableItems(boolean enable) {
+        for (int i = 0; i < 7; i++) { days[i].setDisable(!enable); }
+        time.enable(enable);
+        safe.setDisable(!enable);
+        command.setDisable(!enable);        
     }
     
     
@@ -313,6 +327,12 @@ class TimeSelector {
         this.hour = hour; this.min = min; this.amPM = amPM;
     }
 
+    void enable(boolean enable) {
+        hour.setDisable(!enable);
+        min.setDisable(!enable);
+        amPM.setDisable(!enable);
+    }
+    
     int getHoursAndMinutes() {
         int h = Integer.valueOf(hour.getValue());
         int m = Integer.valueOf(min.getValue());

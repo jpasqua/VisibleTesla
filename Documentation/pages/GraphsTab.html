@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>
+			The Graphs Tab
+		</title>
+		<link rel="stylesheet" href="../default.css" type="text/css">
+	</head>
+	<body>
+		<div id="header">
+			<div class="wrap">
+				<a href="#"><img src="../images/Banner.png"></a>
+			</div>
+		</div>
+		<div id="sidebar">
+			<iframe src="toc.html" frameborder="0"></iframe>
+		</div>
+		<div id="content" class="center">
+			<h1>
+				The Graphs Tab
+			</h1>
+			<p>
+				This tab tracks and graphs basic statistics about your car as a line chart. The x-axis represents the time at which the stats were gathered and the y-axis represents the values. An "Items" drop down list allows you to select which statistics are displayed. It also gives a color-coded legend so you can tell which line represents which value. If you deselect a particular item it will not be displayed, but the statistics for that item will continue to be gathered.
+			</p>
+			<p>
+				Note that these statistics are only collected while VisibleTesla is running. If you quit the app the statistics will not be collected until the next time you restart it. If you have selected "Options-&gt;Allow Sleeping" and you don't use the app for 15 minutes, it will stop collecting stats. VisibleTesla stores the statistics it collects. If you quit the app and restart it later, it will display the old statistics and newly gathered ones.
+			</p>
+			<p>
+				You can interact with the line chart in several different ways:
+			</p>
+			<ul>
+				<li>Panning: If you wish to move the view forward or backward in time, simply grab the chart (mouse-down) and drag it to the right or the left. To pan the chart up or down, press the CTRL button while dragging the mouse. If you want to pan in both directions simultaneously, hold the SHIFT key while dragging.
+				</li>
+				<li>Zooming: If you wish to change the time-span that is displayed (zoom in on a small range of time or zoom out to a large range of time) spin the scroll-wheel on your mouse up or down. To zoom in or out on the value (y) axis, press CTRL while scrolling. To zoom both axes simultaneously, press SHIFT while scrolling. When zooming, the app does so relative to the current mouse location. That is, the chart will seem to expand around the point under the mouse pointer.
+				</li>
+				<li>To select which statistics are displayed, click on the arrow to expand the "Show Items" dropdown. Select or deselect the statistics as desired.
+				</li>
+				<li>The app remembers which variables you have selected. For example, say you start the app, deselect Voltage, then quit the app. Next time you launch, it will remember that it shouldn't display Voltage. Statistics are collected for all items whether they are selected or not.
+				</li>
+				<li>In the lower left corner of the chart there is a reset button (backward pointing arrow icon). Clicking the button will recenter the chart with the current time at the center. This can be useful if you scroll way out and loose track of where you are in the chart.
+				</li>
+				<li>To see more data at once, simply the grow the window. The graph will expand and scale to fit.
+				</li>
+				<li>To determine the specific value at any point in the graph, move your mouse over the spot to be measured. A readout in the upper left corner of the chart is updated to display the time and value corresponding to the location of the cursor.
+				</li>
+			</ul>
+			<p>
+				The Graphs tab also allows you to select how you would like the information displayed. It can display a line chart, a line chart with markers (dots) at the points where readings were taken, or both. The default is to display both. You can choose your display option by bringing up a context menu on the chart. To do this, press the secondary mouse button (usually the right button) when the mouse is over the chart. A menu will appear with the three display choices (lines, markers, or both). Once you choose an option it will be remembered and used the next time you start the app. You'll notice that if you choose the "both" option, the lines will be thin and semi-transparent to make the markers more visible. If you choose to display only lines, the lines will be more pronounced.
+			</p>
+			<p>
+				You can export the collected statistics to an Excel file using the "File-&gt;Export Stats Data..." menu item. You'll be prompted to choose a location and name for the exported file. Be sure to use the extension ".xls".
+			</p>
+			<img class="screenshot" src="../images/16_Export.png" alt="Export Stats">
+			<p>
+				When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains a long, unintelligible number which is an accurate, though obscure, way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like this:
+			</p>
+			<table class="grid_table">
+				<tbody>
+					<tr>
+						<th>
+							TIMESTAMP
+						</th>
+						<th>
+							C_AMP
+						</th>
+						<th>
+							C_BAM
+						</th>
+						<th>
+							C_EST
+						</th>
+						<th>
+							C_ROC
+						</th>
+						<th>
+							C_SOC
+						</th>
+						<th>
+							C_VLT
+						</th>
+						<th>
+							S_PWR
+						</th>
+						<th>
+							S_SPD
+						</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>
+							1377743292
+						</td>
+						<td>
+							0
+						</td>
+						<td></td>
+						<td>
+							99.7
+						</td>
+						<td>
+							-1
+						</td>
+						<td>
+							55
+						</td>
+						<td>
+							0
+						</td>
+						<td>
+							24
+						</td>
+						<td>
+							14
+						</td>
+						<td>
+							8/28/13 18:28:12
+						</td>
+					</tr>
+					<tr>
+						<td>
+							1377746306
+						</td>
+						<td>
+							0
+						</td>
+						<td></td>
+						<td>
+							99.3
+						</td>
+						<td>
+							-1
+						</td>
+						<td>
+							50
+						</td>
+						<td>
+							0
+						</td>
+						<td>
+							21
+						</td>
+						<td>
+							16
+						</td>
+						<td>
+							8/28/13 19:18:26
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time. The following screenshots show the Graphs tab in a number of different states. The first displays the "Show Items" dropdown list open with some items selected and others deselected.
+			</p><img class="screenshot" src="../images/13_Graphs_Partial.png" alt="missing">
+			<p>
+				The next screen shot shows the context menu which controls the appearance of the graph.
+			</p><img class="screenshot" src="../images/13a_Graphs_ContextMenu.png" alt="missing">
+			<p>
+				In this screen shot you can see how "Markers Only" mode makes it easy to spot gaps in the data.
+			</p><img class="screenshot" src="../images/13b_Graphs_Markers.png" alt="missing">
+			<p>
+				When you select "Lines and Markers" mode it makes it easier to follow trends while still seeing the actual samples.
+			</p><img class="screenshot" src="../images/13c_Graphs_Both.png" alt="missing">
+			<p>
+				If you have accumulated a lot of data it can take some time to load the Graph. While the data is loading, you may see your mouse pointer change into the "busy" image. Depending on what system you're using, this might be an hourglass, a spinning beachball, a spinning circle, or something similar. Once the data is loaded into the graph, your pointer will revert to it's normal image. You can control how much data is loaded via a setting in the <a href="PrefsTab">General section of the Prefs Tab</a>. Choosing to load the last 14 days of data is a reasonable option.
+			</p>
+		</div>
+		<div id="footer"></div>
+	</body>
+</html>

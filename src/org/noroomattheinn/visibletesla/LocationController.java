@@ -126,8 +126,12 @@ public class LocationController extends BaseController {
         String heading = String.valueOf(theHeading);
         
         if (mapIsLoaded) {
-            engine.executeScript(String.format(
-                "moveMarker(%s, %s, %s)", latitude, longitude, heading));
+            try {
+                engine.executeScript(String.format(
+                    "moveMarker(%s, %s, %s)", latitude, longitude, heading));
+            } catch (Exception e) {
+                Tesla.logger.warning(e.toString());
+            }
         } else {
             String mapHTML = getMapFromTemplate(latitude, longitude, heading);
             engine.getLoadWorker().stateProperty().addListener( new ChangeListener<State>() {
@@ -167,7 +171,9 @@ public class LocationController extends BaseController {
     
     private String getMapFromTemplate(String lat, String lng, String heading) {
         SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(MapTemplateFileName));
-        return template.fillIn("DIRECTION", heading, "LAT", lat, "LONG", lng);
+        return template.fillIn(
+                "DIRECTION", heading, "LAT", lat, "LONG", lng,
+                "GMAP_API_KEY", appContext.prefs.googleAPIKey.get());
     }
     
 /*------------------------------------------------------------------------------
@@ -248,11 +254,10 @@ public class LocationController extends BaseController {
         }
 
         private void doUpdateLater(final SnapshotState.State state) {
-            final int heading = (state.speed > 10) ? state.estHeading : state.heading;
             appContext.lastKnownSnapshotState.set(state);
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    reflectInternal(state.estLat, state.estLng, heading);
+                    reflectInternal(state.estLat, state.estLng, state.estHeading);
                 } });
         }
         
@@ -271,8 +276,8 @@ public class LocationController extends BaseController {
 
                     // Now, stream data as long as it comes...
                     while (snapshot.refreshFromStream()) {
-                        if (inactivityState != InactivityType.Awake)
-                            break;
+                        if (appContext.shuttingDown.get() ||
+                            inactivityState != InactivityType.Awake) break;
                         if (snapshot.state.vehicleTimestamp - lastSnapshot > StreamingThreshold) {
                             doUpdateLater(snapshot.state);
                             lastSnapshot = snapshot.state.vehicleTimestamp;

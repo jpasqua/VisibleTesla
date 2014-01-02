@@ -307,10 +307,12 @@ public class OverviewController extends BaseController {
                 aeroFront.setVisible(true);
                 aeroRear.setVisible(true);
                 break;
-            case WTCY:
+            case WTTB:
                 cycloneFront.setVisible(true);
                 cycloneRear.setVisible(true);
                 break;
+            case WTX1:
+            case WT1P:
             case WT19:
                 nineteenRimFront.setVisible(true);
                 nineteenRimRear.setVisible(true);

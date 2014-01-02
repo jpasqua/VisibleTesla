@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.Date;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -21,6 +22,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.MailGun;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -48,6 +50,9 @@ public class PrefsController extends BaseController {
     @FXML private TextField     proxyHost;
     @FXML private TextField     proxyPort;
     @FXML private ComboBox<String> graphsTimePeriod;
+    @FXML private TextField     customGoogleAPIKey;
+    @FXML private CheckBox      useCustomGoogleAPIKey;
+    @FXML private TextField     emailForNotifications;
     
     //
     // Action Handlers
@@ -67,6 +72,31 @@ public class PrefsController extends BaseController {
             "Please Note...", "General Preferences");
     }
     
+    @FXML void testDelivery(ActionEvent event) {
+        String msg = "Testing delivery from VisibleTesla";
+        String addr = appContext.prefs.notificationAddress.get();
+        if (addr == null || addr.length() == 0) {
+            Dialogs.showWarningDialog(appContext.stage,
+                    "You must supply an email address before testing delivery",
+                    "Test Problem");
+        }
+        String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
+        MailGun mailer = new MailGun("api", "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6");
+        if (!mailer.send(addr, "Testing VisibleTesla Delivery", date + "\n" + msg)) {
+            Dialogs.showWarningDialog(appContext.stage,
+                    "Error delivering your test message. Please check your email address",
+                    "Test Problem");
+        } else {
+            Dialogs.showInformationDialog(appContext.stage, 
+                    "The test message has been sent to the specified\n" +
+                    "address. If you do not receive it within 15 minutes,\n" +
+                    "please check your email address and try again. After\n" +
+                    "two attempts with a correct email address, please post\n" +
+                    "a message in the forums.",
+                    "Message Sent");
+        }
+    }
+    
     //
     // Intialize the UI
     //
@@ -76,6 +106,7 @@ public class PrefsController extends BaseController {
         bindToIntegerProperty(idleThresholdSlider, idleThresholdLabel,
                               appContext.prefs.idleThresholdInMinutes);
         bindToComboBox(graphsTimePeriod, appContext.prefs.loadPeriod);
+        bindToTextField(emailForNotifications, appContext.prefs.notificationAddress);
         
         // Advanced
         bindToCheckBox(storeFilesWithApp, appContext.prefs.storeFilesWithApp);
@@ -83,6 +114,8 @@ public class PrefsController extends BaseController {
         bindToTextField(proxyHost, appContext.prefs.proxyHost);
         bindToTextField(proxyPort, appContext.prefs.proxyPort);
         bindToCheckBox(offerExperimental, appContext.prefs.offerExperimental);
+        bindToCheckBox(useCustomGoogleAPIKey, appContext.prefs.useCustomGoogleAPIKey);
+        bindToTextField(customGoogleAPIKey, appContext.prefs.googleAPIKey);
     }
     
 /*------------------------------------------------------------------------------

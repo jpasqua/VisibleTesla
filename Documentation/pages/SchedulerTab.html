@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>
+            The Scheduler Tab
+        </title>
+        <link rel="stylesheet" href="../default.css" type="text/css">
+    </head>
+    <body>
+        <div id="header">
+            <div class="wrap">
+                <a href="#"><img src="../images/Banner.png"></a>
+            </div>
+        </div>
+        <div id="sidebar">
+            <iframe src="toc.html" frameborder="0"></iframe>
+        </div>
+        <div id="content">
+            <h1>
+                The Scheduler Tab
+            </h1>
+            <p>
+                VisibleTesla now includes a very basic capability for scheduled activities like charging your car or turning on or off your air conditioning. For scheduled events to be executed, Visible Tesla must be running. That is, if you schedule your vehicle to turn on the HVAC system at 7:30AM so that your car is warm by the time you get to it at 7:45, then VisibleTesla must be running at 7:30AM to issue the commands. The screenshot below shows the Scheduler Tab.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/17_Scheduler.png">
+            </p>
+            <p>
+                Each row represents a command that can be scheduled independently. There are 8 rows meaning that up to 8 distinct schedules can be set. The fields for each row are as follows:
+            </p>
+            <ul>
+                <li>On?: If selected then this schedule is active. If not selected, VT will remember the scheduled event, but not execute it.
+                </li>
+                <li>Sunday-Saturday: The scheduled event will be executed only on the selected days.
+                </li>
+                <li>Time: The time at which the command will be executed. Minutes can be specified with a granularity of 5 minutes (00, 05, 10, ...)
+                </li>
+                <li>Safe: If selected, the command will only be executed if there is sufficient power available. What constitutes safety is defined in the <a href="#pref_table_sched">Scheduler preferences</a>. It can consist of a minimum battery level, the car being plugged-in, or both. If "Safe" is selected but the specified requirements are not met, the command will not be executed.
+                </li>
+                <li>Command: The command to execute. Choices are:
+                    <table class="grid_table">
+                        <tbody>
+                            <tr>
+                                <th>
+                                    Command
+                                </th>
+                                <th>
+                                    Description
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    HVAC: On
+                                </td>
+                                <td>
+                                    Turn on the HVAC system.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    HVAC: Off
+                                </td>
+                                <td>
+                                    Turn off the HVAC system.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Charge: Start
+                                </td>
+                                <td>
+                                    Start Charging the vehicle.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Charge: Stop
+                                </td>
+                                <td>
+                                    Stop Charging the vehicle.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Charge: Low
+                                </td>
+                                <td>
+                                    Set the charge target to the car's minimum value or the value specified in the preferences pane.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Charge: Std
+                                </td>
+                                <td>
+                                    Set the charge target to the car's default standard charge.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Charge: Max
+                                </td>
+                                <td>
+                                    Set the charge target to the car's maximum charge.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Sleep
+                                </td>
+                                <td>
+                                    Equivalent to the user selecting "Allow Sleeping"from the "Options-&gt;Inactivity Mode" menu.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Daydream
+                                </td>
+                                <td>
+                                    Equivalent to the user selecting "Allow Daydreaming"from the "Options-&gt;Inactivity Mode" menu.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Awake
+                                </td>
+                                <td>
+                                    Equivalent to the user selecting "Stay Awake"from the "Options-&gt;Inactivity Mode" menu.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    None
+                                </td>
+                                <td>
+                                    Don't execute a command of any type.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+                    <p>The Sleep, Daydream, and Stay Awake commands can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.</p>
+            <p>
+                Please remember that using this functionality can trigger activity that depletes your battery. You are solely responsible for any negative consequences that this might produce.
+            </p>
+        </div>
+        <div id="footer"></div>
+    </body>
+</html>

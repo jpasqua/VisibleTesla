@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>
+            FAQ
+        </title>
+        <link rel="stylesheet" href="../default.css" type="text/css">
+    </head>
+    <body>
+        <div id="header">
+            <div class="wrap">
+                <a href="#"><img src="../images/Banner.png"></a>
+            </div>
+        </div>
+        <div id="sidebar">
+            <iframe src="toc.html" frameborder="0"></iframe>
+        </div>
+        <div id="content">
+            <h1>
+                FAQ
+            </h1>
+            <h2>
+                General
+            </h2>
+            <dl>
+                <dt>
+                    Can I control ...?
+                </dt>
+                <dd>
+                    There are many features of the Tesla Model S that cannot be controlled by VisibleTesla (or other applications). All of the following have been requested, but are not controllable via VisibleTesla:
+                    <ul>
+                        <li>The heated seats
+                        </li>
+                        <li>The front and rear defrosters
+                        </li>
+                        <li>The car's scheduled charge time
+                        </li>
+                        <li>The charge amperage
+                        </li>
+                    </ul>
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Can I get VisibleTesla in my native language?
+                </dt>
+                <dd>
+                    Unfortunately no (unless your native language is US English). There is actually a lot of work to be done to make VisibleTesla able to support different languages and then someone would have to do the actual translations. As of 1/1/2014, this work is not planned.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    How do I switch between my many different Teslas?
+                </dt>
+                <dd>
+                    For those of you lucky enough to have more than one Tesla, there is no easy way to switch between them at the moment. Since I only have one car, this is not something I can test and is unlikely to be addressed anytime soon. Youcan keep multiple copies of VisibleTesla running and point one to each car.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Can I store the app data files in Dropbox?
+                </dt>
+                <dd>
+                    The application data files are stored in a system specific location that can be shown using the "Show User Folder" button in Prefs-&gt;General-&gt;Advanced. If you are an advanced user you can use symbolic links (Mac/Linux) or MKLINK (Windows) to store the files in Dropbox and link them to User Folder. For details on how this mechanism works, check out: <a href="http://www.maximumpc.com/article/features/15_things_you_have_know_about_dropbox">15 Hacks Every Dropbox User Should Know</a>.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Is VisibleTesla secure?
+                </dt>
+                <dd>
+                    VisibleTesla has not undergone a rigorous security analysis, but the source code is available for anyone to review. Here are some basic facts:
+                    <ul>
+                        <li>VisibleTesla uses https to connect to Tesla's servers which means that all communication are encrypted.
+                        </li>
+                        <li>It does not store or communicate the user's password. It does store a cookie file on the user's disk. If this cookie file falls into the hands of an attacker, they could access your vehicle. An attacker would have to have access to your computer to make this possible.
+                        </li>
+                        <li>The application shares no information with the author or anyone else other than Tesla. I'd actually love to collect some aggregate statistics (not user identifiable) but I've refrained from doing so because I don't want to create even a perception that users are being spied upon. I don't even know how many people have tried VisibleTesla.
+                        </li>
+                    </ul>Other than communicating with Tesla, the app does download up to 3 files from a different source - dropbox.
+                    <ul>
+                        <li>The first file is a list of the releases. The app uses this to determine whether a newer release is available.
+                        </li>
+                        <li>If a new release is available, the user can click a link to see the most recent release notes (they are also on dropbox).
+                        </li>
+                        <li>Finally, if the user chooses to download the latest release, it will download that from dropbox. No user information is shared in this process.
+                        </li>
+                    </ul>As mentioned above, the code is open source and posted on github. I welcome anyone to look at it and let me know of any security vulnerabilities that might be present. I understand that not everyone has the time, interest, or inclination to do that, but it is an option for some.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Where can I find the source code for VisibleTesla?
+                </dt>
+                <dd>
+                    VisibleTesla lives on <a href="https://github.com/jpasqua/VisibleTesla/">github</a>. It relies on another project, TeslaClient, by the same author which can also be found on <a href="https://github.com/jpasqua/TeslaClient/">github</a>.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Can I ask Tesla for help with VisibleTesla or report problems to them?
+                </dt>
+                <dd>
+                    No. VisibleTesla is not an official application from Tesla.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    OK, well if I can't ask Tesla for support where can I go to ask questions or learn more about the app?
+                </dt>
+                <dd>
+                    There is a thread on the <a href="http://www.teslamotorsclub.com/showthread.php/19975-VisibleTesla">Tesla Motors Club forum</a> that you can read and participate in.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    I like the idea of monitoring and controlling my Tesla, but VisibleTesla isn't right for me. Are there other options?
+                </dt>
+                <dd>
+                    Yes! There are a number of great projects out there. Please have a look at the <a href="http://www.teslamotorsclub.com/showwiki.php?title=REST+API+Tools+and+Apps/">this post</a> for a few ideas. For sophisticated monitoring and visualization, check out <a href="http://www.teslamotorsclub.com/showthread.php/20325-TeslaMS-tools-for-telemetry-data-visualization" target="_blank">teslams on the forum</a>.
+                </dd>
+            </dl>
+            <h2>
+                Troubleshooting
+            </h2>
+            <dl>
+                <dt>
+                    I'm not getting a notification that I expected
+                </dt>
+                <dd>
+                    The two most common problems here are (a) the app is not running at the time the event occurred, and (b) the app is in <a href="SleepMode">"Allow Sleeping"</a> mode when the event occurred. When VisibleTesla is in "Allow Sleeping" mode it still checks the car periodically to see if it is awake. If the car is awake during one of these checks and if a specified event occurs, a notification will be sent. However, the top priority of "Allow Sleeping" mode is to let your car sleep which means that events may occur while VisibleTesla is avoiding communication with your vehicle.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Mac: Every time I try to run VisibleTesla I get a message saying that it can't be opened because it's from an unidentified developer.
+                </dt>
+                <dd>
+                    VisibleTesla is not in the Mac App Store and is not a "signed" application. The Mac operating system is giving you a warning saying that you should be suspicious of any program that doesn't come from a known and verified source. That's good advice. If you feel that you want to run VisibleTesla anyway, there are several ways around this warning. If you are using Mac OS 10.9 or greater, the easiest way is:
+                    <ul>
+                        <li>Double-click VisibleTesla.jar, get the warning and dismiss it.
+                        </li>
+                        <li>Go to System Preferences-&gt;Security &nbsp; Privacy. You'll see a note that says "VisibleTesla was blocked from opening because it is not from an identified developer."
+                        </li>
+                        <li>Right next to that text you'll see an "Open Anyway" button. Press it. You only need to do this once.
+                        </li>
+                    </ul>For more details, check out this <a href="http://reviews.cnet.com/8301-13727_7-57612844-263/how-to-bypass-gatekeeper-in-os-x-mavericks/">article from CNET</a>.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Mac: The zooming and panning gestures don't work
+                </dt>
+                <dd>
+                    In the Mac System Preferences look at the Accessibility preferences. There is a checkbox labeled "Use scroll gesture with modifier keys to zoom:". If you have that checked, the system may be intercepting these gestures.
+                </dd>
+            </dl>
+            <h2>
+                Installation Tips
+            </h2>
+            <dl>
+                <dt>
+                    Windows: How can I get an icon on my desktop that will let me launch VisibleTesla?
+                </dt>
+                <dd>
+                    For Windows 7 or 8:
+                    <ol>
+                        <li>Install VisibleTesla as described <a href="GettingStarted.html#install">here</a>. Make a note of the directory location where you extracted the VisibleTesla files on your computer (for example: "C:\Program Files\VisibleTesla")
+                        </li>
+                        <li>Navigate to the directory identified in step 1 above.
+                        </li>
+                        <li>Locate the file "VisibleTesla.jar". Right-click and select "Send to... / Desktop (create shortcut)".
+                        </li>
+                        <li>Right-click the desktop shortcut you just created in step #3 and choose "Properties"
+                        </li>
+                        <li>Click the "Change Icon" button. In the resulting dialog box, click "Browse".
+                        </li>
+                        <li>Navigate to the directory identified in step #1 and choose the "FobIcon.ico" file, and then click "Open".
+                        </li>
+                        <li>In the resulting dialog box, choose the (only) Telsa Keyfob shaped Icon and click "OK"
+                        </li>
+                        <li>Click "OK" again to close the Properties window
+                        </li>
+                        <li>You should now have a "Model S Fob" icon on your desktop that may be used to launch VisibleTesla.
+                        </li>
+                    </ol>
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Mac: How can I get an icon in my dock that will let me launch VisibleTesla?
+                </dt>
+                <dd>
+                    For recent versions of Mac OS X:
+                    <ol>
+                        <li>Download VisibleTesla by clicking on a download link or automatically, with the "Check for Updates" feature in the Application. A folder, named something like VisibleTesla 0.XX.XX will be placed in your Downloads folder.
+                        </li>
+                        <li>[Optional] Copy or move that complete folder to a location of your choice (typically you might place it in the Applications folder with all your other applications) and remember where you placed it.
+                        </li>
+                        <li>Open "Finder" and navigate to the folder that contains the VisibleTesla 0.XX.XX sub-folder. Double click on the folder to open it and view its contents.<br>
+                            <b>Steps 4 to 11 are optional</b> and only necessary if you want to replace the default Java icon associated with VisibleTesla with an image of the Model S FOB. If not, skip to step 12.<br>
+                        </li>
+                        <li>Right Click on the VisibleTesla.jar file to open the context menu and click on "Get Info".
+                        </li>
+                        <li>A window called VisibleTesla.jar Info will open with the name of the file in bold at the top and a JAR icon to the left of this (with a coffee cup in the image). Keep this window open.
+                        </li>
+                        <li>Go back to "Finder" and double click on the Fobicon.png file the VisibleTesla 0.XX.XX sub-folder to open the FOB image in the "Preview" application.
+                        </li>
+                        <li>Copy the contents of the image in the "Preview" application by pressing "Command + C"
+                        </li>
+                        <li>Go back to the VisibleTesla.jar Info window from Step 5 and single click on the little coffee cup image. The outside of the coffee cup image will be highlighted with a blue outline.
+                        </li>
+                        <li>Paste the FOB picture currently in the the clipboard by pressing "Command + V"
+                        </li>
+                        <li>The Model S FOB picture will replace the coffee cup picture (top left). Close the VisibleTesla.Jar Info window.
+                        </li>
+                        <li>Go back to "Finder" to view the VisibleTesla 0.XX.XX sub-folder again. The VisibleTesla.jar file should now have the Model S Fob image associated to it.
+                        </li>
+                        <li>Drag the VisibleTesla.jar file to either your desktop or to the Program Dock at the bottom. Note that you can only place such a file on the right side of the Dock (user items).
+                        </li>
+                    </ol>
+                    <p>
+                        NOTE: If when clicking on your VisibleTesla dock icon you get an error message that you cannot open the file because it is from an unidentified developer you will need to right click the VisibleTesla.jar file in its original folder and select "Open With" and choose "Jar Launcher" [You only need to do this the first time. Subsequent attempts to open using the icon in the Doc should open the application without issue]
+                    </p>
+                </dd>
+            </dl>
+        </div>
+        <div id="footer"></div>
+    </body>
+</html>

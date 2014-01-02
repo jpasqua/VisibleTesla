@@ -44,6 +44,14 @@
      -fx-background-radius: 7 7 0 0;
 }
 
+.squareBottomLeft {
+     -fx-background-radius: 7 0 0 0;
+}
+
+.squareBottomRight {
+     -fx-background-radius: 0 7 0 0;
+}
+
 .squareButton {
      -fx-background-radius: 0 0 0 0;
 }
@@ -87,4 +95,10 @@
 
 .CalendarPickerControlSkin .weeknumber { 
 	-fx-text-fill: transparent;
+}
+
+.separator:horizontal .line {
+    -fx-background-color: null;
+    -fx-padding: 1.0em 0.0em 0.0em 0.0em; /* 1 0 0 0 */
+    -fx-border-color: blue transparent transparent transparent;
 }

@@ -1,12 +1,13 @@
 @charset "utf-8";
- 
+
  html, body {
-	 margin: 2px;
+	 margin: 0px;
 	 padding: 0px;
 	 border: 0px;
 	 color: #000;
 	 background: #fff;
  }
+
  html, body, p, th, td, li, dd, dt {
  	font: .95em Verdana, Arial, sans-serif;
  }
@@ -15,9 +16,26 @@
  	font-family: Verdana, Arial, sans-serif;
  }
 
- h1 { font-size: 1.5em; }
- h2 { font-size: 1.2em ; }
- h3 { font-size: 1.0em; }
+strong {
+	color: #555;
+}
+ h1 { 
+ 	font-size: 2.0em;
+ 	text-align:center;
+ 	border-bottom:1px solid #CCC;    
+    padding-bottom:3px;
+
+ }
+
+ h2 {
+ 	font-size: 1.2em ;
+	text-decoration:underline;    
+	padding-bottom:3px;
+ }
+
+ h3 {
+ 	font-size: 1.0em;
+}
  h4 { font-size: 0.9em; }
  h5 { font-size: 0.8em; }
  h6 { font-size: 0.8em; }
@@ -27,11 +45,13 @@
  a:hover { color: #06f; }
  a:active { color: #0cf; }
 
+
 table.grid_table {
 	color:#333333;
 	border-width: 1px;
 	border-color: #666666;
 	border-collapse: collapse;
+	margin-left: 20px;
 }
 table.grid_table th {
 	border-width: 1px;
@@ -55,12 +75,113 @@ table.grid_table td:first-child {
 
 span.s1 {color: #042eee}
 span.s2 {text-decoration: underline}
-ul.li {list-style-type: disc}
-ul.li.li {list-style-type: circle}
-ul.li.li.li {list-style-type: square}
-ul.li.li.li.li {list-style-type: square}
+ul li {list-style-type: square}
+ul li li {list-style-type: circle}
+ul li li li {list-style-type: disc}
+ul li li li li {list-style-type: square}
+/*li {font-size: 100%;}*/
 
 tr.firstRowOfGroup {
 	border-top: solid thick #888888;
 }
+
+.ui {
+	font-weight:bold;
+	font-size:90%;
+	/*font-style: italic;*/
+	/*background-color: lightgray;*/
+	color: darkgreen;
+}
+
+.screenshot {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;	
+}
+
+div.center
+{
+  width: 200px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wrap {
+	position:relative;
+	width:500px;
+}
+
+#content {
+	margin: 10px;
+	width: 800px;
+}
+
+#header {
+	 margin: 0;
+	 padding: 0;
+	width:100%;
+	float:top;
+	background-image:url('images/BannerBackground.png');
+}
+
+#footer:before {
+	content:"VisibleTesla";
+	text-align: center;
+	background-color:#980000;
+	color:white;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;	
+}
+
+#footer {
+	width:100%;
+	float:left;
+}
+
+p {
+	margin-left: 20px;
+}
+
+iframe {
+	height:500px;
+}
+
+#sidebar {
+	float:right;
+	width:250px;
+	height:500px;
+	padding:10px;
+}
+
+dl {
+	margin: 20px;
+	padding-left: 10px;
+	}
+	dt:before {
+		content:"Q: ";
+		color:red;
+		font-weight:bold;
+	}
+	dt {
+		font-size: 1em;
+		margin-bottom: 10px;
+		}
+		dt span {
+			font-style: italic;
+			font-size: 1.3em;
+		}
+	dd:before {
+		content:"A: ";
+		color:green;
+		font-weight:bold;
+	}
+	dd {
+		font-size: 1em;
+		margin-left: 20px;
+		margin-bottom: 10px;
+		border-left:1px solid #CCC;   
+		padding-left: 5px; 
+	}
 

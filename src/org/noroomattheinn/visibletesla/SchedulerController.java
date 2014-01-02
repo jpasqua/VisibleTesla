@@ -49,7 +49,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private org.noroomattheinn.tesla.HVACController hvacController;
 
-    private List<ScheduleItem> schedulers = new ArrayList<>();
+    private final List<ScheduleItem> schedulers = new ArrayList<>();
     private int maxCharge, stdCharge;
     
 /*==============================================================================
@@ -83,7 +83,6 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         if (!safeToRun(command, safe)) return;
         
         if (!tryCommand(command, safe)) {
-            logActivity("Retrying...");
             tryCommand(command, safe);  // Try it again in case of transient errors
         }
     }
@@ -103,6 +102,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             case AWAKE: appContext.requestInactivityMode(InactivityType.Awake); break;
             case SLEEP: appContext.requestInactivityMode(InactivityType.Sleep); break;
             case DAYDREAM: appContext.requestInactivityMode(InactivityType.Daydream); break;
+            case UNPLUGGED: r = unpluggedTrigger(); break;
         }
         String entry = String.format("%s: %s", name, r.success ? "succeeded" : "failed");
         if (!r.success) entry = entry + ", " + r.explanation;
@@ -142,11 +142,27 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         ActionController a = new ActionController(vehicle);
         for (int i = 0; i < 20; i++) {
             a.wakeUp();
-            Utils.sleep(500);
             if (charge.refresh())
                 return true;
+            Utils.sleep(5000);
         }
         return false;
+    }
+    
+    private synchronized Result unpluggedTrigger() {
+        if (charge.state.chargerPilotCurrent < 1) {
+            // Unfortunately the charge state can be flakey. It might read a pilot
+            // current of 0 first, then change to the proper value. For that reason,
+            // fetch the charge state again and double check.
+            Utils.sleep(1000);
+            if (charge.refresh() && charge.state.chargerPilotCurrent < 1) {
+                NotifierController.sendNotification(
+                    appContext.prefs.notificationAddress.get(),
+                    "Your car is not plugged in!");
+                return new Result(true, "Vehicle is unplugged. Notification sent");
+            }
+        }
+        return new Result(true, "Vehicle is plugged-in. No notification sent");
     }
     
 /*------------------------------------------------------------------------------
@@ -199,8 +215,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override
-    protected void fxInitialize() {
+    @Override protected void fxInitialize() {
         // Deep-Six the refresh button and progress indicator
         refreshButton.setDisable(true);
         refreshButton.setVisible(false);
@@ -210,9 +225,10 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         prepareSchedulerUI(gridPane);
     }
 
-    @Override
-    protected void prepForVehicle(Vehicle v) {
+    @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle()) {
+            appContext.schedulerActivityReport.set("");
+
             charge = new ChargeState(v);
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             hvacController = new org.noroomattheinn.tesla.HVACController(v);
@@ -253,6 +269,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
         Tesla.logger.log(Level.FINE, entry);
+        appContext.schedulerActivityReport.set(entry);
     }
     
 

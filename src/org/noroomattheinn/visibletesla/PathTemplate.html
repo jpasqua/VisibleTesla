@@ -6,89 +6,215 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
-      #map_canvas { height: 100% }
+      #map_canvas { height: 80% }
+      #chart_canvas { height: 20% }
     </style>
-    <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCjGYtiv3uD2JytDbT7CPmDawOTbjKe9QM&sensor=false">
-    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=GMAP_API_KEY&amp;sensor=false"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   </head>
   <body>
 
-    <script type="text/javascript">
+<script type="text/javascript">
+    var trips = TRIPS;
+    var includeGraph = INCLUDE_GRAPH;
+    var markers = [];
+    
     function initialize() {
-
-          var poly;
-
-          var wayPoints = WAYPOINTS
-
-          var mapOptions = {
+        var mapOptions = {
             zoom: 0,
             center: new google.maps.LatLng(0, 0),
             mapTypeId: google.maps.MapTypeId.ROADMAP
-          };
+        };
 
         var polyOptions = {
             strokeColor: '#0088FF',
             strokeOpacity: 1.0,
             strokeWeight: 4
-        }
+        };
 
         var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+        var latlngbounds = new google.maps.LatLngBounds();
 
-        poly = new google.maps.Polyline(polyOptions);
-        poly.setMap(map);
+        for (var tripIndex = 0; tripIndex < trips.length; tripIndex++) {
+            var wayPoints = trips[tripIndex];
+            var poly = new google.maps.Polyline(polyOptions);
+            var path = poly.getPath();
+            poly.setMap(map);
 
-        var path = poly.getPath();
-     
-        var latlngbounds = new google.maps.LatLngBounds( );
-        var image = {
-          //url: 'http://maps.google.com/mapfiles/kml/shapes/placemark_circle_maps.png',
-          url: 'https://dl.dropboxusercontent.com/u/7045813/Stable/placemark_arrow.png',
-          anchor: new google.maps.Point(7,10) 
-          };
-        for ( var i = 0; i < wayPoints.length; i++ ) {
-            var pos = new google.maps.LatLng(wayPoints[i].lat, wayPoints[i].lng);
+            for (i = 0; i < wayPoints.length; i++) {
+                var pos = new google.maps.LatLng(wayPoints[i].lat, wayPoints[i].lng);
 
-            var markerFillColor = 'red';
-            var markerOpacity = 1;
+                var markerFillColor = 'red';
+                var markerOpacity = 1;
 
-            if (i == 0) {
-                markerFillColor = "darkgreen";
-            } else if (i == wayPoints.length-1) {
-                markerFillColor = "black";
-            } else {
-                markerOpacity = 0.5;
-            }
-            new google.maps.Marker( {
-                position: pos,
-                map: map,
-                title: wayPoints[i].timestamp+", "+wayPoints[i].speed,
-                icon: {
-                  path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                  scale:4,
-                  strokeColor: 'black',
-                  fillColor: markerFillColor,
-                  fillOpacity: markerOpacity,
-                  strokeWeight:1,
-                  rotation: wayPoints[i].heading
+                if (i === 0) {
+                    markerFillColor = "darkgreen";
+                } else if (i === wayPoints.length - 1) {
+                    markerFillColor = "black";
+                } else {
+                    markerOpacity = 0.5;
                 }
-                //icon: image
-            } );
+                var thisMarker = new google.maps.Marker({
+                    position: pos,
+                    map: map,
+                    title: wayPoints[i].timestamp + ", " + wayPoints[i].speed,
+                    wpIndex: i,
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 4,
+                        strokeColor: 'black',
+                        fillColor: markerFillColor,
+                        fillOpacity: markerOpacity,
+                        strokeWeight: 1,
+                        rotation: wayPoints[i].heading
+                    }
+                });                
+                google.maps.event.addListener(thisMarker, "click", function(e) {
+                    selectMarker(this.wpIndex);
+                    selectData(this.wpIndex);
+                });
 
-            path.push(pos);
-            latlngbounds.extend( pos );
+                markers.push(thisMarker);
+                path.push(pos);
+                latlngbounds.extend(pos);
+            }
         }
 
 
-        map.fitBounds( latlngbounds );
+        map.fitBounds(latlngbounds);
+        if (!includeGraph)
+            document.getElementById('map_canvas').style.height = "100%";
 
     }
 
-    google.maps.event.addDomListener( window, 'load', initialize );
+    google.maps.event.addDomListener(window, 'load', initialize);
+    google.load("visualization", "1", { packages: ["corechart"] });
+    
+    if (includeGraph)
+        google.setOnLoadCallback(drawChart);
+    
+    function copyIcon(icon) {
+        return {
+            path: icon.path,
+            scale: icon.scale,
+            strokeColor: icon.strokeColor,
+            fillColor: icon.fillColor,
+            fillOpacity: icon.fillOpacity,
+            strokeWeight: icon.strokeWeight,
+            rotation: icon.rotation
+        };
+    }
+    
+    var selectedMarker = -1;
+    var selectedIcon = null;
+    var chart;
+    
+    function selectData(dataIndex) {
+        if (includeGraph) { // Only do this if the graph is included
+            chart.setSelection([{'row': dataIndex}]);
+        }
+    }
 
-    </script>
+    function selectMarker(markerIndex) {
+        console.log("markerIndex = " + markerIndex);
+        if (selectedMarker !== -1) {
+            markers[selectedMarker].setIcon(selectedIcon);
+            selectedMarker = -1;
+            selectedIcon = null;
+        }
+        selectedMarker = markerIndex;
+        selectedIcon = markers[selectedMarker].icon;
+        var newIcon = copyIcon(markers[selectedMarker].icon);
+        newIcon.fillColor = "yellow";
+        newIcon.fillOpacity = 1.0;
+        newIcon.scale = 7;
+        markers[selectedMarker].setIcon(newIcon);
+    }
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        // Add columns
+        data.addColumn('number', 'Sample');
+        data.addColumn('number', 'Elevation (EL_UNITS)');
+        data.addColumn('number', 'Speed');
+        data.addColumn('number', 'Power');
+
+        var wayPoints = trips[0];
+        data.addRows(wayPoints.length);
+
+        for (i = 0; i < wayPoints.length; i++) {
+            data.setCell(i, 0, i);
+            data.setCell(i, 1, wayPoints[i].L_ELV);
+            data.setCell(i, 2, wayPoints[i].speed);
+            data.setCell(i, 3, wayPoints[i].S_PWR);
+        }
+        var series = {
+            0: { targetAxisIndex: 0 },
+            1: { targetAxisIndex: 1 },
+            2: { targetAxisIndex: 1 }
+        };
+
+        var options = {
+            title: 'Trip Profile',
+            vAxes: { 0: { title: "Elevation/Speed" },
+                     1: { title: "Power" } },
+            series: series
+        };
+
+        chart = new google.visualization.LineChart(document.getElementById('chart_canvas'));
+        chart.draw(data, options);
+
+        // This code handles the selection/deselection of series from the chart
+        // It does this by creating a DataView. The data view has a columns array
+        // which specifies for each column either: (a) a column number in the source
+        // data to be displayed, or (b) an object which is a calculated view on
+        // an underlying column. This trick is that for each hidden column, we 
+        // set the calculation function to return null. When we unhide a column,
+        // we replace that object with a simple column index that points to the 
+        // real column in the underlying DataTable.
+        var columns = [];
+        for (var i = 0; i < data.getNumberOfColumns(); i++) {
+            columns.push(i);
+        }
+
+
+        google.visualization.events.addListener(chart, 'select', function () {
+            var sel = chart.getSelection();
+            // if selection length is 0, we deselected an element
+            if (sel.length > 0) {
+                // if row is undefined, we clicked on the legend
+                if (sel[0].row === null) {
+                    var col = sel[0].column;
+                    if (columns[col] === col) {
+                        // hide the data series
+                        columns[col] = {
+                            label: data.getColumnLabel(col),
+                            type: data.getColumnType(col),
+                            calc: function () {
+                                return null;
+                            }
+                        };
+                        // grey out the legend entry
+                        series[col - 1].color = '#CCCCCC';
+                    } else {
+                        // show the data series
+                        columns[col] = col;
+                        series[col - 1].color = null;
+                    }
+                    var view = new google.visualization.DataView(data);
+                    view.setColumns(columns);
+                    chart.draw(view, options);
+                } else {
+                    selectMarker(sel[0].row);
+                }
+            }
+        });
+
+    }
+</script>
 
 
     <div id="map_canvas" ></div>
+    <div id="chart_canvas" ></div>
   </body>
 </html>

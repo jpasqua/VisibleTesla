@@ -54,7 +54,12 @@
                 <fx:include source="SchedulerUI.fxml" minHeight="400.0" />
               </content>
             </Tab>
-            <Tab fx:id="prefsTab" disable="false" text="Preferences">
+            <Tab fx:id="notifierTab" disable="true" text="Notify">
+              <content>
+                <fx:include source="NotifierUI.fxml" minHeight="400.0" />
+              </content>
+            </Tab>
+            <Tab fx:id="prefsTab" disable="false" text="Prefs">
               <content>
                 <fx:include source="PrefsUI.fxml" minHeight="400.0" />
               </content>
