@@ -151,7 +151,7 @@
         <Image url="@../TeslaResources/wheel_rear_19@2x.png" />
       </image>
     </ImageView>
-    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" minHeight="13.9998779296875" prefHeight="13.9998779296875" text="Odometer: ..." visible="true" />
+    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" minHeight="13.9998779296875" prefHeight="21.0" text="Odometer: ..." visible="true" />
     <Button mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" AnchorPane.bottomAnchor="13.0" AnchorPane.rightAnchor="92.0" />
     <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="523.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>

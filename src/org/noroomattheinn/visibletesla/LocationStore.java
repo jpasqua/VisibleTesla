@@ -59,39 +59,39 @@ public class LocationStore extends DataStore {
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean stopped = false;
     private SnapshotState.State lastState = null;
     
     private synchronized void storeLocation(SnapshotState.State state) {
         if (!appContext.prefs.collectLocationData.get() || state == null) return;
         double speed = Math.round(state.speed*10.0)/10.0;
         
-        if (speed == 0) {
-            if (stopped) return;
-            stopped = true;
-        } else {
-            stopped = false;
-        }
         if (tooClose(state, lastState)) return;
 
         long timestamp = state.timestamp;
-        repo.storeElement(LatitudeKey, timestamp, state.estLat);
-        repo.storeElement(LongitudeKey, timestamp, state.estLng);
-        repo.storeElement(HeadingKey, timestamp, state.heading);
-        repo.storeElement(SpeedKey, timestamp, speed);
-        repo.storeElement(OdometerKey, timestamp, state.odometer);
+        storeItem(LatitudeKey, timestamp, state.estLat);
+        storeItem(LongitudeKey, timestamp, state.estLng);
+        storeItem(HeadingKey, timestamp, state.heading);
+        storeItem(SpeedKey, timestamp, speed);
+        storeItem(OdometerKey, timestamp, state.odometer);
         repo.flushElements();
         lastState = state;
     }
     
     private boolean tooClose(SnapshotState.State wp1, SnapshotState.State wp2) {
         if (wp1 == null || wp2 == null) return false;
+        
+        // A big turn makes it "far"
         double turn =  180.0 - Math.abs((Math.abs(wp1.heading - wp2.heading)%360.0) - 180.0);
-        if (turn > 10) return false;    // A big turn makes it "far"
+        if (turn > 10) return false; 
         
-        if (Math.abs(wp1.timestamp - wp2.timestamp) < appContext.prefs.locMinTime.get() * 1000)
-            return true;
+        // A long time between readings makes it "far"
+        long timeDelta = Math.abs(wp1.timestamp - wp2.timestamp);
+        if (timeDelta > 10 * 60 * 1000) return false;
         
+        // A short time between readings makes it "too close"
+        if (timeDelta < appContext.prefs.locMinTime.get() * 1000)  return true; 
+        
+        // A short distance between readings makes it "too close"
         double meters = GeoUtils.distance(wp1.estLat, wp1.estLng, wp2.estLat, wp2.estLng);
         return (meters < appContext.prefs.locMinDist.get());
     }

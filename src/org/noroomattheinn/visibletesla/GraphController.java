@@ -353,7 +353,7 @@ public class GraphController extends BaseController {
         series.addToSeries(time, rounded, false);
     }
     
-    private ChangeListener<SnapshotState.State> handleSnapshotState = new ChangeListener<SnapshotState.State>() {
+    private final ChangeListener<SnapshotState.State> handleSnapshotState = new ChangeListener<SnapshotState.State>() {
         long lastTimestamp = 0;
         @Override public void changed(
                 ObservableValue<? extends SnapshotState.State> ov,
@@ -369,7 +369,7 @@ public class GraphController extends BaseController {
         }
     };
     
-    private ChangeListener<ChargeState.State> handleChargeState = new ChangeListener<ChargeState.State>() {
+    private final ChangeListener<ChargeState.State> handleChargeState = new ChangeListener<ChargeState.State>() {
         @Override public void changed(
                 ObservableValue<? extends ChargeState.State> ov,
                 ChargeState.State old, final ChargeState.State cur) {

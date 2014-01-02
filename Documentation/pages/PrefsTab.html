@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>
+            The Prefs Tab
+        </title>
+        <link rel="stylesheet" href="../default.css" type="text/css">
+    </head>
+    <body>
+        <div id="header">
+            <div class="wrap">
+                <a href="#"><img src="../images/Banner.png"></a>
+            </div>
+        </div>
+        <div id="sidebar">
+            <iframe src="toc.html" frameborder="0"></iframe>
+        </div>
+        <div id="content">
+            <h1>
+                The Prefs Tab
+            </h1>
+            <p>
+                The Preferences tab allows users to control various options for the application as a whole and individual tabs within the application. Each Tab in VisibleTesla has it's own section within the preferences tab. There are also general preferences for the app as a whole. To set the preferences associated with a given tab, click the arrow next to the Tab name. The screenshot below shows the Preferences tab with the Login preferences selected. As you can see, there are currently no preferences available for this tab.
+            </p><img class="screenshot" src="../images/19_Prefs.png">
+            <p>
+                The preferences associated with some tabs are split into two groups: Basic and Advanced. In general, you should avoid changing the advanced options.
+            </p>
+            <p>
+                The available preferences are shown in the table below. All entries in <font color="red">red</font> refer to advanced preferences.
+            </p><a id="pref_table_sched"></a><a id="loadPrefs"></a>
+            <table class="grid_table">
+                <tbody>
+                    <tr>
+                        <th>
+                            Tab
+                        </th>
+                        <th>
+                            Preference
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td>
+                            Location
+                        </td>
+                        <td>
+                            Collect Location Data
+                        </td>
+                        <td>
+                            Checking this box causes VisibleTesla to store location data that it collects from the Location Tab or the Graph Tab. This option is required is you want to use the Trips tab.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            Seconds Between Stored Samples
+                        </td>
+                        <td>
+                            Location data can come in quite rapidly when viewing the Locations tab. VisibleTesla doesn't store every single piece of data. You can speicify the minimum time between samples using this slider. Note that this does not impact how frequently data comes into VisibleTesla. It only specifies how much data is stored.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            Distance Between Stored Samples
+                        </td>
+                        <td>
+                            Location data can come in quite rapidly when viewing the Locations tab. VisibleTesla doesn't store every single piece of data. You can speicify the minimum distance between location samples using this slider. Note that this does not impact how frequently data comes into VisibleTesla. It only specifies how much data is stored.
+                        </td>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td>
+                            Scheduler
+                        </td>
+                        <td>
+                            Value for "Charge: Low"
+                        </td>
+                        <td>
+                            Allows you to set the value used by the "Charge: Low" Scheduler command. By default this is set to the car's notion of minimum charging level. You can use the slider to set it to some other value.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            "Safe" includes:
+                        </td>
+                        <td>
+                            These checkboxes allow the user to determine what "Safe?" means when it it selected in the Scheduler UI. In the past it meant that the battery must have a minimum charge remaining for the command to execute. Now users may select "Minimum Battery Power" or "Vehicle Plugged-In" or both.
+                        </td>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td>
+                            General
+                        </td>
+                        <td>
+                            Wake on Tab change
+                        </td>
+                        <td>
+                            Lets the user determine whether clicking on a tab should cause a refresh and consequently wake up the car if it is sleeping. If this box is unchecked, clicking on a tab while in sleep mode will not refresh the data (meaning it will be stale). This allows the user to look at the last data displayed in a tab without waking the car up.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            Idle Threshold
+                        </td>
+                        <td>
+                            Alows the user to set the Idle Threshold. This determines how long VisibleTesla will look for inactivity before entering Sleep or Daydream mode. The default is 15 minutes. It can be set to anywhere between 1 and 90 minutes.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            Time Period to Load
+                        </td>
+                        <td>
+                            Controls how much data should be loaded. You can load the last 7, 14, or 30 days, the last week, the last month, all of your data, or none of your data. If you select to load none of your data, the graph will start out empty and add data points as usual. Normally this preference will be honored the next time VisibleTesla is launched. Changing this preference will not cause exisitng graph data to reload. However, if you change this preference before going to the Graphs tab, it will be honored immediately.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <font color="red">Offer Experimental Versions</font>
+                        </td>
+                        <td>
+                            If this box is checked, the app will offer experimental versions as part of the normal process of checking for updates. The box is not checked by default. If an experimental version is available and this box is not checked, it will not be offered to the user.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <font color="red">Store files with app?</font>
+                        </td>
+                        <td>
+                            Allows the user to select where to store internal application data files. In general users should not check this box. It is provided for power-users and to maintain compatibility with older versions. The default setting will cause internal application data files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show User Folder" button.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <font color="red">Enable Proxy</font>
+                        </td>
+                        <td>
+                            Allows the user to specify an http proxy to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. Note that this is an HTTP proxy, not a SOCKS proxy. <strong>Note</strong>: This feature has not yet been field tested. It should be considered experimental.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="footer"></div>
+    </body>
+</html>

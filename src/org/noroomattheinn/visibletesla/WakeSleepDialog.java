@@ -52,5 +52,5 @@ public class WakeSleepDialog implements DialogUtils.DialogController {
     public boolean letItSleep() { return letItSleep; }
     public boolean dontAskAgain() { return dontAskAgain; }
     
-    public void setStage(Stage stage) { this.myStage = stage; }
+    @Override public void setStage(Stage stage) { this.myStage = stage; }
 }

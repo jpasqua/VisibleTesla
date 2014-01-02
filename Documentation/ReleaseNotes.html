@@ -5,6 +5,316 @@
     </head>
     <body style="max-width:800px">
         <h1>VisibleTesla Release Notes</h1>
+        <h3>VisibleTesla 0.25.02 [12-25-13]</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>Continued tweaks to "Allow Sleeping" mode. It is now a little better at capturing trips while the app is in this mode. It's still possible to miss all or part of a trip while in this mode, but if the app detects that the car is awake while it is in "Allow Sleeping" mode and that the car is in motion, it will poll more frequently until motion stops.</li>
+                            <li>Revamped the format of the documentation and updated a few sections. Added an FAQ.</li>
+                            <li>Fixed one or two places where unit conversion wasn't happening. There are more to come.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Trips
+                        <ul>
+                            <li>Added an "Export It" button right next to the "Map It" button. Pressing this button will create a .kmz file which is input to Google Earth. Among other things, this will allow you to visualize your elevation profile over the course of the selected trip and let you watch your motion through the trip.
+                            <br><strong>Usage Notes</strong>:
+                                <ul>
+                                    <li>When entering a name for the output file, be sure to use a ".kmz" extension (e.g. MyTrip.kmz).</li>
+                                    <li>Double-click your .kmz file to open Google Earth, or use the File->Open menu in Google Earth to select and open the .kmz file you just exported.</li>
+                                    <li>What follows is not meant to be a guide to Google Earth. Please refer to Google's documentation. The following simply provides a couple of interesting things you can do with this data.</li>
+                                    <li>When Google Earth opens, you'll see a "Places" panel on the left hand side. Inside that panel you'll see a folder named "Temporary Places" and inside that you'll see the name of the file you just created (e.g. MyTrip.kmz).</li>
+                                    <li>Click the triangle next to your trip and you'll see two items. The first will be labeled "Tesla Path on [date @ time]</li>
+                                    <li>Left-click that item and select "Show Elevation Profile." As the name implies, it will show you the elevations along your path. These elevations are not from the car's GPS. It is Google's elevation data for the specified vehicle locations.</li>
+                                    <li>In the bottom right of the places pane you'll see an icon that is similar to the one next to your selected item (it is 3 dots connected by lines). If you press this button you'll be taken on a virtual tour through your data.</li> 
+                                </ul>
+                            </li>
+                            <li>Added an "Include graph in Map?" checkbox. If you check this box then the resulting page will include not only the map, but a graph of some basic values for each point along the route. The data currently provided is Elevation (in meters), Speed, and Power. Note the elevations displayed are not from the car's GPS. It is Google's elevation data for the specified vehicle locations. Google allows a limited number of elevation queries per day from a given user (2500 requests, 25,000 total elevations). This should be enough for normal usage.
+                            <br><strong>Usage Notes</strong>:
+                                <ul>
+                                    <li>If you select a legend item (such as "Speed") it will toggle that series on or off in the chart. When it is off, the legend item will appear greyed out.</li>
+                                    <li>If you select a point on one of the lines in the graph, the corresponding car marker in the map will highlight (it will get bigger and turn yellow).</li>
+                                    <li>If you select a car marker in the map, it will select the corresponding data points in the chart.</li>
+                                </ul>
+                            </li> 
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Notify
+                        <ul>
+                            <li>The subject of the email notification now contains up to 80 characters of the body of the message. That allows users to get the point of the message just by seeing the subject.</li>
+                            <li>Made the "Speed Hits" notification use the appropriate units (mph or km/h) for the car.
+                        </ul>
+                    </li>
+                    <li>
+                        Prefs
+                        <ul>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Added code to query Google for elevation  data</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>If you map multiple trips and include a graph in the output, selections will only work properly for the first selected trip.</li>
+                    <li>There are a number of places where unit conversions are not being done, including:<ul>
+                        <li>Speeds are always in mph in the info boxes associated with map markers</li>
+                        <li>Speed triggers in the Notify Tab</li>
+                    </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.25.01 [12-24-13] - EXPERIMENTAL</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                            <li>This version should continue to be considered experimental. The Trips tab, Notify Tab, and sleep modes are still undergoing changes.</li>
+                            <li>Enhancements to "Allow Sleeping" Mode. The result is that the app is now smarter about getting the data from the vehicle if it happens to be awake, but will not keep the car awake by continually sending it commands. For example, if the car wakes up overnight to perform a scheduled charge, VisibleTesla will notice that and grab some data while the car is awake. Details are below but can be skipped.
+                                <ul>
+                                    <li>A fairly significant change has been made to the way VisibleTesla handles sleep mode. If the app is in "Allow Sleep" mode, it will not interact with the car, thereby allowing it to go to sleep if it so chooses. VisibleTesla will not interact with the vehicle again until a scheduled command requires it, or the user starts interacting with the app again.</li>
+                                    <li>This new version of the app operates slightly differently. When the app is in "Allow Sleep" mode, the car may or may not be awake. Allow Sleep mode doesn't put the car to sleep - it just leaves it alone so that it may enter sleep mode when it is appropriate. Knowing that the car may still be awake, VisibleTesla now probes Tesla's servers periodically to determine if the car is really asleep. This probe will not wake up the car. If the car is asleep, then the app does nothing and will probe again later.</li>
+                                    <li>If VisibleTesla determines that the car is still awake, it will gather some data and then will not probe the vehicle again for 30 minutes. This is enough time to let the car go to sleep if it wants to. There is one final wrinkle. If, during one of these probes, VisibleTesla determines that the car is charging, then it will continue to probe more frequently until a probe shows that the car is no longer charging.</li>
+                                    <li>These changes will allow VisibleTesla to gather more information from your car with little to no impact on the car's ability to sleep. With more information, the app can keep more complete statistics, send notifications on a more timely basis, etc.</li>
+                                </ul>
+                            </li>
+                            <li>Tesla seems to have a few new codes for wheel, battery, and seat types (WT1P, WTX1, QZMB, PBT85). I have incorporated support for these based on user input. Not having these types in VT resulted in misidentification of these items and also the paint color. That is now corrected. This impacts the Overview and the HVAC tabs.</li>
+                            <li><Strong>Fixed: </strong>A problem that could result in a hang at startup in rare circumstances.</li>
+                            <li>Fixed the format of decimal numbers in various places to be sensitive to the locale. For example, in the US a user might see "50.0" in some part of the UI while a user in Europe might see "50,0". This is dependent on the region and language settings in the underlying operating system (Windows, Mac, Linux). Advanced users may override this by launching java manually with additional commaned line parameters such as "-Duser.country=NL -Duser.language=nl". If you don't know what this means, but for some reason need to use a different locale for this app than you do in the rest of the operating system, please let me know.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li><Strong>Fixed: </strong>A problem that could result in the car's position not being updated in rare circumstances.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                            <li>Changed the units from "kph" to "km/h".</li>
+                            <li>The app now determines whether this is a European vehicle, and if so checks whether the connected power is 3-phase. If it is 3-phase, the "Current" row in the Property table will show a (3) after the word "Current". </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Trips
+                        <ul>
+                            <li><Strong>Fixed: </strong>A problem that would cause the units to be repeated over and over again in the Property table. For example: "Range (mi) (mi) (mi)".</li>
+                            <li>If a new trip completes while the current day is selected, that trip would not appear in the list of available trips until the day is deselected and reselected. The trip is now added to the list automatically.</li>
+                            <li>When a day or days are selected, all available trips from those days are displayed in the trip list. Each is listed as "day @ time". For example: "2013-12-23 @ 08:57". To make it easier to identify which trip is which, the trips are now listed as "day @ time, N units". For example, "2013-12-23 @ 08:57, 9.6 mi".</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                            <li>Added a new command: "Unplugged?". This command tests whether the car is unplugged at the specified time and sends the user a notification if it is. <strong>Note:</strong> This scheduled command will wake up your car if it is sleeping. The car must be awake in order to communicate whether it is plugged in or not. This command will wake up your car even if VisibleTesla is in "Allow Sleep" mode. The same holds for some other scheduler commands such as "HVAC: On".</li>
+                            <li>Users reported confusion when a particular row of the Scheduler was turned off. It was unclear that is was disabled and they were surprised that the event didn't execute. As a result, the app now disables (greys out) all items in the row when the "On?" checkbox is deselected.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Notify
+                        <ul>
+                            <li><Strong>Fixed: </strong>A problem that would allow the "Unplugged at time" notification to trigger at incorrect times.</li>
+                            <li>The "Unplugged at time" notification is now part of the Scheduler tab since it is a scheduled event.</li>
+                            <li><Strong>Fixed: </strong>A problem that would make the tab unusable for some European users.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Prefs
+                        <ul>
+                            <li>Added a "Test Delivery" button next to the "Email for notifications" field in General->Basic preferences. This allows you to ensure that the email address you are using for notifications can be delivered to by VisibleTesla. If you have difficulty receiving notifications, this test can help diagnose the problem.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Lots of logging information is being kept in this version related to sleep mode. User won't see this unless they look in VisibleTesla.log. Once this code has been determined to work well, the logging code will be removed.</li>
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                    <li>The Rated, Estimated, and Ideal range displays on the Charge tab do not honor the current locale setting. They always display decimal numbers with a "." and not a ",". This appears to be a limitation of the underlying component. I'm looking into it.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <hr>
+        <h3>VisibleTesla 0.25.00 [12-16-13] - EXPERIMENTAL</h3>
+        <ul>
+            <li>
+                User-Visible Changes
+                <ul>
+                    <li>
+                        General
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Login
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Overview
+                        <ul>
+                            <li>Added the correct codes for Aero and Cyclone wheels. They should now appear properly for owners with those wheels.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        HVAC
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Location
+                        <ul>
+                            <li>Changed the default for the "Collect Location Data" preference. It used to be unchecked, now it is checked.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Charge
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Graphs
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Trips
+                        <ul>
+                            <li>Rearranged the layout of the Trips tab to allow for the selection of multiple trips. A typical use case is that you start a trip, stop for lunch, then continue the trip. This will show up as two trips. Now you can select them both and show them on the same map.</li>
+                            <li>Each segment will still be displayed with distinct stop and start points (i.e. each trip will begin with a green marker and and with a black one.). No line will be drawn between the position of the car at the end of one trip and the beginning of the next. This works fine in the scenario given above and also if you select truly disjoint trips.</li>
+                            <li><strong>Fixed:</strong> The wrong Google Maps API key was being used when displaying Trips. This could cause missing map data for some users. The proper API key is now being used.</li>
+                            <li><strong>Fixed:</strong> The Trips tab would not display any trip that was taken after the app was launched. You would see all trips that occurred before launching VisibleTesla, but new trips would not be visible without restarting the application. Now all completed trips are visible; even those that occurred after the app launched.</li>
+                            <li>
+                                Notes:<ul>
+                                <li>If a trip is currently in progress it can be monitored on the Location tab, but it won't be shown on the Trips tab until it is complete.</li>
+                                <li>Remember that VisibleTesla has to guess what constitutes a trip. It typically waits for the car to be stationary for 15 minutes before declaring a trip complete. Thus the current trip won't be available in the Trips tab until ~15 minutes after it is complete.</li>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Scheduler
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Notify
+                        <ul>
+                            <li>Added a new Notify tab. It allows you to request notifications when certain types of events occur. For example, if your SOC drops below a certain level or rises above a certain level. The set of notifications is fairly limited.</li>
+                            <li>This version should be considered <strong>experimental</strong>. Notifications are sent via email and the address is specified in the General Preferences.</li>
+                            <li>With all wireless carriers I know of in the US, you can enter an email address that corresponds to your cell phone's phone number. This will allow you to receive notifications as text messages or emails.</li>
+                            <li>The notifications will be sent via a hosted service and will not require you to enter your email credentials - just an email address. This does not hae to be the same address that you use as your Tesla login.</li>
+                            <li>Messages are sent from the address "notifier@visibletesla.com"</li>
+                            <li>The available notification types are:
+                                <ul>
+                                    <li>SOC Hits or Exceeds: Sends a notification if the State of Charge (SOC) climbs to or beyond a user specified value. Note that the SOC must cross a threshold to get to this value. For example, if you specifiy 85% as the target, the SOC must go from a value below 85% to 85% or above for a notification to be sent. A notification will not be sent if the SOC is already at or above 85% when the app starts up.</li>
+                                    <li>SOC Falls Below:Sends a notification if the SOC falls below a user specified value.</li>
+                                    <li>Charge State Becomes: Sends a notification if the Charge State status changes to a given value such as "Disconnected" or changes to any value.</li>
+                                    <li>Unplugged at time: Sends a notification if the car is not plugged in at a given time.</li>
+                                    <li>Speed Hits or Exceeds: Sends a notification if the car exceeds a user specified value. Note that once a notification has been sent for this, another notification will not be sent for at least 30 minutes. For example, if you set the target to 70 mph, and your speed hits or exceeds 70, a notification will be sent, but another notification will not be sent for at least 30 minutes even if you fall below 70 and then go back above it many times.</li>
+                                    <li>Scheduler Event Triggered: Sends a notification if any time a Scheduler activity occurs.</li>
+                                </ul>
+                            </li>
+                            <li>Each notification type can be enable or disabled individually.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Preferences
+                        <ul>
+                            <li>General/Advanced: Added an option that allows power users to use their own Google Maps API key. DO NOT check this box unless you know what this means and have a valid API key issued by Google. If you get this wrong, the Location tab and the Trips tab will fail without notice.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Under-the-covers
+                <ul>
+                    <li>Still tweaking the Streaming data code to try to make it more reliable.</li>
+
+                </ul>
+            </li>
+            <li>
+                Known problems
+                <ul>
+                </ul>
+            </li>
+        </ul>
         <hr>
         <h3>VisibleTesla 0.24.00 [11-28-13]</h3>
         <ul>
@@ -1435,7 +1745,6 @@
             </li>
         </ul>
         <!--
-        <hr>
         <h3>VisibleTesla 0.00 [09-30-13]</h3>
         <ul>
         	<li>
@@ -1487,7 +1796,12 @@
                         </ul>
                     </li>
                     <li>
-                        Preferences
+                        Notify
+                        <ul>
+                        </ul>
+                    </li>
+                    <li>
+                        Prefs
                         <ul>
                         </ul>
                     </li>
@@ -1504,6 +1818,7 @@
         		</ul>
         	</li>
         </ul>
+        <hr>
             -->
     </body>
 </html>

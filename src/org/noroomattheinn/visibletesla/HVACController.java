@@ -31,10 +31,7 @@ public class HVACController extends BaseController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-
-    private static final String DegreesF = "ºF";
-    private static final String DegreesC = "ºC";
-
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -252,10 +249,12 @@ public class HVACController extends BaseController {
                 aeroFront.setVisible(true);
                 aeroRear.setVisible(true);
                 break;
-            case WTCY:
+            case WTTB:
                 cycloneFront.setVisible(true);
                 cycloneRear.setVisible(true);
                 break;
+            case WTX1:
+            case WT1P:
             case WT19:
                 nineteenRimFront.setVisible(true);
                 nineteenRimRear.setVisible(true);

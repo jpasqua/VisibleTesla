@@ -88,16 +88,16 @@ public class ChargeController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     // Each Property defines a row of the table...
-    private GenericProperty pilotCurrent = new GenericProperty("Pilot Current", "0.0", "Amps");
-    private GenericProperty voltage = new GenericProperty("Voltage", "0.0", "Volts");
-    private GenericProperty batteryCurrent = new GenericProperty("Battery Current", "0.0", "Amps");
-    private GenericProperty nRangeCharges = new GenericProperty("# Range Charges", "0.0", "Count");
-    private GenericProperty fastCharger = new GenericProperty("Supercharger", "No", "");
-    private GenericProperty chargeRate = new GenericProperty("Charge Rate", "0.0", "MPH");
-    private GenericProperty remaining = new GenericProperty("Time Left", "00:00:00", "HH:MM:SS");
-    private GenericProperty actualCurrent = new GenericProperty("Current", "0.0", "Amps");
-    private GenericProperty chargerPower = new GenericProperty("Charger Power", "0.0", "kW");
-    private GenericProperty chargingState = new GenericProperty("State", "Disconnected", "");
+    private final GenericProperty pilotCurrent = new GenericProperty("Pilot Current", "0.0", "Amps");
+    private final GenericProperty voltage = new GenericProperty("Voltage", "0.0", "Volts");
+    private final GenericProperty batteryCurrent = new GenericProperty("Battery Current", "0.0", "Amps");
+    private final GenericProperty nRangeCharges = new GenericProperty("# Range Charges", "0.0", "Count");
+    private final GenericProperty fastCharger = new GenericProperty("Supercharger", "No", "");
+    private final GenericProperty chargeRate = new GenericProperty("Charge Rate", "0.0", "MPH");
+    private final GenericProperty remaining = new GenericProperty("Time Left", "00:00:00", "HH:MM:SS");
+    private final GenericProperty actualCurrent = new GenericProperty("Current", "0.0", "Amps");
+    private final GenericProperty chargerPower = new GenericProperty("Charger Power", "0.0", "kW");
+    private final GenericProperty chargingState = new GenericProperty("State", "Disconnected", "");
     
     final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
             actualCurrent, voltage, chargeRate, remaining, chargingState,
@@ -174,7 +174,7 @@ public class ChargeController extends BaseController {
         idealOdometer.setUnit(units);
         ratedOdometer.setUnit(units);
 
-        chargeRate.setUnits(useMiles ? "mph" : "kph");
+        chargeRate.setUnits(useMiles ? "mph" : "km/h");
     }
 
     @Override protected void refresh() {  updateState(charge); }
@@ -203,14 +203,18 @@ public class ChargeController extends BaseController {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         pilotCurrent.setValue(String.valueOf(charge.state.chargerPilotCurrent));
         voltage.setValue(String.valueOf(charge.state.chargerVoltage));
-        batteryCurrent.setValue(String.valueOf(osd(charge.state.batteryCurrent)));
+        batteryCurrent.setValue(String.format("%.1f", charge.state.batteryCurrent));
         nRangeCharges.setValue(String.valueOf(charge.state.maxRangeCharges));
         fastCharger.setValue(charge.state.fastChargerPresent ? "Yes":"No");
-        chargeRate.setValue(String.valueOf(osd(charge.state.chargeRate*conversionFactor)));
+        chargeRate.setValue(String.format("%.1f", charge.state.chargeRate*conversionFactor));
         remaining.setValue(getDurationString(charge.state.timeToFullCharge));
         actualCurrent.setValue(String.valueOf(charge.state.chargerActualCurrent));
         chargerPower.setValue(String.valueOf(charge.state.chargerPower));
         chargingState.setValue(charge.state.chargingState.name());
+        if (charge.state.chargerPhases == 3)
+            actualCurrent.setName("Current \u2462");
+        else
+            actualCurrent.setName("Current");
     }
     
     private void reflectChargeStatus() {
@@ -253,6 +257,7 @@ public class ChargeController extends BaseController {
         estOdometer.setValue(osd(charge.state.estimatedRange * conversionFactor));
         idealOdometer.setValue(osd(charge.state.idealRange * conversionFactor));
         ratedOdometer.setValue(osd(charge.state.range * conversionFactor));
+        
     }
     
     private void updatePendingChargeLabels(boolean show) {

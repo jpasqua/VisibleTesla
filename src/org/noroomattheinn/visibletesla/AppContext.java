@@ -62,8 +62,10 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.24.00";
+    public static final String ProductVersion = "0.25.02";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
+    public static final String GoogleMapsAPIKey = 
+            "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
     
     public enum InactivityType {Sleep, Daydream, Awake};
     
@@ -78,6 +80,7 @@ public class AppContext {
     public Preferences persistentState;
     public Prefs prefs;
     public File appFilesFolder;
+    public Vehicle vehicle = null;
     
     public ObjectProperty<InactivityType> inactivityState;
     public BooleanProperty shuttingDown;
@@ -94,6 +97,8 @@ public class AppContext {
     public ObjectProperty<SnapshotState.State> lastKnownSnapshotState;
     public ObjectProperty<VehicleState.State> lastKnownVehicleState;
     
+    public ObjectProperty<String> schedulerActivityReport;
+    
     public LocationStore locationStore;
     public StatsStore statsStore;
 
@@ -103,11 +108,10 @@ public class AppContext {
  * 
  *----------------------------------------------------------------------------*/
     
-    private ArrayList<Thread> threads = new ArrayList<>();
+    private final ArrayList<Thread> threads = new ArrayList<>();
     private Utils.Callback<InactivityType,Void> inactivityModeListener;
-    private Vehicle vehicle = null;
     private StatsStreamer statsStreamer;
-    private Map<String,StatsPublisher> typeToPublisher = new HashMap<>();
+    private final Map<String,StatsPublisher> typeToPublisher = new HashMap<>();
 
 /*==============================================================================
  * -------                                                               -------
@@ -130,6 +134,7 @@ public class AppContext {
         this.lastKnownHVACState = new SimpleObjectProperty<>();
         this.lastKnownSnapshotState = new SimpleObjectProperty<>();
         this.lastKnownVehicleState = new SimpleObjectProperty<>();
+        this.schedulerActivityReport = new SimpleObjectProperty<>();
         
         this.simulatedUnits = new SimpleObjectProperty<>();
         this.simulatedWheels = new SimpleObjectProperty<>();
@@ -297,7 +302,7 @@ public class AppContext {
     
     public Thread launchThread(Runnable r, String name) {
         Thread t = new Thread(r);
-        t.setName(name == null ? ("00 VT - " + threadID) : name);
+        t.setName(name == null ? ("00 VT - " + threadID++) : name);
         t.setDaemon(true);
         t.start();
         threads.add(t);

@@ -95,6 +95,7 @@ public class MainController extends BaseController {
     @FXML private TabPane tabPane;
 
     // The individual tabs that comprise the overall UI
+    @FXML private Tab notifierTab;
     @FXML private Tab prefsTab;
     @FXML private Tab schedulerTab;
     @FXML private Tab graphTab;
@@ -125,6 +126,7 @@ public class MainController extends BaseController {
      * app context to all of the controllers, and (2) we set a listener for login
      * completion and try and automatic login.
      * @param a 
+     * @param s 
      */
     public void start(Application a, Stage s) {
         appContext = new AppContext(a, s);
@@ -148,8 +150,9 @@ public class MainController extends BaseController {
             }
         });
 
-        tabs = Arrays.asList(prefsTab, loginTab, schedulerTab, graphTab,
-                chargeTab, hvacTab, locationTab, overviewTab, tripsTab);
+        tabs = Arrays.asList(
+                prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
+                hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
         for (Tab t : tabs) { controllerFromTab(t).setAppContext(appContext); }
         
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
@@ -248,7 +251,7 @@ public class MainController extends BaseController {
                 return false;
             
             action.wakeUp();
-            Utils.sleep(2000);
+            Utils.sleep(5000);
             if (appContext.shuttingDown.get()) return false;
             
             if (gs.state == null) gs.refresh();
@@ -350,8 +353,13 @@ public class MainController extends BaseController {
 
             trackInactivity();
             setTabsEnabled(true);
+            
+            // Start the Scheduler and the Notifier
             SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
             sc.activate(selectedVehicle);
+            NotifierController nc = Utils.cast(controllerFromTab(notifierTab));
+            nc.activate(selectedVehicle);
+            
             jumpToTab(overviewTab);
         }
     };
@@ -652,7 +660,7 @@ public class MainController extends BaseController {
         else if (source == lightRims) simWheels = Options.WheelType.WT21;
         else if (source == silver19Rims) simWheels = Options.WheelType.WT19;
         else if (source == aeroRims) simWheels = Options.WheelType.WTAE;
-        else if (source == cycloneRims) simWheels = Options.WheelType.WTCY;
+        else if (source == cycloneRims) simWheels = Options.WheelType.WTTB;
         
         if (simWheels != null)
             appContext.simulatedWheels.set(simWheels);

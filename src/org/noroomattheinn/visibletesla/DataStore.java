@@ -57,7 +57,7 @@ public abstract class DataStore implements StatsPublisher {
         nameToLoadPeriod.put("None", LoadPeriod.None);
     }
     
-    private static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
+    public static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
     
 /*------------------------------------------------------------------------------
  *
@@ -70,7 +70,6 @@ public abstract class DataStore implements StatsPublisher {
     protected TreeMap<Long,Map<String,Double>> rows = new TreeMap<>();
     protected boolean dataLoaded = false;
     protected String[] publishedKeys;
-    protected Map<String, Integer> keysEncountered = new HashMap<>();
     
 /*==============================================================================
  * -------                                                               -------
@@ -207,27 +206,34 @@ public abstract class DataStore implements StatsPublisher {
  * 
  *----------------------------------------------------------------------------*/
     
+    private final Set<String> keysEncountered = new TreeSet<>();   // Keep them sorted
+    
+    private void addToLiveData(long time, String type, double val) {
+        Map<String,Double> row = rows.get(time);
+        if (row == null) {
+            row = new HashMap<>();
+            rows.put(time, row);
+        }
+        row.put(type, val);
+        keysEncountered.add(type);
+    }
+    
+    protected void storeItem(String type, long timestamp, double value) {
+        repo.storeElement(type, timestamp, value);
+        addToLiveData(timestamp, type, value);
+    }
+    
     private class Loader implements Runnable {
         Range<Long>period;
         
         Loader(Range<Long> period) { this.period = period; }
         
         @Override public void run() {
-            final Set<String> keys = new TreeSet<>();   // Keep them sorted
             repo.loadExistingData(new StatsRepository.Recorder() {
                 @Override public void recordElement(long time, String type, double val) {
-                    Map<String,Double> row = rows.get(time);
-                    if (row == null) {
-                        row = new HashMap<>();
-                        rows.put(time, row);
-                    }
-                    row.put(type, val);
-                    keys.add(type);
+                    addToLiveData(time, type, val);
                 }
             }, period);
-            
-            int columnNumberForExport = 0;
-            for (String key : keys) { keysEncountered.put(key, columnNumberForExport++); }
             
             dataLoaded = true;
         }
@@ -257,11 +263,15 @@ public abstract class DataStore implements StatsPublisher {
     }
 
     private void doExport(File file) {
+        int columnNumberForExport = 0;
+        Map<String, Integer> keyToColumn = new HashMap<>();
+        for (String key : keysEncountered) { keyToColumn.put(key, columnNumberForExport++); }
+
         try {
             WritableWorkbook workbook = Workbook.createWorkbook(file);
             WritableSheet sheet = workbook.createSheet("Sheet1", 0);
 
-            int nDataColumns = keysEncountered.size();
+            int nDataColumns = keyToColumn.size();
             
             int column;
             jxl.write.WritableCellFormat dateFormat = new jxl.write.WritableCellFormat(
@@ -269,7 +279,7 @@ public abstract class DataStore implements StatsPublisher {
             TimeZone tz = Calendar.getInstance().getTimeZone();
             long offset = (tz.getOffset(System.currentTimeMillis())) / (1000 * 60 * 60);
             
-            addTableHeader(sheet);
+            addTableHeader(sheet, keyToColumn);
             
 
             // Run through the table and add each row...
@@ -281,7 +291,7 @@ public abstract class DataStore implements StatsPublisher {
                 jxl.write.Number timeCell = new jxl.write.Number(0, rowNum, time);
                 sheet.addCell(timeCell);
 
-                for (Map.Entry<String,Integer> entry : keysEncountered.entrySet()) {
+                for (Map.Entry<String,Integer> entry : keyToColumn.entrySet()) {
                     String key = entry.getKey();
                     column = entry.getValue()+1;
                     Double value = values.get(key);
@@ -313,14 +323,15 @@ public abstract class DataStore implements StatsPublisher {
         
     }
     
-    private void addTableHeader(WritableSheet sheet) throws WriteException {
+    private void addTableHeader(WritableSheet sheet, Map<String,Integer> keyToColumn)
+            throws WriteException {
             // Starting with the timestamp column
             jxl.write.Label label = new jxl.write.Label(0, 0, "TIMESTAMP");
             sheet.addCell(label);
             sheet.setColumnView(0, 12); // Big enough for a timestamp;
             
             // Now handle the data columns
-            for (Map.Entry<String,Integer> entry : keysEncountered.entrySet()) {
+            for (Map.Entry<String,Integer> entry : keyToColumn.entrySet()) {
                 String key = entry.getKey();
                 int column = entry.getValue();
                 label = new jxl.write.Label(column+1, 0, key);
@@ -328,7 +339,7 @@ public abstract class DataStore implements StatsPublisher {
             }
             
             // Now add the synthetic Date column
-            int dateColumn = keysEncountered.size()+1;
+            int dateColumn = keyToColumn.size()+1;
             label = new jxl.write.Label(dateColumn, 0, "Date");
             sheet.addCell(label);
             sheet.setColumnView(dateColumn, 16); // Big enough for a Date string;

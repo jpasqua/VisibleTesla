@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>
+            The Charge Tab
+        </title>
+        <link rel="stylesheet" href="../default.css" type="text/css">
+    </head>
+    <body>
+        <div id="header">
+            <div class="wrap">
+                <a href="#"><img src="../images/Banner.png"></a>
+            </div>
+        </div>
+        <div id="sidebar">
+            <iframe src="toc.html" frameborder="0"></iframe>
+        </div>
+        <div id="content">
+            <h1>
+                The Charge Tab
+            </h1>
+            <p>
+                The Charge Tab allows you to monitor and control your car's charging process. It let's you manually start or stop charging and it lets you set the charge target (the level to which you want the car to charge). Charging can also be started or stopped on a schedule using the <a href="SchedulerTab.html">Scheduler Tab</a>
+            </p>
+            <p>
+                There are quite a few pieces of data in the Charge Tab as shown in the screen shot below. In this example, the car is not connected to a power source.
+            </p><img class="screenshot" src="../images/07_Charge_Tab.png">
+            <p>
+                The following table lists all of the elements and describes what each element represents.
+            </p>
+            <table class="grid_table">
+                <tbody>
+                    <tr>
+                        <th>
+                            Item
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>
+                            Current
+                        </td>
+                        <td>
+                            The amount of current being supplied to the vehicle. If it is a European vehicle, VsibleTesla will check  whether the connected power is 3-phase. If it is 3-phase, a (3) will be displayed after the word "Current".
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Voltage
+                        </td>
+                        <td>
+                            The voltage being supplied to the vehicle
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Charge Rate
+                        </td>
+                        <td>
+                            How many miles of range are being recovered per hour of charging
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Time Left
+                        </td>
+                        <td>
+                            Estimated amount of time until the charge will be complete
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            State
+                        </td>
+                        <td>
+                            Charging, Complete, Disconnected or Unknown
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Pilot Current
+                        </td>
+                        <td>
+                            The amount of current reported to be available from the attached power source
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Battery Current
+                        </td>
+                        <td>
+                            The current flowing into the battery (or out if negative)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Supercharger
+                        </td>
+                        <td>
+                            Is the vehicle connected to a supercharger. HPWC does not qualify
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Charger Power
+                        </td>
+                        <td>
+                            The power in kW being supplied at the moment the reading was taken
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            # Range Charges
+                        </td>
+                        <td>
+                            The number of consecutive range charges since the last standard charge. If you range charge three times in a row, this will display '3'. If you perform a Standard charge, it will be reset to 0.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Rated Range
+                        </td>
+                        <td>
+                            The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm). The fixed whpm is different for different vehicles (85kWh / 60kWh) and in different markets based on the regulatory test for that vehicle in that market.
+                            <ul>
+                                <li>US: The fixed whpm is based on EPA 5-cycle Standard
+                                </li>
+                                <li>Europe: The fixed whpm is based on NEDC range in accordance with regulation ECE101
+                                </li>
+                                <li>Canada: Unknown
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Estimated Range
+                        </td>
+                        <td>
+                            The car's predicted remaining range based on energy consumption during recent driving. This is based on a dynamic Watt-hours/mile (whpm) value that is based on recent driving habits. This is not country-specific.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Ideal Range
+                        </td>
+                        <td>
+                            The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm) at a specified average speed. The fixed whpm is a figure determined by Tesla and is not country specific. The average speed is a figure determined by Tesla and is not country specific.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Note</b>
+                        </td>
+                        <td>
+                            It has been discovered that the range is derived slightly differently while the car is being charged vs. when it is not. This can cause the range to seem to drop by a small amount immediately after charging stops.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                The following screen shot shows the car when connected to a power source but not charging. Note that below the "Charging Data" table there is an indication that the car has a charge scheduled. This refers to the car's charge scheduler, not to the Scheduler Tab.
+            </p><img class="screenshot" src="../images/08_Charge_Plugged_In.png">
+            <p>
+                The final screenshot shows the Tab while charging is in progress.
+            </p><img class="screenshot" src="../images/09_Charging.png">
+        </div>
+        <div id="footer"></div>
+    </body>
+</html>
