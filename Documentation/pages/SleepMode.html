@@ -5,6 +5,7 @@
         <title>
             Understanding Sleep Mode
         </title>
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="../default.css" type="text/css">
     </head>
     <body>
@@ -21,71 +22,108 @@
                 Understanding Sleep Mode
             </h1>
             <p>
-                Your Tesla has a sleep mode that allows it to conserve battery power when it's not in use. For example, if your car is just sitting in your garage overnight, it can power down certain internal systems to reduce the drain on the battery. If your car is sleeping and you connect to it using Tesla's official iPhone or Android application, it will wake up your car and keep it awake as long as you're using the app. VisibleTesla tries to be a little smarter and a little more flexible in the way it interacts with your car.</p> 
-            <p> 
-                It all starts when you launch VisibleTesla. Before doing anything else, VisibleTesla checks whether your car is asleep. If it is, you'll be asked whether you want to wake it up or let it continue sleeping (see the screen shot below). If you click the "Let it sleep" button, the app will exit without waking the car. Otherwise VisibleTesla will launch as usual and wake up your car in the process.
+                Your Tesla has a sleep mode that allows it to conserve battery power when it's not in use. For example, if your car is just sitting in your garage overnight, it can power down certain internal systems to reduce the drain on the battery. If your car is sleeping and you connect to it using Tesla's official iPhone or Android application, it will wake up your car and keep it awake as long as you're using the app. VisibleTesla tries to be a little smarter and a little more flexible in the way it interacts with your car.
+            </p>
+            <p>
+                It all starts when you launch VisibleTesla. Before doing anything else, the app determines if your car is asleep. If it is, you'll be asked whether you want to wake it up or let it continue sleeping (see the screen shot below). If you click the <span class="ui">Wake it up</span> button, VisibleTesla will launch as usual and wake up your car in the process.
             </p>
             <p>
                 <img class="screenshot" src="../images/15_Sleep_Dialog.png">
             </p>
             <p>
-                When you are using VisibleTesla, it communicates with your car on a regular basis. This communication allows VisibleTesla to do things like display up-to-date information, record statisitics, and notify you about events. The downside is that all of this communication will keep your car from going to sleep. It also puts a continuous load on Tesla's servers. Given these tradeoffs, how much should VisibleTesla communicate with your car? It really depends on how you are using the application:
+                If you click <span class="ui">Let it sleep</span>, VisibleTesla will continue running, but it won't start collecting data - that would wake up the car. Instead it will display a panel (see screen shot below) saying that the car is asleep and that the app will start automatically when it notices that the car wakes up. There is also a <span class="ui">Wake</span> button that you can press at any time to force the car to wake up.
             </p>
-            <ol>
-                <li>I am actively using the application. I don't mind that I'm keeping the car awake and I want you to use Tesla's servers at rates similar to Tesla's official applications.
-                </li>
-                <li>I may step away from the application, but I want it to continue to collect information from my car. I don't mind that I'm keeping the car awake, but I would like to minimize the load on Tesla's servers when I'm not actively using the application.
-                </li>
-                <li>My highest priority is to let the car sleep. If you happen to notice that it is awake, go ahead and collect some data, but don't do that so frequently that you'll keep the car from sleeping. I'd rather sacrifice some data than sacrifice my charge.
-                </li>
-            </ol>
             <p>
-                In VisibleTesla these three modes are named: <span class="ui">Stay Awake</span>, <span class="ui">Allow Daydreaming</span>, and <span class="ui">Allow Sleeping</span> respectively. The app can enter and exit these modes in a couple of different ways. First, there is the <span class="ui">Options&rarr;Inactivity</span> menu as shown in the screen shot below.
+                Please note that while in this mode, VisibleTesla will <b><i>not</i></b> collect any information from your car, it will not send notifications, and it will not run scheduled tasks. It will simply check your car's status every 5 minutes until it wakes up. If you want VisibleTesla to be fully functional, you need to wake up your car.
             </p>
-            <img class="screenshot" src="../images/18_Inactivity.png" alt="Inactivity Menu">
-            <p>The menu options have the following effects:</p>
+            <p>
+                Let's take an example. Say that you launch VisibleTesla at 08:32AM and your car is asleep. You tell the app to let your car stay asleep. at 09:00AM you get in the car, turn it on and drive away. VisibleTesla would have been checking your car every five minutes since 08:32AM meaning 08:37, 08:42, 08:47, 08:52, and 08:57. It will check again at 09:02 and find that your car is awake. At that point the app will finish launching and start collecting data. Notice that it will have missed the first 2 minutes of your trip.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/01a_Login_Sleep.png">
+            </p>
+            <p>
+                When you are using VisibleTesla, it communicates with your car on a regular basis. This communication allows VisibleTesla to do things like display up-to-date information, record statistics, and notify you about events. The downside is that all of this communication will keep your car from going to sleep. It also puts a continuous load on Tesla's servers. Given these trade-offs, how much should VisibleTesla communicate with your car? It really depends on how you are using the application:
+            </p>
             <ul>
-                <li><span class="ui">Stay Awake</span>: The application will communicate with your car on a regular basis and tabs will <a href="OtherTopics.html#autorefresh">auto-refresh</a>. If your car happens to be sleeping, it will be awoken.
+                <li>I am actively using the application. I don't mind that I'm keeping the car awake and I want you to use Tesla's servers at rates similar to Tesla's official applications.<br>
+                    <i>&nbsp;&nbsp;&nbsp;OR</i>
                 </li>
-                <li><span class="ui">Allow Daydreaming</span>: The app will begin to monitor user activity. If no activity has occured for 15 minutes, the app will go into Daydreaming mode . In this mode it will continue to collect data from your car, but tabs will not <a href="OtherTopics.html#autorefresh">auto-refresh</a>. This reduces the load on Tesla's servers, but will not allow your car to go to sleep. If you start interacting with the app (e.g. press a button), the app will wake up and start communicating with your car again. Of course if another 15 minutes of inactivity passes, it will go back to Daydreaming mode.
+                <li>I may step away from the application, but I want it to continue to collect information from my car. I don't mind that I'm keeping the car awake, but I would like to minimize the load on Tesla's servers when I'm not actively using the application.<br>
+                    <i>&nbsp;&nbsp;&nbsp;OR</i>
                 </li>
-                <li><span class="ui">Allow Sleeping</span>: The app will begin to monitor user activity. If no activity has occured for 15 minutes, the app will go into Sleep mode. In this mode VisibleTesla <i>will not</i> collect data from your car and tabs will not <a href="OtherTopics.html#autorefresh">auto-refresh</a>. This will allow your car to go to sleep if it chooses to. VisibleTesla will still try to collect data when it can, but it won't do anything that will keep your car  from sleeping. 
+                <li>My highest priority is to let the car sleep. If you happen to notice that it is awake and can collect some data without keeping it from falling asleep, go ahead and do so. Otherwise leave the car alone. I'd rather sacrifice some data than sacrifice my charge.
                 </li>
             </ul>
             <p>
-                If 15 minutes of inactivity have passed and the app is Daydreaming or sleeping, an indication will be displayed int he window title bar. If you start interacting with VisibleTesla (e.g. press a button), it will wake up and start communicating with your car again. Of course if another 15 minutes of inactivity passes, it will go back to Daydreaming or Sleeping. You can change the 15 minute inactivity threshold to another value in the <a href="PrefsTab.html">Prefs Tab</a> under General&rarr;Basic. Your menu selection is remembered across runs of the application and the default is <span class="ui">Allow Daydreaming</span>.
-            </p>
+                VisibleTesla has three modes that correspond to each of these choices. The modes are named: <span class="ui">Stay Awake</span>, <span class="ui">Allow Daydreaming</span>, and <span class="ui">Allow Sleeping</span> respectively. The app can enter and exit these modes in a couple of different ways. First, there is the <span class="ui">Options→Inactivity</span> menu as shown in the screen shot below.
+            </p><img class="screenshot" src="../images/18_Inactivity.png" alt="Inactivity Menu">
             <p>
-                In addition to the Inactivy menu, you can also use the <a href="SchedulerTab.html">Scheduler Tab</a> to enter any of these modes. For example, you might set up the following schedule:
+                The menu options have the following effects:
             </p>
             <ul>
-            <table class="grid_table">
-                <tr>
-                    <th>Time</th>
-                    <th>Action</th>
-                </tr>
-                <tr>
-                    <td>07:00</td>
-                    <td>Put the car into Awake mode to ensure it's ready to capture your drive to work</td>
-                </tr>
-                <tr>
-                    <td>09:00</td>
-                    <td>Put the car into Daydreaming mode since you won't be looking at it while at work. (You wouldn't waste your time that way would you?)</td>
-                </tr>
-                <tr>
-                    <td>19:30</td>
-                    <td>Put the car into Sleep mode since you're done driving for the day.</td>
-                </tr>
-            </table>
+                <li>
+                    <span class="ui">Stay Awake</span>: The application will communicate with your car on a regular basis and tabs will <a href="OtherTopics.html#autorefresh">auto-refresh</a>. If your car happens to be sleeping, it will be awoken.
+                </li>
+                <li>
+                    <span class="ui">Allow Daydreaming</span>: The app will begin to monitor user activity. If no activity has occurred for 15 minutes, the app will go into Daydreaming mode . In this mode it will continue to collect data from your car, but tabs will not <a href="OtherTopics.html#autorefresh">auto-refresh</a>. This reduces the load on Tesla's servers, but will not allow your car to go to sleep. If you start interacting with the app (e.g. press a button), the app will wake up and start communicating with your car again. Of course if another 15 minutes of inactivity passes, it will go back to Daydreaming mode.
+                </li>
+                <li>
+                    <span class="ui">Allow Sleeping</span>: The app will begin to monitor user activity. If no activity has occurred for 15 minutes, the app will go into Sleep mode. In this mode VisibleTesla <i>will not</i> collect data from your car and tabs will not <a href="OtherTopics.html#autorefresh">auto-refresh</a>. This will allow your car to go to sleep if it chooses to. VisibleTesla will still try to collect data when it can, but it won't do anything that will keep your car from sleeping.
+                </li>
+            </ul>
+            <p>
+                If 15 minutes of inactivity have passed and the app is Daydreaming or sleeping, an indication will be displayed int he window title bar. If you start interacting with VisibleTesla (e.g. press a button), it will wake up and start communicating with your car again. Of course if another 15 minutes of inactivity passes, it will go back to Daydreaming or Sleeping. You can change the 15 minute inactivity threshold to another value in the <a href="PrefsTab.html">Prefs Tab</a> under General→Basic. Your menu selection is remembered across runs of the application and the default is <span class="ui">Allow Daydreaming</span>. If a scheduled command is executed (see the <a href="SchedulerTab.html">Scheduler Tab</a>), then it is just as if the user had interacted with the app. The only exception is if the scheduled command was for the app to enter sleep mode. So, if you schedule the HVAC system to turn on at 06:55AM, it will wake up the app just as if you had pressed the <span class="ui">On</span> button manually.
+            </p>
+            <p>
+                In addition to the Inactivity menu, you can also use the <a href="SchedulerTab.html">Scheduler Tab</a> to enter any of these modes. For example, you might set up the following schedule:
+            </p>
+            <ul>
+                <li style="list-style: none">
+                    <table class="grid_table">
+                        <tr>
+                            <th>
+                                Time
+                            </th>
+                            <th>
+                                Action
+                            </th>
+                        </tr>
+                        <tr>
+                            <td>
+                                07:00
+                            </td>
+                            <td>
+                                Put the car into Awake mode to ensure it's ready to capture your drive to work
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                09:00
+                            </td>
+                            <td>
+                                Put the car into Daydreaming mode since you won't be looking at it while at work. (You wouldn't waste your time that way would you?)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                19:30
+                            </td>
+                            <td>
+                                Put the car into Sleep mode since you're done driving for the day.
+                            </td>
+                        </tr>
+                    </table>
+                </li>
             </ul>There are a few other things you should know about sleep mode:
             <ul>
                 <li>When the app goes into sleep mode it does not put the car to sleep. It simply stops doing anything that would otherwise keep it from sleeping.
                 </li>
                 <li>When the app is in sleep mode, it checks the car periodically to see if it is awake. This check will not wake up a sleeping car. If it is awake, VisibleTesla will collect some data but then remember not to bother the car again for 30 minutes. That's enough time for it to go to sleep if it wants. If, after collecting this data, the app notices that not only is the car awake, but it is moving or charging, it won't wait another 30 minutes to check back in. It will continue to speak to the car regularly until motion or charging stop.
                 </li>
-                <li><a href="SchedulerTab.html">Scheduler</a> commands can wake up the car even if the app is in Sleep mode. For example, if you schedule the heater to turn on at 07:45, it will make sure that the car is awake before sending the command to turn on the heater.
+                <li>
+                    <a href="SchedulerTab.html">Scheduler</a> commands can wake up the car even if the app is in Sleep mode. For example, if you schedule the heater to turn on at 07:45, it will make sure that the car is awake before sending the command to turn on the heater.
                 </li>
-
             </ul>
         </div>
         <div id="footer"></div>

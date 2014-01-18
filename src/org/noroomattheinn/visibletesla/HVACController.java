@@ -125,17 +125,19 @@ public class HVACController extends BaseController {
         }            
         if (appContext.simulatedUnits.get() != null)
             useDegreesF = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
-        
+
         if (useDegreesF) {
-            tempSlider.setMin(65);
-            tempSlider.setMax(80);
-            tempSlider.setMajorTickUnit(5);
-            tempSlider.setMinorTickCount(4);
+            tempSlider.setMin(62);
+            tempSlider.setMax(90);
+            tempSlider.setMajorTickUnit(2);
+            tempSlider.setMinorTickCount(1);
+            tempSlider.setValue(70);    // Until the real value is retrieved
         } else {
-            tempSlider.setMin(18.0);
-            tempSlider.setMax(27.0);
+            tempSlider.setMin(17.0);
+            tempSlider.setMax(32.0);
             tempSlider.setMajorTickUnit(1);
             tempSlider.setMinorTickCount(1);
+            tempSlider.setValue(19.5);    // Until the real value is retrieved
         }
     }
 

@@ -110,48 +110,54 @@ public class StatsStreamer {
         }
 
         private int decay = 0;
-        private boolean isInMotion() {
+        private boolean isInMotion() { return isInMotion(4); }
+        private boolean isInMotion(int decaySetting) {
             if (snapshot.state != null) {
                 if (snapshot.state.speed > 0.0) {
-                    decay = 3;
+                    decay = decaySetting;
                     return true;
                 }
             }
             return (--decay > 0);
         }
-
+        
+        private boolean appIsAwake() { return inactivityState != AppContext.InactivityType.Sleep; }
+        
         @Override public void run() {
-            long dontProbeAgainUntil = 0;
-            long sleepInterval = DefaultInterval;
+            long sleepInterval;
             
             while (!appContext.shuttingDown.get() && !stopCollecting) {
-                boolean appIsAwake = (inactivityState != AppContext.InactivityType.Sleep);
-                if (appIsAwake || Tesla.isCarAwake(vehicle)) {
-                    long now = System.currentTimeMillis();
-                    if (now >= dontProbeAgainUntil) {
-                        publishStats();
-                        if (isInMotion()) {
-                            // As long as we're in motion, we don't care whether the
-                            // app is in AllowSleep mode, probe again soon
-                            sleepInterval = MinInterval;
-                            dontProbeAgainUntil = now + sleepInterval;
-                            if (!appIsAwake) Tesla.logger.info("We're moving, so probe again really soon");
-                        } else if (appIsAwake || isCharging()) {
-                            sleepInterval = DefaultInterval;
-                            dontProbeAgainUntil = now + sleepInterval;
-                            if (!appIsAwake) Tesla.logger.info("We're awake or charging or both, so probe again soon");
-                        } else {
-                            sleepInterval = TestSleepInterval;
-                            dontProbeAgainUntil = now + AllowSleepInterval;
-                            if (!appIsAwake) Tesla.logger.info("We're not moving, charging, or awake, so give the car a chance to sleep");
+                boolean vehicleWasAsleep = false;
+                if (appIsAwake()) {
+                    publishStats();
+                    sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
+                    Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
+                } else if (vehicle.isAwake()) {
+                    publishStats();
+                    sleepInterval = isInMotion() ? MinInterval :
+                            (isCharging() ? DefaultInterval : AllowSleepInterval);
+                    Tesla.logger.info("App Asleep, Car Awake, interval = " + sleepInterval/1000L);
+                    if (sleepInterval < AllowSleepInterval)
+                        appContext.inactivityState.set(AppContext.InactivityType.Awake);
+                } else {
+                    sleepInterval = AllowSleepInterval;
+                    vehicleWasAsleep = true;
+                    Tesla.logger.info("App Asleep, Car Asleep, interval = " + sleepInterval/1000L);
+                }
+
+                if (sleepInterval < AllowSleepInterval) {
+                    Utils.sleep(sleepInterval);
+                } else {
+                    for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
+                        Utils.sleep(TestSleepInterval);
+                        if (appIsAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
+                        if (vehicleWasAsleep && vehicle.isAwake()) {
+                            appContext.inactivityState.set(AppContext.InactivityType.Awake);
+                            Tesla.logger.info("Something woke the car, start polling");
+                            break; 
                         }
-                    } else {
-                        // Don't bother the car yet...
-                        sleepInterval = TestSleepInterval;
-                        if (!appIsAwake) Tesla.logger.info("We're giving the car a chance to sleep");
                     }
                 }
-                Utils.sleep(sleepInterval);
             }
         }
     }

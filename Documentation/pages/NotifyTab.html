@@ -5,6 +5,7 @@
 		<title>
 			The Notify Tab
 		</title>
+		<meta charset="UTF-8">
 		<link rel="stylesheet" href="../default.css" type="text/css">
 	</head>
 	<body>
@@ -21,9 +22,8 @@
 				The Notify Tab
 			</h1>
 			<p>
-				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. The following screen shot gives an emaple of what the Notify Tab looks like. Each notification can be enabled or disabled individually using the associated checkbox.
-			</p>
-			<img class="screenshot" src='../images/24_Notify_Tab.png' alt='Notify Tab'>
+				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. The following screen shot gives an example of what the Notify Tab looks like. Each notification can be enabled or disabled individually using the associated checkbox.
+			</p><img class="screenshot" src='../images/24_Notify_Tab.png' alt='Notify Tab'>
 			<p>
 				Notifications are sent via email using the address specified in the <a href="PrefsTab.html">Prefs Tab</a>. Many wireless carriers provide an email-to-text gateway. You are provided an email address that corresponds to your cell phone's phone number. This will allow you to receive notifications as text messages. Please note that if you do so, normal text message rates may apply. Consult your carrier.
 			</p>
@@ -53,7 +53,7 @@
 							State of Charge percentage (0-100)
 						</td>
 						<td>
-							A notification will be sent if the SOC changes from a value that is below the target value to one that is equal to or greater than the target. You can use this notification if you want to be alerted when your car reaches a certain charge level. Note that the SOC must cross a threshold to get to this value. For example, if you specifiy 85% as the target, the SOC must go from a value below 85% to 85% or above for a notification to be sent. A notification will not be sent if the SOC is already at or above 85% when the app starts up.
+							A notification will be sent if the SOC changes from a value that is below the target value to one that is equal to or greater than the target. You can use this notification if you want to be alerted when your car reaches a certain charge level. Note that the SOC must cross a threshold to get to this value. For example, if you specify 85% as the target, the SOC must go from a value below 85% to 85% or above for a notification to be sent. A notification will not be sent if the SOC is already at or above 85% when the app starts up.
 						</td>
 					</tr>
 					<tr>
@@ -64,18 +64,31 @@
 							State of Charge percentage (0-100)
 						</td>
 						<td>
-							A notification will be sent if the SOC changes from a value that is above the target value to one that is less than the target. You can use this notification if you want to be alerted when your car's avaialble charge drops to a certain level.
+							A notification will be sent if the SOC changes from a value that is above the target value to one that is less than the target. You can use this notification if you want to be alerted when your car's available charge drops to a certain level.
 						</td>
 					</tr>
 					<tr>
 						<td>
-							Charge State Becoms
+							Charge State Becomes
 						</td>
 						<td>
-							Charging, Disconnected, Complete, Unknown, Anything
+							<ul style="list-style:none; padding-left:0; margin-top:0;">
+								<li>Charging
+								</li>
+								<li>Complete
+								</li>
+								<li>Disconnected
+								</li>
+								<li>Stopped
+								</li>
+								<li>Unknown
+								</li>
+								<li>Anything
+								</li>
+							</ul>
 						</td>
 						<td>
-							A notification will be sent if the car's charge state changes from some existing value to the specified target value. For example, it might change to "Disconnected" when you remove the power cord. If you select "Anything" as the target value, then any change in the charge state will cause a notification.
+							A notification will be sent if the car's charge state changes from some existing value to the specified target value. For example, it might change to <span class="ui">Disconnected</span> when you remove the power cord. If you select <span class="ui">Anything</span> as the target value, then any change in the charge state will cause a notification. <span class="ui">Unknown</span> is a catch-all for any state that is unknown to VisibleTesla.
 						</td>
 					</tr>
 					<tr>

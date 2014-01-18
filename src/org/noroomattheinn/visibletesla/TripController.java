@@ -43,6 +43,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
 import org.noroomattheinn.tesla.GUIState;
@@ -209,6 +210,12 @@ public class TripController extends BaseController {
             }
         });
         
+        calendarPicker.setCalendarRangeCallback(new Callback<CalendarPicker.CalendarRange,java.lang.Void>() {
+            @Override public Void call(CalendarPicker.CalendarRange p) {
+                highlightDaysWithTrips(p.getStartCalendar());
+                return null;
+            } });
+        
         includeGraph.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 appContext.persistentState.putBoolean(IncludeGraphKey, t1);
@@ -223,6 +230,30 @@ public class TripController extends BaseController {
 
     }
 
+    private boolean sameMonth(Calendar month, Calendar day) {
+        return (month.get(Calendar.YEAR) == day.get(Calendar.YEAR) &&
+                month.get(Calendar.MONTH) == day.get(Calendar.MONTH));
+    }
+
+    private void highlightDaysWithTrips(Calendar month) {
+        List<Calendar> daysToHighlight = new ArrayList<>();
+        for (List<Trip> trips : dateToTrips.values()) {
+            Calendar day = Calendar.getInstance();
+            day.setTimeInMillis(trips.get(0).firstWayPoint().timestamp);
+            if (sameMonth(month, day)) daysToHighlight.add(day);
+        }
+        calendarPicker.highlightedCalendars().clear();
+        calendarPicker.highlightedCalendars().addAll(daysToHighlight);
+    }
+    
+    private Callback<CalendarPicker.CalendarRange,java.lang.Void> highlighter =
+        new Callback<CalendarPicker.CalendarRange,java.lang.Void>() {
+        
+        @Override public Void call(CalendarPicker.CalendarRange p) {
+            highlightDaysWithTrips(p.getStartCalendar());
+            return null;
+        }
+    };
     
     @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle()) {
@@ -339,7 +370,7 @@ public class TripController extends BaseController {
                 decorateWayPoints(t);                
             }
             if (!first) sb.append(",\n");
-            sb.append(t.asJSON());
+            sb.append(t.asJSON(useMiles));
             first = false;
         }
         sb.append("]\n");
@@ -347,7 +378,8 @@ public class TripController extends BaseController {
         return template.fillIn(
                 "TRIPS", sb.toString(),
                 "TITLE", "Tesla Path on " + date,
-                "EL_UNITS", "meters",
+                "EL_UNITS", useMiles ? "feet" : "meters",
+                "SP_UNITS", useMiles ? "mph" : "km/h",
                 "INCLUDE_GRAPH", includeGraph.isSelected() ? "true" : "false",
                 "GMAP_API_KEY", appContext.prefs.googleAPIKey.get());
     }
@@ -387,6 +419,8 @@ public class TripController extends BaseController {
                 handleNewWayPoint(new WayPoint(cur));
             }
         });
+        
+        highlightDaysWithTrips(Calendar.getInstance());
     }
     
     private Trip tripInProgress = null;
@@ -514,7 +548,7 @@ public class TripController extends BaseController {
         if (edl == null) return;
         for (int i = edl.size()-1; i >= 0; i--) {
             double e = edl.get(i).elevation;
-            // if (useMiles) e = metersToFeet(e); // Always use meters for now
+            if (useMiles) e = metersToFeet(e); // Always use meters for now
             waypoints.get(i).decoration.put("L_ELV", osd(e));
         }
     }
@@ -550,14 +584,16 @@ public class TripController extends BaseController {
         public WayPoint firstWayPoint() { return waypoints.get(0); }
         public WayPoint lastWayPoint() { return waypoints.get(waypoints.size()-1); }
         
-        public String asJSON() {
+        public String asJSON() { return asJSON(true); }
+        
+        public String asJSON(boolean useMiles) {
             StringBuilder sb = new StringBuilder();
             boolean first = true;
             sb.append("[\n");
             for (WayPoint wp : waypoints) {
                 if (first) first = false;
                 else sb.append(",\n");
-                sb.append(wp.toString());
+                sb.append(wp.asJSON(useMiles));
             }
             sb.append("]\n");
             return sb.toString();
@@ -597,7 +633,10 @@ public class TripController extends BaseController {
             this.odo = state.odometer;
         }
         
-        public String asJSON() {
+        public String asJSON() { return asJSON(true); }
+        
+        public String asJSON(boolean useMiles) {
+            double speedUnits = useMiles ? speed: osd(Utils.mToK(speed));
             StringBuilder sb = new StringBuilder();
             sb.append("{\n");
             sb.append("    timestamp: \"");
@@ -611,7 +650,7 @@ public class TripController extends BaseController {
             }
             sb.append("    lat: ").append(lat).append(",\n");
             sb.append("    lng: ").append(lng).append(",\n");
-            sb.append("    speed: ").append(speed).append(",\n");
+            sb.append("    speed: ").append(speedUnits).append(",\n");
             sb.append("    heading: ").append(heading).append("\n");
             //sb.append("    odometer: ").append(odo).append("\n");
             sb.append("}\n");

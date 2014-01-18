@@ -14,7 +14,7 @@ Use this application at your own risk. The authors do not guarantee its proper f
 
 #Contributors
 Joe Pasqua (https://github.com/jpasqua)  
-Alex Karahalios (https://github.com/araxara)
+Alex Karahalios (https://github.com/araxara)  
 
 #Preparing your build environment
 
@@ -74,12 +74,12 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	# Download the jfxtras library
 	# There may be a newer version of the library. If so, update the version details below
 	cd ../jfxtras
-	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20130815.133831-3.jar
-    ln -s jfxtras-labs-2.2-r6-20130815.133831-3.jar jfxtras-labs-2.2.jar
+	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20140104.090242-24.jar
+    ln -s jfxtras-labs-2.2-r6-20140104.090242-24.jar jfxtras-labs-2.2.jar
 
-	# If you want to create a Mac OS X bundled application, you will need the Java application bundler file.
+	# The Java application bundler file is only used to create a Mac OS X bundled app. It's not used by VisibleTesla at run time
 	cd ..
-	curl -s -O  https://java.net/projects/appbundler/downloads/download/appbundler-1.0.jar
+	curl -s -O -L https://java.net/projects/appbundler/downloads/download/appbundler-1.0.jar
 
 
 #Installing and Running VisibleTesla

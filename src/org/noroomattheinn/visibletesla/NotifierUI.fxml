@@ -44,9 +44,10 @@
                 <ComboBox fx:id="csOptions" value="Complete">
                   <items>
                     <FXCollections fx:factory="observableArrayList">
-                      <String fx:value="Disconnected" />
                       <String fx:value="Charging" />
                       <String fx:value="Complete" />
+                      <String fx:value="Disconnected" />
+                      <String fx:value="Stopped" />
                       <String fx:value="Unknown" />
                       <String fx:value="Anything" />
                     </FXCollections>

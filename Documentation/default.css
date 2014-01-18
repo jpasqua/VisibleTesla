@@ -1,187 +1,292 @@
 @charset "utf-8";
 
- html, body {
-	 margin: 0px;
-	 padding: 0px;
-	 border: 0px;
-	 color: #000;
-	 background: #fff;
- }
+/* ===== BEGIN:	The Basics =====*/
+html,body {
+    margin:0;
+    padding:0;
+    border:0;
+    color:#000;
+    background:#fff
+}
 
- html, body, p, th, td, li, dd, dt {
- 	font: .95em Verdana, Arial, sans-serif;
- }
-
- h1, h2, h3, h4, h5, h6 {
- 	font-family: Verdana, Arial, sans-serif;
- }
+html,body,p,th,td,li,dd,dt {
+    font:.95em "Trebuchet MS",Helvetica,sans-serif
+}
 
 strong {
-	color: #555;
-}
- h1 { 
- 	font-size: 2.0em;
- 	text-align:center;
- 	border-bottom:1px solid #CCC;    
-    padding-bottom:3px;
-
- }
-
- h2 {
- 	font-size: 1.2em ;
-	text-decoration:underline;    
-	padding-bottom:3px;
- }
-
- h3 {
- 	font-size: 1.0em;
-}
- h4 { font-size: 0.9em; }
- h5 { font-size: 0.8em; }
- h6 { font-size: 0.8em; }
-
- a:link { color: #00f; }
- a:visited { color: #009; }
- a:hover { color: #06f; }
- a:active { color: #0cf; }
-
-
-table.grid_table {
-	color:#333333;
-	border-width: 1px;
-	border-color: #666666;
-	border-collapse: collapse;
-	margin-left: 20px;
-}
-table.grid_table th {
-	border-width: 1px;
-	padding: 8px;
-	border-style: solid;
-	border-color: #666666;
-	background-color: #dedede;
-}
-table.grid_table td {
-	vertical-align:top;
-	border-width: 1px;
-	padding: 4px;
-	border-style: solid;
-	border-color: #666666;
-	background-color: #ffffff;
-}
-
-table.grid_table td:first-child {
-	white-space:nowrap;
-}
-
-span.s1 {color: #042eee}
-span.s2 {text-decoration: underline}
-ul li {list-style-type: square}
-ul li li {list-style-type: circle}
-ul li li li {list-style-type: disc}
-ul li li li li {list-style-type: square}
-/*li {font-size: 100%;}*/
-
-tr.firstRowOfGroup {
-	border-top: solid thick #888888;
-}
-
-.ui {
-	font-weight:bold;
-	font-size:90%;
-	/*font-style: italic;*/
-	/*background-color: lightgray;*/
-	color: darkgreen;
-}
-
-.screenshot {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;	
-}
-
-div.center
-{
-  width: 200px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.wrap {
-	position:relative;
-	width:500px;
-}
-
-#content {
-	margin: 10px;
-	width: 800px;
-}
-
-#header {
-	 margin: 0;
-	 padding: 0;
-	width:100%;
-	float:top;
-	background-image:url('images/BannerBackground.png');
-}
-
-#footer:before {
-	content:"VisibleTesla";
-	text-align: center;
-	background-color:#980000;
-	color:white;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;	
-}
-
-#footer {
-	width:100%;
-	float:left;
+    color:#555
 }
 
 p {
-	margin-left: 20px;
+    margin-left:20px
+}
+/* ===== END:	The Basics =====*/
+
+
+/* ===== BEGIN:	Headings =====*/
+h1,h2,h3,h4,h5,h6 {
+    font-family:"Trebuchet MS",Helvetica,sans-serif
+}
+
+h1 {
+    font-size:2em;
+    text-align:center;
+    border-bottom:1px solid #CCC;
+    padding-bottom:3px
+}
+
+h2 {
+    font-size:1.2em;
+    text-decoration:underline;
+    padding-bottom:3px;
+    margin-top:2em
+}
+
+h3 {
+    font-size:1em
+}
+
+h4 {
+    font-size:.9em
+}
+
+h5 {
+    font-size:.8em
+}
+
+h6 {
+    font-size:.8em
+}
+/* ===== END:	Headings =====*/
+
+
+/* ===== BEGIN:	Links =====*/
+a:link {
+    color:#00f
+}
+
+a:visited {
+    color:#009
+}
+
+a:hover {
+    color:#06f
+}
+
+a:active {
+    color:#0cf
+}
+
+span.added {
+    color:purple;
+    text-decoration:underline;
+}
+
+span.fixed {
+    color:red;
+    text-decoration:underline;
+}
+
+span.changed {
+    color:darkgreen;
+    text-decoration:underline;
+}
+
+/* ===== END:	Links =====*/
+
+
+/* ===== BEGIN:	Lists =====*/
+
+li { font-size: 100%; }
+ul {list-style-type:disc;}
+ul ul {list-style-type:circle;}
+ul ul ul {list-style-type:square;}
+
+/* ===== END:	Lists =====*/
+
+/* ===== BEGIN:	Other =====*/
+.ui {
+    font-weight:700;
+    font-size:95%;
+    color:#006400
+}
+
+.screenshot {
+    display:block;
+    margin-left:auto;
+    margin-right:auto
+}
+
+div.center {
+    width:200px;
+    display:block;
+    margin-left:auto;
+    margin-right:auto
+}
+/* ===== End:	Other =====*/
+
+
+/* ===== BEGIN:	Page Structure =====*/
+.wrap {
+    position:relative;
+    width:500px
+}
+
+#content {
+    margin:10px;
+    width:800px
+}
+
+#header {
+    margin:0;
+    padding:0;
+    width:100%;
+    float:top;
+    background-image:url(images/BannerBackground.png)
+}
+
+#footer:before {
+    content:"VisibleTesla";
+    text-align:center;
+    background-color:#980000;
+    color:#fff;
+    display:block;
+    margin-left:auto;
+    margin-right:auto
+}
+
+#footer {
+    width:100%;
+    float:left;
 }
 
 iframe {
-	height:500px;
+    height:500px
 }
 
 #sidebar {
-	float:right;
-	width:250px;
-	height:500px;
-	padding:10px;
+    float:right;
+    width:250px;
+    height:500px;
+    padding:10px
+}
+/* ===== BEGIN:	Page Structure =====*/
+
+
+/* ===== BEGIN:	Q & A =====*/
+dl {
+    margin:20px;
+    padding-left:10px
 }
 
-dl {
-	margin: 20px;
-	padding-left: 10px;
-	}
-	dt:before {
-		content:"Q: ";
-		color:red;
-		font-weight:bold;
-	}
-	dt {
-		font-size: 1em;
-		margin-bottom: 10px;
-		}
-		dt span {
-			font-style: italic;
-			font-size: 1.3em;
-		}
-	dd:before {
-		content:"A: ";
-		color:green;
-		font-weight:bold;
-	}
-	dd {
-		font-size: 1em;
-		margin-left: 20px;
-		margin-bottom: 10px;
-		border-left:1px solid #CCC;   
-		padding-left: 5px; 
-	}
+dt:before {
+    content:"Q: ";
+    color:red;
+    font-weight:700
+}
 
+dt {
+    font-size:1em;
+    margin-bottom:10px
+}
+
+dt span {
+    font-style:italic;
+    font-size:1.3em
+}
+
+dd:before {
+    content:"A: ";
+    color:green;
+    font-weight:700
+}
+
+dd {
+    font-size:1em;
+    margin-left:20px;
+    margin-bottom:10px;
+    border-left:1px solid #CCC;
+    padding-left:5px
+}
+/* ===== END:	Q & A =====*/
+
+
+/* ===== BEGIN:	Tooltips =====*/
+.tooltip {
+    display:inline;
+    position:relative;
+    text-decoration:underline
+}
+
+.tooltip:hover:after {
+    background:#333;
+    background:rgba(0,0,0,.8);
+    border-radius:5px;
+    bottom:26px;
+    color:#fff;
+    content:attr(tip);
+    left:20%;
+    padding:5px 15px;
+    position:absolute;
+    z-index:98;
+    width:220px
+}
+
+.tooltip:hover:before {
+    border:solid;
+    border-color:#333 transparent;
+    border-width:6px 6px 0;
+    bottom:20px;
+    content:"";
+    left:50%;
+    position:absolute;
+    z-index:99
+}
+/* ===== END:	Tooltips =====*/
+
+
+/* ===== BEGIN:	Table Related =====*/
+table.grid_table.code td {
+    font-family:"Courier New",Courier,monospace;
+    font-size:90%
+}
+
+table.grid_table.code th {
+    font-family:"Courier New",Courier,monospace;
+    font-size:90%
+}
+
+table.grid_table {
+    color:#333;
+    border-width:1px;
+    border-color:#666;
+    border-collapse:collapse;
+    display:block;
+    margin-left:40px;
+}
+
+table.grid_table th {
+    border-width:1px;
+    padding:8px;
+    border-style:solid;
+    border-color:#666;
+    background-color:#dedede
+}
+
+table.grid_table td {
+    vertical-align:top;
+    border-width:1px;
+    padding:4px;
+    border-style:solid;
+    border-color:#666;
+    background-color:#fff
+}
+
+table.grid_table td:first-child {
+    white-space:nowrap
+}
+
+tr.firstRowOfGroup {
+    border-top:solid thick #888
+}
+/* ===== END:	Table Related =====*/

@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,8 +43,7 @@ public class StatsRepository {
     private final List<Stat> entriesSinceLastFlush = new ArrayList<>();
     
     private PrintStream statsWriter;
-    private File containingFolder = null;
-    private Map<String,Double> lastRowWritten = new HashMap<>();
+    private FileLock repoLock = null;
     
 /*==============================================================================
  * -------                                                               -------
@@ -51,9 +51,11 @@ public class StatsRepository {
  * -------                                                               -------
  *============================================================================*/
 
-    public StatsRepository(File statsFile) {
+    public StatsRepository(File statsFile) throws IOException {
         this.statsFile = statsFile;
-        prepRepository();
+        if (!prepRepository()) {
+            throw new IOException("Unable to access repository: " + statsFile);
+        }
     }
     
     public interface Recorder {
@@ -96,7 +98,6 @@ public class StatsRepository {
             @Override public void recordElement(long time, String type, double val) {
                 if (period.contains(time)) r.recordElement(time, type, val);
             }
-            
         });
     }
     
@@ -110,7 +111,7 @@ public class StatsRepository {
         if (statsWriter != null) statsWriter.close();
     }
 
-    private Map<String,Double> lastValForType = new HashMap<>();
+    private final Map<String,Double> lastValForType = new HashMap<>();
     private Set<String> columnsInLastRow = new HashSet<>();
     
     private boolean sameColumnsAsLastTime(Map<String,Double> thisRow) {
@@ -203,14 +204,35 @@ public class StatsRepository {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void prepRepository() {
-        if (statsWriter != null) { statsWriter.close(); }
+    private boolean prepRepository() {
+        releaseWriter();
+        FileOutputStream fos = obtainLockedStream();
+        if (fos == null) return false;
+        statsWriter = new PrintStream(fos);
+        return (statsWriter != null);
+    }
+    
+    private FileOutputStream obtainLockedStream() {
+        FileOutputStream fos = null;
         try {
-            statsWriter = new PrintStream(new FileOutputStream(statsFile, true));
-        } catch (FileNotFoundException ex) {
-            Tesla.logger.log(Level.WARNING, "Can't create stats file: " + statsFile.getName(), ex);
-            statsWriter = null;
+            fos = new FileOutputStream(statsFile, true);
+            repoLock = fos.getChannel().tryLock();
+        } catch (IOException e) {
+            Tesla.logger.warning("Unable to obtain lock on StatsRepository: " + e.toString());
+            repoLock = null;
         }
+        return (repoLock == null) ? null : fos;
+    }
+    
+    private void releaseWriter() {
+        if (statsWriter == null) return;
+        try {
+            repoLock.release();
+            repoLock = null;
+        } catch (IOException e) {
+            Tesla.logger.warning("Unable to release lock on StatsRepository: " + e.toString());
+        }
+        statsWriter.close();
     }
     
     private BufferedReader getReaderForFile(File file) {

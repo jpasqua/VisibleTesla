@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import jfxtras.labs.scene.control.*?>
+<?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
+
+<AnchorPane id="AnchorPane" fx:id="root" disable="false" minWidth="346.0" prefHeight="276.0" prefWidth="346.0" style="-fx-background-color: white;" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.DateRangeDialog">
+  <children>
+    <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="21.0">
+      <children>
+        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#buttonHandler" text="Cancel" />
+        <Button fx:id="allButton" mnemonicParsing="false" onAction="#buttonHandler" text="All" />
+        <Button fx:id="selectedButton" defaultButton="true" mnemonicParsing="false" onAction="#buttonHandler" text="Selected" />
+      </children>
+    </HBox>
+    <VBox id="VBox" alignment="CENTER" layoutX="14.0" layoutY="14.0" spacing="5.0">
+      <children>
+        <CalendarPicker fx:id="calendarPicker" minWidth="262.0" mode="RANGE" prefHeight="186.0" prefWidth="311.0" showTime="false" style="&#10;" />
+        <HBox id="HBox" alignment="CENTER" spacing="5.0">
+          <children>
+            <Label text="Quick Select:" />
+            <ComboBox id="graphsTimePeriod" fx:id="quickSelect" value="None">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="None" />
+                  <String fx:value="Last 7 days" />
+                  <String fx:value="Last 14 days" />
+                  <String fx:value="Last 30 days" />
+                  <String fx:value="This week" />
+                  <String fx:value="This month" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+  </children>
+  <stylesheets>
+    <URL value="@../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>

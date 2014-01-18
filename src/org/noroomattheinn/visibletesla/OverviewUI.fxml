@@ -185,16 +185,6 @@
         <Image url="@../TeslaResources/charge_cable_long@2x.png" preserveRatio="false" smooth="false" />
       </image>
     </ImageView>
-    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#d0d0d0" height="26.0" layoutX="12.0" layoutY="19.0" stroke="TRANSPARENT" strokeType="INSIDE" width="94.5">
-      <effect>
-        <BoxBlur height="2.0" width="2.0">
-          <input>
-            <DropShadow blurType="ONE_PASS_BOX" color="#606060" height="1.0" offsetX="3.0" offsetY="3.0" radius="0.0" width="1.0" />
-          </input>
-        </BoxBlur>
-      </effect>
-    </Rectangle>
-    <Label fx:id="vinLabel" layoutX="21.0" layoutY="25.0" text="VIN P08714" textFill="BLACK" />
     <ImageView id="darkRimFront" fx:id="aeroFront" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
         <Image url="@../TeslaResources/wheel_front_aero@2x.png" />
@@ -215,6 +205,11 @@
         <Image url="@../TeslaResources/wheel_front_turbine@2x.png" />
       </image>
     </ImageView>
+    <Button fx:id="vinButton" layoutX="22.0" layoutY="23.0" mnemonicParsing="false" prefWidth="107.0" styleClass="noGlow" text="VIN P08714">
+      <effect>
+        <DropShadow color="#606060" offsetX="5.0" offsetY="5.0" />
+      </effect>
+    </Button>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

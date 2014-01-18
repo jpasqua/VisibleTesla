@@ -7,6 +7,7 @@
 package org.noroomattheinn.visibletesla;
 
 import java.io.File;
+import java.io.IOException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.SnapshotState;
@@ -39,7 +40,7 @@ public class LocationStore extends DataStore {
  * -------                                                               -------
  *============================================================================*/
     
-    public LocationStore(AppContext appContext, File locationFile) {
+    public LocationStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
 
         appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {

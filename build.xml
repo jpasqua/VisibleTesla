@@ -67,7 +67,7 @@
 <target name="bundle-VisibleTesla">
     <bundleapp outputdirectory="dist"
         name="VisibleTesla"
-        icon="Tesla Keyfob.icns"
+        icon="src/org/noroomattheinn/TeslaResources/Tesla Keyfob.icns"
         displayname="Visable Tesla"
         identifier="org.noroomattheinn.visibletesla"
         mainclassname="org.noroomattheinn.visibletesla.VisibleTesla">

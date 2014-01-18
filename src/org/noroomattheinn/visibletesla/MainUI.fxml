@@ -4,6 +4,8 @@
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
@@ -150,5 +152,19 @@
     </BorderPane>
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
+    <Pane fx:id="wakePane" prefHeight="202.0" prefWidth="432.0" style="-fx-background-color: #fff;&#10;" visible="false" AnchorPane.leftAnchor="104.0" AnchorPane.topAnchor="114.0">
+      <children>
+        <ImageView fitHeight="0.0" fitWidth="0.0" layoutX="0.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true">
+          <image>
+            <Image url="@../TeslaResources/SleepyTesla.png" />
+          </image>
+        </ImageView>
+        <Label layoutX="204.0" layoutY="14.0" text="Your Tesla is sleeping.&#10;&#10;VisibleTesla will automatically&#10;start soon after your car wakes&#10;up. To force your car to wake up&#10;now, press the &quot;Wake&quot; Button." textFill="#0083cc" />
+        <Button fx:id="wakeButton" layoutX="355.0" layoutY="168.0" mnemonicParsing="false" onAction="#wakeButtonHandler" text="Wake" />
+      </children>
+      <effect>
+        <DropShadow offsetX="5.0" offsetY="5.0" />
+      </effect>
+    </Pane>
   </children>
 </AnchorPane>

@@ -137,6 +137,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     }
     
     private boolean wakeAndGetChargeState() {
+        appContext.inactivityState.set(InactivityType.Awake);
         if (charge.refresh()) return true;
         
         ActionController a = new ActionController(vehicle);

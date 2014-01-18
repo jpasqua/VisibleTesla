@@ -116,10 +116,10 @@ public class Trigger<T extends Comparable<T>> {
                             subject.getName(), predicate.toString(),
                             target.toExternal(), subject.toExternal());
                     case Becomes:
-                        return String.format("%s took on a new value: %s",
+                        return String.format("%s became: %s",
                             subject.getName(), subject.toExternal());
                     case AnyChange:
-                        return String.format("Activity related to the %s. Details: %s",
+                        return String.format("%s Activity: %s",
                             subject.getName(), subject.toExternal());
                     case EQ:
                     case LT:

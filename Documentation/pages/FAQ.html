@@ -5,6 +5,7 @@
         <title>
             FAQ
         </title>
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="../default.css" type="text/css">
     </head>
     <body>
@@ -54,7 +55,19 @@
                     How do I switch between my many different Teslas?
                 </dt>
                 <dd>
-                    For those of you lucky enough to have more than one Tesla, there is no easy way to switch between them at the moment. Since I only have one car, this is not something I can test and is unlikely to be addressed anytime soon. Youcan keep multiple copies of VisibleTesla running and point one to each car.
+                    For those of you lucky enough to have more than one Tesla, there is no easy way to switch between them at the moment. Since I only have one car, this is not something I can test and is unlikely to be addressed anytime soon. You can keep multiple copies of VisibleTesla running and point one to each car.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Why does the Graphs Tab collect data very often some times and less frequently at other times?
+                </dt>
+                <dd>
+                    If you check out the section on <a href="OtherTopics.html#autorefresh">Data Collection</a> you'll see that the <a href="GraphsTab.html">Graphs Tab</a> is always colelcting data in the background. It collects a sample of data every two minutes unless the app is asleep in which case it doesn't collect any data. See <a href="SleepMode.html">Understanding Sleep Mode</a> for more details.<br>
+                    <br>
+                    If VisibleTesla notices that your car is moving, it will collect data more frequently (every 30 seconds). There is one more twist. The Graphs Tab collects its own data, but it also snoops on the other tabs. If they collect anything of interest, the Graphs Tab plots that information and stores it away. For example, if you are viewing the Location Tab, the relevant data that it collects will also appear on the Graphs Tab at whatever rate the Location Tab is collecting data - usually every 30 seconds.<br>
+                    <br>
+                    This explains why you see data collected very quickly at some times and slower at others. Big gaps in the data typically represent times at which either (a) VisibleTesla wasn't running, (b) it was asleep, (c) your car was in an area with no cellular coverage.
                 </dd>
             </dl>
             <dl>
@@ -62,7 +75,7 @@
                     Can I store the app data files in Dropbox?
                 </dt>
                 <dd>
-                    The application data files are stored in a system specific location that can be shown using the "Show User Folder" button in Prefs-&gt;General-&gt;Advanced. If you are an advanced user you can use symbolic links (Mac/Linux) or MKLINK (Windows) to store the files in Dropbox and link them to User Folder. For details on how this mechanism works, check out: <a href="http://www.maximumpc.com/article/features/15_things_you_have_know_about_dropbox">15 Hacks Every Dropbox User Should Know</a>.
+                    The application data files are stored in a system specific location that can be shown using the "Show User Folder" button in <span class="ui">Prefs→General→Advanced</span>. If you are an advanced user you can use symbolic links (Mac/Linux) or MKLINK (Windows) to store the files in Dropbox and link them to User Folder. For details on how this mechanism works, check out: <a href="http://www.maximumpc.com/article/features/15_things_you_have_know_about_dropbox">15 Hacks Every Dropbox User Should Know</a>.
                 </dd>
             </dl>
             <dl>
@@ -70,7 +83,9 @@
                     Is VisibleTesla secure?
                 </dt>
                 <dd>
-                    VisibleTesla has not undergone a rigorous security analysis, but the source code is available for anyone to review. Here are some basic facts:
+                    VisibleTesla has not undergone a rigorous security analysis, but the <a href="#github">source code is available on github for anyone to review</a>. I welcome feedback on any security vulnerabilities that might be present. I understand that not everyone has the time, interest, or inclination to do that, but it is an option for some.<br>
+                    <br>
+                    Here are some basic facts about how VisibleTesla works:
                     <ul>
                         <li>VisibleTesla uses https to connect to Tesla's servers which means that all communication are encrypted.
                         </li>
@@ -78,23 +93,17 @@
                         </li>
                         <li>The application shares no information with the author or anyone else other than Tesla. I'd actually love to collect some aggregate statistics (not user identifiable) but I've refrained from doing so because I don't want to create even a perception that users are being spied upon. I don't even know how many people have tried VisibleTesla.
                         </li>
-                    </ul>Other than communicating with Tesla, the app does download up to 3 files from a different source - dropbox.
+                    </ul>Other than communicating with Tesla, VisibleTesla communicates with two other services - Dropbox and MailGun. It uses Dropbox to download up to three files that are used in the update process:
                     <ul>
                         <li>The first file is a list of the releases. The app uses this to determine whether a newer release is available.
                         </li>
-                        <li>If a new release is available, the user can click a link to see the most recent release notes (they are also on dropbox).
+                        <li>If a new release is available, the user can click a link to see the most recent release notes. These notes are downloaded from Dropbox.
                         </li>
-                        <li>Finally, if the user chooses to download the latest release, it will download that from dropbox. No user information is shared in this process.
+                        <li>Finally, if the user chooses to download the latest release, it will be downloaded from Dropbox. No user information is shared in this process.
                         </li>
-                    </ul>As mentioned above, the code is open source and posted on github. I welcome anyone to look at it and let me know of any security vulnerabilities that might be present. I understand that not everyone has the time, interest, or inclination to do that, but it is an option for some.
-                </dd>
-            </dl>
-            <dl>
-                <dt>
-                    Where can I find the source code for VisibleTesla?
-                </dt>
-                <dd>
-                    VisibleTesla lives on <a href="https://github.com/jpasqua/VisibleTesla/">github</a>. It relies on another project, TeslaClient, by the same author which can also be found on <a href="https://github.com/jpasqua/TeslaClient/">github</a>.
+                    </ul>if you use the notifications tab, your notification messages are sent via the MailGun hosted service.<br>
+                    <br>
+                    If you would like more certainty about what VisibleTesla is doing, you can use a program like Little snitch on the Mac to monitor and control all of VisibleTesla's network activity.
                 </dd>
             </dl>
             <dl>
@@ -111,6 +120,31 @@
                 </dt>
                 <dd>
                     There is a thread on the <a href="http://www.teslamotorsclub.com/showthread.php/19975-VisibleTesla">Tesla Motors Club forum</a> that you can read and participate in.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    How should I report a bug?
+                </dt>
+                <dd>
+                    The best thing to do is ask about your problem on the <a href="http://www.teslamotorsclub.com/showthread.php/19975-VisibleTesla">Tesla Motors Club forum</a>. When reporting a bug please describe the following:
+                    <ul>
+                        <li>
+                            <b>What you expected to happen</b> and how you configured VisibleTesla to make it happen. For example: I expected a notification that the car was unplugged at 10:00PM because I set it up in the Scheduler Tab.
+                        </li>
+                        <li>
+                            <b>What actually happened</b>, for example, 10:00PM came and went and I didn't get a notification even though my car was unplugged.
+                        </li>
+                        <li>
+                            <b>Screen shots</b> of the relevant Tabs if possible.
+                        </li>
+                        <li>
+                            <b>Your configuration</b> including version of VisibleTesla, which OS you're running on (e.g. Windows 8.1 or MacOS 10.9.1)
+                        </li>
+                        <li>
+                            <b>Whether it worked using Tesla's app</b>. Try the equivalent function on the iOS or Android app (if there is an equivalent function) to see if it works there but not in VisibleTesla.
+                        </li>
+                    </ul>It is very important to save the <span class="ui">visibletesla.log</span> file from the application folder. This contains messages that may be useful for debugging. This log is overwritten each time you run the application, so if you have a problem, quit VisibleTesla, copy the log file to a safe place (like your desktop) then start VisibleTesla again. You may be asked to send the log file to the developer.
                 </dd>
             </dl>
             <dl>
@@ -134,6 +168,14 @@
             </dl>
             <dl>
                 <dt>
+                    I'm not seeing my old trips. What happened to them?
+                </dt>
+                <dd>
+                    VisibleTesla only loads as much historical information as you tell it to in the <span class="ui">Prefs→General→Basic→Load data for:</span> field. For example, if you have that set to 14 days, you won't see trips that are older than that. The same is true for the data in the <span class="ui">Graph Tab</span>.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
                     Mac: Every time I try to run VisibleTesla I get a message saying that it can't be opened because it's from an unidentified developer.
                 </dt>
                 <dd>
@@ -141,7 +183,7 @@
                     <ul>
                         <li>Double-click VisibleTesla.jar, get the warning and dismiss it.
                         </li>
-                        <li>Go to System Preferences-&gt;Security &nbsp; Privacy. You'll see a note that says "VisibleTesla was blocked from opening because it is not from an identified developer."
+                        <li>Go to System <span class="ui">Preferences→Security &amp; Privacy</span>. You'll see a note that says "VisibleTesla was blocked from opening because it is not from an identified developer."
                         </li>
                         <li>Right next to that text you'll see an "Open Anyway" button. Press it. You only need to do this once.
                         </li>
@@ -178,7 +220,7 @@
                         </li>
                         <li>Navigate to the directory identified in step #1 and choose the "FobIcon.ico" file, and then click "Open".
                         </li>
-                        <li>In the resulting dialog box, choose the (only) Telsa Keyfob shaped Icon and click "OK"
+                        <li>In the resulting dialog box, choose the (only) Tesla Keyfob shaped Icon and click "OK"
                         </li>
                         <li>Click "OK" again to close the Properties window
                         </li>
@@ -223,6 +265,33 @@
                     <p>
                         NOTE: If when clicking on your VisibleTesla dock icon you get an error message that you cannot open the file because it is from an unidentified developer you will need to right click the VisibleTesla.jar file in its original folder and select "Open With" and choose "Jar Launcher" [You only need to do this the first time. Subsequent attempts to open using the icon in the Doc should open the application without issue]
                     </p>
+                </dd>
+            </dl>
+            <h2>
+                For Developers
+            </h2>
+            <dl>
+                <dt>
+                    Where can I find the <a name="github">source code for VisibleTesla</a>?
+                </dt>
+                <dd>
+                    VisibleTesla lives on <a href="https://github.com/jpasqua/VisibleTesla/">github</a>. It relies on another project, TeslaClient, by the same author which can also be found on <a href="https://github.com/jpasqua/TeslaClient/">github</a>.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    Can I contribute to VisibleTesla?
+                </dt>
+                <dd>
+                    Yes. You can contribute to VisibleTesla and/or TeslaClient. You can fork either project and go on your own path or you can contribute back to the central projects.
+                </dd>
+            </dl>
+            <dl>
+                <dt>
+                    I'm not a Developer. Is there anything I can contribute?
+                </dt>
+                <dd>
+                    Yes! For example, you can test experimental versions of VisibleTesla, contribute to the documentation, and help others on the forums.
                 </dd>
             </dl>
         </div>

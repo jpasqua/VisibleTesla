@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialogs;
@@ -103,7 +104,7 @@ public class OverviewController extends BaseController {
     
     // Other Labels
     @FXML private Label odometerLabel;
-    @FXML private Label vinLabel;
+    @FXML private Button vinButton;
     
     //
     // Controls
@@ -204,7 +205,7 @@ public class OverviewController extends BaseController {
     }
     static private int refreshCount = 0;
     
-    @Override protected void prepForVehicle(Vehicle v) {
+    @Override protected void prepForVehicle(final Vehicle v) {
         if (differentVehicle()) {
             actions = new ActionController(v);
             doorController = new DoorController(v);
@@ -221,10 +222,17 @@ public class OverviewController extends BaseController {
             if (storedOdometerReading != 0)
                 updateOdometer();   // Show at least an old reading to start
             
-            vinLabel.setText("VIN " + StringUtils.right(v.getVIN(), 6));
+            reflectVINOrFirmware(v);
+            vinButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent event) {
+                    setDisplayVIN(v, !getDisplayVIN(v));
+                    reflectVINOrFirmware(v);
+            }
+        });
+
         }
     }
-    
+        
     @Override protected void reflectNewState() {
         if (car.state == null) return;   // State's not ready yet
 
@@ -351,7 +359,29 @@ public class OverviewController extends BaseController {
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
     }
     
+    private void reflectVINOrFirmware(Vehicle v) {
+        if (getDisplayVIN(v))
+            vinButton.setText("VIN " + StringUtils.right(v.getVIN(), 6));
+        else {
+            String version;
+            if (car.state == null) {
+                 version = appContext.persistentState.get(vehicle.getVIN()+"_FIRMWARE", "...");
+            } else {
+                version = car.state.version;
+                appContext.persistentState.put(vehicle.getVIN()+"_FIRMWARE", version);
+            }
+            vinButton.setText(version);
+        }
+    }
     
+    private boolean getDisplayVIN(Vehicle v) {
+        return appContext.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
+    }
+    
+    private void setDisplayVIN(Vehicle v, boolean displayVIN) {
+        appContext.persistentState.putBoolean(v.getVIN()+"_DISP_VIN", displayVIN);
+    }
+
 /*------------------------------------------------------------------------------
  *
  * State and Methods for locating the right images based on vehicle parameters

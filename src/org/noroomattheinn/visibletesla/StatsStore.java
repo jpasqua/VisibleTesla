@@ -7,6 +7,7 @@
 package org.noroomattheinn.visibletesla;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.beans.value.ChangeListener;
@@ -54,7 +55,7 @@ public class StatsStore extends DataStore {
  *============================================================================*/
 
 
-    public StatsStore(AppContext appContext, File locationFile) {
+    public StatsStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
         
         this.timer = new Timer("00 - VT StatsFlusher", true);
@@ -92,7 +93,7 @@ public class StatsStore extends DataStore {
     
     private long lastUpdate = 0;
     
-    private TimerTask flusher = new TimerTask() {
+    private final TimerTask flusher = new TimerTask() {
         @Override public void run() {
             long now = System.currentTimeMillis();
             if (lastUpdate != 0 && now - lastUpdate > (2 * 1000L))

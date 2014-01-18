@@ -5,6 +5,7 @@
         <title>
             Other Topics
         </title>
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="../default.css" type="text/css">
     </head>
     <body>
@@ -21,25 +22,153 @@
                 Other Topics
             </h1>
             <h2>
-                Simulation
+                <a name="exportingData">Exporting Your Data</a>
             </h2>
             <p>
-                The simulation menu can be found within the Options menu. It allows you to look at car configurations other than your own. These screen shots show changing the color to red and using 21" dark rims.
+                You can export the data collected by VisibleTesla to an Excel file for your own analysis. There are two sets of data you can export:
             </p>
-            <img class="screenshot" src="../images/10_Simulate_Color_Red.png" alt="missing">
-            <img class="screenshot" src="../images/11_Simulate_Dark_Rims.png" alt="missing">
+            <ol>
+                <li>Statistics: The data that was gathered for the <a href="GraphsTab.html">Graphs Tab</a>. You can export this data using <span class="ui">File→Export Stats Data...</span> menu item.
+                </li>
+                <li>Locations: The data that was gathered for the <a href="LocationTab.html">Location Tab</a>. You can export this data using <span class="ui">File→Export Location Data...</span> menu item.
+                </li>
+            </ol>
+            <p>
+                In either case you'll be prompted to choose a location and name for the exported file. Be sure to use the extension ".xls"; for example, MyStats.xls. The screen shot below shows the Export menu items.
+            </p><img class="screenshot" src="../images/16_Export.png" alt="Export Stats">
+            <p>
+                After you choose a file and location, you'll be asked how much of your data you want to export. You can select a range of days on the calendar by selecting the starting day then holding down the shift key and selecting the <span class="tooltip" tip="Actually, you can select the days in any order">ending day</span>. You can use the <span class="ui">Quick Select</span> dropdown list to easily select some common ranges. Once you've selected your range, press the <span class="ui">Selected</span> button. If you want to export all of your data, you don't need to bother with the calendar, just press the <span class="ui">All</span> button. To abort the export process, hit the <span class="ui">Cancel</span> button. This screen shot shows the dialog box that allows you to select a date range.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/16a_Export_DateRange.png" alt="Export Date Range">
+            </p>
+            <p>
+                When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains a long, unintelligible number which is an accurate, though obscure, way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like the one below (a sample of the stats data):
+            </p>
+            <table class="grid_table code">
+                <tbody>
+                    <tr>
+                        <th>
+                            TIMESTAMP
+                        </th>
+                        <th>
+                            C_AMP
+                        </th>
+                        <th>
+                            C_BAM
+                        </th>
+                        <th>
+                            C_EST
+                        </th>
+                        <th>
+                            C_ROC
+                        </th>
+                        <th>
+                            C_SOC
+                        </th>
+                        <th>
+                            C_VLT
+                        </th>
+                        <th>
+                            S_PWR
+                        </th>
+                        <th>
+                            S_SPD
+                        </th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            1377743292
+                        </td>
+                        <td>
+                            0
+                        </td>
+                        <td></td>
+                        <td>
+                            99.7
+                        </td>
+                        <td>
+                            -1
+                        </td>
+                        <td>
+                            55
+                        </td>
+                        <td>
+                            0
+                        </td>
+                        <td>
+                            24
+                        </td>
+                        <td>
+                            14
+                        </td>
+                        <td>
+                            8/28/13 18:28:12
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            1377746306
+                        </td>
+                        <td>
+                            0
+                        </td>
+                        <td></td>
+                        <td>
+                            99.3
+                        </td>
+                        <td>
+                            -1
+                        </td>
+                        <td>
+                            50
+                        </td>
+                        <td>
+                            0
+                        </td>
+                        <td>
+                            21
+                        </td>
+                        <td>
+                            16
+                        </td>
+                        <td>
+                            8/28/13 19:18:26
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time.
+            </p>
             <h2>
-                <a name="autorefresh">Auto-Refresh</a>
+                <a name="autorefresh">Data Collection and Auto-Refresh</a>
             </h2>
             <p>
-                When viewing any tab you may refresh the displayed data by pressing the "Refresh" button. If you don't press the button, the app will automaticaly refresh the information every 30 seconds. The screen shot below shows the "spinner" that is displayed when the app is communicating with the vehicle. Switching tabs automatically refreshes the newly selected tab.
+                Many of the Tabs in VisibleTesla collect data of one type or another to do their job. The Location Tab collects location-related data, the Charge Tab collects charge-related data, and so on. They only collect this data when they are the selected tab. For example, while you are viewing the Charge Tab it is collecting charge data, but as soon as you switch to the Location Tab, the Charge Tab stops collecting data and the Location Tab starts. A number of tabs don't collect any data (e.g. Login, Prefs). Some tabs collect data only as needed (e.g. Scheduler).
+            </p>
+            <p>
+                The Graphs Tab is special - it collects data even when you aren't viewing it. It's also opportunistic. It watches the data being collected by other Tabs and looks for anything it can use. In normal circumstances the Graphs Tab collects data every two minutes. If it sees your car in motion, it starts collecting data every 30 seconds. If your car stops, it continues collecting data every 30 seconds for a couple of minutes in case you're at a stop light or something like that. Eventually it will rever to collecting data at 2 minute intervals.
+            </p>
+            <p>
+                When viewing any tab you may refresh the displayed data by pressing the <span class="ui">Refresh</span> button. If you don't press the button, the app will automatically refresh the information every 30 seconds. Switching tabs automatically refreshes the newly selected tab. The screen shot below shows the "spinner" that is displayed when the app is communicating with your car.
+            </p>
+            <p>
+                The Location Tab is a little different from the others. It auto-refreshes like other tabs, but when the car is in motion it uses a special feature called "Streaming" that allows it to collect data at a higher rate without overloading Tesla's servers.
             </p>
             <p>
                 <img class="screenshot" src="../images/12_Auto_Refresh.png">
             </p>
             <p>
-                In order to ensure that Tesla's servers do not become overloaded, the app automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others. For example, the odometer reading on the <a href="OverviewTab.html">Overview Tab</a>. Since even at 60 mph the reading doesn't change much every minute, the app does not update it on every refresh. If the user presses the refresh button, it will force a new reading. Otherwise it is updated less frequently.
+                Speaking of overloading Tesla's servers, VisibleTesla automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others. For example, the odometer reading on the <a href="OverviewTab.html">Overview Tab</a>. Since even at 60 mph the reading doesn't change much every minute, the app does not update it on every auto-refresh.
             </p>
+            <h2>
+                <a name="simulation">Simulation</a>
+            </h2>
+            <p>
+                The simulation menu can be found within the Options menu. It allows you to look at car configurations other than your own. These screen shots show changing the color to red and using 21" dark rims.
+            </p><img class="screenshot" src="../images/10_Simulate_Color_Red.png" alt="missing"><img class="screenshot" src="../images/11_Simulate_Dark_Rims.png" alt="missing">
         </div>
         <div id="footer"></div>
     </body>

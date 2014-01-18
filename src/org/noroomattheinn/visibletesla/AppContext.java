@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -62,7 +63,7 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.25.02";
+    public static final String ProductVersion = "0.25.03";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -152,15 +153,27 @@ public class AppContext {
         if (vehicle == null || !v.getVIN().equals(vehicle.getVIN())) {
             vehicle = v;
             
-            if (locationStore != null) locationStore.close();
-            locationStore = new LocationStore(
-                    this, new File(appFilesFolder, v.getVIN()+".locs.log"));
-            addStatPublisher(locationStore);
-            
-            if (statsStore != null) statsStore.close();
-            statsStore = new StatsStore(
-                    this, new File(appFilesFolder, v.getVIN()+".stats.log"));
-            addStatPublisher(statsStore);
+            try {
+                if (locationStore != null) locationStore.close();
+                locationStore = new LocationStore(
+                        this, new File(appFilesFolder, v.getVIN()+".locs.log"));
+                addStatPublisher(locationStore);
+
+                if (statsStore != null) statsStore.close();
+                statsStore = new StatsStore(
+                        this, new File(appFilesFolder, v.getVIN()+".stats.log"));
+                addStatPublisher(statsStore);
+            } catch (IOException e) {
+                Tesla.logger.severe("Unable to establish repository: " + e.getMessage());
+                Dialogs.showErrorDialog(stage,
+                        "VisibleTesla has encountered a severe error\n" +
+                        "while trying to access its data files. Another\n" +
+                        "copy of VisibleTesla may already be writing to them\n" +
+                        "or they may be missing.\n\n"+
+                        "VisibleTesla will close when you close this window.",
+                        "Problem accessing data files", "Problem launching application");
+                Platform.exit();
+            }
             
             if (statsStreamer != null) statsStreamer.stop();
             statsStreamer = new StatsStreamer(this, v);

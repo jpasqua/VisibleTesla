@@ -28,6 +28,7 @@ import jxl.Workbook;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.stats.Stat;
 import org.noroomattheinn.visibletesla.stats.StatsPublisher;
 import org.noroomattheinn.visibletesla.stats.StatsRepository;
@@ -77,7 +78,8 @@ public abstract class DataStore implements StatsPublisher {
  * -------                                                               -------
  *============================================================================*/
     
-    public DataStore(AppContext appContext, File locationFile, String[] keys) {
+    public DataStore(AppContext appContext, File locationFile, String[] keys)
+            throws IOException {
         this.appContext = appContext;
         this.repo = new StatsRepository(locationFile);
         this.publishedKeys = keys;
@@ -120,7 +122,10 @@ public abstract class DataStore implements StatsPublisher {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
                 appContext.persistentState.put(LastExportDirKey, enclosingDirectory);
-            doExport(file);
+            Range<Long> exportPeriod = getExportPeriod();
+            if (exportPeriod == null)
+                return;
+            doExport(file, exportPeriod);
         }
     }
     
@@ -200,6 +205,23 @@ public abstract class DataStore implements StatsPublisher {
         return loadPeriod;
     }
     
+    protected final Range<Long> getExportPeriod() {
+        DialogUtils.DialogController dc = DialogUtils.displayDialog(
+            getClass().getResource("DateRangeDialog.fxml"),
+            "Date Range for Export", appContext.stage);
+        if (dc == null) return null;
+        DateRangeDialog drd = Utils.cast(dc);
+        if (drd.selectedAll()) {
+            return Range.closed(0L, Long.MAX_VALUE);
+        }
+        Calendar start = drd.getStartCalendar();
+        Calendar end = drd.getEndCalendar();
+        if (start == null) {
+            return null;
+        }
+        return Range.closed(start.getTimeInMillis(), end.getTimeInMillis());
+    }
+
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Methods related to loading existing samples
@@ -262,11 +284,13 @@ public abstract class DataStore implements StatsPublisher {
         return Range.closed(start, end);
     }
 
-    private void doExport(File file) {
+    private void doExport(File file, Range<Long> exportPeriod) {
+        TreeMap<Long,Map<String,Double>> rowsForExport = loadForExport(exportPeriod);
         int columnNumberForExport = 0;
         Map<String, Integer> keyToColumn = new HashMap<>();
         for (String key : keysEncountered) { keyToColumn.put(key, columnNumberForExport++); }
 
+        
         try {
             WritableWorkbook workbook = Workbook.createWorkbook(file);
             WritableSheet sheet = workbook.createSheet("Sheet1", 0);
@@ -284,8 +308,8 @@ public abstract class DataStore implements StatsPublisher {
 
             // Run through the table and add each row...
             int rowNum = 1;
-            for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
-                long               time   = row.getKey()/1000;
+            for (Map.Entry<Long,Map<String,Double>> row : rowsForExport.entrySet()) {
+                long time = row.getKey()/1000;
                 Map<String,Double> values = row.getValue();
                 
                 jxl.write.Number timeCell = new jxl.write.Number(0, rowNum, time);
@@ -346,5 +370,22 @@ public abstract class DataStore implements StatsPublisher {
             
             // Make the header row stationary
             sheet.getSettings().setVerticalFreeze(1);
+    }
+    
+    private TreeMap<Long,Map<String,Double>> loadForExport(Range<Long> exportPeriod) {
+        final TreeMap<Long,Map<String,Double>> rowsToExport = new TreeMap<>();
+        
+        repo.loadExistingData(new StatsRepository.Recorder() {
+            @Override public void recordElement(long time, String type, double val) {
+                Map<String, Double> row = rowsToExport.get(time);
+                if (row == null) {
+                    row = new HashMap<>();
+                    rowsToExport.put(time, row);
+                }
+                row.put(type, val);
+                keysEncountered.add(type);
+            }
+        }, exportPeriod);
+        return rowsToExport;
     }
 }

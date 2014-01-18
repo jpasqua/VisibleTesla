@@ -58,7 +58,6 @@ public class NotifierController extends BaseController {
     private static final String NotifySpeedKey = "NOTIFY_SPEED";
     private static final String NotifySOCHitsKey = "NOTIFY_SOC_HITS";
     private static final String NotifySOCFallsKey = "NOTIFY_SOC_FALLS";
-    private static final String NotifyUnpluggedKey = "NOTIFY_UNPLUGGED_AT_TIME";
     
     private static final MailGun mailer = new MailGun("api", "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6");
 
@@ -110,8 +109,6 @@ public class NotifierController extends BaseController {
         // TO DO: Remove this. This should happen automatically by the
         // Trigger which is listening for change events on the property
         // associated with the checkbox
-//        Trigger t = triggerForCB((CheckBox)event.getSource());
-//        if (t != null) t.externalize();
     }
 
 /*------------------------------------------------------------------------------
@@ -211,7 +208,7 @@ public class NotifierController extends BaseController {
             notifyUser(socHitsTrigger.evalPredicate(new BigDecimal(cur.soc)));
             notifyUser(socFallsTrigger.evalPredicate(new BigDecimal(cur.soc)));
             double speed = useMiles ? cur.speed : cur.speed * Utils.mToK(cur.speed);
-            String msg =  (speedHitsTrigger.evalPredicate(new BigDecimal(cur.speed)));
+            String msg =  (speedHitsTrigger.evalPredicate(new BigDecimal(speed)));
             if (msg != null) {
                 if (System.currentTimeMillis() - lastSpeedNotification > 30 * 60 * 1000) {
                     notifyUser(msg);
@@ -225,6 +222,7 @@ public class NotifierController extends BaseController {
         sendNotification(appContext.prefs.notificationAddress.get(), msg);
     }
     
+    private static final int SubjectLength = 30;
     public static void sendNotification(String addr, String msg) {
         if (msg == null) return;
         Tesla.logger.fine("Notification: " + msg);
@@ -233,9 +231,11 @@ public class NotifierController extends BaseController {
                     "Unable to send a notification because no address was specified: " + msg);
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!mailer.send(addr, StringUtils.substring(msg, 80), date + "\n" + msg)) {
-            Tesla.logger.warning(
-                    "Failed sending message to: " + addr + ": " + msg);
+        int msgLen = msg.length();
+        String subject = StringUtils.left(msg, SubjectLength) + (msgLen > SubjectLength ? "..." : "");
+        String body = date + "\n" + msg;
+        if (!mailer.send(addr, subject, body)) {
+            Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
         }
     }
     

@@ -15,13 +15,16 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -33,6 +36,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
@@ -84,6 +88,7 @@ public class MainController extends BaseController {
     private Vehicle         selectedVehicle;
     private InactivityType  inactivityMode;
     private boolean         initialSetup = false;
+    private BooleanProperty forceWakeup = new SimpleBooleanProperty(false);
     
 /*------------------------------------------------------------------------------
  *
@@ -105,6 +110,9 @@ public class MainController extends BaseController {
     @FXML private Tab loginTab;
     @FXML private Tab overviewTab;
     @FXML private Tab tripsTab;
+    @FXML private Pane  wakePane;
+    @FXML private Button  wakeButton;
+    
     private List<Tab> tabs;
     
     @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem;
@@ -162,8 +170,17 @@ public class MainController extends BaseController {
         appContext.inactivityState.addListener(new ChangeListener<InactivityType>() {
             @Override public void changed(
                     ObservableValue<? extends InactivityType> o,
-                    InactivityType ov, InactivityType nv) { setTitle(); }
+                    InactivityType ov, InactivityType nv) {
+                setTitle();
+                // If someone has forced the app awake, treat it as if a user event
+                // occurred. Don't go back to sleep until the Idle Threshold passes.
+                if (nv == InactivityType.Awake && ov != InactivityType.Awake) {
+                    Tesla.logger.info("Resetting Idle start time to now");
+                    timeOfLastEvent = System.currentTimeMillis();
+                }
+            }
         });
+        
         appContext.setInactivityModeListener(new Utils.Callback<InactivityType,Void>() {
             @Override public Void call(InactivityType mode) {
                 setInactivityMode(mode);
@@ -191,7 +208,6 @@ public class MainController extends BaseController {
 
     @Override protected void reflectNewState() { }
 
-    
 /*------------------------------------------------------------------------------
  *
  * Dealing with a Login Event
@@ -208,7 +224,7 @@ public class MainController extends BaseController {
         @Override public void changed(
                 ObservableValue<? extends Boolean> observable,
                 Boolean oldValue, Boolean newValue) {
-            Platform.runLater(new DoLogin(newValue));
+            Platform.runLater(new DoLogin(newValue, false));
         }
     }
 
@@ -238,6 +254,16 @@ public class MainController extends BaseController {
         return vehicleList.get(selectedVehicleIndex);
     }
 
+    private void cacheBasicsInBackground() {
+        issueCommand(new Callable<Result>() {
+            @Override public Result call() {
+                cacheBasics(selectedVehicle);
+                Platform.runLater(completeLogin);
+                return Result.Succeeded;    // This result is not important
+            } },
+            AfterCommand.Nothing);
+    }
+
     private boolean cacheBasics(Vehicle v) {
         GUIState     gs = new GUIState(v);
         VehicleState vs = new VehicleState(v);
@@ -251,7 +277,7 @@ public class MainController extends BaseController {
                 return false;
             
             action.wakeUp();
-            Utils.sleep(5000);
+            Utils.sleep(10000);
             if (appContext.shuttingDown.get()) return false;
             
             if (gs.state == null) gs.refresh();
@@ -265,75 +291,105 @@ public class MainController extends BaseController {
 
     private class DoLogin implements Runnable {
         private final boolean loginSucceeded;
-        DoLogin(boolean loggedin) { loginSucceeded = loggedin; }
+        private final boolean assumeAwake;
         
-        @Override
-        public void run() {
-            if (loginSucceeded) {
+        DoLogin(boolean loggedin, boolean assumeAwake) { 
+            loginSucceeded = loggedin;
+            this.assumeAwake = assumeAwake;
+        }
+        
+        @Override public void run() {
+            if (!loginSucceeded) {
+                selectedVehicle = null;
+                setTabsEnabled(false);
+                return;
+            }
+
+            if (assumeAwake) {
+                wakePane.setVisible(false);
+            } else {
                 selectedVehicle = selectVehicle();
                 Tesla.logger.log(
                         Level.INFO, "Vehicle Info: {0}",
                         selectedVehicle.getUnderlyingValues());
-                
+
                 if (selectedVehicle.status().equals("asleep")) {
                     if (letItSleep()) {
-                        Tesla.logger.log(
-                            Level.INFO, "Allowing vehicle to remain in sleep mode");
-                        Platform.exit();
+                        Tesla.logger.info("Allowing vehicle to remain in sleep mode");
+                        wakePane.setVisible(true);
+                        waitForVehicleToWake();
                         return;
                     } else {
                         Tesla.logger.log(Level.INFO, "Waking up your vehicle");
                     }
                 }
-                
-                boolean disclaimer = appContext.persistentState.getBoolean(
-                        selectedVehicle.getVIN()+"_Disclaimer", false);
-                if (!disclaimer) {
-                    Dialogs.showInformationDialog(
-                            appContext.stage,
-                            "Use this application at your own risk. The author\n" +
-                            "does not guarantee its proper functioning.\n" +
-                            "It is possible that use of this application may cause\n" +
-                            "unexpected damage for which nobody but you are\n" +
-                            "responsible. Use of this application can change the\n" +
-                            "settings on your car and may have negative\n" +
-                            "consequences such as (but not limited to):\n" +
-                            "unlocking the doors, opening the sun roof, or\n" +
-                            "reducing the available charge in the battery.",
-                            "Please Read Carefully", "Disclaimer");
-                }
-                appContext.persistentState.putBoolean(
-                        selectedVehicle.getVIN()+"_Disclaimer", true);                
-                
-                conditionalCheckVersion();
-                                
-                String modeName = appContext.persistentState.get(
-                        selectedVehicle.getVIN()+"_InactivityMode",
-                        InactivityType.Daydream.name());
-                // The names changed, do any required fixup of old stored values!
-                if (modeName.equals("AllowSleeping")) modeName = "Sleep";
-                else if (modeName.equals("AllowDaydreaming")) modeName = "Daydream";
-                else if (modeName.equals("StayAwake")) modeName = "Awake";
-                
-                inactivityMode = InactivityType.valueOf(modeName);
-                setInactivityMenu(inactivityMode);
-
-                issueCommand(new Callable<Result>() {
-                        @Override public Result call() {
-                            if (cacheBasics(selectedVehicle)) {
-                                Platform.runLater(completeLogin);
-                                return Result.Succeeded;
-                            } else {
-                                return Result.Failed;
-                            }
-                        } },
-                        AfterCommand.Nothing);
-
-            } else {
-                selectedVehicle = null;
-                setTabsEnabled(false);
             }
+                
+            showDisclaimer();
+            conditionalCheckVersion();
+            restoreInactivityMode();
+            cacheBasicsInBackground();
         }
+    }
+    
+    private void restoreInactivityMode() {
+        String modeName = appContext.persistentState.get(
+                selectedVehicle.getVIN()+"_InactivityMode",
+                InactivityType.Daydream.name());
+        // The names changed, do any required fixup of old stored values!
+        if (modeName.equals("AllowSleeping")) modeName = "Sleep";
+        else if (modeName.equals("AllowDaydreaming")) modeName = "Daydream";
+        else if (modeName.equals("StayAwake")) modeName = "Awake";
+
+        inactivityMode = InactivityType.valueOf(modeName);
+        setInactivityMenu(inactivityMode);
+    }
+
+    private void showDisclaimer() {
+        boolean disclaimer = appContext.persistentState.getBoolean(
+                selectedVehicle.getVIN()+"_Disclaimer", false);
+        if (!disclaimer) {
+            Dialogs.showInformationDialog(
+                    appContext.stage,
+                    "Use this application at your own risk. The author\n" +
+                    "does not guarantee its proper functioning.\n" +
+                    "It is possible that use of this application may cause\n" +
+                    "unexpected damage for which nobody but you are\n" +
+                    "responsible. Use of this application can change the\n" +
+                    "settings on your car and may have negative\n" +
+                    "consequences such as (but not limited to):\n" +
+                    "unlocking the doors, opening the sun roof, or\n" +
+                    "reducing the available charge in the battery.",
+                    "Please Read Carefully", "Disclaimer");
+        }
+        appContext.persistentState.putBoolean(
+                selectedVehicle.getVIN()+"_Disclaimer", true);                
+    }
+    
+    private void waitForVehicleToWake() {
+        final long TestSleepInterval = 5 * 60 * 1000;
+               
+        Runnable poller = new Runnable() {
+            @Override public void run() {
+                while (selectedVehicle.isAsleep()) {
+                    if (forceWakeup.get()) break;
+                    Utils.sleep(TestSleepInterval);
+                    if (appContext.shuttingDown.get()) return;
+                }
+                forceWakeup.set(false);
+                Platform.runLater(new DoLogin(true, true));
+            }
+        };
+        final Thread pollThread = appContext.launchThread(poller, "00 - Wait For Wakeup");
+        
+        forceWakeup.addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(
+                    ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                if (t1) {
+                    pollThread.interrupt();
+                }
+            }
+        });
     }
     
     private Runnable completeLogin = new Runnable() {
@@ -584,6 +640,10 @@ public class MainController extends BaseController {
                     "Update Check Results", "Checking for Updates");
     }
     
+    @FXML private void wakeButtonHandler(ActionEvent event) {
+        forceWakeup.set(true);
+    }
+
 /*------------------------------------------------------------------------------
  * 
  * This section implements the mechanism that tracks whether the app is idle.
