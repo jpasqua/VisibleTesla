@@ -20,10 +20,12 @@ import org.noroomattheinn.tesla.Tesla;
 public abstract class RW<T> {
     public abstract String toExternal(T value);
     public abstract T fromExternal(String external);
+    public abstract String formatted(T value);
     
     public static final RW<BigDecimal> bdHelper = new BDHelper();
     public static final RW<String> stringHelper = new StringHelper();
 }
+
 
 class BDHelper extends RW<BigDecimal> {
     @Override public String toExternal(BigDecimal value) {
@@ -38,10 +40,15 @@ class BDHelper extends RW<BigDecimal> {
             return new BigDecimal(Double.valueOf(50));
         }
     }
+
+    @Override public String formatted(BigDecimal value) {
+        return String.format("%3.1f", value.doubleValue());
+    }
 }
 
 class StringHelper extends RW<String> {
     @Override public String toExternal(String value) { return value; }
     @Override public String fromExternal(String external) { return external; }
+    @Override public String formatted(String value) { return value; }
 }
 

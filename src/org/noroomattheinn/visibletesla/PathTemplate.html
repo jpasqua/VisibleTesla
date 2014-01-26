@@ -20,8 +20,145 @@
 
 <script type="text/javascript">
     var trips = TRIPS;
+    var snapToRoad = SNAP;
     var includeGraph = INCLUDE_GRAPH;
     var markers = [];
+    var directionsService = new google.maps.DirectionsService();
+    var polyOptions = {
+        strokeColor: '#0088FF',
+        strokeOpacity: 1.0,
+        strokeWeight: 4
+    };
+    var chunks = new Array();
+
+    function handleValidRoute(response, map) {
+        var segmentPoly = new google.maps.Polyline(polyOptions);
+        var segmentPath = segmentPoly.getPath();
+        segmentPoly.setMap(map);
+        var legs = response.routes[0].legs;
+        for (var curLeg = 0; curLeg < legs.length; curLeg++) {
+            var steps = legs[curLeg].steps;
+            for (var curStep = 0; curStep < steps.length; curStep++) {
+                var segments = steps[curStep].path;
+                for (var curSeg = 0; curSeg < segments.length; curSeg++) {
+                    segmentPath.push(segments[curSeg]);
+                }
+            }
+        }
+    }
+
+    function handleZeroResults(request, map) {
+        // Create two new chunks based on this request
+        // ASSERT chunk size will be greater than 2
+        var chunk1 = new Array();
+        var chunk2 = new Array();
+        var curSize = request.waypoints.length;
+        var dividingLine = Math.floor(curSize/2);
+        //console.log("Dividing a chunk in 2");
+        //console.log("    Current # of waypoints = " + curSize);
+        //console.log("    Dividing line = " + dividingLine);
+
+        chunk1.push(request.origin);
+        for (var c1i = 0; c1i <= dividingLine; c1i++) {
+            chunk1.push(request.waypoints[c1i].location);
+        }
+        //console.log("    chunk1.length = " + chunk1.length);
+
+        for (var c2i = dividingLine; c2i < request.waypoints.length; c2i++) {
+            chunk2.push(request.waypoints[c2i].location);
+        }
+        chunk2.push(request.destination);
+        //console.log("    chunk2.length = " + chunk2.length);
+
+        chunks.push(chunk1);
+        chunks.push(chunk2);
+    }
+
+    function handleRetry(request, map) {
+        // Reconstitute a chunk from this request and push it back on the queue
+        var chunk = new Array();
+
+        chunk.push(request.origin);
+        for (var wpi = 0; wpi < request.waypoints.length; wpi++) {
+            chunk.push(request.waypoints[wpi].location);
+        }
+        chunk.push(request.destination);
+
+        chunks.push(chunk);
+    }
+
+
+    function addPathToMap(map) {
+        for (var tripIndex = 0; tripIndex < trips.length; tripIndex++) {
+            var wayPoints = trips[tripIndex];
+
+            if (!snapToRoad) {
+                var poly = new google.maps.Polyline(polyOptions);
+                var path = poly.getPath();
+                poly.setMap(map);
+                for (i = 0; i < wayPoints.length; i++) {
+                    path.push(new google.maps.LatLng(wayPoints[i].lat, wayPoints[i].lng));
+                }
+            } else {
+                // Chunk up the waypoints into groups of 8
+                var WPPC = 8;
+                var startWP = 0;
+                while (startWP < wayPoints.length-1) {
+                    var stopWP = startWP + WPPC + 1;
+                    if (stopWP >= wayPoints.length) stopWP = wayPoints.length - 1;
+                    var thisChunk = new Array();
+                    var indexInChunk = 0;
+                    for (var curWP = startWP; curWP <= stopWP; curWP++) {
+                        thisChunk[indexInChunk++] = new google.maps.LatLng(wayPoints[curWP].lat, wayPoints[curWP].lng);
+                    }
+                    chunks.push(thisChunk);
+                    startWP = stopWP;
+                }
+
+                handleChunk();
+                setInterval(handleChunk, 250);
+            }
+        }
+
+        var nCallsWithNoWork = 0;
+        function handleChunk() {
+            //debugger;
+            var chunk = chunks.shift();
+            if (chunk === undefined) {
+                nCallsWithNoWork++;
+                if (nCallsWithNoWork > 4 * 60 * 2)
+                    clearInterval();
+                return;
+            }
+            nCallsWithNoWork = 0;
+            var request = {
+                origin: chunk[0], 
+                destination: chunk[chunk.length-1],
+                travelMode: google.maps.DirectionsTravelMode.DRIVING,
+                optimizeWaypoints: false,
+                provideRouteAlternatives: false
+            };
+            if (chunk.length > 2) {
+                var wpa = new Array();
+                for (var iwpi = 1; iwpi < chunk.length-1; iwpi++) {
+                    wpa.push( {
+                        location: chunk[iwpi],
+                        stopover:false} ); 
+                }
+                request.waypoints = wpa;
+            }
+            directionsService.route(request, function(response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    handleValidRoute(response, map);
+                } else if (status === google.maps.DirectionsStatus.ZERO_RESULTS) {
+                    handleZeroResults(request, map);
+                } else if (status === google.maps.DirectionsStatus.OVER_QUERY_LIMIT) {
+                    handleRetry(request, map);
+                }
+            });
+        }
+
+    }
     
     function initialize() {
         var mapOptions = {
@@ -30,21 +167,12 @@
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 
-        var polyOptions = {
-            strokeColor: '#0088FF',
-            strokeOpacity: 1.0,
-            strokeWeight: 4
-        };
-
         var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
         var latlngbounds = new google.maps.LatLngBounds();
 
         var wpIndex = 0;
         for (var tripIndex = 0; tripIndex < trips.length; tripIndex++) {
             var wayPoints = trips[tripIndex];
-            var poly = new google.maps.Polyline(polyOptions);
-            var path = poly.getPath();
-            poly.setMap(map);
 
             for (i = 0; i < wayPoints.length; i++) {
                 var pos = new google.maps.LatLng(wayPoints[i].lat, wayPoints[i].lng);
@@ -81,11 +209,10 @@
                 });
 
                 markers.push(thisMarker);
-                path.push(pos);
                 latlngbounds.extend(pos);
             }
         }
-
+        addPathToMap(map);
 
         map.fitBounds(latlngbounds);
         if (!includeGraph)

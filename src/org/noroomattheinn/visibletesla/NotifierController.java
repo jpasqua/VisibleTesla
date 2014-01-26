@@ -11,7 +11,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import javafx.beans.property.ObjectProperty;
@@ -26,12 +25,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import jfxtras.labs.scene.control.BigDecimalField;
-import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.SnapshotState;
-import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.trigger.Predicate;
 import org.noroomattheinn.visibletesla.trigger.Trigger;
@@ -59,8 +55,6 @@ public class NotifierController extends BaseController {
     private static final String NotifySOCHitsKey = "NOTIFY_SOC_HITS";
     private static final String NotifySOCFallsKey = "NOTIFY_SOC_FALLS";
     
-    private static final MailGun mailer = new MailGun("api", "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6");
-
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -126,6 +120,7 @@ public class NotifierController extends BaseController {
     @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle()) {
             // TO DO: Remove old triggers!
+
             socHitsTrigger = new Trigger<>(
                 appContext, socHits.selectedProperty(), RW.bdHelper,
                 "SOC", NotifySOCHitsKey,  Predicate.Type.HitsOrExceeds,
@@ -158,7 +153,19 @@ public class NotifierController extends BaseController {
         useMiles = appContext.lastKnownGUIState.get().distanceUnits.equalsIgnoreCase("mi/hr");
         if (appContext.simulatedUnits.get() != null)
             useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
-        speedUnitsLabel.setText(useMiles ? "mph" : "km/h");
+        if (useMiles) {
+            speedUnitsLabel.setText("mph");
+            speedHitsSlider.setMin(0);
+            speedHitsSlider.setMax(100);
+            speedHitsSlider.setMajorTickUnit(25);
+            speedHitsSlider.setMinorTickCount(4);
+        } else {
+            speedUnitsLabel.setText("km/h");
+            speedHitsSlider.setMin(0);
+            speedHitsSlider.setMax(160);
+            speedHitsSlider.setMajorTickUnit(30);
+            speedHitsSlider.setMinorTickCount(2);
+        }
     }
 
     @Override protected void refresh() { }
@@ -207,7 +214,7 @@ public class NotifierController extends BaseController {
                 SnapshotState.State old, SnapshotState.State cur) {
             notifyUser(socHitsTrigger.evalPredicate(new BigDecimal(cur.soc)));
             notifyUser(socFallsTrigger.evalPredicate(new BigDecimal(cur.soc)));
-            double speed = useMiles ? cur.speed : cur.speed * Utils.mToK(cur.speed);
+            double speed = useMiles ? cur.speed : Utils.mToK(cur.speed);
             String msg =  (speedHitsTrigger.evalPredicate(new BigDecimal(speed)));
             if (msg != null) {
                 if (System.currentTimeMillis() - lastSpeedNotification > 30 * 60 * 1000) {
@@ -219,24 +226,7 @@ public class NotifierController extends BaseController {
     };
     
     public void notifyUser(String msg) {
-        sendNotification(appContext.prefs.notificationAddress.get(), msg);
-    }
-    
-    private static final int SubjectLength = 30;
-    public static void sendNotification(String addr, String msg) {
-        if (msg == null) return;
-        Tesla.logger.fine("Notification: " + msg);
-        if (addr == null || addr.length() == 0) {
-            Tesla.logger.warning(
-                    "Unable to send a notification because no address was specified: " + msg);
-        }
-        String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        int msgLen = msg.length();
-        String subject = StringUtils.left(msg, SubjectLength) + (msgLen > SubjectLength ? "..." : "");
-        String body = date + "\n" + msg;
-        if (!mailer.send(addr, subject, body)) {
-            Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
-        }
+        appContext.sendNotification(appContext.prefs.notificationAddress.get(), msg);
     }
     
     private void bindBidrectional(final BigDecimalField bdf, final Slider slider) {

@@ -22,7 +22,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.utils.MailGun;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -52,7 +51,11 @@ public class PrefsController extends BaseController {
     @FXML private ComboBox<String> graphsTimePeriod;
     @FXML private TextField     customGoogleAPIKey;
     @FXML private CheckBox      useCustomGoogleAPIKey;
+    @FXML private TextField     customMailGunKey;
+    @FXML private CheckBox      useCustomMailGunKey;
     @FXML private TextField     emailForNotifications;
+    @FXML private Slider        fontScaleSlider;
+    @FXML private Label         fontScale;
     
     //
     // Action Handlers
@@ -73,7 +76,7 @@ public class PrefsController extends BaseController {
     }
     
     @FXML void testDelivery(ActionEvent event) {
-        String msg = "Testing delivery from VisibleTesla";
+        String msg = "Testing delivery from VisibleTesla on ";
         String addr = appContext.prefs.notificationAddress.get();
         if (addr == null || addr.length() == 0) {
             Dialogs.showWarningDialog(appContext.stage,
@@ -81,10 +84,12 @@ public class PrefsController extends BaseController {
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        MailGun mailer = new MailGun("api", "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6");
-        if (!mailer.send(addr, "Testing VisibleTesla Delivery", date + "\n" + msg)) {
+        if (!appContext.sendNotification(addr, msg + date)) {
             Dialogs.showWarningDialog(appContext.stage,
-                    "Error delivering your test message. Please check your email address",
+                    "Error delivering your test message.\n" +
+                    "Please check your email address.\n" +
+                    "If you have changed any advanced settings,\n" +
+                    "please double check them  or revert to defaults",
                     "Test Problem");
         } else {
             Dialogs.showInformationDialog(appContext.stage, 
@@ -116,6 +121,9 @@ public class PrefsController extends BaseController {
         bindToCheckBox(offerExperimental, appContext.prefs.offerExperimental);
         bindToCheckBox(useCustomGoogleAPIKey, appContext.prefs.useCustomGoogleAPIKey);
         bindToTextField(customGoogleAPIKey, appContext.prefs.googleAPIKey);
+        bindToCheckBox(useCustomMailGunKey, appContext.prefs.useCustomMailGunKey);
+        bindToTextField(customMailGunKey, appContext.prefs.mailGunKey);
+        bindToIntegerProperty(fontScaleSlider, fontScale, appContext.prefs.fontScale);
     }
     
 /*------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ import org.noroomattheinn.visibletesla.stats.Stat;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.APICall;
 import org.noroomattheinn.tesla.ChargeState;
@@ -41,6 +43,7 @@ import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
+import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -63,10 +66,12 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.25.03";
+    public static final String ProductVersion = "0.25.04";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
+    public static final String MailGunKey = 
+            "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6";
     
     public enum InactivityType {Sleep, Daydream, Awake};
     
@@ -113,7 +118,8 @@ public class AppContext {
     private Utils.Callback<InactivityType,Void> inactivityModeListener;
     private StatsStreamer statsStreamer;
     private final Map<String,StatsPublisher> typeToPublisher = new HashMap<>();
-
+    private MailGun mailer = null;
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -145,7 +151,8 @@ public class AppContext {
         this.prefs = new Prefs(this);
         
         appFilesFolder = ensureAppFilesFolder();
-        
+        mailer = new MailGun("api",  prefs.useCustomMailGunKey.get() ?
+                prefs.mailGunKey.get() : MailGunKey);
         establishProxy();
     }
 
@@ -199,6 +206,26 @@ public class AppContext {
         StatsPublisher sp = typeToPublisher.get(type);
         if (sp == null) return null;
         return sp.valuesForRange(type, startX, endX);
+    }
+    
+    private static final int SubjectLength = 30;
+    public boolean sendNotification(String addr, String msg) {
+        if (msg == null) return true;
+        Tesla.logger.fine("Notification: " + msg);
+        if (addr == null || addr.length() == 0) {
+            Tesla.logger.warning(
+                    "Unable to send a notification because no address was specified: " + msg);
+            return false;
+        }
+        String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
+        int msgLen = msg.length();
+        String subject = StringUtils.left(msg, SubjectLength) + (msgLen > SubjectLength ? "..." : "");
+        String body = date + "\n" + msg;
+        if (!mailer.send(addr, subject, body)) {
+            Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
+            return false;
+        }
+        return true;
     }
     
 /*------------------------------------------------------------------------------

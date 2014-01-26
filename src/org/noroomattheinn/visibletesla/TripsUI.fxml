@@ -45,7 +45,13 @@
       </image>
     </ImageView>
     <Button id="mapItButton" fx:id="exportItButton" layoutX="489.0" layoutY="29.0" mnemonicParsing="false" onAction="#exportItHandler" prefWidth="138.5" style="-fx-base: #b6e7c9" styleClass="squareBottomRight" text="Export It!" />
-    <CheckBox fx:id="includeGraph" layoutX="178.0" layoutY="364.0" mnemonicParsing="false" text="Include graph in Map?" />
+    <CheckBox fx:id="includeGraph" layoutX="168.0" layoutY="364.0" mnemonicParsing="false" text="Include graph in Map?" />
+    <CheckBox id="includeGraph" fx:id="snapToRoad" layoutX="168.0" layoutY="344.0" mnemonicParsing="false" text="Snap to road" />
+    <Label layoutX="272.0" layoutY="345.0" text="Experimental" textFill="RED">
+      <font>
+        <Font size="10.0" />
+      </font>
+    </Label>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

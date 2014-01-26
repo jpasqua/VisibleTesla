@@ -39,18 +39,13 @@ public class Target<T extends Comparable<T>> {
         this.th = th;
     }
 
-    public String toExternal() {
-        return th.toExternal(property.get());
-    }
+    public String toExternal() { return th.toExternal(property.get()); }
+    public String formatted() { return th.formatted(property.get()); }
+    public String dfltToExternal() { return th.toExternal(dflt); }
+    
+    public T fromExternal(String external) { return th.fromExternal(external); }
 
-    public String dfltToExternal() {
-        return th.toExternal(dflt);
-    }
-
-    public T fromExternal(String external) {
-        return th.fromExternal(external);
-    }
-
+    
     public T get() { return property.get(); }
     public void set(T newVal) { property.set(newVal); }
     

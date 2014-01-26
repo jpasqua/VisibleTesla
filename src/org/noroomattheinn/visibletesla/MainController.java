@@ -6,6 +6,10 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -87,8 +91,8 @@ public class MainController extends BaseController {
     private Tesla           tesla;
     private Vehicle         selectedVehicle;
     private InactivityType  inactivityMode;
-    private boolean         initialSetup = false;
     private BooleanProperty forceWakeup = new SimpleBooleanProperty(false);
+    private FileLock        instanceLock = null;
     
 /*------------------------------------------------------------------------------
  *
@@ -162,6 +166,13 @@ public class MainController extends BaseController {
                 prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
                 hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
         for (Tab t : tabs) { controllerFromTab(t).setAppContext(appContext); }
+        int fontScale = appContext.prefs.fontScale.get();
+        if (fontScale != 100) {
+            for (Tab t : tabs) { 
+                Node n = t.getContent();
+                n.setStyle(String.format("-fx-font-size: %d%%;", fontScale));
+            }
+        }
         
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
         lc.getLoginCompleteProperty().addListener(new HandleLoginEvent());
@@ -213,7 +224,7 @@ public class MainController extends BaseController {
  * Dealing with a Login Event
  * 
  *----------------------------------------------------------------------------*/
-    
+
     /**
      * Whenever we try to login, a boolean property is set with the result of
      * the attempt. We monitor changes on that boolean property and if we see
@@ -251,7 +262,18 @@ public class MainController extends BaseController {
             selectedVehicleIndex = cars.indexOf(selection);
             if (selectedVehicleIndex == -1) { selectedVehicleIndex = 0; }
         }
-        return vehicleList.get(selectedVehicleIndex);
+        Vehicle v = vehicleList.get(selectedVehicleIndex);
+        if (!obtainVehicle(v)) {
+            Dialogs.showErrorDialog(appContext.stage,
+                    "There appears to be another copy of VsibleTesla\n" +
+                    "running on this computer and trying to talk\n" +
+                    "to the same car. That can cause problems and\n" +
+                    "is not allowed\n\n"+
+                    "VisibleTesla will close when you close this window.",
+                    "Multiple Copies of VisibleTesla", "Problem launching application");
+            Platform.exit();
+        }
+        return v;
     }
 
     private void cacheBasicsInBackground() {
@@ -425,6 +447,21 @@ public class MainController extends BaseController {
  * Private Utility Methods - General
  * 
  *----------------------------------------------------------------------------*/
+    
+    //private void releaseVehicle(Vehicle v) { }
+    
+    private boolean obtainVehicle(Vehicle v) {
+        String lockFileName = v.getVIN() + ".lck";
+        File lockFile = new File(appContext.appFilesFolder, lockFileName);
+        try {
+            RandomAccessFile raf = new RandomAccessFile(lockFile, "rw");
+            instanceLock = raf.getChannel().tryLock();
+        } catch (IOException ex ) {
+            Tesla.logger.severe(ex.getMessage());
+        }
+        return instanceLock != null;
+    }
+    
     
     private void setupProxy() {
         if (appContext.prefs.enableProxy.get()) {

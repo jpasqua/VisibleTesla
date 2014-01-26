@@ -173,7 +173,11 @@ public class LocationController extends BaseController {
         SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(MapTemplateFileName));
         return template.fillIn(
                 "DIRECTION", heading, "LAT", lat, "LONG", lng,
-                "GMAP_API_KEY", appContext.prefs.googleAPIKey.get());
+                "GMAP_API_KEY", 
+                appContext.prefs.useCustomGoogleAPIKey.get() ?
+                    appContext.prefs.googleAPIKey.get() :
+                    AppContext.GoogleMapsAPIKey
+                );
     }
     
 /*------------------------------------------------------------------------------

@@ -14,7 +14,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.channels.FileLock;
+//import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class StatsRepository {
     private final List<Stat> entriesSinceLastFlush = new ArrayList<>();
     
     private PrintStream statsWriter;
-    private FileLock repoLock = null;
+    //private FileLock repoLock = null;
     
 /*==============================================================================
  * -------                                                               -------
@@ -206,33 +206,24 @@ public class StatsRepository {
     
     private boolean prepRepository() {
         releaseWriter();
-        FileOutputStream fos = obtainLockedStream();
+        FileOutputStream fos = obtainStream();
         if (fos == null) return false;
         statsWriter = new PrintStream(fos);
         return (statsWriter != null);
     }
     
-    private FileOutputStream obtainLockedStream() {
+    private FileOutputStream obtainStream() {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(statsFile, true);
-            repoLock = fos.getChannel().tryLock();
         } catch (IOException e) {
             Tesla.logger.warning("Unable to obtain lock on StatsRepository: " + e.toString());
-            repoLock = null;
         }
-        return (repoLock == null) ? null : fos;
+        return fos;
     }
     
     private void releaseWriter() {
-        if (statsWriter == null) return;
-        try {
-            repoLock.release();
-            repoLock = null;
-        } catch (IOException e) {
-            Tesla.logger.warning("Unable to release lock on StatsRepository: " + e.toString());
-        }
-        statsWriter.close();
+        if (statsWriter != null)  statsWriter.close();
     }
     
     private BufferedReader getReaderForFile(File file) {

@@ -157,7 +157,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             // fetch the charge state again and double check.
             Utils.sleep(1000);
             if (charge.refresh() && charge.state.chargerPilotCurrent < 1) {
-                NotifierController.sendNotification(
+                appContext.sendNotification(
                     appContext.prefs.notificationAddress.get(),
                     "Your car is not plugged in!");
                 return new Result(true, "Vehicle is unplugged. Notification sent");

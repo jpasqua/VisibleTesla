@@ -47,6 +47,9 @@ public class Prefs {
     public IntegerProperty  proxyPort = new SimpleIntegerProperty();
     public BooleanProperty  useCustomGoogleAPIKey = new SimpleBooleanProperty();
     public StringProperty   googleAPIKey = new SimpleStringProperty();
+    public BooleanProperty  useCustomMailGunKey = new SimpleBooleanProperty();
+    public StringProperty   mailGunKey = new SimpleStringProperty();
+    public IntegerProperty  fontScale = new SimpleIntegerProperty();
     
     private static final String AppFilesFolderKey = "APP_AFF";
     private static final String WakeOnTCKey = "APP_WAKE_ON_TC";
@@ -57,6 +60,9 @@ public class Prefs {
     private static final String ProxyPortKey = "APP_PROXY_PORT";
     private static final String UseCustomGoogleKey = "APP_USE_CUSTOM_GKEY";
     private static final String CustomGoogleKey = "APP_CUSTOM_GKEY";
+    private static final String UseCustomMailGunKey = "APP_USE_CUSTOM_MGKEY";
+    private static final String CustomMailGunKey = "APP_CUSTOM_MGKEY";
+    private static final String FontScaleKey = "APP_FONT_SCALE";
     
     private void loadGeneralPrefs() {
         booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
@@ -68,6 +74,9 @@ public class Prefs {
         integerPref(ProxyPortKey, proxyPort, 8080);
         booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
         stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
+        booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
+        stringPref(CustomMailGunKey, mailGunKey, AppContext.MailGunKey);
+        integerPref(FontScaleKey, fontScale, 100);
     }
     
 /*------------------------------------------------------------------------------

@@ -60,13 +60,25 @@
                 <li>If you select a car marker in the map, it will select the corresponding data points in the chart.
                 </li>
             </ul>
+            <h2>
+                Snap to road
+            </h2>
             <p>
-                The following screen shot shows a sample map/graph. Note that one of the map markers has been selected (shown as a large yellow marker) and the corresponding entries are marked in the graph.
+                The following screen shot shows a sample map/graph. Note that one of the map markers has been selected (shown as a large yellow marker) and the corresponding entries are marked in the graph. You'll notice that the path displayed is "as the crow flys." That is, the path shows straight lines between markers regardless of whether those lines actually correspond to roads. If you select the <span class="ui">Snap to road</span> option, then VisibleTesla will do it's best to make the path track roadways. VisibleTesla has no way to know your actual path between markers, so this is just a guess and can be wrong. Additionally, there may be no guess available for times when you are driving in areas without defined roads such as parking lots.
             </p>
             <center>
                 <a href="../images/23_Trips_Sample_Map.png" target="_blank"><img width="256" height="256" class="screenshot" src="../images/23_Trips_Sample_Map.png" alt="sample map"><br>
                 Click to enlarge</a>
             </center>
+            <p>
+                This process requires the use of a Google service which is rate limited and may be slow as a result. The setting for <span class="ui">Snap to road</span> is not remembered between runs of VisibleTesla. This may change in the future. The images below show a portion of the same route displayed without (left) and with (right) the <span class="ui">Snap to road</span> option selected.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/25_SnapToRoad.png" alt="map comparison">
+            </p>
+            <h2>
+                Using Google Earth
+            </h2>
             <p>
                 You'll notice that next to the "Map it!" button there is also an <span class="ui">Export It!</span> button. This is very similar except that instead of opening a Google Map, it will create a ".kmz" file which is input to Google Earth. Among other things, this will allow you to visualize your elevation profile over the course of the selected trip and let you watch your motion through the trip. <i>This guide does not describe Google Earth. It provides only a basic overview.</i> The steps involved are as follows:
             </p>

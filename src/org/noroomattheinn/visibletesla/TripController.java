@@ -105,6 +105,7 @@ public class TripController extends BaseController {
     @FXML private Button exportItButton;
     @FXML private ListView<String> availableTripsView;
     @FXML private CheckBox includeGraph;
+    @FXML private CheckBox snapToRoad;
     
     // The Property TableView and its Columns
     @FXML private TableView<GenericProperty> propertyTable;
@@ -381,7 +382,10 @@ public class TripController extends BaseController {
                 "EL_UNITS", useMiles ? "feet" : "meters",
                 "SP_UNITS", useMiles ? "mph" : "km/h",
                 "INCLUDE_GRAPH", includeGraph.isSelected() ? "true" : "false",
-                "GMAP_API_KEY", appContext.prefs.googleAPIKey.get());
+                "SNAP", snapToRoad.isSelected() ? "true" : "false",
+                "GMAP_API_KEY", appContext.prefs.useCustomGoogleAPIKey.get() ?
+                    appContext.prefs.googleAPIKey.get() :
+                    AppContext.GoogleMapsAPIKey);
     }
     
 /*------------------------------------------------------------------------------

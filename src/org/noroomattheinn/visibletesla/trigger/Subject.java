@@ -42,6 +42,9 @@ public class Subject<T extends Comparable<T>> {
     public String toExternal() {
         return value == null ? "" : th.toExternal(value);
     }
+    public String formatted() {
+        return value == null ? "" : th.formatted(value);
+    }
     
     public String getName() { return name; }
     public String getKey() { return key; }

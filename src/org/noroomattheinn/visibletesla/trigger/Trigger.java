@@ -114,25 +114,25 @@ public class Trigger<T extends Comparable<T>> {
                     case FallsBelow:
                         return String.format("%s %s %s. Current value: %s",
                             subject.getName(), predicate.toString(),
-                            target.toExternal(), subject.toExternal());
+                            target.formatted(), subject.formatted());
                     case Becomes:
                         return String.format("%s became: %s",
-                            subject.getName(), subject.toExternal());
+                            subject.getName(), subject.formatted());
                     case AnyChange:
                         return String.format("%s Activity: %s",
-                            subject.getName(), subject.toExternal());
+                            subject.getName(), subject.formatted());
                     case EQ:
                     case LT:
                     case GT:
                         return String.format("%s %s %s",
-                            subject.getName(), predicate.toString(), target.toExternal());
+                            subject.getName(), predicate.toString(), target.formatted());
                 }
                 // If we ever get here it is a bug in the code - I added a type
                 // and didn't account for it in the switch. Do something useful...
                 return String.format(
                         "%s %s %s. Current value: %s",
                         subject.getName(), predicate.toString(),
-                        target.toExternal(), subject.toExternal());
+                        target.formatted(), subject.formatted());
             }
         }
         return null;
