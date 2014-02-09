@@ -112,7 +112,7 @@ public class Trigger<T extends Comparable<T>> {
                 switch (type) {
                     case HitsOrExceeds:
                     case FallsBelow:
-                        return String.format("%s %s %s. Current value: %s",
+                        return String.format("%s %s %s (%s)",
                             subject.getName(), predicate.toString(),
                             target.formatted(), subject.formatted());
                     case Becomes:
@@ -129,8 +129,9 @@ public class Trigger<T extends Comparable<T>> {
                 }
                 // If we ever get here it is a bug in the code - I added a type
                 // and didn't account for it in the switch. Do something useful...
+                Tesla.logger.severe("Unexpected Predicate type in evalPredicate: " + type);
                 return String.format(
-                        "%s %s %s. Current value: %s",
+                        "%s %s %s (%s)",
                         subject.getName(), predicate.toString(),
                         target.formatted(), subject.formatted());
             }

@@ -15,52 +15,45 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.NotifierController">
   <children>
-    <Label text="Notifications" textAlignment="CENTER" AnchorPane.leftAnchor="241.0" AnchorPane.topAnchor="14.0">
-      <font>
-        <Font name="System Bold" size="24.0" />
-      </font>
-    </Label>
-    <VBox id="VBox" alignment="CENTER" spacing="10.0" style="" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="63.0">
+    <VBox id="VBox" alignment="CENTER" spacing="10.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="60.0">
       <children>
-        <VBox id="VBox" alignment="CENTER" spacing="5.0">
+        <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
           <children>
-            <HBox id="HBox" alignment="BASELINE_LEFT" spacing="20.0">
-              <children>
-                <CheckBox fx:id="socHits" mnemonicParsing="false" prefWidth="172.0" text="SOC Hits or Exceeds" />
-                <Slider fx:id="socHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
-                <BigDecimalField fx:id="socHitsField" prefWidth="80.0" />
-              </children>
-            </HBox>
-            <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="20.0">
-              <children>
-                <CheckBox fx:id="socFalls" mnemonicParsing="false" prefWidth="172.0" text="SOC Falls Below" />
-                <Slider fx:id="socFallsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
-                <BigDecimalField fx:id="socFallsField" prefWidth="80.0" />
-              </children>
-            </HBox>
-            <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="369.0" spacing="20.0">
-              <children>
-                <CheckBox fx:id="chargeState" mnemonicParsing="false" prefWidth="172.0" text="Charge State Becomes" />
-                <ComboBox fx:id="csOptions" value="Complete">
-                  <items>
-                    <FXCollections fx:factory="observableArrayList">
-                      <String fx:value="Charging" />
-                      <String fx:value="Complete" />
-                      <String fx:value="Disconnected" />
-                      <String fx:value="Stopped" />
-                      <String fx:value="Unknown" />
-                      <String fx:value="Anything" />
-                    </FXCollections>
-                  </items>
-                </ComboBox>
-              </children>
-            </HBox>
+            <CheckBox fx:id="socHits" mnemonicParsing="false" prefWidth="164.0" text="SOC Hits or Exceeds" />
+            <Slider fx:id="socHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+            <BigDecimalField fx:id="socHitsField" prefWidth="80.0" />
           </children>
-        </VBox>
-        <Line endX="440.0" endY="0.0" startX="-150.0" />
-        <HBox id="HBox" alignment="BASELINE_LEFT" spacing="20.0">
+        </HBox>
+        <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
           <children>
-            <CheckBox fx:id="speedHits" mnemonicParsing="false" prefWidth="172.0" text="Speed Hits or Exceeds" />
+            <CheckBox fx:id="socFalls" mnemonicParsing="false" prefWidth="164.0" text="SOC Falls Below" />
+            <Slider fx:id="socFallsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+            <BigDecimalField fx:id="socFallsField" prefWidth="80.0" />
+          </children>
+        </HBox>
+        <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="369.0" spacing="15.0">
+          <children>
+            <CheckBox fx:id="chargeState" mnemonicParsing="false" prefWidth="164.0" text="Charge State Becomes" />
+            <ComboBox fx:id="csOptions" value="Complete">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Charging" />
+                  <String fx:value="Complete" />
+                  <String fx:value="Disconnected" />
+                  <String fx:value="Stopped" />
+                  <String fx:value="Starting" />
+                  <String fx:value="NoPower" />
+                  <String fx:value="Unknown" />
+                  <String fx:value="Anything" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <Line endX="440.0" endY="0.0" startX="-150.0" />
+        <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
+          <children>
+            <CheckBox fx:id="speedHits" mnemonicParsing="false" prefWidth="164.0" text="Speed Hits or Exceeds" />
             <Slider fx:id="speedHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
             <BigDecimalField fx:id="speedHitsField" prefWidth="80.0" />
             <Label fx:id="speedUnitsLabel" text="mph" />
@@ -73,10 +66,12 @@
           </children>
         </HBox>
       </children>
-      <padding>
-        <Insets bottom="10.0" top="10.0" />
-      </padding>
     </VBox>
+    <Label text="Notifications" textAlignment="CENTER" AnchorPane.leftAnchor="241.0" AnchorPane.topAnchor="14.0">
+      <font>
+        <Font name="System Bold" size="24.0" />
+      </font>
+    </Label>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

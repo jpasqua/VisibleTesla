@@ -81,9 +81,14 @@ public class LocationStore extends DataStore {
     private boolean tooClose(SnapshotState.State wp1, SnapshotState.State wp2) {
         if (wp1 == null || wp2 == null) return false;
         
-        // A big turn makes it "far"
+        double meters = GeoUtils.distance(wp1.estLat, wp1.estLng, wp2.estLat, wp2.estLng);
+        
+        
+        // A big turn makes it "far". Note that heading changes can be spurious.
+        // Sometimes we see heading changes when the car is sitting still.
+        // Ignore those.
         double turn =  180.0 - Math.abs((Math.abs(wp1.heading - wp2.heading)%360.0) - 180.0);
-        if (turn > 10) return false; 
+        if (turn > 10 && meters > 0.05) return false; 
         
         // A long time between readings makes it "far"
         long timeDelta = Math.abs(wp1.timestamp - wp2.timestamp);
@@ -93,7 +98,6 @@ public class LocationStore extends DataStore {
         if (timeDelta < appContext.prefs.locMinTime.get() * 1000)  return true; 
         
         // A short distance between readings makes it "too close"
-        double meters = GeoUtils.distance(wp1.estLat, wp1.estLng, wp2.estLat, wp2.estLng);
         return (meters < appContext.prefs.locMinDist.get());
     }
  

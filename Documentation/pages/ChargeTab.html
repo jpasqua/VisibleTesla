@@ -45,7 +45,7 @@
                             Current
                         </td>
                         <td>
-                            The amount of current being supplied to the vehicle. If it is a European vehicle, VsibleTesla will check  whether the connected power is 3-phase. If it is 3-phase, a (3) will be displayed after the word "Current".
+                            The amount of current being supplied to the vehicle. If it is a European vehicle, VsibleTesla will check  whether the connected power is 3-phase. If it is 3-phase, a ③ will be displayed after the word "Current".
                         </td>
                     </tr>
                     <tr>
@@ -77,7 +77,7 @@
                             State
                         </td>
                         <td>
-                            Charging, Complete, Disconnected or Unknown
+                            Charging, Complete, Disconnected, Stopped, Starting, NoPower or Unknown
                         </td>
                     </tr>
                     <tr>
@@ -117,7 +117,7 @@
                             # Range Charges
                         </td>
                         <td>
-                            The number of consecutive range charges since the last standard charge. If you range charge three times in a row, this will display '3'. If you perform a Standard charge, it will be reset to 0.
+                            The number of consecutive range charges since the last standard charge. If you range charge three times in a row, this will display '3'. If you perform a Standard charge, it will be reset to 0. This count is not maintained by VisibleTesla. It is maintained by your car. The count is only incremented if your range charge completes. Even if it reaches 99% and you stop the charge, your car will not count this as a complete range charge. VisibleTesla cannot change this behavior.
                         </td>
                     </tr>
                     <tr>
@@ -152,18 +152,17 @@
                             The car's estimate of remaining range based on a fixed energy consumption in Watt-hours/mile (whpm) at a specified average speed. The fixed whpm is a figure determined by Tesla and is not country specific. The average speed is a figure determined by Tesla and is not country specific.
                         </td>
                     </tr>
-                    <tr>
-                        <td>
-                            <b>Note</b>
-                        </td>
-                        <td>
-                            It has been discovered that the range is derived slightly differently while the car is being charged vs. when it is not. This can cause the range to seem to drop by a small amount immediately after charging stops.
-                        </td>
-                    </tr>
                 </tbody>
             </table>
+            <p>Notes: <ul>
+                <li>It has been discovered that the range is derived slightly differently while the car is being charged vs. when it is not. This can cause the range to seem to drop by a small amount immediately after charging stops.
+                </li>
+                <li>When charging with a 3-phase current source, the interpretation of some of these fields may not seem to be correct. Note that VisibleTesla does not compute any of the values reported here. It simply displays the values reported by your car.
+                </li>
+            </ul>
+            </p>
             <p>
-                The following screen shot shows the car when connected to a power source but not charging. Note that below the "Charging Data" table there is an indication that the car has a charge scheduled. This refers to the car's charge scheduler, not to the Scheduler Tab.
+                The following screen shot shows the car when connected to a power source but not charging. Note that below the "Charging Data" table there is an indication that the car has a charge scheduled. This refers to the car's charge scheduler, not to the <a href="SchedulerTab.html">Scheduler Tab</a>.
             </p><img class="screenshot" src="../images/08_Charge_Plugged_In.png">
             <p>
                 The final screen shot shows the Tab while charging is in progress.

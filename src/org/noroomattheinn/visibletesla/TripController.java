@@ -69,6 +69,7 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static final String IncludeGraphKey = "TR_INCLUDE_GRAPH";
+    private static final String SnapToRoadKey = "TR_SNAP";
     private static final String PathTemplateFileName = "PathTemplate.html";
     private static final String CarIconResource = "org/noroomattheinn/TeslaResources/02_loc_arrow@2x.png";
     private static final double KilometersPerMile = 1.60934;
@@ -223,6 +224,12 @@ public class TripController extends BaseController {
             }
         });
         
+        snapToRoad.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                appContext.persistentState.putBoolean(SnapToRoadKey, t1);
+            }
+        });
+        
         // Prepare the property table
         propNameCol.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("name") );
         propStartCol.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("value") );
@@ -260,6 +267,8 @@ public class TripController extends BaseController {
         if (differentVehicle()) {
             includeGraph.setSelected(
                     appContext.persistentState.getBoolean(IncludeGraphKey, false));
+            snapToRoad.setSelected(
+                    appContext.persistentState.getBoolean(SnapToRoadKey, false));
             readTrips();
         }
         
@@ -493,11 +502,14 @@ public class TripController extends BaseController {
     
     private boolean tooClose(WayPoint wp1, WayPoint wp2, double maxTurn, long minTime, int minDist) {
         double turn =  180.0 - Math.abs((Math.abs(wp1.heading - wp2.heading)%360.0) - 180.0);
-        if (turn > maxTurn) return false;
+        double meters = GeoUtils.distance(wp1.lat, wp1.lng, wp2.lat, wp2.lng);
+
+        // Sometimes we get spurious heading changes even when the car is sitting
+        // still. Ignore those. Use ~2 inches as stationary.
+        if (turn > maxTurn && meters > 0.05) return false;
         
         if (Math.abs(wp1.timestamp - wp2.timestamp) < minTime)  return true;
         
-        double meters = GeoUtils.distance(wp1.lat, wp1.lng, wp2.lat, wp2.lng);
         return (meters < minDist);
     }
     

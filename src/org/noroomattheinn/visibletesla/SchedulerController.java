@@ -190,8 +190,8 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             ObservableMap<Object,Object> props = kid.getProperties();
             int columnNumber = getRowOrColumn(kid, false);
             int rowNumber = getRowOrColumn(kid, true);
-            if (rowNumber <= 0)
-                continue;   // Row 0 is the header, -1 isn't in the grid
+            if (rowNumber < 0)
+                continue;   // -1 isn't in the grid
             rowNumber--;
             Map<Integer,Node> thisRow = rowMap.get(rowNumber);
             if (thisRow == null) {

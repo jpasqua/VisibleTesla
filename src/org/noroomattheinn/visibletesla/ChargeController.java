@@ -245,8 +245,7 @@ public class ChargeController extends BaseController {
             case Complete:
             case Charging:
                 batteryGauge.setCharging(true); break;
-            case Disconnected:
-            case Unknown:
+            default:
                 batteryGauge.setCharging(false); break;
         }
         batteryPercentLabel.setText(String.valueOf(charge.state.batteryPercent));
