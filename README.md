@@ -13,9 +13,9 @@ This software and documentation do not come from Tesla Motors Inc.
 Use this application at your own risk. The author does not guarantee its proper functioning. This application attempts to use the same interfaces used by the official Tesla apps. However, it is possible that use of this application may cause unexpected damage for which nobody but you are responsible. Use of this application can change the settings on your car and may have negative consequences such as (but not limited to) unlocking the doors, opening the sun roof, or reducing the available charge in the battery.
 
 #Contributors
-Joe Pasqua (https://github.com/jpasqua): Author  
-Alex Karahalios (https://github.com/araxara): Mac App Bundling  
-Sune Jakobsson (https://github.com/sunejak): Testing and Several Bug Fixes
+Joe Pasqua ( https://github.com/jpasqua ): Author  
+Alex Karahalios ( https://github.com/araxara ): Mac App Bundling  
+Sune Jakobsson ( https://github.com/sunejak ): Testing and Several Bug Fixes
 
 #Preparing your build environment
 
@@ -33,7 +33,7 @@ This project assumes a directory structure that looks like this:
 		google-guava
 		appbundler-1.0.jar	-- Optional if you want to create Mac OS X bundled application
 
-The Tesla/VisibleTesla directory corrsponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
+The Tesla/VisibleTesla directory corresponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
 [TeslaClient](https://github.com/jpasqua/TeslaClient.git)
 
 Once you have installed the TeslaClient project you'll have most of what you need. To get the rest, you can use the following commands to populate the hierarchy. It assumes that:
