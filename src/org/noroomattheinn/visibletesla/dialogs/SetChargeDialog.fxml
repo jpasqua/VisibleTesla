@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="122.0" prefWidth="409.0" style="-fx-background-color: #999;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.dialogs.SetChargeDialog">
+  <children>
+    <HBox id="HBox" alignment="CENTER" layoutX="19.0" layoutY="53.0" spacing="5.0">
+      <children>
+        <Label text="Jump To:" />
+        <Hyperlink fx:id="stdLink" onAction="#rangeLinkHandler" text="Standard">
+          <textFill>
+            <Color blue="0.800" green="0.000" red="0.064" fx:id="x1" />
+          </textFill>
+        </Hyperlink>
+        <Hyperlink fx:id="maxLink" onAction="#rangeLinkHandler" text="Max" textFill="$x1" />
+      </children>
+    </HBox>
+    <Slider fx:id="chargeSlider" majorTickUnit="10.0" max="100.0" min="50.0" minorTickCount="4" prefWidth="333.0" showTickLabels="true" showTickMarks="true" value="90.0" visible="true" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+    <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#buttonHandler" text="OK" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+    <Button id="okButton" fx:id="cancelButton" cancelButton="true" defaultButton="false" mnemonicParsing="false" onAction="#buttonHandler" text="Cancel" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="62.0" />
+    <HBox id="HBox" alignment="CENTER" prefWidth="41.0" spacing="5.0" style="    -fx-border-insets: 0;&#10;    -fx-border-width: 2px;&#10;    -fx-border-color: #111 lightgray lightgray #111;&#10;-fx-background-color: #eee&#10;" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="18.0">
+      <children>
+        <Label id="driverTempLabel" fx:id="chargeLabel" alignment="BASELINE_RIGHT" prefWidth="62.0" text="100" />
+      </children>
+    </HBox>
+    <CheckBox fx:id="useCarSetpoint" mnemonicParsing="false" text="Use the car's set point" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" />
+  </children>
+  <stylesheets>
+    <URL value="@../../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>

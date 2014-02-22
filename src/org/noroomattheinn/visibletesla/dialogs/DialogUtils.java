@@ -4,10 +4,11 @@
  * Created: Aug 31, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.dialogs;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Level;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -24,7 +25,7 @@ import org.noroomattheinn.tesla.Tesla;
 
 public class DialogUtils {
 
-    public static DialogController displayDialog(URL fxmlResource, String title, Stage owner) {
+    public static DialogController displayDialog(URL fxmlResource, String title, Stage owner, Map props) {
         try {
             // Load the fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(fxmlResource);
@@ -37,6 +38,7 @@ public class DialogUtils {
             dialogStage.setScene(scene);
             DialogController controller = loader.getController();
             controller.setStage(dialogStage);
+            controller.setProps(props);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
@@ -51,5 +53,6 @@ public class DialogUtils {
     
     public static interface DialogController {
         void setStage(Stage dialogStage);
+        void setProps(Map props);
     }
 }

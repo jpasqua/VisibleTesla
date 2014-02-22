@@ -106,6 +106,9 @@ public class OverviewController extends BaseController {
     @FXML private Label odometerLabel;
     @FXML private Button vinButton;
     
+    // Emblem Images
+    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg;
+    
     //
     // Controls
     //
@@ -241,6 +244,7 @@ public class OverviewController extends BaseController {
         updateDoorView();
         updateOdometer();
         updateChargePort();
+        updateEmblem();
     }
     
     
@@ -344,6 +348,23 @@ public class OverviewController extends BaseController {
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
         greenGlowImage.setVisible(charge.state.chargingState == ChargeState.Status.Charging);
+    }
+    
+    private void updateEmblem() {
+        s60Img.setVisible(false);
+        s85Img.setVisible(false);
+        p85Img.setVisible(false);
+        p85pImg.setVisible(false);
+        Options o = vehicle.getOptions();
+        if (o.isPerfPlus()) {
+            p85pImg.setVisible(true);
+        } else if (o.isPerformance()) {
+            p85Img.setVisible(true);
+        } else if (o.batteryType() == Options.BatteryType.BT85) {
+            s85Img.setVisible(true);
+        } else {
+            s60Img.setVisible(true);
+        }
     }
     
     private void updateOdometer() {

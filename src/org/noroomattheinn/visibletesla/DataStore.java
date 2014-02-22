@@ -5,6 +5,8 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
+import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Range;
@@ -207,8 +209,8 @@ public abstract class DataStore implements StatsPublisher {
     
     protected final Range<Long> getExportPeriod() {
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
-            getClass().getResource("DateRangeDialog.fxml"),
-            "Date Range for Export", appContext.stage);
+            getClass().getResource("dialogs/DateRangeDialog.fxml"),
+            "Date Range for Export", appContext.stage, null);
         if (dc == null) return null;
         DateRangeDialog drd = Utils.cast(dc);
         if (drd.selectedAll()) {

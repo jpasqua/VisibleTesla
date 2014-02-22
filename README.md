@@ -33,7 +33,7 @@ This project assumes a directory structure that looks like this:
 		google-guava
 		appbundler-1.0.jar	-- Optional if you want to create Mac OS X bundled application
 
-The Tesla/VisibleTesla directory corrsponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
+The Tesla/VisibleTesla directory corresponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
 [TeslaClient](https://github.com/jpasqua/TeslaClient.git)
 
 Once you have installed the TeslaClient project you'll have most of what you need. To get the rest, you can use the following commands to populate the hierarchy. It assumes that:

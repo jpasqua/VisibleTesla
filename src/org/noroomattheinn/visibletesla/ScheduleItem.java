@@ -6,9 +6,14 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
+import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
+import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import it.sauronsoftware.cron4j.Scheduler;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import javafx.beans.value.ChangeListener;
@@ -16,10 +21,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 
 
@@ -42,7 +49,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
 
     public enum Command {
         HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, AWAKE, SLEEP, DAYDREAM,
-        CHARGE_STD, CHARGE_MAX, CHARGE_MIN, UNPLUGGED, None}
+        UNPLUGGED, SET, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
         commandMap.put(Command.HVAC_ON, "HVAC: On");
@@ -52,25 +59,27 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         commandMap.put(Command.AWAKE, "Awake");
         commandMap.put(Command.SLEEP, "Sleep");
         commandMap.put(Command.DAYDREAM, "Daydream");
-        commandMap.put(Command.CHARGE_STD, "Charge: Std");
-        commandMap.put(Command.CHARGE_MAX, "Charge: Max");
-        commandMap.put(Command.CHARGE_MIN, "Charge: Low");
         commandMap.put(Command.UNPLUGGED, "Unplugged?");
+        commandMap.put(Command.SET, "Set Value");
     }
-    // the following map is here to keep track of any changes to the command names
-    // We store the command names in the prefs file (MISTAKE) so we need to track
+    // the following map is here to keep track of any updates to the command names.
+    // We store the command names in the prefs file so we need to track
     // any changes so that when we internalize, we get the new names, not the old ones.
     private static final Map<String,String> UpdatedCommandNames = Utils.newHashMap(
         "HVAC On", "HVAC: On",
         "HVAC Off", "HVAC: Off",
         "Start Charging", "Charge: Start",
-        "Stop Charging", "Charge: Stop"
+        "Stop Charging", "Charge: Stop",
+        "Charge: Std", "None",              // Obsolete command
+        "Charge: Max", "None",              // Obsolete command
+        "Charge: Low", "None"               // Obsolete command
     );
     
     public interface ScheduleOwner {
         public String getExternalKey();
         public Preferences getPreferences();
-        public void runCommand(ScheduleItem.Command command, boolean safe);
+        public void runCommand(ScheduleItem.Command command, double value);
+        public AppContext getAppContext();
     }
 
 /*------------------------------------------------------------------------------
@@ -83,12 +92,15 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private final CheckBox enabled;
     private final CheckBox[] days = new CheckBox[7];
     private final TimeSelector time;
-    private final CheckBox safe;
+    private final CheckBox once;
     private final ComboBox<String> command;
+    private final Button options;
     
     private final int id; // Externally assigned ID of this instance
     private String schedulerID = null;  // ID of the cron4j instance
     private final ScheduleOwner owner;
+    private double targetValue = -1;
+    private boolean internalizing = false;
     
     private static final Scheduler scheduler = new Scheduler();
     static {
@@ -110,12 +122,12 @@ class ScheduleItem implements EventHandler<ActionEvent> {
      * 0: The enabled CheckBox
      * 1-7: The days of the week CheckBoxes (Sun=0 ... Sat=7)
      * 8: An HBox containing three ComboBoxes: Hour, Min, AM/PM
-     * 9: The "minimum charge required" CheckBox
-     * 10: The command ComboBox 
+     * 9: The "Once" CheckBox
+     * 10: An HBox containing the command ComboBox and a "+" button for options
      * @param id    The externally assigned ID of this row of controls
      * @param row   A map containing the row of controls as described above
      */
-    public ScheduleItem(int id, Map<Integer,Node> row, ScheduleOwner owner) {
+    public ScheduleItem(int id, Map<Integer,Node> row, final ScheduleOwner owner) {
         this.id = id;
         this.owner = owner;
         
@@ -126,16 +138,26 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(0))),
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(1))),
                 Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(2))));
-        safe = (CheckBox)prepNode(row.get(9));
-        command = Utils.<ComboBox<String>>cast(prepNode(row.get(10)));       
+        once = (CheckBox)prepNode(row.get(9));
+        hbox = (HBox)row.get(10);
+        command = Utils.<ComboBox<String>>cast(prepNode(hbox.getChildren().get(0)));       
+        options = (Button)(hbox.getChildren().get(1));
         
         enabled.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 enableItems(t1);
             } });
         
+        prepOptionsHandler(command.valueProperty().get());
+        command.valueProperty().addListener(new ChangeListener<String>() {
+            @Override public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                prepOptionsHandler(t1);
+            }
+        });
+        
         enableItems(enabled.isSelected());
     }
+    
     
     /**
      * We're shutting down, do any necessary cleanup
@@ -147,6 +169,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     }
     
     public void loadExistingSchedule() {
+        internalizing = true;
         // Load any saved value for this ScheduleItem
         String key = getFullKey();
         String encoded = owner.getPreferences().get(key, null);
@@ -154,7 +177,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
             internalize(encoded);
             startScheduler();
         }
-
+        internalizing = false;
     }
     
     public static Command nameToCommand(String commandName) {
@@ -166,6 +189,78 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         return commandMap.get(cmd);
     }
     
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE Methods for handling options of various types
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void prepOptionsHandler(String forCommand) {
+        if (forCommand.equals(commandMap.get(Command.HVAC_ON))) {
+            options.setVisible(true);
+            options.setOnAction(getTempOptions);
+        } else if (forCommand.equals(commandMap.get(Command.CHARGE_ON))) {
+            options.setVisible(true);
+            options.setOnAction(getChargeOptions);
+        } else {
+            options.setVisible(false);
+        }
+    }
+
+    EventHandler<ActionEvent> getChargeOptions = new EventHandler<ActionEvent>() {
+        @Override public void handle(ActionEvent e) {
+            Map<Object, Object> props = new HashMap<>();
+            props.put("INIT_CHARGE", targetValue);
+
+            DialogUtils.DialogController dc = DialogUtils.displayDialog(
+                    getClass().getResource("dialogs/SetChargeDialog.fxml"),
+                    "Target Charge Level", owner.getAppContext().stage, props);
+            if (dc == null) {
+                Tesla.logger.severe("Can't display \"Target Charge\" dialog");
+                targetValue = -1; 
+                return;
+            }
+
+            SetChargeDialog scd = Utils.cast(dc);
+            if (!scd.cancelled()) {
+                if (!scd.useCarsValue()) {
+                    targetValue = scd.getValue();
+                } else {
+                    targetValue = -1;
+                }
+                doExternalize();
+            }
+        }
+    };
+    
+    EventHandler<ActionEvent> getTempOptions = new EventHandler<ActionEvent>() {
+        @Override public void handle(ActionEvent e) {
+            Map<Object, Object> props = new HashMap<>();
+            props.put("USE_DEGREES_F",
+                    owner.getAppContext().lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"));
+            props.put("INIT_TEMP", targetValue);
+
+            DialogUtils.DialogController dc = DialogUtils.displayDialog(
+                    getClass().getResource("dialogs/SetTempDialog.fxml"),
+                    "Target Temperature", owner.getAppContext().stage, props);
+            if (dc == null) {
+                Tesla.logger.severe("Can't display \"Target Temperature\" dialog");
+                targetValue = -1; 
+                return;
+            }
+
+            SetTempDialog std = Utils.cast(dc);
+            if (!std.cancelled()) {
+                if (!std.useCarsValue()) {
+                    targetValue = std.getValue();
+                } else {
+                    targetValue = -1;
+                }
+                doExternalize();
+            }
+        }
+    };
+ 
 /*------------------------------------------------------------------------------
  *
  * PRIVATE Methods for storing/loading schedules to/from external storage
@@ -183,31 +278,40 @@ class ScheduleItem implements EventHandler<ActionEvent> {
             sb.append('_');
         }
         sb.append(String.format("%04d_", time.getHoursAndMinutes()));
-        sb.append(onOff(safe.isSelected()));
+        sb.append(onOff(once.isSelected()));
         sb.append('_');
         sb.append(command.getSelectionModel().selectedItemProperty().getValue());
-
+        sb.append("_");
+        sb.append(String.format(Locale.US, "%3.1f", targetValue));
+        
         return sb.toString();
     }
 
     private void internalize(String encoded) {
-        //  0     1     2     3     4     5     6     7    8     9    10
-        //  On?   Mon   Tue   Wed   Thu   Fri   Sat   Sun  Time  Min  Command
-        // {0|1}_{0|1}_{0|1}_{0|1}_{0|1}_{0|1}_{0|1}_{0|1}_HHMM_{0|1}_COMMAND
+        //  0     1     2     3     4     5     6     7    8     9    10      [11]
+        //  On?   Mon   Tue   Wed   Thu   Fri   Sat   Sun  Time  Min  Command [Value]
+        // {0|1}_{0|1}_{0|1}_{0|1}_{0|1}_{0|1}_{0|1}_{0|1}_HHMM_{0|1}_COMMAND_[Double]
         String[] elements = encoded.split("_");
         enabled.setSelected(elements[0].equals("1"));
         for (int i = 0; i < 7; i++) {
             days[i].setSelected(elements[i + 1].equals("1"));
         }
         time.setHoursAndMinutes(Integer.valueOf(elements[8]));
-        safe.setSelected(elements[9].equals("1"));
+        once.setSelected(elements[9].equals("1"));
         command.getSelectionModel().select(properCommandName(elements[10]));
+        if (elements.length == 12) {
+            try {
+                targetValue = Double.valueOf(elements[11]);
+            } catch (NumberFormatException e) {
+                Tesla.logger.severe("Bad value for command target: " + elements[11]);
+                targetValue = -1;
+            }
+        }
     }
     
     private String properCommandName(String cmd) {
         String newName = UpdatedCommandNames.get(cmd);
-        if (newName == null) return cmd;
-        return newName;
+        return (newName == null) ? cmd : newName;
     }
     
     private String onOff(boolean b) { return b ? "1" : "0"; }
@@ -238,7 +342,12 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                 if (!enabled.isSelected() || cmd == Command.None)
                     return;
                 
-                owner.runCommand(cmd, safe.isSelected());
+                owner.runCommand(cmd, targetValue);
+                if (once.isSelected()) {
+                    enabled.setSelected(false);
+                    enableItems(false);
+                    doExternalize();
+                }
             }
         });
         
@@ -281,10 +390,15 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         return String.format("%s_SCHED_%02d", owner.getExternalKey(), id);
     }
     
-    @Override public void handle(ActionEvent event) {
+    private void doExternalize() {
+        if (internalizing) return;
         String key = getFullKey();
         String encoded = externalize();
         owner.getPreferences().put(key, encoded);   // Save the updated ScheduleItem
+    }
+    
+    @Override public void handle(ActionEvent event) {
+        doExternalize();
         startScheduler();   // Start (or restart) the scheduler 
     }
 
@@ -304,8 +418,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private void enableItems(boolean enable) {
         for (int i = 0; i < 7; i++) { days[i].setDisable(!enable); }
         time.enable(enable);
-        safe.setDisable(!enable);
-        command.setDisable(!enable);        
+        once.setDisable(!enable);
+        command.setDisable(!enable); 
+        options.setDisable(!enable);
     }
     
     

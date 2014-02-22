@@ -19,93 +19,183 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
-		<h3>
-			VisibleTesla 0.25.05 [02-08-2014]
-		</h3>
-		<ul>
-			<li>User-Visible Changes
-				<ul>
-					<li>General
-						<ul>
-						</ul>
-					</li>
-					<li>Login
-						<ul>
-						</ul>
-					</li>
-					<li>Overview
-						<ul>
-							<li>
-							<li>
-								<span class="changed">Refinement</span>: Updates to the documentation. 
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: The detection of Performance+ vehicles in the Details dialog is spotty. If a car has Performance+ wheels, it will be listed as Performance+ even if it is not otherwise tagged explicitly as a Performance+ model.
-							</li>
-						</ul>
-					</li>
-					<li>HVAC
-						<ul>
-						</ul>
-					</li>
-					<li>Location
-						<ul>
-						</ul>
-					</li>
-					<li>Charge
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: Two new values of <span class="ui">State</span> may be displayed: "Starting" and "NoPower". 
-							</li>
-						</ul>
-					</li>
-					<li>Graphs
-						<ul>
-						</ul>
-					</li>
-					<li>Trips
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: Removed the "Experimental" label from the <span class="ui">Snap to road?</span> checkbox. 
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: The state of the <span class="ui">Snap to road?</span> checkbox is now remembered between runs of the application.
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: Minor changes to the way that location samples are collected in order to remove spurious samples where only the heading is changing. 
-							</li>
-						</ul>
-					</li>
-					<li>Scheduler
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: Some users asked that I add the ability to schedule more events. The current limit is 8 events and this has now been exapnded to 16. The list of events is now scrollable to accomodate the larger number of items.
-							</li>
-						</ul>
-					</li>
-					<li>Notify
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: The <span class="ui">Charge State Becomes</span> option has two new choices: "Starting" and "NoPower". 
-							</li>
-						</ul>
-					</li>
-					<li>Prefs
-						<ul>
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>Under-the-covers
-				<ul>
-				</ul>
-			</li>
-			<li>Known problems
-				<ul>
-				</ul>
-			</li>
-		</ul>
-		<hr>
+			<h3>
+				VisibleTesla 0.25.06 [02-22-2014] - EXPERIMENTAL
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: More updates to the documentation to reflect these changes, additions, and fixes. Several typos were also corrected.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: A dialog box will be displayed if you try to log into a vehicle that has not yet had mobile access enabled. The dialog instructs the user to enable mobile access in the car using Controls / Settings / Vehicle.
+								</li>
+							</ul>
+						</li>
+						<li>Overview
+							<ul>
+								<li>
+									<span class="added">Addition</span>: Added an emblem to indicate the model of the car. Choices are: 60, 85, P85, and P85+.
+								</li>
+							</ul>
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+						</li>
+						<li>Scheduler
+							<ul>
+								<li>
+									<span class="added">Addition</span>:
+									<p>
+										You may now set the charge level as part of an <span class="ui">Charge: Start</span> command. When you choose <span class="ui">Charge: Start</span>, you'll notice that a button labeled "+" appears next to the command name. This indicates that there are additional options. If you press the button, a dialog will pop up allowing you to select the target charge level. When the <span class="ui">Charge: Start</span> command runs at its scheduled time, VisibleTesla will first set the charge target to the desired level.
+									</p>
+									<p>
+										The charge level dialog lets you use a slider to select the target charge, or you can use the <span class="ui">Standard</span> or <span class="ui">Min</span> controls to jump to a setpoint. Alternatively, you can select the checkbox named "Use the car's set point". If you do that, the slider will be greyed out and the charge level will not be set to a new value. In this case, it will just use the car's current charge setting.
+									</p>
+									<p>
+										Note that this option replaces the separate <span class="ui">Charge: Min</span>, <span class="ui">Charge: Min</span>, and <span class="ui">Charge: Max</span> commands. <font color="red">IMPORTANT: If you have used these commands in the past you must <b>manually</b> replace them with settings on the <span class="ui">Charge: Start</span> command.</font>
+										
+									</p>
+								</li>
+								<li>
+									<span class="added">Addition</span>:
+									<p>
+										You may now set the temperature as part of an <span class="ui">HVAC On</span>command. When you choose <span class="ui">HVAC On</span>, you'll notice that a button labeled "+" appears next to the command name. This indicates that there are additional options. If you press the button, a dialog will pop up allowing you to select the target temperature. When the <span class="ui">HVAC On</span> command runs at its scheduled time, VisibleTesla will first set the temperature to the desired level.
+									</p>
+									<p>
+										The temperature options dialog lets you use a slider to select a temperature, or you can type a value into a text box. Alternatively, you can select a checkbox named "Use the car's set point". If you do that, the slider and text box will be greyed out and the temperature will not be set to a new value. In this case, it will just use the car's current temperature setting as it did in previous releases.
+									</p>
+								</li>
+								<li>
+									<span class="added">Addition</span>:
+									<p>
+										There is now a "Once" checkbox for each scheduled item. If you select that checkbox, the scheduled item will automatically diable itself after it has been executed one time. For example, if you want to pre-heat your car tomorrow morning, but just tomorrow morning, you can create a scheduled item to do that. Select the "Once" checkbox and your car will pre-heat tomorrow morning, but that schedule will be automatically disabled so you don't have to remember to go and disable it yourself.
+									</p>
+									<p>
+										<font color="red">IMPORTANT: If you have used previous versions of VisibleTesla you must manually ensure the proper settings of the "Once" checkbox. Make sure you turn it off for any existing scheduled items.</font>
+									</p>
+								</li>
+								<li>
+									<span class="changed">Changed</span>: The "Safe" checkbox has been removed. It was only used for one command - HVAC On. Instead of taking up space in the UI for an option that isn't used for the majority of commands, safe mode will always apply to HVAC On. Remember that you can use the Prefs Tab to set safe mode to mean:
+									<ul>
+										<li>At least 25% charge on the battery
+										</li>
+										<li>Car is plugged in
+										</li>
+										<li>Both
+										</li>
+										<li>Neither
+										</li>
+									</ul>If you don't want safe mode, use "neither". Otherwise choose the combo that makes you most comfortable.
+								</li>
+							</ul>
+						</li>
+						<li>Notify
+						</li>
+						<li>Prefs
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>Refactored code related to Dialog boxes into a new package.</ul>
+				</li>
+				<li>Known problems
+					<ul>
+						<li>Same as previous release.
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<h3>
+				VisibleTesla 0.25.05 [02-08-2014]
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: Updates to the documentation.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+						</li>
+						<li>Overview
+							<ul>
+								<li>
+									<span class="fixed">Fix</span>: The detection of Performance+ vehicles in the Details dialog is spotty. If a car has Performance+ wheels, it will be listed as Performance+ even if it is not otherwise tagged explicitly as a Performance+ model.
+								</li>
+							</ul>
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: Two new values of <span class="ui">State</span> may be displayed: "Starting" and "NoPower".
+								</li>
+							</ul>
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: Removed the "Experimental" label from the <span class="ui">Snap to road?</span> checkbox.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: The state of the <span class="ui">Snap to road?</span> checkbox is now remembered between runs of the application.
+								</li>
+								<li>
+									<span class="fixed">Fix</span>: Minor changes to the way that location samples are collected in order to remove spurious samples where only the heading is changing.
+								</li>
+							</ul>
+						</li>
+						<li>Scheduler
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: Some users asked that I add the ability to schedule more events. The current limit is 8 events and this has now been exapnded to 16. The list of events is now scrollable to accomodate the larger number of items.
+								</li>
+							</ul>
+						</li>
+						<li>Notify
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: The <span class="ui">Charge State Becomes</span> option has two new choices: "Starting" and "NoPower".
+								</li>
+							</ul>
+						</li>
+						<li>Prefs
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+				</li>
+				<li>Known problems
+					<ul>
+						<li>Same as previous release.
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<hr>
 			<h3>
 				VisibleTesla 0.25.04 [01-26-2013]
 			</h3>
@@ -126,7 +216,8 @@
 						</li>
 						<li>Overview
 							<ul>
-								<li><span class="changed">Refinement</span>: The Details dialog should now correctly report the region for cars in Europe (used to be reported as "Unknown").
+								<li>
+									<span class="changed">Refinement</span>: The Details dialog should now correctly report the region for cars in Europe (used to be reported as "Unknown").
 								</li>
 							</ul>
 						</li>

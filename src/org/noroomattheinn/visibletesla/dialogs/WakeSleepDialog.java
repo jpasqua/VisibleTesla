@@ -4,9 +4,11 @@
  * Created: Aug 31, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.dialogs;
 
+import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,6 +26,7 @@ public class WakeSleepDialog implements DialogUtils.DialogController {
     private Stage myStage;
     private boolean letItSleep = true;
     private boolean dontAskAgain = false;
+    private Map props;
     
     @FXML private ResourceBundle resources;
     @FXML private URL location;
@@ -53,4 +56,6 @@ public class WakeSleepDialog implements DialogUtils.DialogController {
     public boolean dontAskAgain() { return dontAskAgain; }
     
     @Override public void setStage(Stage stage) { this.myStage = stage; }
+
+    @Override public void setProps(Map props) { this.props = props; }
 }

@@ -13,7 +13,7 @@
 <?import jfxtras.labs.scene.control.*?>
 <?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
 
-<AnchorPane id="AnchorPane" fx:id="root" disable="false" minWidth="346.0" prefHeight="276.0" prefWidth="346.0" style="-fx-background-color: white;" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.DateRangeDialog">
+<AnchorPane id="AnchorPane" fx:id="root" disable="false" minWidth="346.0" prefHeight="276.0" prefWidth="346.0" style="-fx-background-color: white;" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.dialogs.DateRangeDialog">
   <children>
     <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="21.0">
       <children>
@@ -46,6 +46,6 @@
     </VBox>
   </children>
   <stylesheets>
-    <URL value="@../styles/VisibleTesla.css" />
+    <URL value="@../../styles/VisibleTesla.css" />
   </stylesheets>
 </AnchorPane>

@@ -1,8 +1,9 @@
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.dialogs;
 
 import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,6 +15,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import jfxtras.labs.scene.control.CalendarPicker;
+import org.noroomattheinn.visibletesla.DataStore;
 
 
 public class DateRangeDialog implements DialogUtils.DialogController {
@@ -22,6 +24,7 @@ public class DateRangeDialog implements DialogUtils.DialogController {
     private Calendar start = null;
     private Calendar end = null;
     private boolean selectedAll = false;
+    private Map props;
     
     @FXML private AnchorPane root;
     @FXML private ResourceBundle resources;
@@ -71,6 +74,7 @@ public class DateRangeDialog implements DialogUtils.DialogController {
     }
 
     @Override public void setStage(Stage stage) { this.stage = stage; }
+    @Override public void setProps(Map props) { this.props = props; }
 
     private final ChangeListener<String> handleQuickSelect = new ChangeListener<String>() {
         @Override public void changed(

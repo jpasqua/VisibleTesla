@@ -6,6 +6,8 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
+import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -93,6 +95,7 @@ public class MainController extends BaseController {
     private InactivityType  inactivityMode;
     private BooleanProperty forceWakeup = new SimpleBooleanProperty(false);
     private FileLock        instanceLock = null;
+    private boolean         mobileEnabled = true;   // Presumptive positive
     
 /*------------------------------------------------------------------------------
  *
@@ -265,7 +268,7 @@ public class MainController extends BaseController {
         Vehicle v = vehicleList.get(selectedVehicleIndex);
         if (!obtainVehicle(v)) {
             Dialogs.showErrorDialog(appContext.stage,
-                    "There appears to be another copy of VsibleTesla\n" +
+                    "There appears to be another copy of VisibleTesla\n" +
                     "running on this computer and trying to talk\n" +
                     "to the same car. That can cause problems and\n" +
                     "is not allowed\n\n"+
@@ -295,8 +298,10 @@ public class MainController extends BaseController {
         gs.refresh();
         vs.refresh();
         while (gs.state == null ||  vs.state == null) {
-            if (tries++ > MaxTriesToStart)
+            if (tries++ > MaxTriesToStart) {
+                mobileEnabled = selectedVehicle.mobileEnabled();
                 return false;
+            }
             
             action.wakeUp();
             Utils.sleep(10000);
@@ -331,6 +336,7 @@ public class MainController extends BaseController {
                 wakePane.setVisible(false);
             } else {
                 selectedVehicle = selectVehicle();
+                
                 Tesla.logger.log(
                         Level.INFO, "Vehicle Info: {0}",
                         selectedVehicle.getUnderlyingValues());
@@ -416,6 +422,17 @@ public class MainController extends BaseController {
     
     private Runnable completeLogin = new Runnable() {
         @Override public void run() {
+            if (!mobileEnabled) {
+                Dialogs.showErrorDialog(appContext.stage,
+                        "Your Tesla has not been configured to allow mobile " +
+                        "access. You have to enable this on your car's touch"  +
+                        "screen using Controls / Settings / Vehicle." +
+                        "\n\nChange that setting in your car, then relaunch VisibleTesla.",
+                        "Mobile access is not enabled", "Communication Problem");
+                Tesla.logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
+                Platform.exit();
+            }
+            
             if (appContext.lastKnownGUIState.get() == null ||
                 appContext.lastKnownVehicleState.get() == null) {
                 // Couldn't wake up the vehicle and get the gui and vehicle state!
@@ -487,8 +504,8 @@ public class MainController extends BaseController {
 
     private boolean letItSleep() {
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                getClass().getResource("WakeSleepDialog.fxml"),
-                "Wake up your car?", appContext.stage);
+                getClass().getResource("dialogs/WakeSleepDialog.fxml"),
+                "Wake up your car?", appContext.stage, null);
         if (dc == null) return true;
         WakeSleepDialog wsd = Utils.cast(dc);
         return wsd.letItSleep();

@@ -72,47 +72,62 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     
     @Override public String getExternalKey() { return vehicle.getVIN(); }
     @Override public Preferences getPreferences() { return appContext.persistentState; }
+    @Override public AppContext getAppContext() { return appContext; }
     
-    @Override public void runCommand(ScheduleItem.Command command, boolean safe) {
+    @Override public void runCommand(ScheduleItem.Command command, double value) {
         if (command != ScheduleItem.Command.SLEEP) {
             if (!wakeAndGetChargeState()) {
                 logActivity("Can't wake vehicle - aborting");
                 return;
             }
         }
-        if (!safeToRun(command, safe)) return;
+        if (!safeToRun(command)) return;
         
-        if (!tryCommand(command, safe)) {
-            tryCommand(command, safe);  // Try it again in case of transient errors
+        if (!tryCommand(command, value)) {
+            tryCommand(command, value);  // Try it again in case of transient errors
         }
     }
     
-    private boolean tryCommand(ScheduleItem.Command command, boolean safe) {
+    private boolean tryCommand(ScheduleItem.Command command, double value) {
         String name = ScheduleItem.commandToName(command);
         Result r = Result.Succeeded;
         switch (command) {
-            case CHARGE_ON: r = chargeController.startCharing(); break;
+            case CHARGE_ON:
+                if (value > 0) {
+                    r = chargeController.setChargePercent((int)value);
+                    if (!(r.success || r.explanation.equals("already_set"))) {
+                        logActivity("Unable to set charge target: " + r.explanation);
+                    }
+                }
+                r = chargeController.startCharing();
+                break;
             case CHARGE_OFF: r = chargeController.stopCharing(); break;
-            case CHARGE_STD: r = chargeController.setChargePercent(stdCharge); break;
-            case CHARGE_MAX: r = chargeController.setChargePercent(maxCharge); break;
-            case CHARGE_MIN: r = chargeController.setChargePercent(
-                    appContext.prefs.lowChargeValue.get()); break;
-            case HVAC_ON: r = hvacController.startAC(); break;
+            case HVAC_ON:
+                if (value > 0) {    // Set the target temp first
+                    if (appContext.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"))
+                        r = hvacController.setTempF(value, value);
+                    else
+                        r = hvacController.setTempC(value, value);
+                    if (!r.success) break;
+                }
+                r = hvacController.startAC();
+                break;
             case HVAC_OFF: r = hvacController.stopAC();break;
             case AWAKE: appContext.requestInactivityMode(InactivityType.Awake); break;
             case SLEEP: appContext.requestInactivityMode(InactivityType.Sleep); break;
             case DAYDREAM: appContext.requestInactivityMode(InactivityType.Daydream); break;
             case UNPLUGGED: r = unpluggedTrigger(); break;
         }
+        if (value > 0) name = String.format("%s (%3.1f)", name, value);
         String entry = String.format("%s: %s", name, r.success ? "succeeded" : "failed");
         if (!r.success) entry = entry + ", " + r.explanation;
         logActivity(entry);
         return r.success;
     }
     
-    private boolean safeToRun(ScheduleItem.Command command, boolean safe) {
+    private boolean safeToRun(ScheduleItem.Command command) {
         String name = ScheduleItem.commandToName(command);
-        if (safe && (command == ScheduleItem.Command.HVAC_ON)) {
+        if (command == ScheduleItem.Command.HVAC_ON) {
             if (appContext.prefs.safeIncludesMinCharge.get() &&
                 charge.state.batteryPercent < Safe_Threshold) {
                 String entry = String.format(

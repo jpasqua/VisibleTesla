@@ -210,6 +210,42 @@
         <DropShadow color="#606060" offsetX="5.0" offsetY="5.0" />
       </effect>
     </Button>
+    <ImageView fx:id="p85pImg" fitHeight="0.0" fitWidth="0.0" layoutX="480.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+      <effect>
+        <DropShadow height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0">
+          <color>
+            <Color blue="0.500" green="0.500" red="0.500" fx:id="x1" />
+          </color>
+        </DropShadow>
+      </effect>
+      <image>
+        <Image url="@../TeslaResources/Emblems/P85+.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="p85Img" fitHeight="0.0" fitWidth="0.0" layoutX="471.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+      <effect>
+        <DropShadow color="$x1" height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0" />
+      </effect>
+      <image>
+        <Image url="@../TeslaResources/Emblems/P85.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="s85Img" fitHeight="0.0" fitWidth="0.0" layoutX="515.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+      <effect>
+        <DropShadow color="$x1" height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0" />
+      </effect>
+      <image>
+        <Image url="@../TeslaResources/Emblems/85.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="s60Img" fitHeight="0.0" fitWidth="0.0" layoutX="511.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+      <effect>
+        <DropShadow color="$x1" height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0" />
+      </effect>
+      <image>
+        <Image url="@../TeslaResources/Emblems/60.png" />
+      </image>
+    </ImageView>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

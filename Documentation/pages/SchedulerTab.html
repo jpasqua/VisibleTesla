@@ -66,10 +66,10 @@
                     </tr>
                     <tr>
                         <td>
-                            Safe
+                            Once
                         </td>
                         <td>
-                            If selected, the command will only be executed if there is sufficient power available. What constitutes safety is defined in the <a href="#pref_table_sched">Scheduler preferences</a>. It can consist of a minimum battery level, the car being plugged-in, or both. If "Safe" is selected but the specified requirements are not met, the command will not be executed.
+                            If selected, the command will be executed one time and then this schedule item will be automatically disabled. For example, let's say you want to pre-heat the car at 6:00AM tomorrow morning, but that is a special case. You only want to do that tomorrow. You could remember to go back into the scheduler tomorrow afternoon and disable this item, but by using the <span class="ui">Once</span> checkbox, you don't have to.
                         </td>
                     </tr>
                     <tr>
@@ -94,6 +94,15 @@
                                         </td>
                                         <td>
                                             Turn on the HVAC system.
+                                            <p>
+                                                Note that when you select this option, a button appears next to the command name. The button is labeled with a "+" to indicate that there are more options. Pressing this button pops up a dialog box that allows you to select the target temperature. When the <span class="ui">HVAC On</span> command runs at its scheduled time, VisibleTesla will first set the temperature to the desired level.
+                                            </p>
+                                            <p>
+                                                The temperature options dialog lets you use a slider to select a temperature, or you can type a value into a text box. Alternatively, you can select a checkbox named "Use the car's set point". If you do that, the slider and text box will be greyed out and the temperature will not be set to a new value. In this case, it will just use the car's current temperature setting.
+                                            </p>
+                                            <p>
+                                                If you never pop up the dialog, it will behave as if you selected "Use the car's set point".
+                                            </p>
                                         </td>
                                     </tr>
                                     <tr>
@@ -110,6 +119,18 @@
                                         </td>
                                         <td>
                                             Start Charging the vehicle.
+                                            <p>
+                                                Note that when you select this option, a button appears next to the command name. The button is labeled with a "+" to indicate that there are more options. Pressing this button pops up a dialog box that allows you to select the target charge level. When the <span class="ui">Charge: Start</span> command runs at its scheduled time, VisibleTesla will first set the charge target to the desired level.
+                                            </p>
+                                            <p>
+                                                The options dialog lets you use a slider to select the charge level, or you can use the <span class="ui">Standard</span> / <span class="ui">Max</span> buttons to jump to a predetermined setpoint.
+                                            </p>
+                                            <p>
+                                                Alternatively you can select a checkbox named "Use the car's set point". If you do that, the slider will be greyed out and the charge level will not be set to a new value. In this case, it will just use the car's current setting.
+                                            </p>
+                                            <p>
+                                                If you never pop up the dialog, it will behave as if you selected "Use the car's set point".
+                                            </p>
                                         </td>
                                     </tr>
                                     <tr>
@@ -118,30 +139,6 @@
                                         </td>
                                         <td>
                                             Stop Charging the vehicle.
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            Charge: Low
-                                        </td>
-                                        <td>
-                                            Set the charge target to the car's minimum value or the value specified in the preferences pane.
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            Charge: Std
-                                        </td>
-                                        <td>
-                                            Set the charge target to the car's default standard charge.
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            Charge: Max
-                                        </td>
-                                        <td>
-                                            Set the charge target to the car's maximum charge.
                                         </td>
                                     </tr>
                                     <tr>
@@ -191,10 +188,17 @@
                 </tbody>
             </table>
             <p>
-                The Sleep, Daydream, and Stay Awake commands can be used, for example, to tell the app to sleep at night and daydream during the day. Note that executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.
+                The options dialogs for the <span class="ui">HVAC: On</span> and <span class="ui">Charge: Start</span> commands areshown below:
             </p>
             <p>
-                Please remember that using this functionality can trigger activity that depletes your battery. You are solely responsible for any negative consequences that this might produce.
+                <img class="screenshot" src="../images/17a_Target_Temp.png"><br>
+                <img class="screenshot" src="../images/17b_Target_Charge.png">
+            </p>
+            <p>
+                <b>Note</b>: The Sleep, Daydream, and Stay Awake commands can be used, for example, to tell the app to sleep at night and daydream during the day. Executing one of these commands simply causes the app to enter the associated inactivity mode. The app must still be idle for 15 minutes before it will sleep or daydream.
+            </p>
+            <p>
+                <b>Warning</b>: Please remember that using this functionality can trigger activity that depletes your battery. You are solely responsible for any negative consequences that this might produce. Any scheduled command that might use significant power (at the moment this is just the <span class="ui">HVAC On</span> command) will respect the <span class="ui">Safe</span> settings in the <a href="PrefsTab.html#pref_table_sched">Scheduler section of the Prefs Tab</a>. If the specified requirements are not met, the command will not be executed.
             </p>
         </div>
         <div id="footer"></div>

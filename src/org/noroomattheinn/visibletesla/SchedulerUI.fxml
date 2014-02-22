@@ -59,9 +59,12 @@
             <Tooltip text="The time at which to&#10;run the command" />
           </tooltip>
         </Label>
-        <Label rotate="90.0" text="Safe" textAlignment="CENTER" textFill="BLACK" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+        <Label prefWidth="-1.0" rotate="90.0" text="Once" textAlignment="CENTER" textFill="BLACK" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+          <font>
+            <Font size="12.0" />
+          </font>
           <tooltip>
-            <Tooltip text="Only charge if battery&#10;is at 25% or more" />
+            <Tooltip text="Only execute once, then disable" />
           </tooltip>
         </Label>
         <Label text="Command" textFill="BLACK" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
@@ -114,24 +117,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" contentDisplay="CENTER" disable="false" graphicTextGap="-2.0" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox id="zeroOne" alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" visible="true" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
               <children>
@@ -181,7 +184,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
@@ -189,24 +192,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" contentDisplay="CENTER" disable="false" graphicTextGap="-2.0" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox id="zeroOne" alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" visible="true" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
               <children>
@@ -256,7 +259,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
@@ -264,24 +267,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
               <children>
@@ -331,7 +334,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
@@ -339,24 +342,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
               <children>
@@ -406,7 +409,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
@@ -414,24 +417,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
               <children>
@@ -481,7 +484,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
@@ -489,24 +492,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
               <children>
@@ -556,7 +559,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
@@ -564,24 +567,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
               <children>
@@ -631,7 +634,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
@@ -639,24 +642,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
               <children>
@@ -706,7 +709,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
@@ -714,24 +717,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
-            <ComboBox id="elevenEight" styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER">
               <children>
@@ -781,7 +784,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
@@ -789,24 +792,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="9" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER">
               <children>
@@ -856,7 +859,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
@@ -864,24 +867,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="10" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER">
               <children>
@@ -931,7 +934,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
@@ -939,24 +942,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="11" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER">
               <children>
@@ -1006,7 +1009,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
@@ -1014,24 +1017,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="12" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER">
               <children>
@@ -1081,7 +1084,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
@@ -1089,24 +1092,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="13" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER">
               <children>
@@ -1156,7 +1159,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
@@ -1164,24 +1167,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="14" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER">
               <children>
@@ -1231,7 +1234,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="14" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
@@ -1239,24 +1242,24 @@
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
-            <ComboBox styleClass="squarecombo" value="-- None --" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="HVAC: On" />
-                  <String fx:value="HVAC: Off" />
-                  <String fx:value="Charge: Start" />
-                  <String fx:value="Charge: Stop" />
-                  <String fx:value="Charge: Std" />
-                  <String fx:value="Charge: Max" />
-                  <String fx:value="Charge: Low" />
-                  <String fx:value="Sleep" />
-                  <String fx:value="Daydream" />
-                  <String fx:value="Awake" />
-                  <String fx:value="Unplugged?" />
-                  <String fx:value="-- None --" />
-                </FXCollections>
-              </items>
-            </ComboBox>
+            <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="15" GridPane.valignment="CENTER">
+              <ComboBox styleClass="squarecombo" value="-- None --">
+                <items>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
+                </items>
+              </ComboBox>
+              <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+            </HBox>
             <CheckBox alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER">
               <children>
@@ -1306,7 +1309,7 @@
                 </ComboBox>
               </children>
             </HBox>
-            <CheckBox alignment="CENTER" selected="true" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
+            <CheckBox alignment="CENTER" selected="false" text="" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="15" GridPane.valignment="CENTER" />
           </children>
           <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="10.0" prefWidth="30.0" />
