@@ -57,6 +57,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Versions;
 import org.noroomattheinn.utils.Versions.Release;
 import org.noroomattheinn.visibletesla.AppContext.InactivityType;
+import us.monoid.json.JSONObject;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -295,11 +296,16 @@ public class MainController extends BaseController {
         ActionController action = new ActionController(v);
         
         int tries = 0;
-        gs.refresh();
+        if (gs.refresh()) {
+            JSONObject result = gs.getRawResult();
+            if (result.optString("reason").equals("mobile_access_disabled")) {
+                this.mobileEnabled = false;
+                return false;
+            }
+        }
         vs.refresh();
         while (gs.state == null ||  vs.state == null) {
             if (tries++ > MaxTriesToStart) {
-                mobileEnabled = selectedVehicle.mobileEnabled();
                 return false;
             }
             
