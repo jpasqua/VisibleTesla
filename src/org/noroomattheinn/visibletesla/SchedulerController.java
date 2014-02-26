@@ -26,6 +26,7 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.AppContext.InactivityType;
+import org.noroomattheinn.visibletesla.ScheduleItem.Command;
 
 /**
  * FXML Controller class
@@ -92,6 +93,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         String name = ScheduleItem.commandToName(command);
         Result r = Result.Succeeded;
         switch (command) {
+            case CHARGE_SET:
             case CHARGE_ON:
                 if (value > 0) {
                     r = chargeController.setChargePercent((int)value);
@@ -99,7 +101,8 @@ public class SchedulerController extends BaseController implements ScheduleItem.
                         logActivity("Unable to set charge target: " + r.explanation);
                     }
                 }
-                r = chargeController.startCharing();
+                if (command == Command.CHARGE_ON)
+                    r = chargeController.startCharing();
                 break;
             case CHARGE_OFF: r = chargeController.stopCharing(); break;
             case HVAC_ON:

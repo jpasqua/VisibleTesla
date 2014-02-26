@@ -7,15 +7,24 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
 <?import jfxtras.labs.scene.control.*?>
 <?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
 
 <AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="102.0" prefWidth="409.0001220703125" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.dialogs.SetTempDialog">
   <children>
-    <Slider fx:id="valueSlider" majorTickUnit="2.0" max="90.0" min="62.0" minorTickCount="1" prefWidth="297.0" showTickLabels="true" showTickMarks="true" styleClass="null" value="70.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="17.0" />
-    <BigDecimalField fx:id="valueField" prefWidth="81.0001220703125" AnchorPane.leftAnchor="318.0" AnchorPane.topAnchor="22.0" />
+    <Slider fx:id="valueSlider" majorTickUnit="2.0" max="90.0" min="62.0" minorTickCount="1" prefWidth="319.0" showTickLabels="true" showTickMarks="true" styleClass="null" value="70.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+    <HBox id="HBox" alignment="CENTER" prefWidth="48.0" spacing="5.0" style="    -fx-border-insets: 0;&#10;    -fx-border-width: 2px;&#10;    -fx-border-color: #111 lightgray lightgray #111;&#10;-fx-background-color: #eee&#10;" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="18.0">
+      <children>
+        <Label id="driverTempLabel" fx:id="tempLabel" alignment="BASELINE_RIGHT" prefWidth="41.0" text="70.0">
+          <font>
+            <Font size="12.0" />
+          </font>
+        </Label>
+      </children>
+    </HBox>
     <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#buttonHandler" text="OK" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
-    <Button id="okButton" fx:id="cancelButton" cancelButton="true" defaultButton="false" mnemonicParsing="false" onAction="#buttonHandler" text="Cancel" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="62.0" />
+    <Button fx:id="cancelButton" cancelButton="true" defaultButton="false" mnemonicParsing="false" onAction="#buttonHandler" text="Cancel" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="62.0" />
     <CheckBox fx:id="useCarSetpoint" mnemonicParsing="false" text="Use the car's set point" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" />
   </children>
   <stylesheets>

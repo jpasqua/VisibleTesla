@@ -48,12 +48,13 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  *----------------------------------------------------------------------------*/
 
     public enum Command {
-        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, AWAKE, SLEEP, DAYDREAM,
+        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, CHARGE_SET, AWAKE, SLEEP, DAYDREAM,
         UNPLUGGED, SET, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
         commandMap.put(Command.HVAC_ON, "HVAC: On");
         commandMap.put(Command.HVAC_OFF, "HVAC: Off");
+        commandMap.put(Command.CHARGE_SET, "Charge: Set");
         commandMap.put(Command.CHARGE_ON, "Charge: Start");
         commandMap.put(Command.CHARGE_OFF, "Charge: Stop");
         commandMap.put(Command.AWAKE, "Awake");
@@ -199,6 +200,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         if (forCommand.equals(commandMap.get(Command.HVAC_ON))) {
             options.setVisible(true);
             options.setOnAction(getTempOptions);
+        } else if (forCommand.equals(commandMap.get(Command.CHARGE_SET))) {
+            options.setVisible(true);
+            options.setOnAction(getChargeOptions);
         } else if (forCommand.equals(commandMap.get(Command.CHARGE_ON))) {
             options.setVisible(true);
             options.setOnAction(getChargeOptions);
@@ -210,7 +214,10 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     EventHandler<ActionEvent> getChargeOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
             Map<Object, Object> props = new HashMap<>();
+            boolean useDegreesF = owner.getAppContext().lastKnownGUIState.get().
+                                        temperatureUnits.equalsIgnoreCase("F");
             props.put("INIT_CHARGE", targetValue);
+            props.put("USE_DEGREES_F", useDegreesF);
 
             DialogUtils.DialogController dc = DialogUtils.displayDialog(
                     getClass().getResource("dialogs/SetChargeDialog.fxml"),

@@ -101,10 +101,7 @@
                         </li>
                         <li>Finally, if the user chooses to download the latest release, it will be downloaded from Dropbox. No user information is shared in this process.
                         </li>
-                    </ul>if you use the notifications tab, your notification messages are sent via the MailGun hosted service. By default, logging information from that service is available to the author of VisibleTesla who administers the MailGun account. To avoid having this logging information visible, you may provide your own MailGun key. Please refer to this section on <a href="PrefsTab.html#mailgunkey">Advanced Preferences</a>.
-
-
-                    <br>
+                    </ul>if you use the notifications tab, your notification messages are sent via the MailGun hosted service. By default, logging information from that service is available to the author of VisibleTesla who administers the MailGun account. To avoid having this logging information visible, you may provide your own MailGun key. Please refer to this section on <a href="PrefsTab.html#mailgunkey">Advanced Preferences</a>.<br>
                     <br>
                     If you would like more certainty about what VisibleTesla is doing, you can use a program like Little snitch on the Mac to monitor and control all of VisibleTesla's network activity.
                 </dd>
@@ -127,6 +124,17 @@
             </dl>
             <dl>
                 <dt>
+                    I like the idea of monitoring and controlling my Tesla, but VisibleTesla isn't right for me. Are there other options?
+                </dt>
+                <dd>
+                    Yes! There are a number of great projects out there. Please have a look at the <a href="http://www.teslamotorsclub.com/showwiki.php?title=REST+API+Tools+and+Apps/">this post</a> for a few ideas. For sophisticated monitoring and visualization, check out <a href="http://www.teslamotorsclub.com/showthread.php/20325-TeslaMS-tools-for-telemetry-data-visualization" target="_blank">teslams on the forum</a>.
+                </dd>
+            </dl>
+            <h2>
+                Troubleshooting
+            </h2>
+            <dl>
+                <dt>
                     How should I report a bug?
                 </dt>
                 <dd>
@@ -147,21 +155,15 @@
                         <li>
                             <b>Whether it worked using Tesla's app</b>. Try the equivalent function on the iOS or Android app (if there is an equivalent function) to see if it works there but not in VisibleTesla.
                         </li>
-                    </ul>It is very important to save the <span class="ui">visibletesla.log</span> file from the application folder. This contains messages that may be useful for debugging. This log is overwritten each time you run the application, so if you have a problem, quit VisibleTesla, copy the log file to a safe place (like your desktop) then start VisibleTesla again. You may be asked to send the log file to the developer.
+                    </ul>
+                    <p>
+                        VisibleTesla keeps track of any internal errors or problems in a log file. This file is very important to the developer in the debugging process. It is very difficult to diagnose a problem without it (even with it, it can be difficult). A new log file is written every time you start the application. It is named <span class="ui">visibletesla-00.log</span> and lives in the application folder (the same place you go to launch VisibleTesla). 
+                    </p>
+                    <p>
+                        If you notice a problem and wish to report it to the developer, quit VisibleTesla, copy the log file to a safe place (like your desktop) then start VisibleTesla again. If you quit and restart VisibleTesla before copying the log file, the previous version is still around. In fact, several old log files are kept around just in case. The old files are named <span class="ui">visibletesla-01.log</span> - <span class="ui">visibletesla-03.log</span>.
+                    </p>
                 </dd>
-            </dl>
-            <dl>
-                <dt>
-                    I like the idea of monitoring and controlling my Tesla, but VisibleTesla isn't right for me. Are there other options?
-                </dt>
-                <dd>
-                    Yes! There are a number of great projects out there. Please have a look at the <a href="http://www.teslamotorsclub.com/showwiki.php?title=REST+API+Tools+and+Apps/">this post</a> for a few ideas. For sophisticated monitoring and visualization, check out <a href="http://www.teslamotorsclub.com/showthread.php/20325-TeslaMS-tools-for-telemetry-data-visualization" target="_blank">teslams on the forum</a>.
-                </dd>
-            </dl>
-            <h2>
-                Troubleshooting
-            </h2>
-            <dl>
+            </dl>            <dl>
                 <dt>
                     I'm not getting a notification that I expected
                 </dt>
@@ -230,7 +232,9 @@
                         <li>You should now have a "Model S Fob" icon on your desktop that may be used to launch VisibleTesla.
                         </li>
                     </ol>
-                    <p>Thanks to TeslaMotorsClub user scaesare for providing these instructions.</p>
+                    <p>
+                        Thanks to TeslaMotorsClub user scaesare for providing these instructions.
+                    </p>
                 </dd>
             </dl>
             <dl>
@@ -269,7 +273,9 @@
                     <p>
                         NOTE: If when clicking on your VisibleTesla dock icon you get an error message that you cannot open the file because it is from an unidentified developer you will need to right click the VisibleTesla.jar file in its original folder and select "Open With" and choose "Jar Launcher" [You only need to do this the first time. Subsequent attempts to open using the icon in the Doc should open the application without issue]
                     </p>
-                    <p>Thanks to TeslaMotorsClub user znino for providing the instructions and PDF file.</p>
+                    <p>
+                        Thanks to TeslaMotorsClub user znino for providing the instructions and PDF file.
+                    </p>
                 </dd>
             </dl>
             <h2>

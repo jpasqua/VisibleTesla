@@ -6,7 +6,9 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,15 +81,31 @@ public class VisibleTesla extends Application {
     }
 
     private void setupLogger() {
+        rotateLogs(3);
+        
         Logger logger = Logger.getLogger("");
         FileHandler fileHandler;
         try {
-            fileHandler = new FileHandler("visibletesla.log");
+            fileHandler = new FileHandler("visibletesla-00.log");
             fileHandler.setFormatter(new SimpleFormatter());
             fileHandler.setLevel(Level.ALL);
             logger.addHandler(fileHandler);
         } catch (IOException | SecurityException ex) {
             logger.log(Level.SEVERE, "Unable to establish log file");
+        }
+    }
+    
+    private void rotateLogs(int max) {
+        File logfile = new File(String.format("visibletesla-%02d.log", max));
+        if (logfile.exists()) {
+            logfile.delete();
+        }
+        if (max > 0) {
+            File previous = new File(String.format("visibletesla-%02d.log", max-1));
+            if (previous.exists()) {
+                previous.renameTo(logfile);
+            }
+            rotateLogs(max-1);
         }
     }
 }

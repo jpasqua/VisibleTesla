@@ -19,6 +19,81 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
+		<h3>
+			VisibleTesla 0.25.07 [02-23-2014] - EXPERIMENTAL
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: VisibleTesla used to overwrite its log file every time it runs. This made it easy to lose old logs if your not careful. The app now keeps around several old versions of the log file. Users need never pay attention to the log file unless they are reporting a bug.
+							</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+							<li>
+								<span class="added">Addition</span>: Added a <span class="ui">Charge: Set</span> command that allows the user to change the charge target on a set schedule without actually initiating a charge. This is useful for cases when the user wants to use the car's built-in charge scheduler, but still wants to change the charge target. 
+							</li>
+							<li>
+								<span class="fixed">Fix</span>: The temperature target was ignoring the units setting and always using fahrenheit. 
+							</li>
+							<li>
+								<span class="fixed">Fix</span>: Using the Up/Down arrows to adjust the value of the temperature target could cause bad behavior (including a crash). This was caused by something outside of the control of VisibleTesla, so for the moment this functionality has been removed. The temperature target can only be set by adjusting the slider. The numeric field is for readout purposes only. 
+							</li>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+					<li>Overhauled the SchedulerUI fxml file to make it easier to maintain and update. No visible changes to the user.</li>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>
 			<h3>
 				VisibleTesla 0.25.06 [02-22-2014] - EXPERIMENTAL
 			</h3>
@@ -29,6 +104,9 @@
 							<ul>
 								<li>
 									<span class="changed">Refinement</span>: More updates to the documentation to reflect these changes, additions, and fixes. Several typos were also corrected.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Old log files are kept around for a while rather than being deleted immediately. This makes absolutely no difference in how the application looks or operates, but makes it more likely that you'll have the data you need to report a bug if you encounter one.
 								</li>
 							</ul>
 						</li>

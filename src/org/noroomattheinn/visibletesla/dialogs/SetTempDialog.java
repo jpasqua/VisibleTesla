@@ -6,10 +6,7 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
@@ -18,9 +15,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.stage.Stage;
-import jfxtras.labs.scene.control.BigDecimalField;
 
 /**
  * SetValueDialog
@@ -59,7 +56,7 @@ public class SetTempDialog implements DialogUtils.DialogController {
     @FXML private Button okButton;
     @FXML private Button cancelButton;
     @FXML private Slider valueSlider;
-    @FXML private BigDecimalField valueField;
+    @FXML private Label tempLabel;
     @FXML private CheckBox useCarSetpoint;
     
 /*------------------------------------------------------------------------------
@@ -72,12 +69,12 @@ public class SetTempDialog implements DialogUtils.DialogController {
         useDegreesF = true;     // Default
         cancelled = true;
         finalValue = -1;
-        bindBidrectional(valueField, valueSlider);
+        bind(valueSlider, tempLabel);
         setUnits(useDegreesF);
         useCarSetpoint.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 valueSlider.setDisable(t1);
-                valueField.setDisable(t1);
+                tempLabel.setDisable(t1);
             }
         });
     }
@@ -86,7 +83,7 @@ public class SetTempDialog implements DialogUtils.DialogController {
         Button b = (Button)event.getSource();
         if (b == okButton) {
             cancelled = false;
-            finalValue = valueField.numberProperty().get().doubleValue();
+            finalValue = valueSlider.getValue();
         } else if (b == cancelButton) {
             cancelled = true;
             finalValue = -1;
@@ -130,6 +127,8 @@ public class SetTempDialog implements DialogUtils.DialogController {
     @Override public void setProps(Map props) {
         Boolean udf = (Boolean)props.get("USE_DEGREES_F");
         if (udf != null) useDegreesF = udf;
+        setUnits(useDegreesF);
+        
         Double initTemp = (Double)props.get("INIT_TEMP");
         if (initTemp != null && initTemp > 0) {
             setValue(initTemp);
@@ -154,7 +153,7 @@ public class SetTempDialog implements DialogUtils.DialogController {
     
     private  void setValue(double value) {
         finalValue = value;
-        valueField.setNumber(new BigDecimal(value));
+        valueSlider.setValue(value);
     }
     
 /*------------------------------------------------------------------------------
@@ -163,32 +162,20 @@ public class SetTempDialog implements DialogUtils.DialogController {
  * 
  *----------------------------------------------------------------------------*/
     
-private void bindBidrectional(final BigDecimalField bdf, final Slider slider) {
-        bdf.setFormat(new DecimalFormat("##0.0"));
-        bdf.setStepwidth(BigDecimal.valueOf(0.5));
-        bdf.setNumber(new BigDecimal(osd(slider.getValue())));
-
+    private void bind(final Slider slider, final Label label) {
+        double val = adjustValue(slider.getValue());
+        label.setText(String.format("%3f.1", val));
         slider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(
-                    ObservableValue<? extends Number> ov, Number t, Number t1) {
-                double val = adjustValue(t1.doubleValue());
-                slider.setValue(val);
-                bdf.setNumber(new BigDecimal(val));
-            }
-        });
-
-        bdf.numberProperty().addListener(new ChangeListener<BigDecimal>() {
-            @Override public void changed(
-                    ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
-                double val = osd(t1.doubleValue());
-                slider.setValue(val);
-                bdf.setNumber(new BigDecimal(val));
+            @Override public void changed(ObservableValue<? extends Number> observableValue,
+                                          Number oldValue, Number newValue) {
+                if (newValue == null) {
+                    label.setText("...");
+                } else {
+                    double val = adjustValue(newValue.doubleValue());
+                    label.setText(String.format("%3.1f", val));
+                }
             }
         });
     }
-
-    private double osd(double val) {
-        return Math.round(val * 10.0)/10.0;
-    }
-
+    
 }

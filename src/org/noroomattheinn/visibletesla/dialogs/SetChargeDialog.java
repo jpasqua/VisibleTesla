@@ -6,7 +6,6 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
