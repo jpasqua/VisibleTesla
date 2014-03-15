@@ -102,16 +102,13 @@ public class Prefs {
  * 
  *----------------------------------------------------------------------------*/
     
-    public IntegerProperty lowChargeValue = new SimpleIntegerProperty();
     public BooleanProperty safeIncludesMinCharge = new SimpleBooleanProperty();
     public BooleanProperty safeIncludesPluggedIn = new SimpleBooleanProperty();
     
-    private static final String SchedMinChargeKey = "SCHED_MIN_CHARGE";
     private static final String SchedSafeIncludesBattery = "SCHED_SAFE_BATTERY";
     private static final String SchedSafeIncludesPlugged = "SCHED_SAFE_PLUGGED_IN";
     
     private void loadSchedulerPrefs() {
-        integerPref(SchedMinChargeKey, lowChargeValue, 50);
         booleanPref(SchedSafeIncludesBattery, safeIncludesMinCharge, true);
         booleanPref(SchedSafeIncludesPlugged, safeIncludesPluggedIn, false);
     }

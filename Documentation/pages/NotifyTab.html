@@ -23,7 +23,10 @@
 			</h1>
 			<p>
 				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. The following screen shot gives an example of what the Notify Tab looks like. Each notification can be enabled or disabled individually using the associated checkbox.
-			</p><img class="screenshot" src='../images/24_Notify_Tab.png' alt='Notify Tab'>
+			</p>
+			<p>
+				<img class="screenshot" src='../images/24_Notify_Tab.png' alt='Notify Tab'>
+			</p>
 			<p>
 				Notifications are sent via email using the address specified in the <a href="PrefsTab.html">Prefs Tab</a>. Many wireless carriers provide an email-to-text gateway. You are provided an email address that corresponds to your cell phone's phone number. This will allow you to receive notifications as text messages. Please note that if you do so, normal text message rates may apply. Consult your carrier.
 			</p>
@@ -117,8 +120,46 @@
 							A notification will be sent if any scheduled activity occurs.
 						</td>
 					</tr>
+					<tr>
+						<td>
+							Car entered area <b><font color="red">[EXPERIMENTAL]</font></b>
+						</td>
+						<td>
+							An area defined by a center point and a radius in meters
+						</td>
+						<td>
+							A notification will be sent if if your car starts outside of the specified area and later passes into that area. It does not have to stop there. See below for instructions on setting the area.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Car left area <b><font color="red">[EXPERIMENTAL]</font></b>
+						</td>
+						<td>
+							An area defined by a center point and a radius in meters.
+						</td>
+						<td>
+							A notification will be sent if if your car starts inside of the specified area and later leaves that area. See below for instructions on setting the area.
+						</td>
+					</tr>
 				</tbody>
 			</table>
+			<p>
+				When using the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> notifications, you must define the area of interest. An area is defined by a location and a radius in meters which you set via an options dialog box. You get to that dialog box by pressing the <span class="ui">Define Area</span> button next to the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> checkboxes. You set the location by typing in an address. The corresponding latitude and longitude are determined for you. A slider allows you to specify a radius around that location to yield the area of interest.
+			</p>
+			<p>
+				<img class="screenshot" src='../images/24b_Notify_Area.png' alt='Notify Tab'>
+			</p>
+			<p>
+				The dialog box has three buttons at the bottom: <span class="ui">Cancel</span>, <span class="ui">OK</span>, and <span class="ui">Lookup</span>. You'll notice that the <span class="ui">OK</span> button is disabled any time you edit the address field. To make it active you must press the <span class="ui">Lookup</span> button. It will lookup the address and show it to you on a map to ensure it can be found and is what you intended. If it's not, you can change the address and try again. If it is what you want, just make sure the radius is set to your liking and hit <span class="ui">OK</span>.
+			</p>
+			<h2>Custom Address and Subject</h2>
+			<p>
+				VisibleTesla allows you to optionally specify the email address and subject to use for each type of notification. This can be useful if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line. To use this feature, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address and/or a subject. You may also select <span class="ui">Use default values</span>, in which case the default email address and subject will be used. If you leave either field (email address or subject) blank, the default will be used for the blank item.
+			</p>
+			<p>
+				<img class="screenshot" src='../images/24a_Notify_Options.png' alt='Notify Tab'>
+			</p>
 			<p>
 				Notifications are sent via a hosted service and will not require you to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored.
 			</p>

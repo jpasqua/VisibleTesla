@@ -9,6 +9,7 @@ package org.noroomattheinn.visibletesla.trigger;
 import java.math.BigDecimal;
 import java.util.Locale;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.visibletesla.Area;
 
 
 /**
@@ -24,6 +25,7 @@ public abstract class RW<T> {
     
     public static final RW<BigDecimal> bdHelper = new BDHelper();
     public static final RW<String> stringHelper = new StringHelper();
+    public static final RW<Area> areaHelper = new AreaHelper();
 }
 
 
@@ -50,5 +52,35 @@ class StringHelper extends RW<String> {
     @Override public String toExternal(String value) { return value; }
     @Override public String fromExternal(String external) { return external; }
     @Override public String formatted(String value) { return value; }
+}
+
+class AreaHelper extends RW<Area> {
+    @Override public String toExternal(Area value) {
+        return String.format(Locale.US, "%3.5f^%3.5f^%2.1f^%s",
+                value.lat, value.lng, value.radius, value.name);
+    }
+
+    @Override public Area fromExternal(String external) {
+        String[] elements = external.split("\\^");
+        if (elements.length != 4) {
+            Tesla.logger.severe("Malformed Area String: " + external);
+            return new Area();
+        }
+        double lat, lng, radius;
+        try {
+            lat = Double.valueOf(elements[0]);
+            lng = Double.valueOf(elements[1]);
+            radius = Double.valueOf(elements[2]);
+            return new Area(lat, lng, radius, elements[3]);
+        } catch (NumberFormatException e) {
+            Tesla.logger.severe("Malformed Area String: " + external);
+            return new Area();
+        }
+    }
+
+    @Override public String formatted(Area value) {
+        return String.format("%s [%3.5f, %3.5f], %2.1f meters",
+                value.name, value.lat, value.lng, value.radius);
+    }
 }
 

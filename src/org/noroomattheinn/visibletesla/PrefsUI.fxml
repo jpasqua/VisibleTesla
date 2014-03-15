@@ -135,13 +135,9 @@
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
-                <Slider fx:id="minChargeVal" layoutX="178.0" layoutY="14.0" min="50.0" prefWidth="256.0" showTickLabels="true" showTickMarks="true" />
-                <Label layoutX="14.0" layoutY="14.0" text="Value for &quot;Charge: Low&quot;" />
-                <Label fx:id="minChargeDisplay" alignment="CENTER_RIGHT" layoutX="434.0" layoutY="14.0" prefWidth="37.0" text="50" textAlignment="RIGHT" />
-                <Label layoutX="472.0" layoutY="14.0" prefWidth="16.0" text="\%" />
-                <Label layoutX="14.0" layoutY="65.0" text="&quot;Safe&quot; includes:" />
-                <CheckBox fx:id="safeMinCharge" layoutX="122.0" layoutY="65.0" mnemonicParsing="false" text="Minimum Battery Power" />
-                <CheckBox fx:id="safePlugged" layoutX="122.0" layoutY="82.0" mnemonicParsing="false" text="Vehicle Plugged-In" />
+                <Label text="&quot;Safe&quot; includes:" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                <CheckBox fx:id="safeMinCharge" mnemonicParsing="false" text="Minimum Battery Power" AnchorPane.leftAnchor="122.0" AnchorPane.topAnchor="10.0" />
+                <CheckBox fx:id="safePlugged" mnemonicParsing="false" text="Vehicle Plugged-In" AnchorPane.leftAnchor="122.0" AnchorPane.topAnchor="30.0" />
               </children>
             </AnchorPane>
           </content>

@@ -14,6 +14,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.visibletesla.AppContext;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.AnyChange;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.Becomes;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.EQ;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.FallsBelow;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.GT;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.HitsOrExceeds;
+import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.LT;
 
 /**
  * Trigger: Encapsulates a Subject, Predicate, and Target and triggers when
@@ -100,7 +107,12 @@ public class Trigger<T extends Comparable<T>> {
         internalize();
     }
     
-    public String evalPredicate(T newVal) {
+    public Predicate getPredicate() { return predicate; }
+    public Subject getSubject() { return subject; }
+    public Target getTarget() { return target; }
+    
+    
+    public Result evalPredicate(T newVal) {
         subject.set(newVal);
         if (isEnabled.get()) {
             
@@ -108,32 +120,7 @@ public class Trigger<T extends Comparable<T>> {
             
             if (predicate.satisfied(subject.get())) {
                 lastDaySatisfied = new GregorianCalendar();
-                Predicate.Type type = predicate.getType();
-                switch (type) {
-                    case HitsOrExceeds:
-                    case FallsBelow:
-                        return String.format("%s %s %s (%s)",
-                            subject.getName(), predicate.toString(),
-                            target.formatted(), subject.formatted());
-                    case Becomes:
-                        return String.format("%s became: %s",
-                            subject.getName(), subject.formatted());
-                    case AnyChange:
-                        return String.format("%s Activity: %s",
-                            subject.getName(), subject.formatted());
-                    case EQ:
-                    case LT:
-                    case GT:
-                        return String.format("%s %s %s",
-                            subject.getName(), predicate.toString(), target.formatted());
-                }
-                // If we ever get here it is a bug in the code - I added a type
-                // and didn't account for it in the switch. Do something useful...
-                Tesla.logger.severe("Unexpected Predicate type in evalPredicate: " + type);
-                return String.format(
-                        "%s %s %s (%s)",
-                        subject.getName(), predicate.toString(),
-                        target.formatted(), subject.formatted());
+                return new Result(this);
             }
         }
         return null;
@@ -223,5 +210,47 @@ public class Trigger<T extends Comparable<T>> {
         }
     }
     
+    public static class Result {
+        private Trigger trigger;
 
+        Result(Trigger t) {
+            this.trigger = t;
+        }
+
+        public String getSubject() { return trigger.getSubject().getName(); }
+        public String getPredicate() { return trigger.getPredicate().toString(); }
+        public String getTarget() { return trigger.getTarget().formatted(); }
+        public String getCurrentValue() { return trigger.getSubject().formatted(); }
+
+        public String defaultMessage() {
+                Predicate predicate = trigger.getPredicate();
+                Subject subject = trigger.getSubject();
+                Target target = trigger.getTarget();
+                switch (predicate.getType()) {
+                    case HitsOrExceeds:
+                    case FallsBelow:
+                        return String.format("%s %s %s (%s)",
+                            subject.getName(), predicate.toString(),
+                            target.formatted(), subject.formatted());
+                    case Becomes:
+                        return String.format("%s became: %s",
+                            subject.getName(), subject.formatted());
+                    case AnyChange:
+                        return String.format("%s Activity: %s",
+                            subject.getName(), subject.formatted());
+                    case EQ:
+                    case LT:
+                    case GT:
+                        return String.format("%s %s %s",
+                            subject.getName(), predicate.toString(), target.formatted());
+                }
+                // If we ever get here it is a bug in the code - I added a type
+                // and didn't account for it in the switch. Do something useful...
+                Tesla.logger.severe("Unexpected Predicate type: " + predicate.getType());
+                return String.format(
+                        "%s %s %s (%s)",
+                        subject.getName(), predicate.toString(),
+                        target.formatted(), subject.formatted());
+        }
+    }
 }

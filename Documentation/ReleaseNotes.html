@@ -19,81 +19,127 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
-		<h3>
-			VisibleTesla 0.25.07 [02-23-2014] - EXPERIMENTAL
-		</h3>
-		<ul>
-			<li>User-Visible Changes
-				<ul>
-					<li>General
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: VisibleTesla used to overwrite its log file every time it runs. This made it easy to lose old logs if your not careful. The app now keeps around several old versions of the log file. Users need never pay attention to the log file unless they are reporting a bug.
-							</li>
-						</ul>
-					</li>
-					<li>Login
-						<ul>
-						</ul>
-					</li>
-					<li>Overview
-						<ul>
-						</ul>
-					</li>
-					<li>HVAC
-						<ul>
-						</ul>
-					</li>
-					<li>Location
-						<ul>
-						</ul>
-					</li>
-					<li>Charge
-						<ul>
-						</ul>
-					</li>
-					<li>Graphs
-						<ul>
-						</ul>
-					</li>
-					<li>Trips
-						<ul>
-						</ul>
-					</li>
-					<li>Scheduler
-						<ul>
-							<li>
-								<span class="added">Addition</span>: Added a <span class="ui">Charge: Set</span> command that allows the user to change the charge target on a set schedule without actually initiating a charge. This is useful for cases when the user wants to use the car's built-in charge scheduler, but still wants to change the charge target. 
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: The temperature target was ignoring the units setting and always using fahrenheit. 
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: Using the Up/Down arrows to adjust the value of the temperature target could cause bad behavior (including a crash). This was caused by something outside of the control of VisibleTesla, so for the moment this functionality has been removed. The temperature target can only be set by adjusting the slider. The numeric field is for readout purposes only. 
-							</li>
-						</ul>
-					</li>
-					<li>Notify
-						<ul>
-						</ul>
-					</li>
-					<li>Prefs
-						<ul>
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>Under-the-covers
-				<ul>
-					<li>Overhauled the SchedulerUI fxml file to make it easier to maintain and update. No visible changes to the user.</li>
-				</ul>
-			</li>
-			<li>Known problems
-				<ul>
-				</ul>
-			</li>
-		</ul>
-		<hr>
+			<h3>
+				VisibleTesla 0.26.00 [03-14-2014]
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: <b><font color="red">[EXPERIMENTAL]</font></b> - Trying a different approach to implementing proxies. Continuing to look for an approach that works.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+						</li>
+						<li>Overview
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+						</li>
+						<li>Scheduler
+						</li>
+						<li>Notify
+							<ul>
+								<li>
+									<span class="added">Addition</span>: Customized Addresses and Subjects
+									<p>
+										Added the capbility to customize the messages sent for each notification. This allows you to override the email address and/or subject line for each type of notification. For example, you may configure the <span class="ui">Speed Hits or Exceeds</span> notification to be sent to a different email address than the one configured in the <a href="pages/PrefsTab.html">Prefs Tab</a>. You could also configure the subject of the <span class="ui">Charge State Becomes</span> notification to be a special word or phrase. This functionality can be used to take actions based on these notifications using a system like <a target="_blank" href="https://ifttt.com">IFTTT</a>.
+									</p>
+									<p>
+										To use this feature, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up allowing you to specify an email address and/or a subject. You may also select <span class="ui">Use default values</span>, in which case the default email address and subject will be used. If you leave either field (email address or subject) blank, the default will be used for the blank item.
+									</p>
+								</li>
+								<li>
+									<span class="added">Addition</span>: Geofencing <b><font color="red">[EXPERIMENTAL]</font></b>
+									<p>
+										You can now get a notification when your car enters a specified area or exists a specified area. These areas can be different. An area is defined by a location and a radius in meters. You set the location by typing in an address. The corresponding latitude and longitude are determined for you. A slider allows you to specify a radius around that location to yield the area of interest. You define this area by pressing the <span class="ui">Define Area</span> button next to the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> checkboxes. 
+									</p>
+									<p>
+										Pressing this button will pop up a dialog that lets you enter the address which defines the center of the area. You'll notice that the <span class="ui">OK</span> button is disabled any time you edit the address field. To make it active you must press the <span class="ui">Lookup</span> button. It will lookup the address and show it to you on a map to ensure it can be found and is what you intended. If it's not, you can change the address and try again. If it is what you want, just make sure the radius is set to your liking and hit <span class="ui">OK</span>.
+									</p>								
+								</li>
+							</ul>
+						</li>
+						<li>Prefs
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>
+						<li>Removed some code that is no longer used.
+						</li>
+					</ul>
+				</li>
+				<li>Known problems
+				</li>
+			</ul>
+			<hr>
+			<h3>
+				VisibleTesla 0.25.07 [02-23-2014] - EXPERIMENTAL
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: VisibleTesla used to overwrite its log file every time it runs. This made it easy to lose old logs if your not careful. The app now keeps around several old versions of the log file. Users need never pay attention to the log file unless they are reporting a bug.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+						</li>
+						<li>Overview
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+						</li>
+						<li>Scheduler
+							<ul>
+								<li>
+									<span class="added">Addition</span>: Added a <span class="ui">Charge: Set</span> command that allows the user to change the charge target on a set schedule without actually initiating a charge. This is useful for cases when the user wants to use the car's built-in charge scheduler, but still wants to change the charge target.
+								</li>
+								<li>
+									<span class="fixed">Fix</span>: The temperature target was ignoring the units setting and always using fahrenheit.
+								</li>
+								<li>
+									<span class="fixed">Fix</span>: Using the Up/Down arrows to adjust the value of the temperature target could cause bad behavior (including a crash). This was caused by something outside of the control of VisibleTesla, so for the moment this functionality has been removed. The temperature target can only be set by adjusting the slider. The numeric field is for readout purposes only.
+								</li>
+							</ul>
+						</li>
+						<li>Notify
+						</li>
+						<li>Prefs
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>
+						<li>Overhauled the SchedulerUI fxml file to make it easier to maintain and update. No visible changes to the user.
+						</li>
+					</ul>
+				</li>
+				<li>Known problems
+				</li>
+			</ul>
+			<hr>
 			<h3>
 				VisibleTesla 0.25.06 [02-22-2014] - EXPERIMENTAL
 			</h3>
@@ -146,7 +192,6 @@
 									</p>
 									<p>
 										Note that this option replaces the separate <span class="ui">Charge: Min</span>, <span class="ui">Charge: Min</span>, and <span class="ui">Charge: Max</span> commands. <font color="red">IMPORTANT: If you have used these commands in the past you must <b>manually</b> replace them with settings on the <span class="ui">Charge: Start</span> command.</font>
-										
 									</p>
 								</li>
 								<li>
@@ -189,7 +234,10 @@
 					</ul>
 				</li>
 				<li>Under-the-covers
-					<ul>Refactored code related to Dialog boxes into a new package.</ul>
+					<ul>
+						<li style="list-style: none">Refactored code related to Dialog boxes into a new package.
+						</li>
+					</ul>
 				</li>
 				<li>Known problems
 					<ul>
@@ -275,7 +323,7 @@
 			</ul>
 			<hr>
 			<h3>
-				VisibleTesla 0.25.04 [01-26-2013]
+				VisibleTesla 0.25.04 [01-26-2014]
 			</h3>
 			<ul>
 				<li>User-Visible Changes
@@ -360,7 +408,7 @@
 			</ul>
 			<hr>
 			<h3>
-				VisibleTesla 0.25.03 [01-18-2013]
+				VisibleTesla 0.25.03 [01-18-2014]
 			</h3>
 			<ul>
 				<li>User-Visible Changes

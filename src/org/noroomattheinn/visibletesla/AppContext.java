@@ -66,7 +66,7 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.25.07";
+    public static final String ProductVersion = "0.26.00";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -153,7 +153,6 @@ public class AppContext {
         appFilesFolder = ensureAppFilesFolder();
         mailer = new MailGun("api",  prefs.useCustomMailGunKey.get() ?
                 prefs.mailGunKey.get() : MailGunKey);
-        establishProxy();
     }
 
     public void prepForVehicle(Vehicle v) {
@@ -210,6 +209,12 @@ public class AppContext {
     
     private static final int SubjectLength = 30;
     public boolean sendNotification(String addr, String msg) {
+        String subject = StringUtils.left(msg, SubjectLength);
+        if (msg.length() > SubjectLength) subject = subject + "...";
+        return sendNotification(addr, subject, msg);
+    }
+    
+    public boolean sendNotification(String addr, String subject, String msg) {
         if (msg == null) return true;
         Tesla.logger.fine("Notification: " + msg);
         if (addr == null || addr.length() == 0) {
@@ -218,8 +223,6 @@ public class AppContext {
             return false;
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        int msgLen = msg.length();
-        String subject = StringUtils.left(msg, SubjectLength) + (msgLen > SubjectLength ? "..." : "");
         String body = date + "\n" + msg;
         if (!mailer.send(addr, subject, body)) {
             Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
@@ -322,16 +325,7 @@ public class AppContext {
         }
         return (path == null) ? null : new File(path);
     }
-    
-    private void establishProxy() {
-        if (prefs.enableProxy.get()) {
-            System.setProperty("http.proxyHost", prefs.proxyHost.get());
-            System.setProperty("http.proxyPort", String.valueOf(prefs.proxyPort.get()));
-            System.setProperty("https.proxyHost", prefs.proxyHost.get());
-            System.setProperty("https.proxyPort", String.valueOf(prefs.proxyPort.get()));
-        }
-    }
-    
+        
 /*------------------------------------------------------------------------------
  *
  * Managing Threads and Handling clean shutdown

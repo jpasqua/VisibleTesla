@@ -155,13 +155,10 @@ public class PrefsController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    @FXML private Slider minChargeVal;
-    @FXML private Label  minChargeDisplay;
     @FXML private CheckBox safeMinCharge;
     @FXML private CheckBox safePlugged;
     
     private void initSchedulerPrefsUI() {
-        bindToIntegerProperty(minChargeVal, minChargeDisplay, appContext.prefs.lowChargeValue);
         bindToCheckBox(safeMinCharge, appContext.prefs.safeIncludesMinCharge);
         bindToCheckBox(safePlugged, appContext.prefs.safeIncludesPluggedIn);
     }

@@ -49,9 +49,7 @@ public class Predicate<T extends Comparable<T>> {
     public boolean satisfied(T current) {
         boolean satisfied = false;
         T target = targetContainer.get();
-        
-        dump(current, target);
-        
+                
         if (type == Type.AnyChange) {
             satisfied = true;
         } else if (type == Type.GT || type == Type.LT || type == Type.EQ) {
@@ -69,6 +67,8 @@ public class Predicate<T extends Comparable<T>> {
             }
         }
         last = current;
+        dump(current, target, satisfied);
+
         return satisfied;
     }
     
@@ -85,9 +85,9 @@ public class Predicate<T extends Comparable<T>> {
         return type.name();
     }
     
-    private void dump(T current, T target) {
-//        System.err.format("satisifed: Type: %s, Current: %s, Target: %s, Last: %s\n",
-//                type.toString(), current.toString(), target.toString(),
+    private void dump(T current, T target, boolean satisfied) {
+//        System.err.format("satisifed: %b, Type: %s, Current: %s, Target: %s, Last: %s\n",
+//                satisfied, type.toString(), current.toString(), target.toString(),
 //                last == null ? "null" : last.toString());
     }
     

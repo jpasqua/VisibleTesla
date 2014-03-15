@@ -22,6 +22,8 @@
             <CheckBox fx:id="socHits" mnemonicParsing="false" prefWidth="164.0" text="SOC Hits or Exceeds" />
             <Slider fx:id="socHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
             <BigDecimalField fx:id="socHitsField" prefWidth="80.0" />
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button fx:id="socHitsOptions" alignment="CENTER" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
         <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
@@ -29,6 +31,8 @@
             <CheckBox fx:id="socFalls" mnemonicParsing="false" prefWidth="164.0" text="SOC Falls Below" />
             <Slider fx:id="socFallsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
             <BigDecimalField fx:id="socFallsField" prefWidth="80.0" />
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button fx:id="socFallsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
         <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="369.0" spacing="15.0">
@@ -48,6 +52,8 @@
                 </FXCollections>
               </items>
             </ComboBox>
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button fx:id="chargeBecomesOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
         <Line endX="440.0" endY="0.0" startX="-150.0" />
@@ -57,12 +63,39 @@
             <Slider fx:id="speedHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
             <BigDecimalField fx:id="speedHitsField" prefWidth="80.0" />
             <Label fx:id="speedUnitsLabel" text="mph" />
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button fx:id="speedHitsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
         <Line endX="440.0" endY="0.0" startX="-150.0" />
         <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
           <children>
             <CheckBox fx:id="schedulerEvent" mnemonicParsing="false" text="Scheduler Event Triggered" />
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button fx:id="seOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+          </children>
+        </HBox>
+        <Line endX="440.0" endY="0.0" startX="-150.0" />
+        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
+          <children>
+            <CheckBox id="schedulerEvent" fx:id="carEntered" mnemonicParsing="false" text="Car entered area" />
+            <Button id="defineEnterArea" fx:id="defineEnterButton" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+            <Label text="EXPERIMENTAL" textFill="RED">
+              <font>
+                <Font name="Calibri Italic" size="13.0" fx:id="x1" />
+              </font>
+            </Label>
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button id="seOptions" fx:id="carEnteredOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+          </children>
+        </HBox>
+        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
+          <children>
+            <CheckBox id="schedulerEvent" fx:id="carLeft" mnemonicParsing="false" prefWidth="126.0" text="Car left area" />
+            <Button id="defineExitArea" fx:id="defineLeftButton" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+            <Label font="$x1" text="EXPERIMENTAL" textFill="RED" />
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button id="seOptions" fx:id="carLeftOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
       </children>

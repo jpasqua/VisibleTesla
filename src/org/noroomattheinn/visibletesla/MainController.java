@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import javafx.application.Application;
@@ -146,7 +145,6 @@ public class MainController extends BaseController {
      */
     public void start(Application a, Stage s) {
         appContext = new AppContext(a, s);
-        setupProxy();
         
         inactivityMode = readInactivityMenu();
         
@@ -154,8 +152,12 @@ public class MainController extends BaseController {
         appContext.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
 
+        
         tesla = new Tesla();
         tesla.setCookieDir(appContext.appFilesFolder);
+        if (appContext.prefs.enableProxy.get())
+            tesla.setProxy(appContext.prefs.proxyHost.get(),
+                           appContext.prefs.proxyPort.get());
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
@@ -485,17 +487,6 @@ public class MainController extends BaseController {
         return instanceLock != null;
     }
     
-    
-    private void setupProxy() {
-        if (appContext.prefs.enableProxy.get()) {
-            Properties properties = System.getProperties();
-            properties.put("http.proxyHost", appContext.prefs.proxyHost);
-            properties.put("http.proxyPort", appContext.prefs.proxyPort);
-            properties.put("https.proxyHost", appContext.prefs.proxyHost);
-            properties.put("https.proxyPort", appContext.prefs.proxyPort);
-        }
-    }
-
     private void setTitle() {
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
         String time = String.format("%1$tH:%1$tM", new Date());
