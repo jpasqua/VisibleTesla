@@ -76,6 +76,7 @@
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Stats Data..." fx:id="exportStatsMenuItem" />
                 <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Location Data..." fx:id="exportLocMenuItem" />
+                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Vampire Loss..." fx:id="vampireLossMenuItem" />
                 <MenuItem mnemonicParsing="false" onAction="#closeHandler" text="Close">
                   <accelerator>
                     <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />

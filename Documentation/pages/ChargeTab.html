@@ -77,7 +77,46 @@
                             State
                         </td>
                         <td>
-                            Charging, Complete, Disconnected, Stopped, Starting, NoPower or Unknown
+                            <table class="grid_table" style="margin-left:0">
+                                <tbody>
+                                    <tr>
+                                        <th>
+                                            State
+                                        </th>
+                                        <th>
+                                            Description
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>Stopped</td>
+                                        <td>The car is connected to a power source, but is not in a charging cycle.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Starting</td>
+                                        <td>The car is connected to a power source and is beginning a charging cycle.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Charging</td>
+                                        <td>The car is actively charging.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Complete</td>
+                                        <td>The car was charging and completed its charge cycle.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Disconnected</td>
+                                        <td>The car is not connected to a power source</td>
+                                    </tr>
+                                    <tr>
+                                        <td>NoPower</td>
+                                        <td>A charging cycle was in progress, but power was disconnected.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unknown</td>
+                                        <td>Your car is either not reporting its charge status or it reported a value that VisibleTesla does not understand.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </td>
                     </tr>
                     <tr>

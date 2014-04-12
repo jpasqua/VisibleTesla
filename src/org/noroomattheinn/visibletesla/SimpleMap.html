@@ -1,0 +1,71 @@
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+var position = new google.maps.LatLng(LAT, LONG);
+
+// The original: http://www.noroomattheinn.org/images/arrow.png
+// Converter: http://software.hixie.ch/utilities/cgi/data/data
+var arrowImage = 
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAg'          +
+    'CAYAAAAIXrg4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEPElEQVRIia2Uz29UVRT' +
+    'HP%2Bfe%2B94MQyhOK4VYKRIRUTEhFIUGA5hASIlUiW2tMQEWioEEVkYTNjgLQ9' +
+    'z6H7hgYUgMCyObrog%2FICEkkhjQgAuIQmlqkE6nfTPv3uPivU6LBWyhLznJnZe' +
+    '538%2F9fs%2B5D1VlrvUVFL5eu7ZjPnsM83j2btmyoRHC8fnsmRegvbW1ZzKED9' +
+    '4QeWbhAb29pahY7FPVpasXL9694IC0UOh2UbTOq1K0dqAiMqe9cwaYQqFPosh6w' +
+    'IpsG2ltfWnhAPv3t5vI7UUDAJFQEtF3Fgzg43gnUdyBCCIAgsW8O7By5aIFAZg4' +
+    'HsQ51BiMGBBwyqsd1ermJwccOfKiGLMdAGsxAhaIjDhrpe%2FJAXG8h0LcgjFgH' +
+    'VYEiyCAxez9cOnS1scHVCoxMIAYcA4ihxWDA4xAbExnuVDY%2BfiARmMjIhsxkg' +
+    'FchDUGZzIXsREK8MiYHg2o1%2FuIonjq9EQOZw0RQiRZTLExOz9dvvz5%2BQNOn' +
+    'WohmezFCBgL1uU9MDgRnAhWhKJIuajaM3%2FA5cs7UNYgAtaCs5kDESIBJ2DJIL' +
+    'GV994UcfMDVKuDGBHE5AAHLotoyoFDACUWu6m7ra1r7oAvK51MTOxENRsXI8wcU' +
+    '5ePqjUgWUzFRc498NPxYMAfN3vQsAzNf4uAGMhvshXJzOUCASU2su%2BzZcuWzA' +
+    'VgqU70o8p0TYHyyteSvwhABGti2P7%2FgGPH1vvaeDchZOJBQUMTJE1SxtWcbsT' +
+    'YonOz7sQswL1bt%2FZZH0r4AGF2habwtDEF0oy%2B%2B1hb27MPB1QqpeTe3X0E' +
+    'f7%2Bw92TvPKpKgBklBAUPxGJWlON410MBNy5d2qr1xsvpTGGfgp9ah2nhvDUBJ' +
+    'Qj43I5RfV9E5IGAZGysT3xwIYTsxD6vNIU0WwedPr1H74M1VLEiW46Xy6%2FMAg' +
+    'wfPtw%2BWav1NDSgqnk8PhdO8%2FIEVTxZJFPiIW%2B2R3HGLLFx3DsLcOfq1V3' +
+    'q05UNVcJURE1x33Tgc0BguhearxXBA2JM38cdHaVpQKViarVqP0EJQdGg%2F2ly' +
+    'vl0Em19sFdMc0zBjmrwGrOj6suomAAdw%2Bfz5F5LJ%2BnZnbRbP1L%2BzTw2Ne' +
+    'p2RsXvcTZKbt5P6P5OwKgp%2BiSiYvJ8%2BhwQgxkQFTQeAcw6gOjr6VqT6lAUs' +
+    'StJocHd8nNF6%2Fa%2Fh4Tu%2F1eL4h%2BEk%2BXm8peVKaXCwOjY0tKo6MrIhT' +
+    'ExsC0nS5WC1Uy05I9jcmRGz55OWlqdFDx4snr148Vzw6WuJMaN1666kpdKPd9L0' +
+    'p787O3%2F54ujRP9mxw38O9vWzZ%2B3NM2ds16FDje%2B6uvRX0LcrlcUXv%2F1' +
+    'mjak1ukOtttWm6SYHzxWNiRLVj%2BT7np7CjWvXNt9OkpZkxYrfT164cF2nHVOp' +
+    'VMyJEycAOH36dHO%2BAfr7%2BzVPpfmcPHCg7frQ0DrGxlrby%2BXr%2FwIZEii' +
+    'xNRvS%2BgAAAABJRU5ErkJggg%3D%3D';
+
+var map;
+function initialize() {
+    var mapOptions = {
+      zoom: ZOOM,
+      center: position
+    };
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    var marker = new google.maps.Marker({
+      position: position,
+      map: map,
+      title: 'TITLE',
+      icon: arrowImage
+    });
+
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+  </body>
+</html>

@@ -79,7 +79,7 @@ public class OverviewController extends BaseController {
     @FXML private ImageView nineteenRimFront, nineteenRimRear;
     @FXML private ImageView aeroFront, aeroRear;
     @FXML private ImageView cycloneFront, cycloneRear;
-    
+    @FXML private ImageView seatsTanImg, seatsGrayImg;
 
     // Driver Side
     @FXML private ImageView dfOpenImg, dfClosedImg;
@@ -245,6 +245,7 @@ public class OverviewController extends BaseController {
         updateOdometer();
         updateChargePort();
         updateEmblem();
+        updateSeats();
     }
     
     
@@ -348,6 +349,32 @@ public class OverviewController extends BaseController {
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
         greenGlowImage.setVisible(charge.state.chargingState == ChargeState.Status.Charging);
+    }
+    
+    private void updateSeats() {
+        seatsGrayImg.setVisible(false);
+        seatsTanImg.setVisible(false);
+        switch (vehicle.getOptions().seatType()) {
+            case IPMG:  // Leather, Gray
+            case IZMG:  // Perf Leather with Piping, Gray
+            case IZZW:  // Perf Leather with Grey Piping, White
+            case ISZW:  // Signature Perforated Leather, White
+                seatsGrayImg.setVisible(true);
+                break;
+            case IPMT:  // Leather, Tan
+            case IZMT:  // Perf Leather with Piping, Tan
+            case ISZT:  // Signature Perforated Leather, Tan
+                seatsTanImg.setVisible(true);
+                break;
+            case QZMB:  // Perf Leather with Piping, Black
+            case IZMB:  // Perf Leather with Piping, Black
+            case IBMB:  // Base Textile, Black
+            case IPMB:  // Leather, Black
+            case ISZB:  // Signature Perforated Leather, Black
+            default:
+                // The seats that are "built in" to the body image are black
+                // so there is nothing we have to do here
+        }
     }
     
     private void updateEmblem() {

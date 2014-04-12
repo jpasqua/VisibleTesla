@@ -128,29 +128,40 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         return r.success;
     }
     
+    private boolean requiresSafeMode(ScheduleItem.Command command) {
+        return (command == ScheduleItem.Command.HVAC_ON);
+    }
+    
     private boolean safeToRun(ScheduleItem.Command command) {
+        if (!requiresSafeMode(command)) return true;
+        
         String name = ScheduleItem.commandToName(command);
-        if (command == ScheduleItem.Command.HVAC_ON) {
-            if (appContext.prefs.safeIncludesMinCharge.get() &&
-                charge.state.batteryPercent < Safe_Threshold) {
+        if (appContext.prefs.safeIncludesMinCharge.get()) {
+            if (charge.state.batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
                 logActivity(entry);
                 return false;
             }
-            
-            if (appContext.prefs.safeIncludesPluggedIn.get()) {
-                if (charge.state.chargerPilotCurrent < 1) {
-                    charge.refresh();  // Be double sure!
-                    if (charge.state.chargerPilotCurrent < 1) {
-                        String entry = String.format(
-                                "%s: Vehicle not plugged in - aborted", name);
-                        logActivity(entry);
-                        return false;
-                    }
-                }
+        }
+
+        if (appContext.prefs.safeIncludesPluggedIn.get()) {
+            String msg;
+
+            switch (ChargeController.getPilotCurent(charge)) {
+                case -1:
+                    msg = String.format("%s: Can't tell if car is plugged in - aborted", name);
+                    logActivity(msg);
+                    return false;
+                case 0:
+                    msg = String.format("%s: Car is not plugged in - aborted", name);
+                    logActivity(msg);
+                    return false;
+                default:
+                    return true;
             }
         }
+        
         return true;
     }
     
@@ -169,20 +180,18 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     }
     
     private synchronized Result unpluggedTrigger() {
-        if (charge.state.chargerPilotCurrent < 1) {
-            // Unfortunately the charge state can be flakey. It might read a pilot
-            // current of 0 first, then change to the proper value. For that reason,
-            // fetch the charge state again and double check.
-            Utils.sleep(1000);
-            if (charge.refresh() && charge.state.chargerPilotCurrent < 1) {
-                appContext.sendNotification(
-                    appContext.prefs.notificationAddress.get(),
-                    "Your car is not plugged in!");
-                return new Result(true, "Vehicle is unplugged. Notification sent");
-            }
+        int pilotCurrent = ChargeController.getPilotCurent(charge);
+        if (pilotCurrent == 0) {
+            appContext.sendNotification(
+                appContext.prefs.notificationAddress.get(),
+                "Your car is not plugged in!");
+            return new Result(true, "Vehicle is unplugged. Notification sent");
+        } else if (pilotCurrent == -1) {
+            return new Result(true, "Can't tell if car is plugged in. No notification sent");
         }
         return new Result(true, "Vehicle is plugged-in. No notification sent");
     }
+    
     
 /*------------------------------------------------------------------------------
  *

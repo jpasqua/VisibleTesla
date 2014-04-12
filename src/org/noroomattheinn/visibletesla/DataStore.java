@@ -99,7 +99,7 @@ public abstract class DataStore implements StatsPublisher {
         appContext.launchThread(new Loader(period), "00 - DataLoader");
     }
     
-    public final Map<Long,Map<String,Double>> getData() {
+    public final TreeMap<Long,Map<String,Double>> getData() {
         return dataLoaded ? rows : null;
     }
     

@@ -58,7 +58,7 @@ import org.noroomattheinn.utils.Utils;
 /**
  * TripController:
  * 
- * @author joe
+ * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class TripController extends BaseController {
 

@@ -78,12 +78,10 @@ public class LocationController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     @FXML void launchButtonHandler(ActionEvent event) {
+        // TITLE, ZOOM, LAT, LNG
         SnapshotState.State state = appContext.lastKnownSnapshotState.get();
         if (state == null) return;
-        String url = String.format(
-                "https://maps.google.com/maps?q=%f,%f(Tesla)&z=18&output=embed",
-                state.estLat, state.estLng);
-        appContext.app.getHostServices().showDocument(url);
+        appContext.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
     }
     
 /*------------------------------------------------------------------------------
@@ -179,7 +177,7 @@ public class LocationController extends BaseController {
                     AppContext.GoogleMapsAPIKey
                 );
     }
-    
+        
 /*------------------------------------------------------------------------------
  *
  * Handle the anitmation associated with the "loading" screen

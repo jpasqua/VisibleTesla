@@ -153,15 +153,20 @@
 			<p>
 				The dialog box has three buttons at the bottom: <span class="ui">Cancel</span>, <span class="ui">OK</span>, and <span class="ui">Lookup</span>. You'll notice that the <span class="ui">OK</span> button is disabled any time you edit the address field. To make it active you must press the <span class="ui">Lookup</span> button. It will lookup the address and show it to you on a map to ensure it can be found and is what you intended. If it's not, you can change the address and try again. If it is what you want, just make sure the radius is set to your liking and hit <span class="ui">OK</span>.
 			</p>
-			<h2>Custom Address and Subject</h2>
+			<h2>
+				Custom Address and Subject
+			</h2>
 			<p>
-				VisibleTesla allows you to optionally specify the email address and subject to use for each type of notification. This can be useful if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line. To use this feature, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address and/or a subject. You may also select <span class="ui">Use default values</span>, in which case the default email address and subject will be used. If you leave either field (email address or subject) blank, the default will be used for the blank item.
+				VisibleTesla allows you to optionally specify the email address and subject to use for each type of notification. This can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for notifications that you feel are more urgent. You could also use this facility if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.
+			</p>
+			<p>
+				To use this feature, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address and/or a subject. You may also select <span class="ui">Use default values</span>, in which case the default email address and subject will be used. If you leave either field (email address or subject) blank, the default will be used for the blank item.
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24a_Notify_Options.png' alt='Notify Tab'>
 			</p>
 			<p>
-				Notifications are sent via a hosted service and will not require you to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored.
+				Notifications are sent via a hosted service (MailGun) and will not require you to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored. Advanced users may use their own MailGun account as described <a href="PrefsTab.html#mailgunkey">here</a>.
 			</p>
 		</div>
 		<div id="footer"></div>

@@ -24,7 +24,7 @@ import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Area;
 
 /**
- * NotifyOptionsDialog
+ * GeoOptionsDialog
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -36,6 +36,7 @@ public class GeoOptionsDialog implements DialogUtils.DialogController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
+    
 
 /*------------------------------------------------------------------------------
  *
@@ -166,10 +167,7 @@ public class GeoOptionsDialog implements DialogUtils.DialogController {
                 latLabel.setText(String.format("%3.5f", latLng[0]));
                 lngLabel.setText(String.format("%3.5f", latLng[1]));
                 okButton.setDisable(false);
-                String url = String.format(
-                        "https://maps.google.com/maps?q=%f,%f(Area)&z=18&output=embed",
-                        latLng[0], latLng[1]);
-                appContext.app.getHostServices().showDocument(url);
+                appContext.showSimpleMap(latLng[0], latLng[1], "Area", 18);
                 return latLng;
             }
         }

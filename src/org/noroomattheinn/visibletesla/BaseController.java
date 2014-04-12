@@ -310,6 +310,10 @@ abstract class BaseController {
             if (w.getState() == Worker.State.SUCCEEDED) {
                 // The task succeeded, now check if the lookup succeeded!
                 result = w.getValue();
+            } else {
+                Tesla.logger.warning("Exception during IssueCommand: " +
+                        w.getException().getLocalizedMessage());
+                action = AfterCommand.Nothing;
             }
 
             showProgressUI(false);

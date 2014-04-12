@@ -193,6 +193,16 @@ public class ChargeController extends BaseController {
         stopButton.setDisable(!isConnectedToPower);
     }
     
+    public static int getPilotCurent(ChargeState cs) {
+        for (int i = 0; i < 3; i++) {
+            int pilotCurrent = cs.state.chargerPilotCurrent;
+            if (pilotCurrent >= 0) return pilotCurrent;
+            Utils.sleep(1000);
+            cs.refresh();
+        }
+        return -1;
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Methods to Reflect the Status of the Charge
@@ -201,7 +211,9 @@ public class ChargeController extends BaseController {
     
     private void reflectProperties() {
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        pilotCurrent.setValue(String.valueOf(charge.state.chargerPilotCurrent));
+        int pc = charge.state.chargerPilotCurrent;
+        if (pc == -1) pilotCurrent.setValue("Unknown");
+        else pilotCurrent.setValue(String.valueOf(pc));
         voltage.setValue(String.valueOf(charge.state.chargerVoltage));
         batteryCurrent.setValue(String.format("%.1f", charge.state.batteryCurrent));
         nRangeCharges.setValue(String.valueOf(charge.state.maxRangeCharges));

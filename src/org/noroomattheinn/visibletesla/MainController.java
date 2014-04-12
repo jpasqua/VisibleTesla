@@ -123,6 +123,7 @@ public class MainController extends BaseController {
     private List<Tab> tabs;
     
     @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem;
+    @FXML private MenuItem vampireLossMenuItem;
     
     // The menu items that are handled in this controller directly
     @FXML private RadioMenuItem allowSleepMenuItem;
@@ -145,6 +146,7 @@ public class MainController extends BaseController {
      */
     public void start(Application a, Stage s) {
         appContext = new AppContext(a, s);
+        Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
         
         inactivityMode = readInactivityMenu();
         
@@ -373,9 +375,11 @@ public class MainController extends BaseController {
                 selectedVehicle.getVIN()+"_InactivityMode",
                 InactivityType.Daydream.name());
         // The names changed, do any required fixup of old stored values!
-        if (modeName.equals("AllowSleeping")) modeName = "Sleep";
-        else if (modeName.equals("AllowDaydreaming")) modeName = "Daydream";
-        else if (modeName.equals("StayAwake")) modeName = "Awake";
+        switch (modeName) {
+            case "AllowSleeping": modeName = "Sleep"; break;
+            case "AllowDaydreaming": modeName = "Daydream"; break;
+            case "StayAwake": modeName = "Awake"; break;
+        }
 
         inactivityMode = InactivityType.valueOf(modeName);
         setInactivityMenu(inactivityMode);
@@ -644,6 +648,9 @@ public class MainController extends BaseController {
             appContext.statsStore.exportCSV();
         if (mi == exportLocMenuItem)
             appContext.locationStore.exportCSV();
+        if (mi == this.vampireLossMenuItem) {
+            appContext.vampireStats.showStats();
+        }
     }
     
     // Options->"Allow Sleep" and Options->"Allow Daydreaming" menu options

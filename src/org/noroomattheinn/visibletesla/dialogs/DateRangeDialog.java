@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.noroomattheinn.visibletesla.DataStore;
 
@@ -25,6 +26,7 @@ public class DateRangeDialog implements DialogUtils.DialogController {
     private Calendar end = null;
     private boolean selectedAll = false;
     private Map props;
+    private Calendar highlightStart, highlightEnd;
     
     @FXML private AnchorPane root;
     @FXML private ResourceBundle resources;
@@ -71,10 +73,22 @@ public class DateRangeDialog implements DialogUtils.DialogController {
     
     @FXML void initialize() {
         quickSelect.valueProperty().addListener(handleQuickSelect);
+        calendarPicker.setCalendarRangeCallback(new Callback<CalendarPicker.CalendarRange,java.lang.Void>() {
+            @Override public Void call(CalendarPicker.CalendarRange p) {
+                highlightDays(p.getStartCalendar());
+                return null;
+            } });
     }
 
     @Override public void setStage(Stage stage) { this.stage = stage; }
-    @Override public void setProps(Map props) { this.props = props; }
+    
+    @Override public void setProps(Map props) {
+        this.props = props;
+        if (props != null) {
+            highlightStart = (Calendar)props.get("HIGHLIGHT_START");
+            highlightEnd = (Calendar)props.get("HIGHLIGHT_END");
+        }
+    }
 
     private final ChangeListener<String> handleQuickSelect = new ChangeListener<String>() {
         @Override public void changed(
@@ -150,4 +164,48 @@ public class DateRangeDialog implements DialogUtils.DialogController {
         c.set(Calendar.SECOND, endOfDay ? 59 : 0);
         return c;
     }
+    
+    private Calendar beginningOfDay(Calendar day) {
+        Calendar b = dupeCal(day);
+        b.set(Calendar.HOUR_OF_DAY, 0);
+        b.set(Calendar.MINUTE, 0);
+        b.set(Calendar.SECOND, 1);
+        return b;
+    }
+    
+    private Calendar endOfDay(Calendar day) {
+        Calendar e = dupeCal(day);
+        e.set(Calendar.HOUR_OF_DAY, 23);
+        e.set(Calendar.MINUTE, 59);
+        e.set(Calendar.SECOND, 59);
+        return e;
+    }
+    
+    private Calendar lastDayOfMonth(Calendar day) {
+        Calendar e = dupeCal(day);
+        e.set(Calendar.DAY_OF_MONTH, 1);
+        e.add(Calendar.MONTH, 1);
+        e.add(Calendar.DAY_OF_MONTH, -1);
+        return endOfDay(e);
+    }
+    
+    private Calendar dupeCal(Calendar orig) {
+        Calendar dupe = Calendar.getInstance();
+        dupe.setTimeInMillis(orig.getTimeInMillis());
+        return dupe;
+    }
+    
+    private void highlightDays(Calendar month) {
+        if (highlightStart == null || highlightEnd == null) return;
+        calendarPicker.highlightedCalendars().clear();
+
+        Calendar cur = beginningOfDay(highlightStart);
+        Calendar last = endOfDay(highlightEnd);
+        Calendar lastOfMonth = lastDayOfMonth(month);
+        while (cur.before(last) && cur.before(lastOfMonth)) {
+            calendarPicker.highlightedCalendars().add(dupeCal(cur));
+            cur.add(Calendar.DAY_OF_YEAR, 1);
+        }
+    }
+    
 }

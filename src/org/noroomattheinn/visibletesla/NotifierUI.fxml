@@ -80,11 +80,6 @@
           <children>
             <CheckBox id="schedulerEvent" fx:id="carEntered" mnemonicParsing="false" text="Car entered area" />
             <Button id="defineEnterArea" fx:id="defineEnterButton" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
-            <Label text="EXPERIMENTAL" textFill="RED">
-              <font>
-                <Font name="Calibri Italic" size="13.0" fx:id="x1" />
-              </font>
-            </Label>
             <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
             <Button id="seOptions" fx:id="carEnteredOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
@@ -93,7 +88,6 @@
           <children>
             <CheckBox id="schedulerEvent" fx:id="carLeft" mnemonicParsing="false" prefWidth="126.0" text="Car left area" />
             <Button id="defineExitArea" fx:id="defineLeftButton" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
-            <Label font="$x1" text="EXPERIMENTAL" textFill="RED" />
             <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
             <Button id="seOptions" fx:id="carLeftOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>

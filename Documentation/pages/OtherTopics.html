@@ -143,6 +143,42 @@
                 You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time.
             </p>
             <h2>
+                <a name="vampireLoss">Tracking Vampire Loss</a>
+            </h2>
+            <p>
+                "Vampire Loss" is the name given to power that is drained from the battery while the car is stationary. This power goes into running the car's onboard systems and is minimized when the car is sleeping. VisibleTesla can help you track how much power you are losing while your car is sitting still. It will review your data and look for any period where your car is stationary (and not charging) for an hour or more. These are called "rest periods." For each rest period it keeps track of when the period started and ended, and the starting and ending range (in miles or km).
+            </p>
+            <p>
+                You can access this data in several forms using the <span class="ui">File&rarr;Vampire Loss...</span> menu item as shown below. Once you do that, a Date Range dialog will appear (see below). Choose a day or range of days that you want to review. You can use the <span class="ui">Quick Select</span> dropdown to easily choose common ranges. Days for which data is available are highlighted in green. If you want more days of historical data available, adjust the value of the <span class="ui">Load data for</span> preference in the <span class="ui">General / Basic Preferences</span> section of the <a href=PrefsTab.html>Prefs Tab</a>. If you choose days for which there is no data, no information will be shown.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/26a_Vampire_Menu.png" alt="Vampire Loss Menu">
+            </p>
+            <p>
+                <img class="screenshot" src="../images/26b_Vampire_Date_Select.png" alt="Vampire Date Select">
+            </p>
+            <p>
+                Once you've selected a date range, a new window will appear with three sections: <span class="ui">Raw Data</span>, <span class="ui">Sequence</span>, and <span class="ui">By Time</span>. As can be seen in the screen shot below, the <span class="ui">Raw Data</span> pane shows a dump of all of the rest periods and a summary of the overall Vampire Loss averaged across all of those periods.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/26c_Vampire_Raw_Data.png" alt="Vampire Raw Data">
+            </p>
+            <p>
+                The <span class="ui">Sequence</span> chart simply displays a scatter plot of each of the rest periods in sequence. The y axis represents the amount of vampire loss (in miles lost per hour or km lost per hour), and the x axis is just a sequence number. If you hover your mouse over any data point a pop-up will be displayed that gives information about that rest period. You'll also notice a green line across the entire chart. It represents the average vampire loss across all rest periods (in miles lost per hour or km lost per hour). If you hover your mouse over any data point a pop-up will be displayed with additional information. In the screen shot below, the mouse is hovering over the end of the average line, so the pop-up displays the average.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/26d_Vampire_Scatter.png" alt="Vampire Scatter Chart">
+            </p>
+            <p>
+                The final chart is called <span class="ui">By Time</span>. Like the previous chart, the y axis represents the amount of vampire loss. There is also a line across the entire chart which represents the overall average. That's where the similarities end. In this chart the x axis represents the hour of the day from 0-23. Each rest period is represented by a horizontal line segment which spans the starting time through the ending time of the period. The height of the line segment represents the degree of loss. Let's say your car is staionary every day from 10:00-14:00. You'll see a line segment for that period for each day in the range you selected.
+            </p>
+            <p>
+                This chart can be used to get a feel for when you car tends to be stationary and how much vampire loss there is during these periods. As with the <span class="ui">Sequence</span> chart, you can hover your mouse over any endpoint to see more detailed information about that rest period. If a period spans days (very common), it will be shown as two segments. In cases where your car sits idle for multiple days (what a shame!), the period will be broken up into multiple segments as needed.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/26e_Vampire_Time.png" alt="Vampire Time Chart">
+            </p>
+            <h2>
                 <a name="autorefresh">Data Collection and Auto-Refresh</a>
             </h2>
             <p>

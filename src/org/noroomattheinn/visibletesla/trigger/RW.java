@@ -16,7 +16,7 @@ import org.noroomattheinn.visibletesla.Area;
  * RW: Manage the internalization and externalization of values of various types.
  * RW is short for ReadWrite.
  * 
- * @author joe
+ * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public abstract class RW<T> {
     public abstract String toExternal(T value);

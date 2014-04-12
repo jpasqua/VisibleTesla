@@ -1,5 +1,5 @@
 /*
- * AppContext.java -  - Copyright(c) 2013 Joe Pasqua
+ * AppContext.java - Copyright(c) 2013 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Aug 30, 2013
  */
@@ -44,6 +44,7 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
+import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -61,12 +62,14 @@ public class AppContext {
  * 
  *----------------------------------------------------------------------------*/
 
+    private static final String SimpleMapTemplate = "SimpleMap.html";
+    
     public static final String AppFilesFolderKey = "APP_AFF";
     public static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.26.00";
+    public static final String ProductVersion = "0.26.01";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -107,7 +110,8 @@ public class AppContext {
     
     public LocationStore locationStore;
     public StatsStore statsStore;
-
+    public VampireStats vampireStats;
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -183,6 +187,7 @@ public class AppContext {
             
             if (statsStreamer != null) statsStreamer.stop();
             statsStreamer = new StatsStreamer(this, v);
+            vampireStats = new VampireStats(this);
         }
     }
     
@@ -229,6 +234,21 @@ public class AppContext {
             return false;
         }
         return true;
+    }
+    
+    public void showSimpleMap(double lat, double lng, String title, int zoom) {        
+        SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(SimpleMapTemplate));
+        String map = template.fillIn(
+                "LAT", String.valueOf(lat), "LONG", String.valueOf(lng),
+                "TITLE", title, "ZOOM", String.valueOf(zoom));
+        try {
+            File tempFile = File.createTempFile("VTTrip", ".html");
+            FileUtils.write(tempFile, map);
+            app.getHostServices().showDocument(tempFile.toURI().toString());
+        } catch (IOException ex) {
+            Tesla.logger.warning("Unable to create temp file");
+            // TO DO: Pop up a dialog!
+        }
     }
     
 /*------------------------------------------------------------------------------
