@@ -33,6 +33,7 @@ import org.noroomattheinn.tesla.Options.PaintColor;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.RestyWrapper;
 
@@ -308,8 +309,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        WheelType wt = (appContext.simulatedWheels.get() == null) ?
-                vehicle.getOptions().wheelType() : appContext.simulatedWheels.get();
+        WheelType wt = appContext.computedWheelType();
         
         nineteenRimFront.setVisible(false); nineteenRimRear.setVisible(false);
         darkRimFront.setVisible(false); darkRimRear.setVisible(false);

@@ -239,8 +239,7 @@ public class HVACController extends BaseController {
     // TO DO: This wheel-related code duplicates functionality in OverviewController. 
     // Refactor this to make it shareable (somehow).
     private void updateWheelView() {
-        WheelType wt = (appContext.simulatedWheels.get() == null) ?
-                vehicle.getOptions().wheelType() : appContext.simulatedWheels.get();
+        WheelType wt = appContext.computedWheelType();
         
         nineteenRimFront.setVisible(false); nineteenRimRear.setVisible(false);
         darkRimFront.setVisible(false); darkRimRear.setVisible(false);

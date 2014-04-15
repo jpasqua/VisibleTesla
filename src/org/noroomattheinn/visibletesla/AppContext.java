@@ -251,6 +251,21 @@ public class AppContext {
         }
     }
     
+    public Options.WheelType computedWheelType() {
+        Options.WheelType wt = simulatedWheels.get();
+        if (wt != null) return wt;
+        
+        wt = vehicle.getOptions().wheelType();
+        VehicleState.State vs = lastKnownVehicleState.get();
+        if (vs != null && vs.wheelType != null) {
+            // Check for known override wheel types, right now that's just Aero19
+            if (vs.wheelType.equals("Aero19")) {
+                wt = Options.WheelType.WTAE;
+            }
+        }
+        return wt;
+    }
+
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Utility Methods
