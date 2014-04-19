@@ -23,6 +23,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -70,6 +71,8 @@ public class LocationController extends BaseController {
     @FXML private WebView webView;
     @FXML private ImageView loadingImage;
     @FXML private Label loadingImageLabel;
+    @FXML private ProgressIndicator speedIndicator;
+    @FXML private Label speedLabel;
     
 /*------------------------------------------------------------------------------
  *
@@ -98,7 +101,9 @@ public class LocationController extends BaseController {
     
     @Override protected void reflectNewState() {
         if (snapshot.state == null) return;
-        reflectInternal(snapshot.state.estLat, snapshot.state.estLng, snapshot.state.estHeading);
+        reflectInternal(
+                snapshot.state.estLat, snapshot.state.estLng, 
+                snapshot.state.estHeading, snapshot.state.speed);
     }
 
     @Override protected void refresh() { 
@@ -118,11 +123,11 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void reflectInternal(double lat, double lng, int theHeading) {
+    private void reflectInternal(double lat, double lng, int theHeading, double speed) {
         String latitude = String.valueOf(lat);
         String longitude = String.valueOf(lng);
         String heading = String.valueOf(theHeading);
-        
+
         if (mapIsLoaded) {
             try {
                 engine.executeScript(String.format(
@@ -155,6 +160,8 @@ public class LocationController extends BaseController {
 //            });
 
         }
+        this.speedIndicator.setProgress(speed/100);
+        this.speedLabel.setText(String.valueOf((int)speed));
     }
     
     
@@ -259,7 +266,8 @@ public class LocationController extends BaseController {
             appContext.lastKnownSnapshotState.set(state);
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    reflectInternal(state.estLat, state.estLng, state.estHeading);
+                    reflectInternal(state.estLat, state.estLng,
+                                    state.estHeading, state.speed);
                 } });
         }
         
