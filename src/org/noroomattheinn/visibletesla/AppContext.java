@@ -69,7 +69,7 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.26.01";
+    public static final String ProductVersion = "0.26.02";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -259,8 +259,12 @@ public class AppContext {
         VehicleState.State vs = lastKnownVehicleState.get();
         if (vs != null && vs.wheelType != null) {
             // Check for known override wheel types, right now that's just Aero19
-            if (vs.wheelType.equals("Aero19")) {
-                wt = Options.WheelType.WTAE;
+            switch (vs.wheelType) {
+                case "Aero19": wt = Options.WheelType.WTAE; break;
+                case "Base19": wt = Options.WheelType.WT19; break;
+                default:
+                    Tesla.logger.info("WheelType from VehicleState: " + vs.wheelType);
+                    break;
             }
         }
         return wt;
