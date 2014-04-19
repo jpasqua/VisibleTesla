@@ -133,3 +133,7 @@
 	-fx-text-fill: transparent;
 }
 
+.piNoPercent .percentage {
+    -fx-fill: transparent;
+}
+
