@@ -155,11 +155,12 @@ public class MainController extends BaseController {
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
 
         
-        tesla = new Tesla();
+        tesla = (appContext.prefs.enableProxy.get()) ?
+            new Tesla(appContext.prefs.proxyHost.get(),
+                      appContext.prefs.proxyPort.get()) :
+            new Tesla();
+        
         tesla.setCookieDir(appContext.appFilesFolder);
-        if (appContext.prefs.enableProxy.get())
-            tesla.setProxy(appContext.prefs.proxyHost.get(),
-                           appContext.prefs.proxyPort.get());
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
