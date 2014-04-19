@@ -23,6 +23,11 @@
             <Label layoutX="26.0" layoutY="0.0" text="\%" />
           </children>
         </Group>
+        <ImageView fx:id="snowflake" fitHeight="32.0" fitWidth="32.0" layoutX="46.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" visible="false">
+          <image>
+            <Image url="@../TeslaResources/blue-snowflake-600x600.png" />
+          </image>
+        </ImageView>
       </children>
     </Group>
     <Lcd id="OD3" fx:id="ratedOdometer" layoutX="14.0" layoutY="37.0" lcdDecimals="1" lcdThreshold="20.0" lcdThresholdBehaviorInverted="true" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Rated" unit="Miles" />
