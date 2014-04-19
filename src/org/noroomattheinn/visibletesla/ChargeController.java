@@ -20,6 +20,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import jfxtras.labs.scene.control.gauge.Battery;
 import jfxtras.labs.scene.control.gauge.Lcd;
@@ -65,6 +66,7 @@ public class ChargeController extends BaseController {
     
     // Elements that display charge status
     @FXML private Battery batteryGauge;
+    @FXML private ImageView snowflake;
     @FXML private Label batteryPercentLabel;
     
     // Elements that display reminaing range
@@ -260,7 +262,15 @@ public class ChargeController extends BaseController {
             default:
                 batteryGauge.setCharging(false); break;
         }
-        batteryPercentLabel.setText(String.valueOf(charge.state.batteryPercent));
+        int bl = charge.state.batteryPercent;
+        int ubl = charge.state.usableBatteryLevel;
+        if (ubl != 0 && ubl != bl) {
+            snowflake.setVisible(true);
+            bl = ubl;
+        } else {
+            snowflake.setVisible(false);
+        }
+        batteryPercentLabel.setText(String.valueOf(bl));
     }
 
     private void reflectRange() {
