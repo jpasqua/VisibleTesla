@@ -89,10 +89,10 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         avg.setName("Average");
         
         final String tip = String.format("Average Loss: %3.2f %s/hr", overallAverage, units);
-        final XYChart.Data<Number,Number> p1 = new XYChart.Data<Number,Number>(0, overallAverage);
+        final XYChart.Data<Number,Number> p1 = new XYChart.Data<Number,Number>(0.2, overallAverage);
         p1.setExtraValue(tip); avg.getData().add(p1); addTooltip(p1);
         
-        final XYChart.Data<Number,Number> p2 = new XYChart.Data<Number,Number>(23.99, overallAverage);
+        final XYChart.Data<Number,Number> p2 = new XYChart.Data<Number,Number>(23.8, overallAverage);
         p2.setExtraValue(tip); avg.getData().add(p2); addTooltip(p2);
         
         chart.getData().add(avg);
