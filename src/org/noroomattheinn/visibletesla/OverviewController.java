@@ -29,6 +29,7 @@ import org.noroomattheinn.tesla.DoorController;
 import org.noroomattheinn.tesla.DoorController.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.Options;
+import static org.noroomattheinn.tesla.Options.InteriorColor.Gray;
 import org.noroomattheinn.tesla.Options.PaintColor;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
@@ -354,26 +355,17 @@ public class OverviewController extends BaseController {
     private void updateSeats() {
         seatsGrayImg.setVisible(false);
         seatsTanImg.setVisible(false);
-        switch (vehicle.getOptions().seatType()) {
-            case IPMG:  // Leather, Gray
-            case IZMG:  // Perf Leather with Piping, Gray
-            case IZZW:  // Perf Leather with Grey Piping, White
-            case ISZW:  // Signature Perforated Leather, White
+        switch (vehicle.getOptions().seatType().getColor()) {
+            case Gray:
+            case White:
                 seatsGrayImg.setVisible(true);
                 break;
-            case IPMT:  // Leather, Tan
-            case IZMT:  // Perf Leather with Piping, Tan
-            case ISZT:  // Signature Perforated Leather, Tan
+            case Tan:
                 seatsTanImg.setVisible(true);
                 break;
-            case QZMB:  // Perf Leather with Piping, Black
-            case IZMB:  // Perf Leather with Piping, Black
-            case IBMB:  // Base Textile, Black
-            case IPMB:  // Leather, Black
-            case ISZB:  // Signature Perforated Leather, Black
+            case Black: // Do nothing, the base image is black
             default:
-                // The seats that are "built in" to the body image are black
-                // so there is nothing we have to do here
+                break;
         }
     }
     
