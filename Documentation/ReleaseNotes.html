@@ -20,7 +20,7 @@
 				VisibleTesla Release Notes
 			</h1>
 			<h3>
-				VisibleTesla 0.26.01 [03-29-2014]
+				VisibleTesla 0.26.02 [04-14-2014]
 			</h3>
 			<ul>
 				<li>User-Visible Changes
@@ -28,13 +28,78 @@
 						<li>General
 							<ul>
 								<li>
-									<span class="added">Addition</span>: Added a <span class="ui">File&rarr;Vampire Loss...</span> menu item that visualizes (and dumps) statistics about vampire loss. Please refer to the <a href="pages/OtherTopics.html#vampireLoss">documentation for details</a>.
+									<span class="fixed">Fix</span>: Yet another attempt to make the proxy functionality work. It is now tested with one commercial http proxy and works in that test. The proxy functionality is described in the documentation for the <a href="pages/PrefsTab.html">Prefs Tab</a>. Look for the <span class="ui">Enable Proxy</span> setting.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+						</li>
+						<li>Overview
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: The display now shows the Aero wheels properly even if installed after purchase.
+								</li>
+							</ul>
+						</li>
+						<li>HVAC
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: The display now shows the Aero wheels properly even if installed after purchase.
+								</li>
+							</ul>
+						</li>
+						<li>Location
+							<ul>
+								<li>
+									<span class="added">Addition</span>: Added a speedometer readout in the upper right hand corner of the map. This is similar to what is displayed in Tesla's iPhone application.
+								</li>
+							</ul>
+						</li>
+						<li>Charge
+							<ul>
+								<li>
+									<span class="added">Addition</span>: Vehicles with firmware 5.9 or later have the ability to give a "usable battery level" reading. Tesla says:
+									<blockquote>
+										In cold weather, some of the stored energy in your Model S’s battery may not be available on your drive because the battery is too cold. When this happens, a portion of the battery meter will appear blue and the range value will have a snowflake image next to it. If your car is plugged in, you can heat your battery using wall power by turning on the Climate Control via the mobile app.
+									</blockquote>
+									In VisibleTesla, the charge tab reflects this with a snowflake over the battery gauge. When you see the snowflake, the gauge is displaying the usable battery level.
+								</li>
+							</ul>
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+						</li>
+						<li>Scheduler
+						</li>
+						<li>Notify
+						</li>
+						<li>Prefs
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+				</li>
+				<li>Known problems
+				</li>
+			</ul>
+			<hr>
+			<h3>
+				VisibleTesla 0.26.01 [04-12-2014]
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="added">Addition</span>: Added a <span class="ui">File→Vampire Loss...</span> menu item that visualizes (and dumps) statistics about vampire loss. Please refer to the <a href="pages/OtherTopics.html#vampireLoss">documentation for details</a>.
 								</li>
 								<li>
 									<span class="changed">Refinement</span>: Updates to the documentation.
 								</li>
 								<li>
-									<span class="fixed">Fix</span>: A new type of option caused a failure in the login process for some cars (all in Europe I believe). That problem has been fixed but I am still investigating what this new option means. 
+									<span class="fixed">Fix</span>: A new type of option caused a failure in the login process for some cars (all in Europe I believe). That problem has been fixed but I am still investigating what this new option means.
 								</li>
 							</ul>
 						</li>
@@ -52,7 +117,7 @@
 						<li>Location
 							<ul>
 								<li>
-									<span class="fixed">Fix</span>: A change by Google to their maps API caused an error when popping up a map using the <span class="ui">Browse</span> button. 
+									<span class="fixed">Fix</span>: A change by Google to their maps API caused an error when popping up a map using the <span class="ui">Browse</span> button.
 								</li>
 							</ul>
 						</li>
@@ -67,7 +132,7 @@
 						<li>Notify
 							<ul>
 								<li>
-									<span class="fixed">Fix</span>: A change by Google to their maps API caused an error when defining an area for the <span class="ui">Car entered</span> and <span class="ui">Car left</span> notifications. 
+									<span class="fixed">Fix</span>: A change by Google to their maps API caused an error when defining an area for the <span class="ui">Car entered</span> and <span class="ui">Car left</span> notifications.
 								</li>
 							</ul>
 						</li>
@@ -79,7 +144,7 @@
 				</li>
 				<li>Known problems
 				</li>
-			</ul>			
+			</ul>
 			<hr>
 			<h3>
 				VisibleTesla 0.26.00 [03-14-2014]
@@ -124,11 +189,11 @@
 								<li>
 									<span class="added">Addition</span>: Geofencing <b><font color="red">[EXPERIMENTAL]</font></b>
 									<p>
-										You can now get a notification when your car enters a specified area or exists a specified area. These areas can be different. An area is defined by a location and a radius in meters. You set the location by typing in an address. The corresponding latitude and longitude are determined for you. A slider allows you to specify a radius around that location to yield the area of interest. You define this area by pressing the <span class="ui">Define Area</span> button next to the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> checkboxes. 
+										You can now get a notification when your car enters a specified area or exists a specified area. These areas can be different. An area is defined by a location and a radius in meters. You set the location by typing in an address. The corresponding latitude and longitude are determined for you. A slider allows you to specify a radius around that location to yield the area of interest. You define this area by pressing the <span class="ui">Define Area</span> button next to the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> checkboxes.
 									</p>
 									<p>
 										Pressing this button will pop up a dialog that lets you enter the address which defines the center of the area. You'll notice that the <span class="ui">OK</span> button is disabled any time you edit the address field. To make it active you must press the <span class="ui">Lookup</span> button. It will lookup the address and show it to you on a map to ensure it can be found and is what you intended. If it's not, you can change the address and try again. If it is what you want, just make sure the radius is set to your liking and hit <span class="ui">OK</span>.
-									</p>								
+									</p>
 								</li>
 							</ul>
 						</li>

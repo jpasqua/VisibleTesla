@@ -45,7 +45,7 @@
                             Current
                         </td>
                         <td>
-                            The amount of current being supplied to the vehicle. If it is a European vehicle, VsibleTesla will check  whether the connected power is 3-phase. If it is 3-phase, a ③ will be displayed after the word "Current".
+                            The amount of current being supplied to the vehicle. If it is a European vehicle, VsibleTesla will check whether the connected power is 3-phase. If it is 3-phase, a ③ will be displayed after the word "Current".
                         </td>
                     </tr>
                     <tr>
@@ -88,32 +88,60 @@
                                         </th>
                                     </tr>
                                     <tr>
-                                        <td>Stopped</td>
-                                        <td>The car is connected to a power source, but is not in a charging cycle.</td>
+                                        <td>
+                                            Stopped
+                                        </td>
+                                        <td>
+                                            The car is connected to a power source, but is not in a charging cycle.
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Starting</td>
-                                        <td>The car is connected to a power source and is beginning a charging cycle.</td>
+                                        <td>
+                                            Starting
+                                        </td>
+                                        <td>
+                                            The car is connected to a power source and is beginning a charging cycle.
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Charging</td>
-                                        <td>The car is actively charging.</td>
+                                        <td>
+                                            Charging
+                                        </td>
+                                        <td>
+                                            The car is actively charging.
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Complete</td>
-                                        <td>The car was charging and completed its charge cycle.</td>
+                                        <td>
+                                            Complete
+                                        </td>
+                                        <td>
+                                            The car was charging and completed its charge cycle.
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Disconnected</td>
-                                        <td>The car is not connected to a power source</td>
+                                        <td>
+                                            Disconnected
+                                        </td>
+                                        <td>
+                                            The car is not connected to a power source
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>NoPower</td>
-                                        <td>A charging cycle was in progress, but power was disconnected.</td>
+                                        <td>
+                                            NoPower
+                                        </td>
+                                        <td>
+                                            A charging cycle was in progress, but power was disconnected.
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td>Unknown</td>
-                                        <td>Your car is either not reporting its charge status or it reported a value that VisibleTesla does not understand.</td>
+                                        <td>
+                                            Unknown
+                                        </td>
+                                        <td>
+                                            Your car is either not reporting its charge status or it reported a value that VisibleTesla does not understand.
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -193,13 +221,21 @@
                     </tr>
                 </tbody>
             </table>
-            <p>Notes: <ul>
+            <p>
+                Notes:
+            </p>
+            <ul>
                 <li>It has been discovered that the range is derived slightly differently while the car is being charged vs. when it is not. This can cause the range to seem to drop by a small amount immediately after charging stops.
                 </li>
                 <li>When charging with a 3-phase current source, the interpretation of some of these fields may not seem to be correct. Note that VisibleTesla does not compute any of the values reported here. It simply displays the values reported by your car.
                 </li>
+                <li>
+                    Vehicles with firmware 5.9 or later have the ability to give a "usable battery level" reading. Tesla says:
+                    <blockquote>
+                        In cold weather, some of the stored energy in your Model S’s battery may not be available on your drive because the battery is too cold. When this happens, a portion of the battery meter will appear blue and the range value will have a snowflake image next to it. If your car is plugged in, you can heat your battery using wall power by turning on the Climate Control via the mobile app.
+                    </blockquote>In VisibleTesla, the charge tab reflects this with a snowflake over the battery gauge. When you see the snowflake, the gauge is displaying the usable battery level.
+                </li>
             </ul>
-            </p>
             <p>
                 The following screen shot shows the car when connected to a power source but not charging. Note that below the "Charging Data" table there is an indication that the car has a charge scheduled. This refers to the car's charge scheduler, not to the <a href="SchedulerTab.html">Scheduler Tab</a>.
             </p><img class="screenshot" src="../images/08_Charge_Plugged_In.png">
