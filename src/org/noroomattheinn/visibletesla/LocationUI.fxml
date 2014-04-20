@@ -20,24 +20,6 @@
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
     <Button fx:id="launchButton" mnemonicParsing="false" onAction="#launchButtonHandler" text="Browse" AnchorPane.bottomAnchor="13.0" AnchorPane.rightAnchor="93.0" />
-    <AnchorPane id="AnchorPane" prefWidth="94.48944091796875" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <children>
-        <ProgressIndicator fx:id="speedIndicator" prefHeight="75.0" prefWidth="78.0" progress="0.0" rotate="180.0" style="-fx-progress-color: green;" styleClass="piNoPercent" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="9.33">
-          <rotationAxis>
-            <Point3D z="1.0" />
-          </rotationAxis>
-        </ProgressIndicator>
-        <Circle fill="#404040" radius="22.0" stroke="#00000080" strokeType="INSIDE" AnchorPane.rightAnchor="17.0" AnchorPane.topAnchor="33.33" />
-        <Label fx:id="speedLabel" alignment="CENTER" contentDisplay="RIGHT" prefWidth="34.0" text="123" textAlignment="RIGHT" textFill="WHITE" AnchorPane.rightAnchor="22.0" AnchorPane.topAnchor="46.0">
-          <effect>
-            <DropShadow color="WHITE" />
-          </effect>
-          <font>
-            <Font name="Verdana Bold" size="13.0" />
-          </font>
-        </Label>
-      </children>
-    </AnchorPane>
     <ImageView fx:id="loadingImage" fitHeight="399.9999694824219" fitWidth="669.6397952449237" layoutX="-30.0" layoutY="0.0" pickOnBounds="true" preserveRatio="true" visible="true">
       <image>
         <Image url="@../TeslaResources/MapLoading.jpg" />

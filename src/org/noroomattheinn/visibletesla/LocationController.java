@@ -21,10 +21,12 @@ import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
@@ -71,8 +73,7 @@ public class LocationController extends BaseController {
     @FXML private WebView webView;
     @FXML private ImageView loadingImage;
     @FXML private Label loadingImageLabel;
-    @FXML private ProgressIndicator speedIndicator;
-    @FXML private Label speedLabel;
+    private MultiGauge multigauge;
     
 /*------------------------------------------------------------------------------
  *
@@ -97,13 +98,22 @@ public class LocationController extends BaseController {
         engine = webView.getEngine();
         progressIndicator.setVisible(false);
         progressLabel.setVisible(false);
+        multigauge = new MultiGauge(25, 5, 0, 100, -60, 180);
+        multigauge.setPaint(Side.RIGHT, Color.DARKORANGE, Color.GREEN);
+        multigauge.setPaint(Side.LEFT, Color.ROYALBLUE, Color.LIGHTBLUE);
+        Node mg = multigauge.getContainer();
+        AnchorPane.setTopAnchor(mg, 25.0);
+        AnchorPane.setRightAnchor(mg, 10.0);
+        root.getChildren().add(2, mg);
+        multigauge.setVal(Side.LEFT, 20);
+        multigauge.setVal(Side.RIGHT, 40);
     }
     
     @Override protected void reflectNewState() {
         if (snapshot.state == null) return;
         reflectInternal(
-                snapshot.state.estLat, snapshot.state.estLng, 
-                snapshot.state.estHeading, snapshot.state.speed);
+                snapshot.state.estLat, snapshot.state.estLng,  snapshot.state.estHeading,
+                snapshot.state.speed, snapshot.state.power);
     }
 
     @Override protected void refresh() { 
@@ -123,7 +133,8 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void reflectInternal(double lat, double lng, int theHeading, double speed) {
+    private void reflectInternal(double lat, double lng, int theHeading,
+                                 double speed, double power) {
         String latitude = String.valueOf(lat);
         String longitude = String.valueOf(lng);
         String heading = String.valueOf(theHeading);
@@ -160,8 +171,8 @@ public class LocationController extends BaseController {
 //            });
 
         }
-        this.speedIndicator.setProgress(speed/100);
-        this.speedLabel.setText(String.valueOf((int)speed));
+        multigauge.setVal(Side.LEFT, speed);
+        multigauge.setVal(Side.RIGHT, power);
     }
     
     
@@ -266,8 +277,8 @@ public class LocationController extends BaseController {
             appContext.lastKnownSnapshotState.set(state);
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    reflectInternal(state.estLat, state.estLng,
-                                    state.estHeading, state.speed);
+                    reflectInternal(state.estLat, state.estLng, state.estHeading,
+                                    state.speed, state.power);
                 } });
         }
         
