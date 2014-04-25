@@ -20,8 +20,9 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Stop;
 import jfxtras.labs.scene.control.gauge.Battery;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import org.noroomattheinn.tesla.ChargeState;
@@ -40,6 +41,9 @@ public class ChargeController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private static final double KilometersPerMile = 1.60934;
+    private static final double UsableRangeThresholdMiles = 5;
+    private static final double UsableRangeThresholdKm = 
+            UsableRangeThresholdMiles * KilometersPerMile;
     private static final String MinVersionForChargePct = "1.33.38";
         // This value is taken from the wiki here: http://tinyurl.com/mzwxbps
     
@@ -65,8 +69,7 @@ public class ChargeController extends BaseController {
     @FXML private Hyperlink stdLink, maxLink;
     
     // Elements that display charge status
-    @FXML private Battery batteryGauge;
-    @FXML private ImageView snowflake;
+    @FXML private Battery batteryGauge, usableGauge;
     @FXML private Label batteryPercentLabel;
     
     // Elements that display reminaing range
@@ -100,11 +103,12 @@ public class ChargeController extends BaseController {
     private final GenericProperty actualCurrent = new GenericProperty("Current", "0.0", "Amps");
     private final GenericProperty chargerPower = new GenericProperty("Charger Power", "0.0", "kW");
     private final GenericProperty chargingState = new GenericProperty("State", "Disconnected", "");
+    private final GenericProperty batteryLevels = new GenericProperty("Battery Levels", "0/0", "%");
     
     final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
             actualCurrent, voltage, chargeRate, remaining, chargingState,
             pilotCurrent, batteryCurrent, fastCharger, chargerPower,
-            nRangeCharges);
+            nRangeCharges, batteryLevels);
 
     
 /*------------------------------------------------------------------------------
@@ -156,6 +160,13 @@ public class ChargeController extends BaseController {
         propUnitsColumn.setCellValueFactory( new PropertyValueFactory<GenericProperty,String>("units") );
         propertyTable.setItems(data);
         updatePendingChargeLabels(false);
+        
+        usableGauge.setVisible(false);
+        usableGauge.setLevelColors(new Stop[]{
+            new Stop(0.0, Color.web("#FFC1C1")),
+            new Stop(0.55, Color.web("#FFFFC1")),
+            new Stop(1.0, Color.web("#C1D6B8"))
+        });
         
         // Until we know that we've got the right software version, disable the slider
         chargeSlider.setDisable(true);
@@ -229,6 +240,9 @@ public class ChargeController extends BaseController {
             actualCurrent.setName("Current \u2462");
         else
             actualCurrent.setName("Current");
+        batteryLevels.setValue(String.format(
+                "%d/%d", charge.state.batteryPercent,
+                charge.state.usableBatteryLevel));
     }
     
     private void reflectChargeStatus() {
@@ -254,21 +268,46 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectBatteryStats() {
-        batteryGauge.setChargingLevel(charge.state.batteryPercent/100.0);
+        double range = charge.state.range;
+        int bl = charge.state.batteryPercent;
+        int ubl = charge.state.usableBatteryLevel;
+//        double usableRangeThreshold = useMiles ? UsableRangeThresholdMiles :
+//                                                 UsableRangeThresholdKm;
+        
+//        TEST CODE        
+//        int bl = (int)(Math.random() * 99);
+//        int ubl = bl - (int)(Math.random() * 10);
+//        double range = 200.0*(ubl/100.0)*0.8;
+        
+        batteryGauge.setChargingLevel(bl/100.0);
+        usableGauge.setChargingLevel(ubl/100.0);
+        
         switch (charge.state.chargingState) {
             case Complete:
             case Charging:
-                batteryGauge.setCharging(true); break;
+                batteryGauge.setCharging(true);
+                usableGauge.setCharging(true);
+                break;
             default:
-                batteryGauge.setCharging(false); break;
+                batteryGauge.setCharging(false);
+                usableGauge.setCharging(false);
+                break;
         }
-        int bl = charge.state.batteryPercent;
-        int ubl = charge.state.usableBatteryLevel;
-        if (ubl != 0 && ubl != bl) {
-            snowflake.setVisible(true);
+
+        if (ubl == 0) ubl = bl;
+//        double rangeDelta = range - ((ubl*range)/bl);
+//        System.err.println("range = " + range);
+//        System.err.println("rangeDelta = " + rangeDelta);
+//        System.err.println("bl = " + bl);
+//        System.err.println("ubl = " + ubl);
+//        if (rangeDelta >= usableRangeThreshold) {
+        if (bl - ubl >= 2) {
+            usableGauge.setVisible(true);
+            batteryPercentLabel.setTextFill(Color.BLUE);
             bl = ubl;
         } else {
-            snowflake.setVisible(false);
+            usableGauge.setVisible(false);
+            batteryPercentLabel.setTextFill(Color.BLACK);
         }
         batteryPercentLabel.setText(String.valueOf(bl));
     }
