@@ -68,7 +68,7 @@
     <bundleapp outputdirectory="dist"
         name="VisibleTesla"
         icon="src/org/noroomattheinn/TeslaResources/Tesla Keyfob.icns"
-        displayname="Visable Tesla"
+        displayname="VisibleTesla"
         identifier="org.noroomattheinn.visibletesla"
         mainclassname="org.noroomattheinn.visibletesla.VisibleTesla">
         <runtime dir="${env.JAVA_HOME}" />
