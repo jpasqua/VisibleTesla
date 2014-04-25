@@ -41,6 +41,7 @@ public class VampireStats {
     
     private AppContext appContext;
     private Rest restInProgress = null;
+    private boolean useMiles;
     
 /*==============================================================================
  * -------                                                               -------
@@ -53,6 +54,7 @@ public class VampireStats {
     }
     
     public void showStats() {
+        useMiles = appContext.lastKnownGUIState.get().distanceUnits.startsWith("mi");
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null)
             return;
@@ -80,6 +82,7 @@ public class VampireStats {
         // Export results
         long totalRestTime = 0;
         double totalLoss = 0;
+        String units = useMiles ? "mi" : "km";
         StringBuilder sb = new StringBuilder();
         for (Rest r : restPeriods) {
             sb.append("\t-------------------\n");
@@ -87,16 +90,16 @@ public class VampireStats {
                     "\tPeriod: [%1$tm/%1$td %1$tH:%1$tM, %2$tm/%2$td %2$tH:%2$tM]" +
                     ", %3$3.2f hours\n",
                     new Date(r.startTime), new Date(r.endTime), hours(r.endTime-r.startTime)));
-            sb.append(String.format("\tRange: [%3.2f, %3.2f], %3.2f\n",
-                    r.startRange, r.endRange, r.startRange - r.endRange));
-            sb.append(String.format("\tAverage loss per hour: %3.2f\n", r.avgLoss()));
+            sb.append(String.format("\tRange: [%3.2f, %3.2f], %3.2f %s\n",
+                    r.startRange, r.endRange, r.startRange - r.endRange, units));
+            sb.append(String.format("\tAverage loss per hour: %3.2f %s/hr\n", r.avgLoss(), units));
             totalRestTime += r.endTime - r.startTime;
             totalLoss += r.startRange - r.endRange;
         }
         sb.append("===================\n");
         sb.append(String.format("Total Hours Resting: %3.2f\n", hours(totalRestTime)));
-        sb.append(String.format("Total Loss: %3.2f\n", totalLoss));
-        sb.append(String.format("Total Average Loss / Hour: %3.2f\n", totalLoss/hours(totalRestTime)));
+        sb.append(String.format("Total Loss: %3.2f %s\n", totalLoss, units));
+        sb.append(String.format("Total Average Loss / Hour: %3.2f %s\n", totalLoss/hours(totalRestTime), units));
         
         displayResults(restPeriods, totalLoss/hours(totalRestTime), sb.toString());
     }
@@ -106,6 +109,7 @@ public class VampireStats {
  * PRIVATE - Utility Methods
  * 
  *----------------------------------------------------------------------------*/
+    
     private double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
     
     private void addPeriod(List<Rest> periods, Rest r) {
@@ -148,6 +152,7 @@ public class VampireStats {
         
         if (speed == 0 && voltage == 0) {
             if (range != null) {
+                if (!useMiles) range = Utils.mToK(range);
                 if (restInProgress == null) {
                     restInProgress = new Rest(timestamp, timestamp, range, range);
                 } else {
@@ -170,9 +175,7 @@ public class VampireStats {
         props.put("REST_PERIODS", restPeriods);
         props.put("RAW_RESULTS", rawResults);
         props.put("OVERALL_AVG", overallAvg);
-        props.put("UNITS", 
-                appContext.lastKnownGUIState.get().distanceUnits.startsWith("mi") ?
-                "mi" : "km");
+        props.put("UNITS", useMiles ? "mi" : "km");
         
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
             getClass().getResource("dialogs/VampireLossResults.fxml"),
