@@ -98,9 +98,9 @@ public class LocationController extends BaseController {
         engine = webView.getEngine();
         progressIndicator.setVisible(false);
         progressLabel.setVisible(false);
-        multigauge = new MultiGauge(25, 5, 0, 100, -60, 180);
-        multigauge.setPaint(Side.RIGHT, Color.DARKORANGE, Color.GREEN);
-        multigauge.setPaint(Side.LEFT, Color.ROYALBLUE, Color.LIGHTBLUE);
+        multigauge = new MultiGauge(25, 8, 0, 100, -60, 180);
+        multigauge.useGradient(Side.RIGHT, Color.DARKORANGE, Color.GREEN);
+        multigauge.useGradient(Side.LEFT, Color.BLUE, Color.BLUE);
         Node mg = multigauge.getContainer();
         AnchorPane.setTopAnchor(mg, 25.0);
         AnchorPane.setRightAnchor(mg, 10.0);
@@ -295,15 +295,21 @@ public class LocationController extends BaseController {
                     long lastSnapshot = snapshot.state.vehicleTimestamp;
                     doUpdateLater(snapshot.state);
 
+                    System.err.print("SM: ");
                     // Now, stream data as long as it comes...
                     while (snapshot.refreshFromStream()) {
+                        System.err.print("C");
                         if (appContext.shuttingDown.get() ||
                             inactivityState != InactivityType.Awake) break;
                         if (snapshot.state.vehicleTimestamp - lastSnapshot > StreamingThreshold) {
+                            System.err.print("S");
                             doUpdateLater(snapshot.state);
                             lastSnapshot = snapshot.state.vehicleTimestamp;
+                        } else {
+                            System.err.print("T");
                         }
                     }
+                    System.err.println("!");
                 } catch (InterruptedException ex) {
                     Tesla.logger.log(Level.INFO, "LocationStreamer Interrupted");
                 }
