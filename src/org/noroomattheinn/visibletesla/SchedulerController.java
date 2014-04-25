@@ -51,7 +51,6 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     private org.noroomattheinn.tesla.HVACController hvacController;
 
     private final List<ScheduleItem> schedulers = new ArrayList<>();
-    private int maxCharge, stdCharge;
     
 /*==============================================================================
  * -------                                                               -------
@@ -184,7 +183,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         if (pilotCurrent == 0) {
             appContext.sendNotification(
                 appContext.prefs.notificationAddress.get(),
-                "Your car is not plugged in!");
+                "Your car is not plugged in. Range = " + (int)charge.state.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (pilotCurrent == -1) {
             return new Result(true, "Can't tell if car is plugged in. No notification sent");
@@ -261,15 +260,6 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             chargeController = new org.noroomattheinn.tesla.ChargeController(v);
             hvacController = new org.noroomattheinn.tesla.HVACController(v);
 
-            if (charge.refresh()) {
-                maxCharge = charge.state.chargeLimitSOCMax;
-                stdCharge = charge.state.chargeLimitSOCStd;
-            } else {
-                Tesla.logger.log(Level.WARNING,
-                    "Unable to get charge information for use by scheduler. Using defaults");
-                maxCharge = 100;
-                stdCharge = 90;
-            }
         }
         
         for (ScheduleItem item : schedulers) { item.loadExistingSchedule(); }
