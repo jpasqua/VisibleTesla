@@ -12,15 +12,19 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
+import javafx.scene.effect.Light.Distant;
+import javafx.scene.effect.Lighting;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.Paint;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextBoundsType;
@@ -31,14 +35,17 @@ import javafx.scene.text.TextBoundsType;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class MultiGauge {
-
-    private final int DropShadowOffset = 2;
+    private static final String FontName = "digital-7.ttf";
+    private static final String ResourceDir = "org/noroomattheinn/TeslaResources/";
+    //private static final String ResourceDir = "multigauge/";
+    
     private Pane gaugePane;
     private Group centerArea;
     private Text readout;
     private Side readoutSide = Side.LEFT;
     private Gauge left, right;
-
+    private int radius, thickness;
+    
     MultiGauge(int radius) {
         this(radius, 10, 0, 100, 0, 100);
     }
@@ -49,30 +56,39 @@ public class MultiGauge {
         if (thickness > radius) {
             thickness = radius;
         }
-
+        this.radius = radius; this.thickness = thickness;
+        
         gaugePane = new Pane();
         gaugePane.setPrefSize(radius * 2, radius * 2);
 
         left =  new Gauge(Side.LEFT,  radius, leftMin,  leftMax,  Color.DARKGREEN);
         right = new Gauge(Side.RIGHT, radius, rightMin, rightMax, Color.ORANGERED);
 
-        int circleRadius = radius - thickness;
-        Circle centerCircle = new Circle(radius, radius, circleRadius);
-        centerCircle.setFill(Color.web("#404040"));
+        Circle centerCircle = new Circle(radius, radius, radius - thickness);
+        centerCircle.setFill(Color.web("#404040"));        
+        Lighting l = new Lighting(new Distant(-135.0f, 2*radius, Color.WHITE));
+        l.setSurfaceScale(5.0f);
+        centerCircle.setEffect(l);
+        
         Circle fullCircle = new Circle(radius, radius, radius);
-        fullCircle.setFill(Color.web("#d0d0d0"));
+        fullCircle.setFill(Color.web("#f0f0f0"));
+        fullCircle.setStroke(Color.web("#d0d0d0"));
 
-        readout = new Text("199");
-        readout.setFont(Font.font("Lucida Console", FontWeight.BOLD, 14));
+        readout = new Text("000");
+        Font df = Font.loadFont(getClass().getClassLoader().getResource(
+            ResourceDir+FontName).toExternalForm(), 17);
+        readout.setFont(df);
+        //readout.setFont(Font.font("LucidaConsole", FontWeight.BOLD, 14));
+        //readout.setFont(Font.font("Digital-7", 17));
         readout.setFontSmoothingType(FontSmoothingType.LCD);
-        readout.setFill(Color.web("#eee"));
-        readout.setTextAlignment(TextAlignment.RIGHT);
+        readout.setFill(Color.web("#fff"));
+        readout.setTextAlignment(TextAlignment.CENTER);
 
         // Center the text in the display
         readout.setBoundsType(TextBoundsType.VISUAL);
         double w = readout.getBoundsInLocal().getWidth();
         double h = readout.getBoundsInLocal().getHeight();
-        readout.relocate(radius - w / 2 - (DropShadowOffset * 2), radius - h / 2);
+        readout.relocate(radius - w/2, radius - h/2);
         readout.setWrappingWidth(w + 4);
 
         readout.setEffect(genTextEffect());
@@ -96,13 +112,32 @@ public class MultiGauge {
         getGauge(s).setPaint(paint, altPaint);
     }
     
+    void useGradient(Side s, Color baseColor, Color altBaseColor) {
+        getGauge(s).setPaint(gradientFromBase(baseColor), gradientFromBase(altBaseColor));
+    }
+    
+    private RadialGradient gradientFromBase(Color c) {
+        return new RadialGradient(
+                0, 0, radius, radius, radius, false, CycleMethod.NO_CYCLE,
+                new Stop[]{
+                    new Stop(0.00, trans(c, 0.0)),
+                    new Stop((radius-thickness)/radius, trans(c, 0.3)),
+                    new Stop(0.85, trans(c, 0.5)),
+                    new Stop(1.00, c)
+        });
+    } 
+    
+    private Color trans(Color c, double opacity) {
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), opacity);
+    }
+    
     Side getReadoutSide() { return readoutSide; }
     void setReadoutSide(Side s) { readoutSide = s == Side.LEFT ? Side.LEFT : Side.RIGHT; }
 
     private Gauge getGauge(Side s) { return s == Side.LEFT ? left : right; }
     
     private Effect genTextEffect() {
-        return new DropShadow(4, 0, 0, Color.WHITE);
+        return new DropShadow(2, 0, 0, Color.BLUE);
     }
 }
 
