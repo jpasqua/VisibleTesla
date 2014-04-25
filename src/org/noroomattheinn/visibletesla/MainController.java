@@ -147,6 +147,8 @@ public class MainController extends BaseController {
     public void start(Application a, Stage s) {
         appContext = new AppContext(a, s);
         Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
+        Tesla.logger.info(
+                String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
         
         inactivityMode = readInactivityMenu();
         
