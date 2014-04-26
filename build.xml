@@ -12,6 +12,12 @@
         </copy>
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>
+        <copy file="InstallSupport/Windows/vtrunner.bat" todir="${dist.dir}"/>
+        <copy file="InstallSupport/Windows/Make_Windows_Shortcut.vbs" todir="${dist.dir}"/>
+        <mkdir dir="${dist.dir}/VisibleTesla.app"/>
+        <exec executable="cp">
+            <arg line="-R InstallSupport/MacAppTemplate/ ${dist.dir}/VisibleTesla.app"/>
+        </exec>
     </target>
 
     <import file="nbproject/build-impl.xml"/>
@@ -85,13 +91,6 @@
         <classpath dir="dist/lib" />
         <classpath file="dist/VisibleTesla.jar" />
     </bundleapp>
-</target>
-
-<target name="stubapp">
-    <mkdir dir="dist/VisibleTesla.app"/>
-    <exec executable="cp">
-        <arg line="-R MacAppTemplate/ dist/VisibleTesla.app"/>
-    </exec>
 </target>
 
 

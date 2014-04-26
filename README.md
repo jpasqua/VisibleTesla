@@ -87,6 +87,16 @@ Be sure to either set these variables or adapt the commands below. Note that the
 
 Once you've built the application, you can run it simply by double-clicking <code>VisibleTesla.jar</code>in Tesla/VisibleTesla/dist. For details, refer to the documentation and release notes in Tesla/VisibleTesla/Documentation.
 
+#The "Stub" Mac OS X Application
+
+A standard build of VisibleTesla creates a "stub" application for OS X. It is a mostly empty shell that refers to the files in the dist folder rather than copying them. Furthermore, it does not include a bundled Java VM. As a result, this isn't a self contained unit as is the one described below. It does, however, give you a way of having an app with an icon that you can put in your dock. 
+
+**Notes**:
+
++  You can drag this app to your dock but you **cannot** move it to the app folder, desktop, or elsewhere because it is not self-contained.
++  You can make an alias to the app and put the alias whereever you'd like.
++  If you use the bundle-VisibleTesla target (described below), it will overwrite the stub app.
+
 #Building Mac OS X Bundled Clickable Application
 
 You can build a version of VisibleTesla that has the Java runtime bundled and is a self contained Mac OS X application by issuing the commands
@@ -99,14 +109,4 @@ Furthermore, if you wish to distribute the application, you can also codesign it
 	codesign -s "Developer ID Application: <Your Developer ID>"  dist/VisibleTesla.app --deep
 	
 
-#Building a "Stub" Mac OS X Clickable Application
 
-If you don't want to embed all of the files into the app bundle, you can build a "stub" application. It is basically an empty shell that refers to the files in the dist folder rather than copying them. Furthermore, it does not include a bundled Java VM. As a result, this isn't a self contained unit as is the one described above. It does, however, give you a way of having an app with an icon that you can put in your dock. To build the stub, issue the command:
-
-	ant stubapp
-
-**Notes**:
-
-+  You can drag this app to your dock but you **cannot** move it to the app folder, desktop, or elsewhere because it is not self-contained.
-+  You can make an alias to the app and put the alias whereever you'd like.
-+  You should use either the bundle-VisibleTesla target or the stubapp target, but not both. They both write VisibleTesla.app to the same location.
