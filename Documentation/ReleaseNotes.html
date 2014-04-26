@@ -19,14 +19,98 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
-			<h3>
-				VisibleTesla 0.26.02 [04-14-2014]
+		<h3>
+			VisibleTesla 0.26.03 [04-20-2014]
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: The proxy fix that was introduced in 0.26.02 has been confirmed to work by several users so I removed the note about it being experimental. 
+							</li>
+								<li>
+									<span class="fixed">Fix</span>: The charts and raw data were always displaying range in terms of miles even when the car's interface was set to kilometers.
+								</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+								<li>
+									<span class="changed">Refinement</span>: Minor updates to the graphics for the Speedometer/Power gauge including a more digital-looking font.
+								</li>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: The snowflake depicting cold weather conditions is actually not derived from the temperature. It was shown when the usable battery level differs from the "normal" battery level. Because I am actually not taking temperature into account (it is the implied reason for the lower usable level), I know longer show a snowflake. Instead, the Battery Gauge shows two distinct levels for this case. The lower level is the usable battery level and the higher level is the "normal" battery level. Both levels are shown at the bottom of the <span class="ui">Charging Data</span> table.
+								<br><br>
+								In the previous version the snowflake would be displayed no matter how insignificant the difference was between levels. This could lead to it being displayed for what were effectively rounding errors. Now the two levels are displayed in the gauge only if the difference is at least 5 percentage points.
+							</li>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: The message issued by the "Unplugged?" scheduler event now includes the remaining range. When you receive a notification reminding you that your car is unplugged, you'll be able to see the remaining range and decide whether it is worth going out to plug in your car.
+							</li>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+					<li>
+						<span class="fixed">Fix</span>: Fixed a typo in the script that builds a packaged Mac application. This did not impact functionality - it was just a misspelling. 
+					</li>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>			<h3>
+				VisibleTesla 0.26.02 [04-19-2014]
 			</h3>
 			<ul>
 				<li>User-Visible Changes
 					<ul>
 						<li>General
 							<ul>
+								<li>
+									<span class="fixed">Fix</span>: Modify to handle slightly different error codes from Tesla's server. This impacted the ability to gather location information even after Tesla's servers were fixed.
+								</li>
 								<li>
 									<span class="fixed">Fix</span>: Yet another attempt to make the proxy functionality work. It is now tested with one commercial http proxy and works in that test. The proxy functionality is described in the documentation for the <a href="pages/PrefsTab.html">Prefs Tab</a>. Look for the <span class="ui">Enable Proxy</span> setting.
 								</li>
@@ -51,7 +135,7 @@
 						<li>Location
 							<ul>
 								<li>
-									<span class="added">Addition</span>: Added a speedometer readout in the upper right hand corner of the map. This is similar to what is displayed in Tesla's iPhone application.
+									<span class="added">Addition</span>: Added a speedometer/power readout in the upper right hand corner of the map. This is similar to what is displayed in Tesla's iPhone application, but shows not only the speed, but also an indication of relative power usage.
 								</li>
 							</ul>
 						</li>

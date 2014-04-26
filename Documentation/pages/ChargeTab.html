@@ -189,6 +189,14 @@
                     </tr>
                     <tr>
                         <td>
+                            Battery Levels
+                        </td>
+                        <td>
+                            The charge percentage of the battery and the usable charge percentage. These are normally the same, but the usable level may be lower due to temperature.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <a name="ratedRange">Rated Range</a>
                         </td>
                         <td>
@@ -229,11 +237,13 @@
                 </li>
                 <li>When charging with a 3-phase current source, the interpretation of some of these fields may not seem to be correct. Note that VisibleTesla does not compute any of the values reported here. It simply displays the values reported by your car.
                 </li>
-                <li>
-                    Vehicles with firmware 5.9 or later have the ability to give a "usable battery level" reading. Tesla says:
+                <li>Vehicles with firmware 5.9 or later have the ability to give a "usable battery level" reading. Tesla says:
                     <blockquote>
                         In cold weather, some of the stored energy in your Model S’s battery may not be available on your drive because the battery is too cold. When this happens, a portion of the battery meter will appear blue and the range value will have a snowflake image next to it. If your car is plugged in, you can heat your battery using wall power by turning on the Climate Control via the mobile app.
-                    </blockquote>In VisibleTesla, the charge tab reflects this with a snowflake over the battery gauge. When you see the snowflake, the gauge is displaying the usable battery level.
+                    </blockquote>In VisibleTesla, the charge tab reflects this by showing two levels in the battery gauge. It does not display a snowflake. The lower level is the usable level and the higher level is the "normal" level. If the levels are the same (which is most of the time) you'll only see one level displayed. The following screen shot give a couple examples of the multilevel gauge.
+                    <p>
+                        <img class="screenshot" src="../images/07a_Gauge_Levels.png">
+                    </p>
                 </li>
             </ul>
             <p>
