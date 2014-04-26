@@ -5,7 +5,10 @@
           <fileset dir="Documentation"/>
         </copy>
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
-        <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>     
+        <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>
+        <exec executable="cp">
+          <arg line="-R MacAppTemplate ${dist.dir}/VisibleTesla.app"/>
+        </exec>
     </target>
 
     <import file="nbproject/build-impl.xml"/>
