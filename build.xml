@@ -1,4 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- You may freely edit this file. See commented blocks below for --><!-- some examples of how to customize the build. --><!-- (If you delete it and reopen the project it will be recreated.) --><!-- By default, only the Clean and Build commands use this build script. --><project name="VisibleTesla" default="default" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+
+<project name="VisibleTesla" default="default" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
     <description>Builds, tests, and runs the project VisibleTesla.</description>
     <target name="-post-compile">
         <copy todir="${dist.dir}/Documentation">
@@ -6,12 +12,10 @@
         </copy>
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>
-        <exec executable="cp">
-          <arg line="-R MacAppTemplate ${dist.dir}/VisibleTesla.app"/>
-        </exec>
     </target>
 
     <import file="nbproject/build-impl.xml"/>
+
     <!--
 
     There exist several targets which are by default empty and which can be 
@@ -61,6 +65,8 @@
     nbproject/build-impl.xml and nbproject/jfx-impl.xml.
 
     -->
+
+
 <property environment="env" />
 
 <taskdef name="bundleapp"
@@ -80,5 +86,13 @@
         <classpath file="dist/VisibleTesla.jar" />
     </bundleapp>
 </target>
+
+<target name="stubapp">
+    <mkdir dir="dist/VisibleTesla.app"/>
+    <exec executable="cp">
+        <arg line="-R MacAppTemplate/ dist/VisibleTesla.app"/>
+    </exec>
+</target>
+
 
 </project>

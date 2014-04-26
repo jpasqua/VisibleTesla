@@ -98,3 +98,15 @@ Furthermore, if you wish to distribute the application, you can also codesign it
 
 	codesign -s "Developer ID Application: <Your Developer ID>"  dist/VisibleTesla.app --deep
 	
+
+#Building a "Stub" Mac OS X Clickable Application
+
+If you don't want to embed all of the files into the app bundle, you can build a "stub" application. It is basically an empty shell that refers to the files in the dist folder rather than copying them. Furthermore, it does not include a bundled Java VM. As a result, this isn't a self contained unit as is the one described above. It does, however, give you a way of having an app with an icon that you can put in your dock. To build the stub, issue the command:
+
+	ant stubapp
+
+**Notes**:
+
++  You can drag this app to your dock but you **cannot** move it to the app folder, desktop, or elsewhere because it is not self-contained.
++  You can make an alias to the app and put the alias whereever you'd like.
++  You should use either the bundle-VisibleTesla target or the stubapp target, but not both. They both write VisibleTesla.app to the same location.
