@@ -36,13 +36,16 @@
 							<li>
 								<span class="changed">Refinement</span>: The proxy fix that was introduced in 0.26.02 has been confirmed to work by several users so I removed the note about it being experimental. 
 							</li>
-								<li>
-									<span class="fixed">Fix</span>: The charts and raw data displayed for <span class="ui">Vampire Loss</span> were always displaying range in terms of miles even when the car's interface was set to kilometers.
-								</li>
+							<li>
+								<span class="fixed">Fix</span>: The charts and raw data displayed for <span class="ui">Vampire Loss</span> were always displaying range in terms of miles even when the car's interface was set to kilometers.
+							</li>
 						</ul>
 					</li>
 					<li>Login
 						<ul>
+							<li>
+								<span class="changed">Refinement</span>: Very minor UI tweak.
+							</li>
 						</ul>
 					</li>
 					<li>Overview
@@ -66,9 +69,9 @@
 					<li>Charge
 						<ul>
 							<li>
-								<span class="fixed">Fix</span>: The snowflake depicting cold weather conditions is actually not derived from the temperature. It was shown when the usable battery level differs from the "normal" battery level. Because I am actually not taking temperature into account (it is the implied reason for the lower usable level), I know longer show a snowflake. Instead, the Battery Gauge shows two distinct levels for this case. The lower level is the usable battery level and the higher level is the "normal" battery level. Both levels are shown at the bottom of the <span class="ui">Charging Data</span> table.
+								<span class="fixed">Fix</span>: The snowflake depicting cold weather conditions is actually not derived from the temperature. It was shown when the usable battery level differs from the "normal" battery level. Because I am actually not taking temperature into account (it is the implied reason for the lower usable level), I no longer show a snowflake. Instead, the Battery Gauge shows two distinct levels for this case. The lower level is the usable battery level and the higher level is the "normal" battery level. Both levels are shown at the bottom of the <span class="ui">Charging Data</span> table.
 								<br><br>
-								In the previous version the snowflake would be displayed no matter how insignificant the difference was between levels. This could lead to it being displayed for what were effectively rounding errors. Now the two levels are displayed in the gauge only if the difference is at least 5 percentage points.
+								In the previous version the snowflake would be displayed no matter how insignificant the difference was between levels. This could lead to it being displayed for what were effectively rounding errors. Now the two levels are displayed in the gauge only if the difference is at least 2 percentage points.
 							</li>
 						</ul>
 					</li>
