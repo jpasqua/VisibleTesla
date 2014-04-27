@@ -22,10 +22,14 @@ else
   JAVACMD="/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java"
 fi
 
+OLDIFS=$IFS
+IFS="@"
 VM_PARAMS=""
 VM_PARAMS_FILE=$progdir/vmparams.txt
 if [ -f $VM_PARAMS_FILE ]; then
   VM_PARAMS=" `cat $VM_PARAMS_FILE` "
 fi
 cd $progdir/../../..
-exec $JAVACMD -jar $VM_PARAMS -Xdock:icon=FobIcon.png VisibleTesla.jar
+IFS=$OLDIFS
+exec $JAVACMD -jar $VM_PARAMS -Xdock:icon=VTIcon.icns VisibleTesla.jar
+

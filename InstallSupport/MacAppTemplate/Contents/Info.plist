@@ -9,7 +9,7 @@
         <key>CFBundleGetInfoString</key>
         <string>Monitor and Control your Tesla Model S</string>
         <key>CFBundleIconFile</key>
-        <string>FobIcon.icns</string>
+        <string>VTIcon.icns</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>8.0</string>
         <key>CFBundleName</key>
