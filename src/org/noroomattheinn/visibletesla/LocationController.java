@@ -295,21 +295,21 @@ public class LocationController extends BaseController {
                     long lastSnapshot = snapshot.state.vehicleTimestamp;
                     doUpdateLater(snapshot.state);
 
-                    System.err.print("SM: ");
+                    // DEBUG: System.err.print("SM: ");
                     // Now, stream data as long as it comes...
                     while (snapshot.refreshFromStream()) {
-                        System.err.print("C");
+                        // DEBUG: System.err.print("C");
                         if (appContext.shuttingDown.get() ||
-                            inactivityState != InactivityType.Awake) break;
+                            inactivityState == InactivityType.Sleep) break;
                         if (snapshot.state.vehicleTimestamp - lastSnapshot > StreamingThreshold) {
-                            System.err.print("S");
+                            // DEBUG: System.err.print("S");
                             doUpdateLater(snapshot.state);
                             lastSnapshot = snapshot.state.vehicleTimestamp;
                         } else {
-                            System.err.print("T");
+                            // DEBUG: System.err.print("T");
                         }
                     }
-                    System.err.println("!");
+                    // DEBUG: System.err.println("!");
                 } catch (InterruptedException ex) {
                     Tesla.logger.log(Level.INFO, "LocationStreamer Interrupted");
                 }
