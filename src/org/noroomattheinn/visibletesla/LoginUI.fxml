@@ -21,9 +21,9 @@
     <Label fx:id="loggedInName" layoutX="271.0" layoutY="114.0" text="user@teslaowner.com" />
     <ProgressIndicator id="loginProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" />
     <Label fx:id="progressLabel" layoutX="55.0" layoutY="360.0" text="Label" />
-    <ImageView fx:id="loggedInImage" fitHeight="0.0" fitWidth="0.0" layoutX="168.0" layoutY="55.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5">
+    <ImageView fx:id="loggedInImage" fitHeight="0.0" fitWidth="0.0" layoutX="199.0" layoutY="83.0" pickOnBounds="true" preserveRatio="true" scaleX="1.0" scaleY="1.0" visible="true">
       <image>
-        <Image url="@../TeslaResources/Icon@2x.png" />
+        <Image url="@../TeslaResources/VTIconSmall.png" />
       </image>
     </ImageView>
     <CheckBox fx:id="rememberMe" layoutX="261.0" layoutY="221.0" mnemonicParsing="false" onAction="#rememberMeHandler" text="Remember Me" />
