@@ -7,5 +7,5 @@ lnk.targetpath = wsc.CurrentDirectory & "\vtrunner.bat"
 'stdout.WriteLine lnk.targetpath
 lnk.description = "Run VisibleTesla"
 lnk.workingdirectory = wsc.CurrentDirectory
-lnk.IconLocation = wsc.CurrentDirectory & "\FobIcon.ico, 0"
+lnk.IconLocation = wsc.CurrentDirectory & "\VTIcon.ico, 0"
 lnk.save
