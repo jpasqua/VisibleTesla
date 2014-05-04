@@ -52,7 +52,11 @@
                             <Line endX="499.0" endY="0.0" layoutX="100.0" layoutY="34.0" startX="-100.0" />
                             <Line endX="499.0" endY="0.0" layoutX="101.0" layoutY="71.0" startX="-100.0" />
                             <Button layoutX="469.0" layoutY="79.0" mnemonicParsing="false" onAction="#testDelivery" text="Test Delivery" />
-                            <Label layoutX="169.0" layoutY="104.0" text="** Normal charges may apply for text messages **" textAlignment="CENTER" />
+                            <Label layoutX="169.0" layoutY="104.0" text="Normal charges may apply for text messages" textAlignment="CENTER">
+                              <font>
+                                <Font name="Arial Bold Italic" size="13.0" />
+                              </font>
+                            </Label>
                           </children>
                         </AnchorPane>
                       </content>
@@ -127,6 +131,7 @@
                 <Slider fx:id="locMinDist" blockIncrement="1.0" layoutX="178.0" layoutY="69.0" majorTickUnit="1.0" max="10.0" min="2.0" minorTickCount="0" prefWidth="162.0" showTickLabels="true" showTickMarks="true" value="3.0" />
                 <Label fx:id="locMinDistDisplay" layoutX="348.0" layoutY="69.0" prefWidth="36.0" text="3" />
                 <Label fx:id="locMinTimeDisplay" layoutX="348.0" layoutY="17.0" prefWidth="36.0" text="10" />
+                <CheckBox id="collectLocationData" fx:id="streamWhenPossible" layoutX="14.0" layoutY="128.0" mnemonicParsing="false" text="Stream when possible" />
               </children>
             </AnchorPane>
           </content>

@@ -140,11 +140,14 @@ public class PrefsController extends BaseController {
     @FXML private Label locMinTimeDisplay;
     @FXML private Slider locMinDist;
     @FXML private Label locMinDistDisplay;
+    @FXML private CheckBox streamWhenPossible;
+
     //
     // Initialize the UI
     //
     private void initLocationPrefsUI() {
         bindToCheckBox(collectLocationData, appContext.prefs.collectLocationData);
+        bindToCheckBox(streamWhenPossible, appContext.prefs.streamWhenPossible);
         bindToIntegerProperty(locMinTime, locMinTimeDisplay, appContext.prefs.locMinTime);
         bindToIntegerProperty(locMinDist, locMinDistDisplay, appContext.prefs.locMinDist);
     }

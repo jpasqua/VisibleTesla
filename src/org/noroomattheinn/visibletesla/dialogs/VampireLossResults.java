@@ -59,7 +59,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         
         // ----- Set up time-based chart
         
-        chart.setTitle("Vampire Loss Data - EXPERIMENTAL");
+        chart.setTitle("Vampire Loss Data");
         chart.setLegendVisible(false);
         Node chartBackground = chart.lookup(".chart-plot-background");
         chartBackground.setStyle("-fx-background-color: white;");
@@ -101,7 +101,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
 
         // ----- Set up the Scatter Chart
         
-        sequenceChart.setTitle("Vampire Loss Data - EXPERIMENTAL");
+        sequenceChart.setTitle("Vampire Loss Data");
         sequenceChart.setLegendVisible(false);
         chartBackground = sequenceChart.lookup(".chart-plot-background");
         chartBackground.setStyle("-fx-background-color: white;");

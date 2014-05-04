@@ -6,6 +6,7 @@
 package org.noroomattheinn.visibletesla;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,13 +26,12 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
-import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
-import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.visibletesla.chart.VTLineChart;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
 import org.noroomattheinn.visibletesla.chart.VTSeries;
+import org.noroomattheinn.visibletesla.stats.Stat;
 
 /**
  * GraphController: Handles the capture and display of vehicle statistics
@@ -188,9 +188,15 @@ public class GraphController extends BaseController {
         if (differentVehicle()) {
             prepSeries();
             loadExistingData();
-            // TO DO: Remove old listeners!
-            appContext.lastKnownChargeState.addListener(handleChargeState);
-            appContext.lastKnownSnapshotState.addListener(handleSnapshotState);
+            // Register for additions to the data
+            appContext.statsStore.newestVoltage.addListener(statHandler);
+            appContext.statsStore.newestCurrent.addListener(statHandler);
+            appContext.statsStore.newestEstRange.addListener(statHandler);
+            appContext.statsStore.newestSOC.addListener(statHandler);
+            appContext.statsStore.newestROC.addListener(statHandler);
+            appContext.statsStore.newestBatteryAmps.addListener(statHandler);
+            appContext.statsStore.newestPower.addListener(statHandler);
+            appContext.statsStore.newestSpeed.addListener(statHandler);
         }
     }
 
@@ -338,7 +344,6 @@ public class GraphController extends BaseController {
         
         lineChart.applySeriesToChart();
         restoreLastSettings();
-
     }
     
 /*------------------------------------------------------------------------------
@@ -353,38 +358,15 @@ public class GraphController extends BaseController {
         series.addToSeries(time, rounded, false);
     }
     
-    private final ChangeListener<SnapshotState.State> handleSnapshotState = new ChangeListener<SnapshotState.State>() {
-        long lastTimestamp = 0;
-        @Override public void changed(
-                ObservableValue<? extends SnapshotState.State> ov,
-                SnapshotState.State old, final SnapshotState.State cur) {
-            if (cur.timestamp - lastTimestamp < (appContext.prefs.locMinTime.get() * 1000)) return;
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    addElement(typeToSeries.get(StatsStore.PowerKey), cur.timestamp, cur.power);
-                    addElement(typeToSeries.get(StatsStore.SpeedKey), cur.timestamp, cur.speed);
-                }
-            });
-            this.lastTimestamp = cur.timestamp;
-        }
-    };
     
-    private final ChangeListener<ChargeState.State> handleChargeState = new ChangeListener<ChargeState.State>() {
-        @Override public void changed(
-                ObservableValue<? extends ChargeState.State> ov,
-                ChargeState.State old, final ChargeState.State cur) {
+    private final ChangeListener<Stat> statHandler = new ChangeListener<Stat>() {
+        @Override public void changed(ObservableValue<? extends Stat> ov, Stat t, final Stat stat) {
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    long time = cur.timestamp;
-                    addElement(typeToSeries.get(StatsStore.VoltageKey), time, cur.chargerVoltage);
-                    addElement(typeToSeries.get(StatsStore.CurrentKey), time, cur.chargerActualCurrent);
-                    addElement(typeToSeries.get(StatsStore.EstRangeKey), time, cur.range);
-                    addElement(typeToSeries.get(StatsStore.SOCKey), time, cur.batteryPercent);
-                    addElement(typeToSeries.get(StatsStore.ROCKey), time, cur.chargeRate);
-                    addElement(typeToSeries.get(StatsStore.BatteryAmpsKey), time, cur.batteryCurrent);
+                    addElement(typeToSeries.get(stat.type), stat.sample.timestamp, stat.sample.value);
                 }
             });
-        }
+        };
     };
 
 }

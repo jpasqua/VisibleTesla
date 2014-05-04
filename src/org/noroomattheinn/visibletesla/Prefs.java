@@ -65,18 +65,18 @@ public class Prefs {
     private static final String FontScaleKey = "APP_FONT_SCALE";
     
     private void loadGeneralPrefs() {
-        booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
-        booleanPref(WakeOnTCKey, wakeOnTabChange, true);
-        booleanPref(OfferExpKey, offerExperimental, false);
-        integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
-        booleanPref(EnableProxyKey, enableProxy, false);
-        stringPref(ProxyHostKey, proxyHost, "");
-        integerPref(ProxyPortKey, proxyPort, 8080);
-        booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
-        stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
-        booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
-        stringPref(CustomMailGunKey, mailGunKey, AppContext.MailGunKey);
-        integerPref(FontScaleKey, fontScale, 100);
+            booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
+            booleanPref(WakeOnTCKey, wakeOnTabChange, true);
+            booleanPref(OfferExpKey, offerExperimental, false);
+            integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
+            booleanPref(EnableProxyKey, enableProxy, false);
+            stringPref(ProxyHostKey, proxyHost, "");
+            integerPref(ProxyPortKey, proxyPort, 8080);
+            booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
+            stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
+            booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
+            stringPref(CustomMailGunKey, mailGunKey, AppContext.MailGunKey);
+            integerPref(FontScaleKey, fontScale, 100);
     }
     
 /*------------------------------------------------------------------------------
@@ -120,15 +120,18 @@ public class Prefs {
  *----------------------------------------------------------------------------*/
     
     public BooleanProperty collectLocationData = new SimpleBooleanProperty();
+    public BooleanProperty streamWhenPossible = new SimpleBooleanProperty();
     public IntegerProperty locMinTime = new SimpleIntegerProperty();
     public IntegerProperty locMinDist = new SimpleIntegerProperty();
     
     private static final String LocCollectData = "LOC_COLLECT_DATA";
+    private static final String LocStreamMore = "LOC_STREAM_MORE";
     private static final String LocMinTime = "LOC_MIN_TIME";
     private static final String LocMinDist = "LOC_MIN_DIST";
     
     private void loadLocationPrefs() {
         booleanPref(LocCollectData, collectLocationData, true);
+        booleanPref(LocStreamMore, streamWhenPossible, false);
         integerPref(LocMinTime, locMinTime, 5); // 5 Seconds
         integerPref(LocMinDist, locMinDist, 5); // 5 Meters
     }

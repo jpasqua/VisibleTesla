@@ -6,7 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import java.util.logging.Level;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -36,8 +35,6 @@ import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.SimpleTemplate;
-import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 
 
 public class LocationController extends BaseController {
@@ -55,12 +52,9 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final Object lock = false;
-    private SnapshotState snapshot;
     private boolean mapIsLoaded = false;
     private WebEngine engine;
     
-    private Thread streamer = null;
     private Animation blipAnimation = null;
     
 /*------------------------------------------------------------------------------
@@ -109,23 +103,38 @@ public class LocationController extends BaseController {
         multigauge.setVal(Side.RIGHT, 40);
     }
     
-    @Override protected void reflectNewState() {
-        if (snapshot.state == null) return;
-        reflectInternal(
-                snapshot.state.estLat, snapshot.state.estLng,  snapshot.state.estHeading,
-                snapshot.state.speed, snapshot.state.power);
-    }
+    @Override protected void reflectNewState() { }
 
-    @Override protected void refresh() { 
-        synchronized(lock) { lock.notify(); } }
+    @Override protected void refresh() {
+        appContext.snapshotStreamer.produce(true);
+    }
 
     @Override protected void prepForVehicle(Vehicle v) {
         if (differentVehicle()) {
             blipAnimation = animateBlip();
-            snapshot = new SnapshotState(v);
-            ensureStreamer();
+            
+            appContext.snapshotStreamer.produce(true);
+
+            appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+                @Override public void changed(
+                        ObservableValue<? extends SnapshotState.State> ov,
+                        SnapshotState.State old, final SnapshotState.State cur) {
+                    doUpdateLater(cur);
+                }
+            });
+            
+            SnapshotState.State ss = appContext.lastKnownSnapshotState.get();
+            if (ss != null) { doUpdateLater(ss); }
         }
     }
+    
+    private void doUpdateLater(final SnapshotState.State state) {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                reflectInternal(state);
+            } });
+    }
+    
     
 /*------------------------------------------------------------------------------
  *
@@ -133,11 +142,10 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void reflectInternal(double lat, double lng, int theHeading,
-                                 double speed, double power) {
-        String latitude = String.valueOf(lat);
-        String longitude = String.valueOf(lng);
-        String heading = String.valueOf(theHeading);
+    private void reflectInternal(SnapshotState.State ss) {
+        String latitude = String.valueOf(ss.estLat);
+        String longitude = String.valueOf(ss.estLng);
+        String heading = String.valueOf(ss.estHeading);
 
         if (mapIsLoaded) {
             try {
@@ -171,19 +179,10 @@ public class LocationController extends BaseController {
 //            });
 
         }
-        multigauge.setVal(Side.LEFT, speed);
-        multigauge.setVal(Side.RIGHT, power);
+        multigauge.setVal(Side.LEFT, ss.speed);
+        multigauge.setVal(Side.RIGHT, ss.power);
     }
     
-    
-    private void ensureStreamer() {
-        if (streamer == null) {
-            streamer = appContext.launchThread(new LocationStreamer(lock), "00 LocationStreamer");
-            while (streamer.getState() != Thread.State.WAITING) {
-                Utils.yieldFor(10);
-            }
-        }
-    }
     
     private String getMapFromTemplate(String lat, String lng, String heading) {
         SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(MapTemplateFileName));
@@ -253,67 +252,5 @@ public class LocationController extends BaseController {
         return sequence;
     }
         
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - The class that enables streaming of location data
- * 
- *----------------------------------------------------------------------------*/
-    
-    private class LocationStreamer implements Runnable, ChangeListener<AppContext.InactivityType> {
-        private static final long StreamingThreshold = 400;
-        final Object lock;
-        private InactivityType inactivityState = InactivityType.Awake;
-        
-        @Override public void
-        changed(ObservableValue<? extends InactivityType> o, InactivityType ov, InactivityType nv) {
-            inactivityState = nv;
-        }
 
-        LocationStreamer(Object lock) {
-            this.lock = lock;
-        }
-
-        private void doUpdateLater(final SnapshotState.State state) {
-            appContext.lastKnownSnapshotState.set(state);
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    reflectInternal(state.estLat, state.estLng, state.estHeading,
-                                    state.speed, state.power);
-                } });
-        }
-        
-        @Override public void run() {
-            appContext.inactivityState.addListener(this);
-            inactivityState = appContext.inactivityState.get();
-
-            while (!appContext.shuttingDown.get()) {
-                try {
-                    synchronized (lock) { lock.wait(); }
-                    if (!snapshot.refresh()) 
-                        continue;
-                    
-                    long lastSnapshot = snapshot.state.vehicleTimestamp;
-                    doUpdateLater(snapshot.state);
-
-                    // DEBUG: System.err.print("SM: ");
-                    // Now, stream data as long as it comes...
-                    while (snapshot.refreshFromStream()) {
-                        // DEBUG: System.err.print("C");
-                        if (appContext.shuttingDown.get() ||
-                            inactivityState == InactivityType.Sleep) break;
-                        if (snapshot.state.vehicleTimestamp - lastSnapshot > StreamingThreshold) {
-                            // DEBUG: System.err.print("S");
-                            doUpdateLater(snapshot.state);
-                            lastSnapshot = snapshot.state.vehicleTimestamp;
-                        } else {
-                            // DEBUG: System.err.print("T");
-                        }
-                    }
-                    // DEBUG: System.err.println("!");
-                } catch (InterruptedException ex) {
-                    Tesla.logger.log(Level.INFO, "LocationStreamer Interrupted");
-                }
-            }
-        }
-    }
 }

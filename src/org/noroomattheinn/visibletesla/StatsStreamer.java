@@ -1,7 +1,7 @@
 /*
- * StatsStreamer.java -  - Copyright(c) 2013 Joe Pasqua
+ * StatsStreamer.java - Copyright(c) 2013 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
- * Created: Nov 26;
+ * Created: Nov 26, 2013
  */
 
 package org.noroomattheinn.visibletesla;
@@ -9,7 +9,6 @@ package org.noroomattheinn.visibletesla;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
@@ -41,7 +40,6 @@ public class StatsStreamer {
     private final AppContext appContext;
     private final Thread collector;
     private final ChargeState charge;
-    private final SnapshotState snapshot;
     private final Vehicle vehicle;
     
 /*==============================================================================
@@ -53,7 +51,6 @@ public class StatsStreamer {
     public StatsStreamer(AppContext appContext, Vehicle v) {
         this.appContext = appContext;
         this.charge = new ChargeState(v);
-        this.snapshot = new SnapshotState(v);
         this.vehicle = v;
         this.collector = appContext.launchThread(new AutoCollect(), "00 CollectStats");
     }
@@ -88,18 +85,13 @@ public class StatsStreamer {
             });
         }
         
-        private void publishStats() {
+        private void produceStats() {
             long time = System.currentTimeMillis(); // Syncrhonize the timestamps to now
             
+            appContext.snapshotStreamer.produce(appContext.prefs.streamWhenPossible.get());
             if (charge.refresh()) {
                 charge.state.timestamp = time;
                 appContext.lastKnownChargeState.set(charge.state);
-            }
-            if (snapshot.refresh()) {
-                snapshot.state.timestamp = time;
-                appContext.lastKnownSnapshotState.set(snapshot.state);
-            } else {
-                Tesla.logger.warning("Snapshot refresh failed!");
             }
         }
 
@@ -112,8 +104,8 @@ public class StatsStreamer {
         private int decay = 0;
         private boolean isInMotion() { return isInMotion(4); }
         private boolean isInMotion(int decaySetting) {
-            if (snapshot.state != null) {
-                if (snapshot.state.speed > 0.0) {
+            if (appContext.lastKnownSnapshotState.get() != null) {
+                if (appContext.lastKnownSnapshotState.get().speed > 0.0) {
                     decay = decaySetting;
                     return true;
                 }
@@ -129,11 +121,11 @@ public class StatsStreamer {
             while (!appContext.shuttingDown.get() && !stopCollecting) {
                 boolean vehicleWasAsleep = false;
                 if (appIsAwake()) {
-                    publishStats();
+                    produceStats();
                     sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
                     Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
                 } else if (vehicle.isAwake()) {
-                    publishStats();
+                    produceStats();
                     sleepInterval = isInMotion() ? MinInterval :
                             (isCharging() ? DefaultInterval : AllowSleepInterval);
                     Tesla.logger.info("App Asleep, Car Awake, interval = " + sleepInterval/1000L);

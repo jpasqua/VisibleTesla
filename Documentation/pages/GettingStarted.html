@@ -25,7 +25,7 @@
                 Overview
             </h2>
             <p>
-                VisibleTesla lets you view, monitor, and control your Tesla Model S in much the same way as the official Tesla iPhone and Android apps do. Unlike those apps, VisibleTesla is not official, not from Tesla, and not supported. Please read the <a href="#disclaimer">Disclaimer</a> below - it's important. 
+                VisibleTesla lets you view, monitor, and control your Tesla Model S in much the same way as the official Tesla iPhone and Android apps do. Unlike those apps, VisibleTesla is not official, not from Tesla, and not supported. Please read the <a href="#disclaimer">Disclaimer</a> below - it's important.
             </p>
             <p>
                 The author created VisibleTesla in his spare time for the enjoyment of the Tesla community. VisibleTesla is free for personal and non-commercial use. It speaks to your Tesla in the same way that the official Tesla applications do. Several members of the <a href="http://www.teslamotorsclub.com/forum.php">Tesla Motors Club Forum</a> spent long hours determining how that mechanism works. Many thanks for their hard work.
@@ -42,6 +42,27 @@
             <h2>
                 <a name="install">Installing, Running, and Updating VisibleTesla</a>
             </h2>
+            <p>
+                VisibleTesla comes in two flavors: a standard Mac application and a standard Java package for Windows and Linux. Though they are the same application, installing and running them is different so they are described separately below. The generic package also works on the Mac.
+            </p>
+            <h3>
+                Using the Mac App
+            </h3>
+            <div>
+                <img class="screenshot" width="64" height="64" src='../images/VTIcon.png' alt='App Icon' style='float: right;'>
+                <p>
+                    The standard Mac application works like any other Mac app. Just download it from <a href="https://www.dropbox.com/sh/y1tj7fx9i72beo6/6lvCXtGbBR/VisibleTesla">here</a> and you'll find VisibleTesla.app in your Downloads folder. The icon looks like the one shown to the right. You can drag it to your Applications folder or leave it where it is. Now just double-click the icon to run it.
+                </p>
+                <p>
+                    If you don't see VisibleTesla in your Downloads folder, but instead see VisibleTesla.zip, it means that your browser did not decompress the file for you. Just double-click VisibleTesla.zip and the app will appear.
+                </p>
+                <p>
+                    Depending on your security settings, your Mac may complain about running VisibleTesla the first time. If so, consult the <a href="FAQ.html#troubleshooting">Troubleshooting section of the FAQ</a>. It explains the one-time steps necessary to handle this.
+                </p>
+            </div>
+            <h3>
+                Using the Generic Package
+            </h3>
             <p>
                 <strong>System Requirements:</strong> VisibleTesla is a multi-platform application. It is developed on a Mac, but runs on Macs, Windows, and Linux. People are using it on a regular basis on systems such as Windows 7 &amp; 8, 32 and 64 bit, Mac OS 10.8 &amp; 10.9, and various flavors of Linux. It has also been run in virtualized environments such as VMware, though a few problems have been reported. In particular, you may need to disable 3D acceleration in order to avoid screen display issues. This is a low level problem that can't be addressed in VisibleTesla.
             </p>
@@ -62,7 +83,9 @@
             <p>
                 Be careful when installing Java for Windows. It may ask you to install other software from Oracle partners. You do not need this software to run VisibleTesla and may safely decline the installation.
             </p>
-            <p><strong>Installing and Running:</strong> The very first thing you need to do is download and install VisibleTesla. You can do so by following these steps:</p>
+            <p>
+                <strong>Installing and Running:</strong> The very first thing you need to do is download and install VisibleTesla. You can do so by following these steps:
+            </p>
             <ul>
                 <li>You can always find the latest version (along with some older versions) <a href="https://www.dropbox.com/sh/y1tj7fx9i72beo6/6lvCXtGbBR/VisibleTesla">here</a>.
                 </li>
@@ -95,13 +118,15 @@
                 Updating VisibleTesla
             </h3>
             <p>
-                Once you've installed and run VisibleTesla it will automatically check for updates on a weekly basis. If an update is available, a dialog box will provide a link to the Release Notes so that you can see what changed. If you'd like to update you'll see another link which will download the most recent version for you. You can also check for new updates at any time using the <span class="ui">Help&rarr;Check for Updates</span> menu item. When you download a newer version of VisibleTesla, you'll end up with a new folder with a higher version number. Quit the version of VisibleTesla that you are using, and start it from the new folder. You may delete the older folder after that.
+                Once you've installed and run VisibleTesla it will automatically check for updates on a weekly basis. You can also check for new updates at any time using the <span class="ui">Help→Check for Updates</span> menu item. If an update is available, a dialog box will provide a link to the Release Notes so that you can see what changed. If you'd like to update you'll see another link which will download the most recent version for you. If you are on a Mac, you'll be offered two links. One for the fully packaged Mac application, and one for the generic package that works on Mac, Windows, and Linux. When you download a newer version of VisibleTesla, just use the same process as above to install and launch the latest version.
             </p>
             <h2>
                 <a name="disclaimer">Warnings and Disclaimer</a>
             </h2>
             <blockquote>
-                <p><em>Be careful</em> when using this software as it can lock and unlock your car as well as control various functions relating to the charging system, sun roof, lights, horn, and other subsystems of the car. Don't send your username and password to anyone other than Tesla. Doing so would give away the authentication details required to control your car. VisibleTesla does not store your password and only communicates with Tesla.</p>
+                <p>
+                    <em>Be careful</em> when using this software as it can lock and unlock your car as well as control various functions relating to the charging system, sun roof, lights, horn, and other subsystems of the car. Don't send your username and password to anyone other than Tesla. Doing so would give away the authentication details required to control your car. VisibleTesla does not store your password and only communicates with Tesla.
+                </p>
                 <p>
                     Use this application at your own risk. The author does not guarantee its proper functioning. This application attempts to use the same interfaces used by the official Tesla apps. However, it is possible that use of this application may cause unexpected damage for which nobody but you are responsible. Use of this application can change the settings on your car and may have negative consequences such as (but not limited to) unlocking the doors, opening the sun roof, or reducing the available charge in the battery.
                 </p>

@@ -9,6 +9,7 @@ package org.noroomattheinn.visibletesla;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -55,7 +56,6 @@ public class OverviewController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private VehicleState        car;            // The primary door state
-    private SnapshotState       snapshot;       // For odometer reading
     private ChargeState         charge;         // For chargePortDoor status
     private DoorController      doorController; // For primary door controller
     private ActionController    actions;        // For honk, flash, wake commands
@@ -202,12 +202,7 @@ public class OverviewController extends BaseController {
     @Override protected void refresh() {
         updateState(car);
         updateState(charge);
-        if (userInvokedRefresh || refreshCount % 3 == 0) {
-            updateState(snapshot);
-        }
-        refreshCount++;
     }
-    static private int refreshCount = 0;
     
     @Override protected void prepForVehicle(final Vehicle v) {
         if (differentVehicle()) {
@@ -216,10 +211,18 @@ public class OverviewController extends BaseController {
             getAppropriateImages(v);
 
             car = new VehicleState(v);
-            snapshot = new SnapshotState(v);
             charge = new ChargeState(v);
             
+            appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+                @Override public void changed(
+                        ObservableValue<? extends SnapshotState.State> ov,
+                        SnapshotState.State old, final SnapshotState.State cur) {
+                    Platform.runLater(new Runnable() { @Override public void run() { updateOdometer(); } });
+                }
+            });
             storedOdometerReading = appContext.persistentState.getDouble(v.getVIN()+"_odometer", 0);
+            appContext.snapshotStreamer.produce(false);
+                // Make sure we update the odometer reading at some point...
 
             updateWheelView();  // Make sure we display the right wheels from the get-go
             updateRoofView();   // Make sure we display the right roof from the get-go
@@ -386,8 +389,8 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading = (snapshot.state != null) ?
-                snapshot.state.odometer : storedOdometerReading;
+        double odometerReading = (appContext.lastKnownSnapshotState.get() != null) ?
+                appContext.lastKnownSnapshotState.get().odometer : storedOdometerReading;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
         // Save off the odometer reading (in miles)

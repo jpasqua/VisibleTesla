@@ -11,6 +11,7 @@ import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URL;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -554,6 +555,8 @@ public class MainController extends BaseController {
                 selectedVehicle.getVIN() + "_LastVersionCheck", System.currentTimeMillis());
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
+        if (versions == null) return false; // Missing, empty, or corrupt versions file
+        
         List<Release> releases = versions.getReleases();
 
         if (releases != null && !releases.isEmpty()) {
@@ -569,8 +572,23 @@ public class MainController extends BaseController {
                         "Version: %s, Date: %tD",
                         releaseNumber, lastRelease.getReleaseDate());
                 Label msg = new Label(msgText);
-                Hyperlink downloadLink = new Hyperlink("Click to download the new release");
-                Hyperlink rnLink = new Hyperlink("Click to view the release notes");
+                Hyperlink platformLink = null;
+                String osName = System.getProperty("os.name").toLowerCase();
+                if (osName.contains("mac")) {
+                    final URL macURL = lastRelease.getMacURL();
+                    if (macURL != null) {
+                        platformLink = new Hyperlink("Download latest Mac Application");
+                        platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
+                        platformLink.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override public void handle(ActionEvent t) {
+                                appContext.app.getHostServices().showDocument(
+                                        macURL.toExternalForm());
+
+                            }
+                        });
+                    }
+                }
+                Hyperlink downloadLink = new Hyperlink("Download the latest release");
                 downloadLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
                 downloadLink.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent t) {
@@ -579,6 +597,7 @@ public class MainController extends BaseController {
 
                     }
                 });
+                Hyperlink rnLink = new Hyperlink("Click to view the release notes");
                 rnLink.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent t) {
                         appContext.app.getHostServices().showDocument(
@@ -586,7 +605,9 @@ public class MainController extends BaseController {
 
                     }
                 });
-                customPane.getChildren().addAll(msg, rnLink, downloadLink);
+                customPane.getChildren().addAll(msg, rnLink);
+                if (platformLink != null) customPane.getChildren().add(platformLink);
+                customPane.getChildren().add(downloadLink);
                 Dialogs.showCustomDialog(
                         appContext.stage, customPane,
                         "Newer Version Available",

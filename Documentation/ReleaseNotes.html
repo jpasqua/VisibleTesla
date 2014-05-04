@@ -20,6 +20,90 @@
 				VisibleTesla Release Notes
 			</h1>
 		<h3>
+			VisibleTesla 0.27.00 [05-04-2014] - <font color="red">[EXPERIMENTAL]</font>
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: Starting with this release a fully packaged Mac app available as a separate download. When you use the <span class="ui">Help&rarr;Check for Updates</span> menu item or an auto-update is performed, you'll be presented with a link that allows you to download the bundled app rather than the generic package. The underpinnings are there to add a bundled app for Windows and Linux too, but those aren't on the task list yet.
+								<p>TMC.com user araxara has been graciously building and host a bundled Mac app for quite a while and this bundled version is no different except that it supports the updating feature and uses a new icon (which can be changed either at build time or by updating the package).</p>
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: Refined the logic in calculating Vampire Loss statistics. The code makes better guesses about what to do in the facing of missing data.
+							</li>
+							<li>
+								<span class="fixed">Fixed</span>: The update mechanism would fail silently with certain errors and the user would have no indication of what happened. That has been improved. 
+							</li>
+						</ul>
+					</li>
+					<li>Login
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+							<li>
+								<span class="fixed">Fixed</span>: Major revision to the way streaming data works. There should be very few user visible changes other than bugs going away. In particular, some users noticed that data would stop streaming at random points while the Location Tab was in use. 
+							</li>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: In some cases you will see more data samples for speed and power if you select the <span class="ui">Stream when possible</span> option in the Prefs Tab. See below.
+							</li>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: In the <span class="ui">Location</span> section of the <a href="pages/PrefsTab.html">Prefs Tab</a> there is a new checkbox labeled <span class="ui">Stream when possible</span>. If checked, this tells VisibleTesla to stream location data opportunistically even when not on the <a href="pages/LocationTab.html">Location Tab</a>. When the car is not moving this will have no net effect, when the car is moving, more streaming location data will be captured. The exception is very short trips (less than 2 minutes).
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+					<li>
+						<span class="fixed">Fixed</span>: Fairly significant overhaul to the way the app coordinates use of the streaming data api. This manifests in the ways listed above under Location, Graphs, and Prefs.
+					</li>
+					<li>
+						<span class="changed">Refinement</span>: Modified the Mac app bundling task to remove a duplicate library, which decreased the download size by about 10%.
+					</li>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>		<h3>
 			VisibleTesla 0.26.03 [04-26-2014]
 		</h3>
 		<ul>

@@ -69,7 +69,7 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.26.03";
+    public static final String ProductVersion = "0.27.00";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -111,6 +111,8 @@ public class AppContext {
     public LocationStore locationStore;
     public StatsStore statsStore;
     public VampireStats vampireStats;
+    public SnapshotStreamer snapshotStreamer;
+    public StatsStreamer statsStreamer;
     
 /*------------------------------------------------------------------------------
  *
@@ -120,7 +122,6 @@ public class AppContext {
     
     private final ArrayList<Thread> threads = new ArrayList<>();
     private Utils.Callback<InactivityType,Void> inactivityModeListener;
-    private StatsStreamer statsStreamer;
     private final Map<String,StatsPublisher> typeToPublisher = new HashMap<>();
     private MailGun mailer = null;
     
@@ -185,6 +186,9 @@ public class AppContext {
                 Platform.exit();
             }
             
+            // Start SnapshotStreamer before StatsStreamer since StatsStreamer
+            // asks SnapshotStreamer to produce some of the stats
+            snapshotStreamer = new SnapshotStreamer(this);
             if (statsStreamer != null) statsStreamer.stop();
             statsStreamer = new StatsStreamer(this, v);
             vampireStats = new VampireStats(this);

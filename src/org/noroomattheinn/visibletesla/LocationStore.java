@@ -33,13 +33,14 @@ public class LocationStore extends DataStore {
     public static final String OdometerKey = "L_ODO";
     public static final String[] Keys = {
         LatitudeKey, LongitudeKey, HeadingKey, SpeedKey, OdometerKey};
-        
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
     
+
     public LocationStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
 
@@ -75,6 +76,7 @@ public class LocationStore extends DataStore {
         storeItem(SpeedKey, timestamp, speed);
         storeItem(OdometerKey, timestamp, state.odometer);
         repo.flushElements();
+        
         lastState = state;
     }
     

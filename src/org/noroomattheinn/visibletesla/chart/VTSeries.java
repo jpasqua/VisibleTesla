@@ -7,9 +7,7 @@
 package org.noroomattheinn.visibletesla.chart;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Shape;
@@ -48,6 +46,7 @@ public class VTSeries implements Comparable {
         this.xXform = xXform;
         this.yXform = yXform;
         series = new XYChart.Series<>();
+        series.setAppendOnly(true);
         series.setName(name);
         seriesLock = new Object();
     }

@@ -8,12 +8,17 @@ package org.noroomattheinn.visibletesla;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.stats.Stat;
 
 /**
  * Listen for changes in general stats and store them in a StatsRepository
@@ -42,12 +47,36 @@ public class StatsStore extends DataStore {
     
 /*------------------------------------------------------------------------------
  *
+ * Public State
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public final ObjectProperty<Stat> newestVoltage = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestCurrent = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestEstRange = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestSOC = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestROC = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestBatteryAmps = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestPower = new SimpleObjectProperty<>();
+    public final ObjectProperty<Stat> newestSpeed = new SimpleObjectProperty<>();
+    
+/*------------------------------------------------------------------------------
+ *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
     private final Timer timer;
-
+    private Map<String,ObjectProperty<Stat>> keyToProp = Utils.newHashMap(
+            VoltageKey, newestVoltage,
+            CurrentKey, newestCurrent,
+            EstRangeKey, newestEstRange,
+            SOCKey, newestSOC,
+            ROCKey, newestROC,
+            BatteryAmpsKey, newestBatteryAmps,
+            PowerKey, newestPower,
+            SpeedKey, newestSpeed);
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -64,8 +93,8 @@ public class StatsStore extends DataStore {
         appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
             @Override public void changed(
                     ObservableValue<? extends SnapshotState.State> ov,
-                    SnapshotState.State old, SnapshotState.State cur) {
-                processSnaphostState(cur);
+                    SnapshotState.State old, SnapshotState.State state) {
+                processSnapshot(state);
             }
         });
         
@@ -100,35 +129,48 @@ public class StatsStore extends DataStore {
                 repo.flushElements();
         }
     };
-        
+    
+    private void store(String key, long timestamp, double val) {
+        storeItem(key, timestamp, val);
+        keyToProp.get(key).set(new Stat(timestamp, key, val));
+    }
+    
     private synchronized void processChargeState(ChargeState.State state) {
         long timestamp = state.timestamp;
-
-        storeItem(VoltageKey, timestamp, state.chargerVoltage);
-        storeItem(CurrentKey, timestamp, state.chargerActualCurrent);
-        storeItem(EstRangeKey, timestamp, state.range);
-        storeItem(SOCKey, timestamp, state.batteryPercent);
-        storeItem(ROCKey, timestamp, state.chargeRate);
-        storeItem(BatteryAmpsKey, timestamp, state.batteryCurrent);
-        lastUpdate = timestamp;
-    }
-    
-    private synchronized void processSnaphostState(SnapshotState.State state) {
-        if (tooManySnapshots()) return;
-        long timestamp = state.timestamp;
-        double speed = Math.round(state.speed*10.0)/10.0;
         
-        storeItem(PowerKey, timestamp, state.power);
-        storeItem(SpeedKey, timestamp, speed);
+        if (deferredSnapshot != null) { recordSnapshot(deferredSnapshot); }
+        
+        store(VoltageKey, timestamp, state.chargerVoltage);
+        store(CurrentKey, timestamp, state.chargerActualCurrent);
+        store(EstRangeKey, timestamp, state.range);
+        store(SOCKey, timestamp, state.batteryPercent);
+        store(ROCKey, timestamp, state.chargeRate);
+        store(BatteryAmpsKey, timestamp, state.batteryCurrent);
         lastUpdate = timestamp;
     }
     
-    private long lastSnapshot = 0;
-    private boolean tooManySnapshots() {
-        long now = System.currentTimeMillis();
-        if (now - lastSnapshot < appContext.prefs.locMinTime.get() * 1000)
-            return true;
-        lastSnapshot = now;
-        return false;
+    private SnapshotState.State lastState = null;    
+    private SnapshotState.State deferredSnapshot = null;    
+    private synchronized void processSnapshot(SnapshotState.State state) {
+        // If it's the first time through, record the snapshot
+        if (lastState == null) { recordSnapshot(state); return; }
+        
+        // Honor the Prefs setting - Don't record too many snapshots. 
+        if (state.timestamp - lastState.timestamp < appContext.prefs.locMinTime.get() * 1000)
+            return;
+        
+        if (state.power != 0 || state.speed != 0) {
+            recordSnapshot(state);      // Always record interesting data
+        } else {
+            deferredSnapshot = state;    // Defer recording zeroes
+        }
     }
+    
+    private  void recordSnapshot(SnapshotState.State state) {
+        store(PowerKey, state.timestamp, state.power);
+        store(SpeedKey, state.timestamp, Math.round(state.speed * 10.0) / 10.0);
+        lastState = state;
+        deferredSnapshot = null;
+    }    
+    
 }

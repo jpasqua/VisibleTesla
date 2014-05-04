@@ -12,12 +12,22 @@
         </copy>
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>
+        <copy file="src/org/noroomattheinn/TeslaResources/VTIcon.ico" todir="${dist.dir}"/>
         <copy file="InstallSupport/MacAppTemplate/Contents/Resources/VTIcon.icns" todir="${dist.dir}"/>
         <copy file="InstallSupport/Windows/vtrunner.bat" todir="${dist.dir}"/>
-        <copy file="InstallSupport/Windows/vtrunner.bat" todir="${dist.dir}"/>
+        <copy file="InstallSupport/Windows/Make_Windows_Shortcut.vbs" todir="${dist.dir}"/>
         <mkdir dir="${dist.dir}/VisibleTesla.app"/>
         <exec executable="cp">
             <arg line="-R InstallSupport/MacAppTemplate/ ${dist.dir}/VisibleTesla.app"/>
+        </exec>
+    </target>
+
+    <target name="-post-jfx-deploy">
+        <exec executable="rm">
+            <arg line="${dist.dir}/VisibleTesla.jnlp ${dist.dir}/VisibleTesla.html"/>
+        </exec>
+        <exec executable="rm">
+            <arg line="-rf ${dist.dir}/web-files"/>
         </exec>
     </target>
 
@@ -81,17 +91,29 @@
          classpath="../../ThirdParty/appbundler-1.0.jar" />
 
 <target name="bundle-VisibleTesla">
+    <exec executable="/bin/bash" outputproperty="vt.version">
+        <arg value="-c" />
+        <arg value="grep ProductVersion src/org/noroomattheinn/visibletesla/AppContext.java | sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'"/>
+    </exec>
+    <echo>Version: ${vt.version}</echo>
     <bundleapp outputdirectory="dist"
         name="VisibleTesla"
-        icon="src/org/noroomattheinn/TeslaResources/Tesla Keyfob.icns"
+        shortversion="${vt.version}"
+        copyright="Copyright(c) 2013, 2014 Joe Pasqua"
+        icon="src/org/noroomattheinn/TeslaResources/VTIcon.icns"
         displayname="VisibleTesla"
         identifier="org.noroomattheinn.visibletesla"
         mainclassname="org.noroomattheinn.visibletesla.VisibleTesla">
         <runtime dir="${env.JAVA_HOME}" />
+        <classpath file="dist/VisibleTesla.jar" />
         <classpath file="${env.JAVA_HOME}/jre/lib/jfxrt.jar" />
         <classpath dir="dist/lib" />
-        <classpath file="dist/VisibleTesla.jar" />
     </bundleapp>
+    <!-- Remove redundant jar. It's not found automatically here so it was copied above -->
+    <delete verbose="true" >
+        <fileset dir="dist/VisibleTesla.app/Contents/PlugIns" includes="**/lib/jfxrt.jar" />
+    </delete>
+   <move verbose="true" file="dist/VisibleTesla.app/Contents/Java/jfxrt.jar" tofile="dist/VisibleTesla.app/Contents/Java/zzz_jfxrt.jar" />
 </target>
 
 

@@ -157,13 +157,14 @@
                         </li>
                     </ul>
                     <p>
-                        VisibleTesla keeps track of any internal errors or problems in a log file. This file is very important to the developer in the debugging process. It is very difficult to diagnose a problem without it (even with it, it can be difficult). A new log file is written every time you start the application. It is named <span class="ui">visibletesla-00.log</span> and lives in the application folder (the same place you go to launch VisibleTesla). 
+                        VisibleTesla keeps track of any internal errors or problems in a log file. This file is very important to the developer in the debugging process. It is very difficult to diagnose a problem without it (even with it, it can be difficult). A new log file is written every time you start the application. It is named <span class="ui">visibletesla-00.log</span>. On Windows and Linux it lives in the application folder (the same place you go to launch VisibleTesla). If you're using the Mac application, it lives in your home folder.
                     </p>
                     <p>
                         If you notice a problem and wish to report it to the developer, quit VisibleTesla, copy the log file to a safe place (like your desktop) then start VisibleTesla again. If you quit and restart VisibleTesla before copying the log file, the previous version is still around. In fact, several old log files are kept around just in case. The old files are named <span class="ui">visibletesla-01.log</span> - <span class="ui">visibletesla-03.log</span>.
                     </p>
                 </dd>
-            </dl>            <dl>
+            </dl>
+            <dl>
                 <dt>
                     I'm not getting a notification that I expected
                 </dt>
@@ -186,9 +187,9 @@
                 <dd>
                     VisibleTesla is not in the Mac App Store and is not a "signed" application. The Mac operating system is giving you a warning saying that you should be suspicious of any program that doesn't come from a known and verified source. That's good advice. If you feel that you want to run VisibleTesla anyway, there are several ways around this warning. If you are using Mac OS 10.9 or greater, the easiest way is:
                     <ul>
-                        <li>Double-click VisibleTesla.jar, get the warning and dismiss it.
+                        <li>Immediately after launching VisibleTesla and getting the warning, go to <span class="ui">System Preferences→Security &amp; Privacy</span>.
                         </li>
-                        <li>Go to System <span class="ui">Preferences→Security &amp; Privacy</span>. You'll see a note that says "VisibleTesla was blocked from opening because it is not from an identified developer."
+                        <li>You'll see a note that says "VisibleTesla was blocked from opening because it is not from an identified developer."
                         </li>
                         <li>Right next to that text you'll see an "Open Anyway" button. Press it. You only need to do this once.
                         </li>
@@ -200,7 +201,7 @@
                     <span class="ui">Mac</span>: The zooming and panning gestures don't work
                 </dt>
                 <dd>
-                    In the Mac System Preferences look at the Accessibility preferences. There is a checkbox labeled "Use scroll gesture with modifier keys to zoom:". If you have that checked, the system may be intercepting these gestures.
+                    In the Mac System Preferences look at the Accessibility preferences. There is a checkbox labeled <span class="ui">Use scroll gesture with modifier keys to zoom</span>. If you have that checked, the system may be intercepting these gestures. You'll need to uncheck it.
                 </dd>
             </dl>
             <h2>
@@ -211,21 +212,18 @@
                     How can I get an icon on my desktop that will let me launch VisibleTesla?
                 </dt>
                 <dd>
-                    If you want total control, you can do this manually following the <a href="#manual_installation">steps below</a>. Otherwise follow these simple steps:
-                    <ol>
-                        <li>Install VisibleTesla as described <a href="GettingStarted.html#install">here</a>. Make a note of the directory location where you extracted the VisibleTesla files on your computer. Typically it will be in your Downloads folder. You can move this folder wherever you'd like or leave it where it is.</li>
-                        <li>Navigate to the directory identified in step 1 above. 
-                        </li>
-                        <ul>
-                        <li> <span class="ui">Windows</span>:  
-                            Double click the item named "Make_Windows_Shortcut". You should now have a "Model S Fob" icon on your desktop that may be used to launch VisibleTesla. That's it.
-                        </li>
-                        <li><span class="ui">Mac</span>:  You'll see an item named VisibleTesla.app. You can drag it to your dock or create an alias and put the alias anywhere you'd like. Do not move the app itself out of the folder or it won't work.<br><b>Note</b>: If you get a security warning when launching VisibleTesla, refer to this <a href="#security_warning">tip</a>.
-                            
-                        </li>
-                    </ul>
-                    </ol>
-
+                    If you're using the Mac application, just drag the app to your dock and you're done. If you want a desktop icon on Windows and want total control, you can do this manually following the <a href="#manual_installation">steps below</a>. Otherwise follow these simple steps:
+                    <div>
+                        <img class="screenshot" width="64" height="64" src='../images/VTIcon.png' alt='App Icon' style='float: right;'>
+                        <ol>
+                            <li>Install VisibleTesla as described <a href="GettingStarted.html#install">here</a>. Make a note of the directory location where you extracted the VisibleTesla files on your computer. Typically it will be in your Downloads folder. You can move this folder wherever you'd like or leave it where it is.
+                            </li>
+                            <li>Navigate to the directory identified in step 1 above.
+                            </li>
+                            <li>Double click the item named <span class="ui">Make_Windows_Shortcut</span>. You should now have a VisibleTesla icon on your desktop that looks like the one to the right. That's it.
+                            </li>
+                        </ol>
+                    </div>
                 </dd>
             </dl>
             <h2>
@@ -233,10 +231,10 @@
             </h2>
             <dl>
                 <dt>
-                    Where can I find the <a name="github">source code for VisibleTesla</a>?
+                    Is the <a name="github">source code for VisibleTesla</a> available?
                 </dt>
                 <dd>
-                    VisibleTesla lives on <a href="https://github.com/jpasqua/VisibleTesla/">github</a>. It relies on another project, TeslaClient, by the same author which can also be found on <a href="https://github.com/jpasqua/TeslaClient/">github</a>.
+                    Yes! VisibleTesla lives on <a href="https://github.com/jpasqua/VisibleTesla/">github</a>. It relies on another project, TeslaClient, by the same author which can also be found on <a href="https://github.com/jpasqua/TeslaClient/">github</a>.
                 </dd>
             </dl>
             <dl>
@@ -244,7 +242,7 @@
                     Can I contribute to VisibleTesla?
                 </dt>
                 <dd>
-                    Yes. You can contribute to VisibleTesla and/or TeslaClient. You can fork either project and go on your own path or you can contribute back to the central projects.
+                    Yes! You can contribute to VisibleTesla and/or TeslaClient. You can fork either project and go on your own path or you can contribute back to the central projects.
                 </dd>
             </dl>
             <dl>
@@ -267,7 +265,7 @@
                     <ol>
                         <li>Install VisibleTesla as described <a href="GettingStarted.html#install">here</a>. Make a note of the directory location where you extracted the VisibleTesla files on your computer (for example: "C:\Program Files\VisibleTesla")
                         </li>
-                        <li>Navigate to the directory identified in step 1 above. 
+                        <li>Navigate to the directory identified in step 1 above.
                         </li>
                         <li>Locate the file "VisibleTesla.jar". Right-click and select "Send to... / Desktop (create shortcut)".
                         </li>

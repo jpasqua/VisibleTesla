@@ -17,6 +17,7 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
+import org.noroomattheinn.visibletesla.stats.Stat;
 
 /**
  * VampireStats: Collect and display statistics about vampire loss.
@@ -142,28 +143,45 @@ public class VampireStats {
         c.set(Calendar.SECOND, 59);
     }
     
-    private void handleStat(List<Rest> restPeriods, long timestamp, Map<String, Double> stat) {        
-        Double speed = stat.get(StatsStore.SpeedKey);
-        Double range = stat.get(StatsStore.EstRangeKey);
-        if (speed == null) return;
-
-        Double voltage = stat.get(StatsStore.VoltageKey);
+    private Map<String,Stat.Sample> curVals = new HashMap<>();
+    private Double updateVal(String key, long timestamp, Map<String, Double> stat) {
+        Double val = stat.get(key);
+        if (val == null) {  // Return the last known value if there is one
+            Stat.Sample sample = curVals.get(key);
+            return sample == null ? null : sample.value;
+        } else {            // Update the stored value and return it
+            curVals.put(key, new Stat.Sample(timestamp, val));
+            return val;
+        }
+    }
+    
+    private void handleStat(List<Rest> restPeriods, long timestamp, Map<String, Double> stat) {      
+        Double speed = updateVal(StatsStore.SpeedKey, timestamp, stat);
+        Double range = updateVal(StatsStore.EstRangeKey, timestamp, stat);
+        Double voltage = updateVal(StatsStore.VoltageKey, timestamp, stat);
         if (voltage == null) voltage = 0.0;
-        
-        if (speed == 0 && voltage == 0) {
-            if (range != null) {
-                if (!useMiles) range = Utils.mToK(range);
-                if (restInProgress == null) {
-                    restInProgress = new Rest(timestamp, timestamp, range, range);
-                } else {
-                    restInProgress.endTime = timestamp;
-                    restInProgress.endRange = range;
-                }
+        if (speed == null || range == null) { return; }
+
+        // Use 100V as a cutoff to ignore spurious spurious readings
+        if (speed == 0 && voltage < 100) {   
+            if (!useMiles) range = Utils.mToK(range);
+            if (restInProgress == null) {
+                restInProgress = new Rest(timestamp, timestamp, range, range);
+            } else {
+                restInProgress.endTime = timestamp;
+                restInProgress.endRange = range;
             }
         } else {    // End the current rest period if there is one
             if (restInProgress != null) {   // Rest is over!
                 if (restInProgress.endTime - restInProgress.startTime > MIN_REST_PERIOD) {
-                    addPeriod(restPeriods, restInProgress);
+                    // OK, there's another odd situation to handle. If we start
+                    // a rest period and then stop getting data, we may miss a
+                    // charge. In that case the rest may look like we gained
+                    // power instead of losing power. In that case just toss
+                    // the rest period. It will skew the data.
+                    if (restInProgress.endRange <= restInProgress.startRange) {
+                        addPeriod(restPeriods, restInProgress);
+                    }
                 }
                 restInProgress = null;
             }
