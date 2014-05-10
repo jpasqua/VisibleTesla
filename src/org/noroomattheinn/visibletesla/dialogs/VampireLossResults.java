@@ -117,7 +117,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
                     new XYChart.Data<Number,Number>(index++, r.avgLoss());
             addTooltip(dataPoint);
             dataPoint.setExtraValue(r);
-            dataPoint.setNode(getMarker());
+            dataPoint.setNode(getMarker(nHours(r)));
             data.add(dataPoint);
         }
         sequenceChart.getData().add(series);
@@ -142,8 +142,18 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         rawDataField.setText(rawResults);
     }
     
-    private Node getMarker() {
-        Circle c = new Circle(4.0);
+    private double nHours(VampireStats.Rest r) {
+        long diff = r.endTime - r.startTime;
+        long seconds = diff/1000;
+        double minutes = seconds/60;
+        double hours = minutes/60;
+        return hours;
+    }
+    
+    private Node getMarker(double hrs) {
+        double size = ((Math.log(hrs/3.0)/Math.log(2.0))+1)*3;
+
+        Circle c = new Circle(size);
         c.setFill(Color.web("#0000ff", 0.5));
         c.setStroke(Color.web("#0000ff"));
         c.setStrokeWidth(1.0);

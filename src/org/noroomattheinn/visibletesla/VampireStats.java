@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
@@ -63,15 +64,11 @@ public class VampireStats {
         ArrayList<Rest> restPeriods = new ArrayList<>();
 
         // Process stats for the selected time period
-        long startTime = exportPeriod.lowerEndpoint();
-        long endTime = exportPeriod.upperEndpoint();
-        Map<Long,Map<String,Double>> rows = appContext.statsStore.getData();
-        long timestamp;
-        for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
-            timestamp = row.getKey();
-            if (timestamp < startTime) continue;
-            if (timestamp > endTime) break;
-            handleStat(restPeriods, timestamp, row.getValue());
+        NavigableMap<Long, Map<String, Double>> allRows = appContext.statsStore.getData();
+        NavigableMap<Long, Map<String, Double>> subMap = allRows.subMap(
+                exportPeriod.lowerEndpoint(), true, exportPeriod.upperEndpoint(), true);
+        for (Map.Entry<Long,Map<String,Double>> row : subMap.entrySet()) {
+            handleStat(restPeriods, row.getKey(), row.getValue());
         }
         if (restInProgress != null &&
             restInProgress.endTime - restInProgress.startTime > MIN_REST_PERIOD) {
