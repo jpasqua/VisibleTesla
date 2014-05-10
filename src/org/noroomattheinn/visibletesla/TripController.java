@@ -423,7 +423,8 @@ public class TripController extends BaseController {
         }
         
         // Start listening for new WayPoints
-        appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+        appContext.locationStore.lastStoredSnapshotState.addListener(
+                new ChangeListener<SnapshotState.State>() {
             WayPoint last = new WayPoint(Long.MAX_VALUE, 0, 0, 0, 0, 0);
             
             @Override public void changed(

@@ -8,6 +8,8 @@ package org.noroomattheinn.visibletesla;
 
 import java.io.File;
 import java.io.IOException;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.SnapshotState;
@@ -40,9 +42,12 @@ public class LocationStore extends DataStore {
  * -------                                                               -------
  *============================================================================*/
     
+    public ObjectProperty<SnapshotState.State> lastStoredSnapshotState;
+
 
     public LocationStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
+        this.lastStoredSnapshotState = new SimpleObjectProperty<>();
 
         appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
             @Override public void changed(
@@ -78,6 +83,7 @@ public class LocationStore extends DataStore {
         repo.flushElements();
         
         lastState = state;
+        lastStoredSnapshotState.set(state);
     }
     
     private boolean tooClose(SnapshotState.State wp1, SnapshotState.State wp2) {
