@@ -7,16 +7,12 @@
         </title>
         <meta charset="UTF-8">
         <link rel="stylesheet" href="../default.css" type="text/css">
+        <link rel="shortcut icon" href="../images/favicon.ico?v=1" type="image/x-icon">
+        <link rel="icon" href="../images/favicon.ico?v=1" type="image/x-icon">
+        <script src="../scripts/gcse.js"></script>
     </head>
     <body>
-        <div id="header">
-            <div class="wrap">
-                <a href="#"><img src="../images/Banner.png"></a>
-            </div>
-        </div>
-        <div id="sidebar">
-            <iframe src="toc.html" frameborder="0"></iframe>
-        </div>
+        <SCRIPT LANGUAGE="JavaScript" type="text/javascript" src="../scripts/hsp.js"></SCRIPT> 
         <div id="content">
             <h1>
                 FAQ
@@ -93,6 +89,8 @@
                         </li>
                         <li>The application shares no information with the author or anyone else other than Tesla. I'd actually love to collect some aggregate statistics (not user identifiable) but I've refrained from doing so because I don't want to create even a perception that users are being spied upon. I don't even know how many people have tried VisibleTesla.
                         </li>
+                        <li>User preferences and other application state is stored unencrypted on your local disk. This includes things like your scheduled events, your Graph options, and your Notification settings. None of this is particularly sensitive information.  However, if you choose to enter sensitive information into a field such as a custom email subject in the <a href="NotifyTab.html">Notify Tab</a> then you must be aware that the information will be stored unencrypted on your local disk.
+                        </li>
                     </ul>Other than communicating with Tesla, VisibleTesla communicates with two other services - Dropbox and MailGun. It uses Dropbox to download up to three files that are used in the update process:
                     <ul>
                         <li>The first file is a list of the releases. The app uses this to determine whether a newer release is available.
@@ -103,7 +101,7 @@
                         </li>
                     </ul>if you use the notifications tab, your notification messages are sent via the MailGun hosted service. By default, logging information from that service is available to the author of VisibleTesla who administers the MailGun account. To avoid having this logging information visible, you may provide your own MailGun key. Please refer to this section on <a href="PrefsTab.html#mailgunkey">Advanced Preferences</a>.<br>
                     <br>
-                    If you would like more certainty about what VisibleTesla is doing, you can use a program like Little snitch on the Mac to monitor and control all of VisibleTesla's network activity.
+                    If you would like more certainty about what VisibleTesla is doing, you can use a program like Little Snitch on the Mac to monitor and control all of VisibleTesla's network activity.
                 </dd>
             </dl>
             <dl>
