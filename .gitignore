@@ -10,4 +10,5 @@
 /src/org/noroomattheinn/TeslaResources/.DS_Store
 /*.stats.log
 /*.stats.aux
-
+/site/
+/VTIcon\ Master/
