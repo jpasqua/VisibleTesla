@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Choose Location</title>
+
+    <style type="text/css">
+      html, body {
+        height: 100%;
+        width: 100%;
+        margin:0;
+      }
+      
+      #map-canvas {
+        width:100%;
+        height:100%;
+      }
+
+      #info {
+        height:3%;
+        font-family: "Trebuchet MS",Helvetica,sans-serif;
+        font-size: 0.9em;
+      }
+
+      .controls {
+        margin-top: 16px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 2em;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #search_address {
+        background-color: #fff;
+        padding: 0 5px 0 13px;
+        width: 400px;
+        font-family: "Trebuchet MS",Helvetica,sans-serif;
+        font-size: 1.2em;
+        font-weight: bold;
+        text-overflow: ellipsis;
+      }
+
+      #search_address:focus {
+        border-color: #4d90fe;
+        margin-left: -1px;
+        padding-left: 14px;  /* Regular padding-left + 1. */
+        width: 401px;
+      }
+    </style>
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;key=JFX_GMAP_API_KEY&amp;sensor=false&amp;libraries=places"></script>
+    <script type="text/javascript">
+      var MIN_RADIUS = 0.015;           // 15 Meters
+      var INIT_RADIUS = JFX_RADIUS / 1000;  // We're working in KM
+      var INIT_LAT = JFX_LAT;
+      var INIT_LNG = JFX_LONG;
+      var INIT_ADDR = "";
+
+      /**
+       * A distance widget that will display a circle that can be resized and will
+       * provide the radius in km.
+       *
+       * @param {google.maps.Map} map The map to attach to.
+       *
+       * @constructor
+       */
+      function DistanceWidget(map) {
+        this.set('map', map);
+        this.set('position', map.getCenter());
+
+        var marker = new google.maps.Marker({
+          draggable: true,
+          title: 'Set Position',
+          icon: {
+              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+              scale: 4,
+              strokeColor: 'black',
+              strokeWeight: 1,
+              fillColor: 'red',
+              fillOpacity: 1.0,
+              anchor: new google.maps.Point(0, 3)
+          }
+        });
+
+        // Bind the marker map property to the DistanceWidget map property
+        marker.bindTo('map', this);
+
+        // Bind the marker position property to the DistanceWidget position
+        // property
+        marker.bindTo('position', this);
+
+        // Create a new radius widget
+        var radiusWidget = new RadiusWidget();
+
+        // Bind the radiusWidget map to the DistanceWidget map
+        radiusWidget.bindTo('map', this);
+
+        // Bind the radiusWidget center to the DistanceWidget position
+        radiusWidget.bindTo('center', this, 'position');
+
+        // Bind to the radiusWidgets' distance property
+        this.bindTo('distance', radiusWidget);
+
+        // Bind to the radiusWidgets' bounds property
+        this.bindTo('bounds', radiusWidget);
+
+        this.setPos = function(pos) {
+          marker.setPosition(pos);
+          map.panTo(pos);
+        };
+      }
+      DistanceWidget.prototype = new google.maps.MVCObject();
+
+
+      /**
+       * A radius widget that add a circle to a map and centers on a marker.
+       *
+       * @constructor
+       */
+      function RadiusWidget() {
+        var circle = new google.maps.Circle({
+          fillColor: "#0000ff",
+          fillOpacity: 0.2,
+          strokeWeight: 2,
+          strokeColor: "#0000ff"
+        });
+
+        // Set the distance property value
+        this.set('distance', INIT_RADIUS);
+
+        // Bind the RadiusWidget bounds property to the circle bounds property.
+        this.bindTo('bounds', circle);
+
+        // Bind the circle center to the RadiusWidget center property
+        circle.bindTo('center', this);
+
+        // Bind the circle map to the RadiusWidget map
+        circle.bindTo('map', this);
+
+        // Bind the circle radius property to the RadiusWidget radius property
+        circle.bindTo('radius', this);
+
+        // Add the sizer marker
+        this.addSizer_();
+      }
+      RadiusWidget.prototype = new google.maps.MVCObject();
+
+
+      /**
+       * Update the radius when the distance has changed.
+       */
+      RadiusWidget.prototype.distance_changed = function() {
+        var distance = this.get('distance') * 1000;
+        this.set('radius', distance);
+      };
+
+
+      /**
+       * Add the sizer marker to the map.
+       *
+       * @private
+       */
+      RadiusWidget.prototype.addSizer_ = function() {
+        var sizer = new google.maps.Marker({
+          draggable: true,
+          title: 'Resize',
+          icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 5,
+              strokeColor: 'black',
+              strokeWeight: 1,
+              fillColor: 'white',
+              fillOpacity: 1.0
+          }
+        });
+
+        sizer.bindTo('map', this);
+        sizer.bindTo('position', this, 'sizer_position');
+
+        var me = this;
+        google.maps.event.addListener(sizer, 'drag', function() {
+          // Set the circle distance (radius)
+          me.setDistance();
+        });
+      };
+
+
+      /**
+       * Update the center of the circle and position the sizer back on the line.
+       *
+       * Position is bound to the DistanceWidget so this is expected to change when
+       * the position of the distance widget is changed.
+       */
+      RadiusWidget.prototype.center_changed = function() {
+        var bounds = this.get('bounds');
+
+        // Bounds might not always be set so check that it exists first.
+        if (bounds) {
+          var lng = bounds.getNorthEast().lng();
+
+          // Put the sizer at center, right on the circle.
+          var position = new google.maps.LatLng(this.get('center').lat(), lng);
+          this.set('sizer_position', position);
+        }
+      };
+
+
+      /**
+       * Calculates the distance between two latlng points in km.
+       * @see http://www.movable-type.co.uk/scripts/latlong.html
+       *
+       * @param {google.maps.LatLng} p1 The first lat lng point.
+       * @param {google.maps.LatLng} p2 The second lat lng point.
+       * @return {number} The distance between the two points in km.
+       * @private
+       */
+      RadiusWidget.prototype.distanceBetweenPoints_ = function(p1, p2) {
+        if (!p1 || !p2) {
+          return 0;
+        }
+
+        var R = 6371; // Radius of the Earth in km
+        var dLat = (p2.lat() - p1.lat()) * Math.PI / 180;
+        var dLon = (p2.lng() - p1.lng()) * Math.PI / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(p1.lat() * Math.PI / 180) * Math.cos(p2.lat() * Math.PI / 180) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c;
+        return d;
+      };
+
+
+      /**
+       * Set the distance of the circle based on the position of the sizer.
+       */
+      RadiusWidget.prototype.setDistance = function() {
+        // As the sizer is being dragged, its position changes.  Because the
+        // RadiusWidget's sizer_position is bound to the sizer's position, it will
+        // change as well.
+        var pos = this.get('sizer_position');
+        var center = this.get('center');
+        var distance = this.distanceBetweenPoints_(center, pos);
+
+        // Set the distance property for any objects that are bound to it
+        if (distance < MIN_RADIUS) distance = MIN_RADIUS;
+        this.set('distance', distance);
+      };
+
+      var addressField;
+      var distanceWidget;
+
+      function init() {
+
+        var mapDiv = document.getElementById('map-canvas');
+        var map = new google.maps.Map(mapDiv, {
+          center: new google.maps.LatLng(INIT_LAT, INIT_LNG),
+          zoom: 18,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+          });
+        addressField = document.getElementById('search_address');
+        addressField.value = INIT_ADDR;
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(addressField);
+        var searchBox = new google.maps.places.SearchBox(addressField);
+        google.maps.event.addListener(searchBox, 'places_changed', function() {
+          var place = searchBox.getPlaces()[0];
+          var loc = place.geometry.location;
+          distanceWidget.setPos(loc);
+        });
+
+        distanceWidget = new DistanceWidget(map);
+
+        google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
+          // displayInfo(distanceWidget);
+        });
+
+        google.maps.event.addListener(distanceWidget, 'position_changed', function() {
+          // displayInfo(distanceWidget);
+        });
+        
+        // Bias the SearchBox results towards places that are within the bounds of the
+        // current map's viewport.
+        google.maps.event.addListener(map, 'bounds_changed', function() {
+          var bounds = map.getBounds();
+          searchBox.setBounds(bounds);
+        });
+      }
+
+/*
+      function displayInfo(widget) {
+        var info = document.getElementById('info');
+        var pos = widget.get('position');
+        var msg = 'Position: (' + pos.lat().toFixed(5) + ', ' + pos.lng().toFixed(5) + '), radius: ' +
+          (widget.get('distance')*1000).toFixed(1);
+        info.innerHTML = msg;
+      }
+*/
+      function getVals(widget) {
+        var pos = widget.get('position');
+        var msg = pos.lat().toFixed(5) + '_' + pos.lng().toFixed(5) + '_' +
+          (widget.get('distance')*1000).toFixed(1)+'_'+addressField.value;
+        return msg;
+      }
+
+      var geocoder = new google.maps.Geocoder();
+      function search() {
+          geocoder.geocode(
+              {'address': addressField.value}, 
+              function(results, status) { 
+                  if (status === google.maps.GeocoderStatus.OK) { 
+                      var loc = results[0].geometry.location;
+                      distanceWidget.setPos(loc);
+                  } 
+                  else {
+                      alert("Not found: " + status); 
+                  } 
+              }
+          );
+      };
+
+
+
+      google.maps.event.addDomListener(window, 'load', init);
+    </script>
+  </head>
+  <body>
+    <input type="text" size="80" id="search_address" class="controls" value="" placeholder="Enter a location"/>
+    <div id="map-canvas"></div>
+    <!-- <div id="info"></div> -->
+  </body>
+</html>

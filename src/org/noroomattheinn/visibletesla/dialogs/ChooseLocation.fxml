@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.web.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog">
+  <children>
+    <WebView fx:id="webView" prefHeight="439.0" prefWidth="640.0" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+    <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
+      <children>
+        <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#buttonPressed" text="Cancel" />
+        <Button fx:id="okButton" defaultButton="false" mnemonicParsing="false" onAction="#buttonPressed" text="OK" />
+      </children>
+    </HBox>
+    <TextField fx:id="nickname" layoutX="80.0" layoutY="448.0" prefWidth="183.0" text="Home" />
+    <Label layoutX="10.0" layoutY="451.0" text="Nickname:" textFill="WHITE" />
+  </children>
+  <stylesheets>
+    <URL value="@../../styles/VisibleTesla.css" />
+  </stylesheets>
+</AnchorPane>
