@@ -6,6 +6,7 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.Date;
+import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -14,14 +15,17 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.PWUtils;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -29,7 +33,9 @@ public class PrefsController extends BaseController {
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
+    
     private boolean loaded = false;
+    private PWUtils pwUtils = new PWUtils();
     
 /*------------------------------------------------------------------------------
  *
@@ -56,10 +62,27 @@ public class PrefsController extends BaseController {
     @FXML private TextField     emailForNotifications;
     @FXML private Slider        fontScaleSlider;
     @FXML private Label         fontScale;
+    @FXML private CheckBox      enableRest;
+    @FXML private TextField     restPort;
+    @FXML private PasswordField authCode;
+    @FXML private Button        setAuthCodeButton;
     
     //
     // Action Handlers
     //
+    @FXML void setAuthCode(ActionEvent event) {
+        String code = authCode.getText();
+        if (code.isEmpty()) {
+            code = "visible";   // Force some value!
+        }
+        byte[] salt = pwUtils.generateSalt();
+        byte[] pw = pwUtils.getEncryptedPassword(code, salt);
+        String externalForm = pwUtils.externalRep(salt, pw);
+        appContext.restEncPW = pw;
+        appContext.restSalt = salt;
+        appContext.prefs.authCode.set(externalForm);
+    }
+    
     @FXML void showUserDirectory(ActionEvent event) {
         Dialogs.showInformationDialog(appContext.stage, 
             appContext.getAppFileFolder().getAbsolutePath(),
@@ -124,6 +147,8 @@ public class PrefsController extends BaseController {
         bindToCheckBox(useCustomMailGunKey, appContext.prefs.useCustomMailGunKey);
         bindToTextField(customMailGunKey, appContext.prefs.mailGunKey);
         bindToIntegerProperty(fontScaleSlider, fontScale, appContext.prefs.fontScale);
+        bindToCheckBox(enableRest, appContext.prefs.enableRest);
+        bindToTextField(restPort, appContext.prefs.restPort);
     }
     
 /*------------------------------------------------------------------------------

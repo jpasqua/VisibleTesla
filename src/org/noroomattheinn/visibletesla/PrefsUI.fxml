@@ -70,42 +70,49 @@
                           <content>
                             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="352.0" prefWidth="581.0">
                               <children>
-                                <Label prefWidth="138.0" text="Store files with app?" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="15.0" />
-                                <Button mnemonicParsing="false" onAction="#showUserDirectory" prefWidth="149.0" text="Show User Folder" AnchorPane.rightAnchor="431.0" AnchorPane.topAnchor="40.0" />
-                                <CheckBox fx:id="storeFilesWithApp" mnemonicParsing="false" text="" AnchorPane.leftAnchor="151.0" AnchorPane.topAnchor="15.0" />
-                                <Label alignment="BASELINE_CENTER" layoutX="184.0" layoutY="15.0" prefHeight="50.0" prefWidth="290.0" style="-fx-border-color: black" text="Not Recommended.&#10;Leaving this unselected will store files in&#10;a User Folder which will faciltate upgrades." wrapText="true" />
-                                <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="88.0" />
-                                <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="88.0" />
-                                <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="109.0" />
-                                <TextField fx:id="proxyHost" prefWidth="371.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="85.0" />
-                                <Label layoutX="14.0" layoutY="142.0" text="Offer experimental versions:">
+                                <Label prefWidth="138.0" text="Store files with app?" AnchorPane.leftAnchor="13.0" AnchorPane.topAnchor="230.0" />
+                                <Button mnemonicParsing="false" onAction="#showUserDirectory" prefWidth="149.0" text="Show User Folder" AnchorPane.rightAnchor="432.0" AnchorPane.topAnchor="255.0" />
+                                <CheckBox fx:id="storeFilesWithApp" mnemonicParsing="false" text="" AnchorPane.leftAnchor="150.0" AnchorPane.topAnchor="230.0" />
+                                <Label alignment="BASELINE_CENTER" layoutX="183.0" layoutY="230.0" prefHeight="50.0" prefWidth="290.0" style="-fx-border-color: black" text="Not Recommended.&#10;Leaving this unselected will store files in&#10;a User Folder which will faciltate upgrades." wrapText="true" />
+                                <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="17.0" />
+                                <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="17.0" />
+                                <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="38.0" />
+                                <TextField fx:id="proxyHost" prefWidth="371.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="14.0" />
+                                <Label layoutX="14.0" layoutY="68.0" text="Offer experimental versions:">
                                   <labelFor>
-                                    <CheckBox fx:id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" AnchorPane.leftAnchor="198.0" AnchorPane.topAnchor="143.0" />
+                                    <CheckBox fx:id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" AnchorPane.leftAnchor="198.0" AnchorPane.topAnchor="69.0" />
                                   </labelFor>
                                 </Label>
-                                <TextField fx:id="proxyPort" prefWidth="55.0" text="8080" AnchorPane.rightAnchor="328.0" AnchorPane.topAnchor="107.0" />
+                                <TextField fx:id="proxyPort" prefWidth="55.0" text="8080" AnchorPane.rightAnchor="328.0" AnchorPane.topAnchor="36.0" />
                                 <fx:reference source="offerExperimental" />
-                                <Separator layoutX="-2.0" layoutY="76.0" prefWidth="598.0" style="&#10;" />
-                                <Separator layoutX="0.0" layoutY="134.0" prefWidth="598.0" style="&#10;" />
-                                <CheckBox fx:id="useCustomGoogleAPIKey" layoutX="198.0" layoutY="165.0" mnemonicParsing="false" text="" />
-                                <Label layoutX="14.0" layoutY="163.0" text="Use custom Google API Key:">
+                                <Separator layoutX="2.0" layoutY="222.0" prefWidth="598.0" style="&#10;" />
+                                <Separator layoutX="0.0" layoutY="62.0" prefWidth="598.0" style="&#10;" />
+                                <CheckBox fx:id="useCustomGoogleAPIKey" layoutX="198.0" layoutY="91.0" mnemonicParsing="false" text="" />
+                                <Label layoutX="14.0" layoutY="89.0" text="Use custom Google API Key:">
                                   <labelFor>
                                     <CheckBox id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" />
                                   </labelFor>
                                 </Label>
-                                <TextField fx:id="customGoogleAPIKey" layoutX="226.0" layoutY="159.0" prefWidth="340.0" />
-                                <CheckBox id="useCustomGoogleAPIKey" fx:id="useCustomMailGunKey" layoutX="198.0" layoutY="187.0" mnemonicParsing="false" text="" />
-                                <Label layoutX="14.0" layoutY="185.0" text="Use custom MailGun Key:">
+                                <TextField fx:id="customGoogleAPIKey" layoutX="226.0" layoutY="85.0" prefWidth="340.0" />
+                                <CheckBox id="useCustomGoogleAPIKey" fx:id="useCustomMailGunKey" layoutX="198.0" layoutY="113.0" mnemonicParsing="false" text="" />
+                                <Label layoutX="14.0" layoutY="111.0" text="Use custom MailGun Key:">
                                   <labelFor>
                                     <CheckBox id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" />
                                   </labelFor>
                                 </Label>
-                                <TextField id="customGoogleAPIKey" fx:id="customMailGunKey" layoutX="226.0" layoutY="181.0" prefWidth="340.0" />
-                                <Separator layoutX="-2.0" layoutY="212.0" prefWidth="598.0" style="&#10;" />
-                                <Slider fx:id="fontScaleSlider" layoutX="94.0" layoutY="220.0" majorTickUnit="10.0" min="70.0" minorTickCount="9" prefWidth="353.0" showTickLabels="true" showTickMarks="true" value="100.0" />
-                                <Label layoutX="14.0" layoutY="220.0" text="Font Scale:" />
-                                <Label fx:id="fontScale" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="461.0" layoutY="223.0" prefWidth="29.0" text="100" textAlignment="RIGHT" />
-                                <Label layoutX="490.0" layoutY="223.0" text="\%" />
+                                <TextField id="customGoogleAPIKey" fx:id="customMailGunKey" layoutX="226.0" layoutY="107.0" prefWidth="340.0" />
+                                <Separator layoutX="-2.0" layoutY="137.0" prefWidth="598.0" style="&#10;" />
+                                <Slider fx:id="fontScaleSlider" layoutX="94.0" layoutY="145.0" majorTickUnit="10.0" min="70.0" minorTickCount="9" prefWidth="353.0" showTickLabels="true" showTickMarks="true" value="100.0" />
+                                <Label layoutX="14.0" layoutY="145.0" text="Font Scale:" />
+                                <Label fx:id="fontScale" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="461.0" layoutY="148.0" prefWidth="29.0" text="100" textAlignment="RIGHT" />
+                                <Label layoutX="490.0" layoutY="148.0" text="\%" />
+                                <Separator layoutX="0.0" layoutY="186.0" prefWidth="598.0" style="&#10;" />
+                                <CheckBox fx:id="enableRest" layoutX="14.0" layoutY="196.0" mnemonicParsing="false" text="Enable REST Services" />
+                                <Label layoutX="187.0" layoutY="196.0" text="Port:" />
+                                <TextField fx:id="restPort" layoutX="218.0" layoutY="193.0" prefWidth="55.0" text="9090" />
+                                <Label layoutX="297.0" layoutY="196.0" text="Auth Code:" />
+                                <PasswordField fx:id="authCode" layoutX="369.0" layoutY="193.0" prefWidth="141.0" promptText="Reset Auth Code" text="" />
+                                <Button id="setAuthCode" fx:id="setAuthCodeButton" layoutX="511.0" layoutY="193.0" mnemonicParsing="false" onAction="#setAuthCode" text="Set" />
                               </children>
                             </AnchorPane>
                           </content>

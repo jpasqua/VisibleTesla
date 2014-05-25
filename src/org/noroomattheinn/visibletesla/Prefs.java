@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,6 +14,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import org.noroomattheinn.utils.PWUtils;
 
 /**
  * Prefs - Stores and Manages Preferences data for all of the tabs.
@@ -50,7 +52,10 @@ public class Prefs {
     public BooleanProperty  useCustomMailGunKey = new SimpleBooleanProperty();
     public StringProperty   mailGunKey = new SimpleStringProperty();
     public IntegerProperty  fontScale = new SimpleIntegerProperty();
-    
+    public BooleanProperty  enableRest = new SimpleBooleanProperty();
+    public IntegerProperty  restPort = new SimpleIntegerProperty();
+    public StringProperty   authCode = new SimpleStringProperty();
+
     private static final String AppFilesFolderKey = "APP_AFF";
     private static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     private static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
@@ -63,20 +68,32 @@ public class Prefs {
     private static final String UseCustomMailGunKey = "APP_USE_CUSTOM_MGKEY";
     private static final String CustomMailGunKey = "APP_CUSTOM_MGKEY";
     private static final String FontScaleKey = "APP_FONT_SCALE";
+    private static final String RestPortKey = "APP_REST_PORT";
+    private static final String EnableRestKey = "APP_ENABLE_REST";
+    private static final String AuthCodeKey = "APP_AUTH_CODE";
     
     private void loadGeneralPrefs() {
-            booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
-            booleanPref(WakeOnTCKey, wakeOnTabChange, true);
-            booleanPref(OfferExpKey, offerExperimental, false);
-            integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
-            booleanPref(EnableProxyKey, enableProxy, false);
-            stringPref(ProxyHostKey, proxyHost, "");
-            integerPref(ProxyPortKey, proxyPort, 8080);
-            booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
-            stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
-            booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
-            stringPref(CustomMailGunKey, mailGunKey, AppContext.MailGunKey);
-            integerPref(FontScaleKey, fontScale, 100);
+        booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
+        booleanPref(WakeOnTCKey, wakeOnTabChange, true);
+        booleanPref(OfferExpKey, offerExperimental, false);
+        integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
+        booleanPref(EnableProxyKey, enableProxy, false);
+        stringPref(ProxyHostKey, proxyHost, "");
+        integerPref(ProxyPortKey, proxyPort, 8080);
+        booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
+        stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
+        booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
+        stringPref(CustomMailGunKey, mailGunKey, AppContext.MailGunKey);
+        integerPref(FontScaleKey, fontScale, 100);
+        booleanPref(EnableRestKey, enableRest, false);
+        integerPref(RestPortKey, restPort, 9090);
+        
+        stringPref(AuthCodeKey, authCode, "");
+        // Break down the external representation into the salt and password
+        String externalRep = authCode.get();
+        List<byte[]> internalForm = (new PWUtils()).internalRep(externalRep);
+        appContext.restSalt = internalForm.get(0);
+        appContext.restEncPW = internalForm.get(1);
     }
     
 /*------------------------------------------------------------------------------
