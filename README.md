@@ -32,6 +32,7 @@ This project assumes a directory structure that looks like this:
 		jexcelapi
 		google-guava
 		appbundler-1.0.jar	-- Optional if you want to create Mac OS X bundled application
+		spark
 
 The Tesla/VisibleTesla directory corresponds to this github project (VisibleTesla.git). The TeslaClient directory corresponds to a companion project which is the Tesla REST API implementation. That project can be found here:
 [TeslaClient](https://github.com/jpasqua/TeslaClient.git)
@@ -77,6 +78,12 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	cd ../jfxtras
 	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20140104.090242-24.jar
     ln -s jfxtras-labs-2.2-r6-20140104.090242-24.jar jfxtras-labs-2.2.jar
+
+    # Download spark and it's dependent libraries
+    cd ..
+	curl -s -O https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/jars/spark.zip
+	unzip spark.zip
+	rm spark.zip
 
 	# The Java application bundler file is only used to create a Mac OS X bundled app. It's not used by VisibleTesla at run time
 	cd ..
