@@ -97,25 +97,25 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
             
             if (!r.stream) { continue; }
             
-            System.err.print("STRM: ");
+            // System.err.print("STRM: ");
             // Now, stream data as long as it comes...
             while (snapshot.refreshFromStream()) {
-                System.err.print("|RF");
+                //System.err.print("|RF");
                 if (appContext.shuttingDown.get()) return;
                 if (inactivityState == AppContext.InactivityType.Sleep) {
-                    System.err.print("|SL");
+                    //System.err.print("|SL");
                     break;
                 }
                 if (snapshot.state.timestamp - lastSnapshot > StreamingThreshold) {
-                    System.err.print("|GT");
+                    //System.err.print("|GT");
                     appContext.lastKnownSnapshotState.set(snapshot.state);
                     lastSnapshot = snapshot.state.timestamp;
                     getRequest(false);   // Consume a request if any - don't block
                 } else {
-                    System.err.print("|SK");
+                    //System.err.print("|SK");
                 }
             }
-            System.err.println("!");
+            //System.err.println("!");
         }
     }
     
