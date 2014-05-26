@@ -16,7 +16,102 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
-
+		<h3>
+			VisibleTesla 0.27.01 [05-05-2014]
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: The Sequence chart of the Vampire Loss dialog now shows each marker circle with a size proportional to the duration of the rest period. That allows you to more easily determine the contribution of each period to the overall average. Roughly speaking, the amount of loss contributed by a given data point is related to the size of the marker and its position on the chart. A big circle high on the chart indicates the most loss, while a small circle lower on the chart indicates the least loss.<br>
+								<strong>Also</strong>, the X axis now shows dates rather than sequence numbers.
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: The X axis of hte Sequence chart now shows dates rather than sequence numbers.
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: Updates to the Documentation.
+							</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: Use the appropriate units in the speed/power gauge. It used to always show mph.
+							</li>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: There were rare occassions in which the Graph Tab would fail to load. This has been addressed.
+							</li>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: The following scenario is fixed: Start the app, take a trip, then show that Trip in the Trips Tab. Quit the app and restart. Then show the same trip in the Trips Tab. The first map will include too many markers. It disregards the Prefs setting for this.
+							</li>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: There were circumstances under which logged messages could have spurious data in them. This has been addressed.
+							</li>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+							<li>
+								<span class="added">Addition</span>: <strong>For advanced users only.</strong> Added the ability to perform a HTTP GET on a URL in the event of a notification instead of sending an email. You may set the notification email in any custom notification setting to a URL rather than an email address. The URL must begin with <code>http://</code> or <code>https://</code>. It must be a fully formed URL with any special characters URL-encoded. If VisibleTesla sees a URL rather than an email, it will perform an HTTP GET on that URL. It  <strong>will not</strong> check error codes returned from the server nor process any returned data. The custom subject field will be ignored. This mechanism allows notifications to trigger web services for home automation or other purposes. 
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: The user interface for defining a location for geofencing notifications has been completely revamped and is much more interactive and visual. See the <a href="pages/NotifyTab.html#locs">documentation</a> for details. As a result of this change, the upper limit on radius has been lifted. The lower limit is 15 meters.
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: When a notification is sent for the <span class="ui">Charge State Becomes</span> trigger, it will now include the current SOC and estimated range (in appropriate units).
+							</li>
+							<li>
+								<span class="fixed">Fix</span>: In certain circumstances, Notifications regarding Scheduled Events may not be sent. This has been addressed.
+							</li>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>
 		<h3>
 			VisibleTesla 0.27.00 [05-04-2014] - <font color="red">[EXPERIMENTAL]</font>
 		</h3>
