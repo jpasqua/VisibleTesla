@@ -179,9 +179,7 @@ public class ChargeController extends BaseController {
         }
         
         GUIState.State guiState = appContext.lastKnownGUIState.get();
-        useMiles = guiState.distanceUnits.equalsIgnoreCase("mi/hr");
-        if (appContext.simulatedUnits.get() != null)
-            useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
+        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "Miles" : "Km";
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);

@@ -37,6 +37,7 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.RestyWrapper;
+import org.noroomattheinn.utils.Utils;
 
 
 public class OverviewController extends BaseController {
@@ -395,7 +396,7 @@ public class OverviewController extends BaseController {
         
         // Save off the odometer reading (in miles)
         appContext.persistentState.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
-        boolean useMiles = appContext.lastKnownGUIState.get().distanceUnits.equalsIgnoreCase("mi/hr");
+        boolean useMiles = appContext.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));

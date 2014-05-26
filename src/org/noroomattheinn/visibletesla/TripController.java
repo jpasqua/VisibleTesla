@@ -272,11 +272,7 @@ public class TripController extends BaseController {
             readTrips();
         }
         
-        GUIState.State guiState = appContext.lastKnownGUIState.get();
-        useMiles = guiState.distanceUnits.equalsIgnoreCase("mi/hr");
-        if (appContext.simulatedUnits.get() != null)
-            useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
-        
+        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
         rangeRow.setName(RangeRowName + (useMiles ? " (mi)" : " (km)"));
         odoRow.setName(OdoRowName + (useMiles ? " (mi)" : " (km)"));
     }

@@ -35,6 +35,7 @@ import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.SimpleTemplate;
+import org.noroomattheinn.utils.Utils;
 
 
 public class LocationController extends BaseController {
@@ -56,6 +57,7 @@ public class LocationController extends BaseController {
     private WebEngine engine;
     
     private Animation blipAnimation = null;
+    private boolean useMiles = true;
     
 /*------------------------------------------------------------------------------
  *
@@ -92,9 +94,10 @@ public class LocationController extends BaseController {
         engine = webView.getEngine();
         progressIndicator.setVisible(false);
         progressLabel.setVisible(false);
-        multigauge = new MultiGauge(25, 8, 0, 100, -60, 180);
+        multigauge = new MultiGauge(25, 8, 0, 100, -60, 320);
         multigauge.useGradient(Side.RIGHT, Color.DARKORANGE, Color.GREEN);
         multigauge.useGradient(Side.LEFT, Color.BLUE, Color.BLUE);
+        multigauge.setLogScale(Side.RIGHT, true);
         Node mg = multigauge.getContainer();
         AnchorPane.setTopAnchor(mg, 25.0);
         AnchorPane.setRightAnchor(mg, 10.0);
@@ -125,6 +128,8 @@ public class LocationController extends BaseController {
             
             SnapshotState.State ss = appContext.lastKnownSnapshotState.get();
             if (ss != null) { doUpdateLater(ss); }
+            
+            if (!useMiles) { multigauge.setRange(Side.LEFT, 0, 160); }
         }
     }
     
@@ -179,7 +184,7 @@ public class LocationController extends BaseController {
 //            });
 
         }
-        multigauge.setVal(Side.LEFT, ss.speed);
+        multigauge.setVal(Side.LEFT, useMiles ? ss.speed : Utils.kToM(ss.speed));
         multigauge.setVal(Side.RIGHT, ss.power);
     }
     

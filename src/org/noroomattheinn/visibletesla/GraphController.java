@@ -6,7 +6,6 @@
 package org.noroomattheinn.visibletesla;
 
 import java.net.URL;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,8 +25,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
-import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.chart.VTLineChart;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
 import org.noroomattheinn.visibletesla.chart.VTSeries;
@@ -130,8 +129,8 @@ public class GraphController extends BaseController {
     private Map<String,VTSeries> typeToSeries = new HashMap<>();
     
     private void prepSeries() {
-        GUIState.State guiState = appContext.lastKnownGUIState.get();
-        VTSeries.Transform<Number> distTransform = guiState.distanceUnits.startsWith("mi")
+        VTSeries.Transform<Number> distTransform = 
+                appContext.unitType() == Utils.UnitType.Imperial 
                 ? VTSeries.idTransform : VTSeries.mToKTransform;
         lineChart.clearSeries();
 
