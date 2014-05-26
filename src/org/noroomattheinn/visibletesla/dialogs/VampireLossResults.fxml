@@ -12,6 +12,24 @@
   <children>
     <Accordion AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <expandedPane>
+        <TitledPane fx:id="x2" animated="false" text="Sequence" textAlignment="LEFT">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <LineChart fx:id="sequenceChart" alternativeRowFillVisible="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" verticalGridLinesVisible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                  <xAxis>
+                    <NumberAxis minorTickCount="2" side="BOTTOM" tickUnit="2.0" upperBound="20.0" />
+                  </xAxis>
+                  <yAxis>
+                    <NumberAxis side="LEFT" />
+                  </yAxis>
+                </LineChart>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </expandedPane>
+      <panes>
         <TitledPane fx:id="x3" animated="false" text="By Time">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -28,25 +46,7 @@
             </AnchorPane>
           </content>
         </TitledPane>
-      </expandedPane>
-      <panes>
-        <fx:reference source="x3" />
-        <TitledPane fx:id="x2" animated="false" text="Sequence">
-          <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-              <children>
-                <LineChart id="LineChartNxN" fx:id="sequenceChart" alternativeRowFillVisible="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" verticalGridLinesVisible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-                  <xAxis>
-                    <NumberAxis minorTickCount="2" side="BOTTOM" tickUnit="2.0" upperBound="20.0" />
-                  </xAxis>
-                  <yAxis>
-                    <NumberAxis side="LEFT" />
-                  </yAxis>
-                </LineChart>
-              </children>
-            </AnchorPane>
-          </content>
-        </TitledPane>
+        <fx:reference source="x2" />
         <TitledPane fx:id="x1" animated="false" expanded="false" styleClass="first-titled-pane" text="Raw Data">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

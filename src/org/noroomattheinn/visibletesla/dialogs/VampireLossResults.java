@@ -24,6 +24,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import javafx.util.converter.TimeStringConverter;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.VampireStats;
 
@@ -96,17 +98,23 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         p2.setExtraValue(tip); avg.getData().add(p2); addTooltip(p2);
         
         chart.getData().add(avg);
-        avg.getNode().setStyle("-fx-opacity: 0.5; -fx-stroke-width: 4px;");
+        avg.getNode().setStyle("-fx-opacity: 0.5; -fx-stroke-width: 10px;");
 
 
         // ----- Set up the Scatter Chart
-        
+        // Scale down to seconds from ms. Using ms seems to cause difficulty
+        // for the Chart facility
         sequenceChart.setTitle("Vampire Loss Data");
         sequenceChart.setLegendVisible(false);
         chartBackground = sequenceChart.lookup(".chart-plot-background");
         chartBackground.setStyle("-fx-background-color: white;");
         xAxis = (NumberAxis)sequenceChart.getXAxis();
-        xAxis.setAutoRanging(true);
+        xAxis.setAutoRanging(false);
+        long s = restPeriods.get(0).startTime/1000L;
+        long e = restPeriods.get(restPeriods.size()-1).endTime/1000L;
+        xAxis.setLowerBound(s); xAxis.setUpperBound(e);
+        xAxis.setTickUnit(24*60*60);    // A day worth of seconds
+        xAxis.setTickLabelFormatter(new DateLabelGenerator());
         
         XYChart.Series<Number,Number> series = new XYChart.Series<>();
         series.setName("Vampire Loss");
@@ -114,7 +122,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         ObservableList<XYChart.Data<Number, Number>> data = series.getData();
         for (VampireStats.Rest r : restPeriods) {
             final XYChart.Data<Number,Number> dataPoint =
-                    new XYChart.Data<Number,Number>(index++, r.avgLoss());
+                    new XYChart.Data<Number,Number>(r.startTime/1000L, r.avgLoss());
             addTooltip(dataPoint);
             dataPoint.setExtraValue(r);
             dataPoint.setNode(getMarker(nHours(r)));
@@ -126,14 +134,14 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         avg = new XYChart.Series<>();
         avg.setName("Average");
         
-        final XYChart.Data<Number,Number> a1 = new XYChart.Data<Number,Number>(0, overallAverage);
+        XYChart.Data<Number,Number> a1 = new XYChart.Data<Number,Number>(s, overallAverage);
         a1.setExtraValue(tip); avg.getData().add(a1); addTooltip(a1);
         
-        final XYChart.Data<Number,Number> a2 = new XYChart.Data<Number,Number>(index-1, overallAverage);
+        XYChart.Data<Number,Number> a2 = new XYChart.Data<Number,Number>(e, overallAverage);
         a2.setExtraValue(tip); avg.getData().add(a2); addTooltip(a2);
         
         sequenceChart.getData().add(avg);
-        avg.getNode().setStyle("-fx-opacity: 0.5; -fx-stroke-width: 4px;");
+        avg.getNode().setStyle("-fx-opacity: 0.5; -fx-stroke-width: 10px;");
         
         // ----- Set up the raw data text area
 
@@ -206,5 +214,25 @@ public class VampireLossResults  implements DialogUtils.DialogController {
                 "Loss: %3.2f %s\n" +
                 "Loss/hr: %3.2f",
                 date, (int)period, (int)((period%1)*60), loss, units, loss/period  );
+    }
+    
+    class DateLabelGenerator extends StringConverter<Number> {
+        TimeStringConverter hmConverter = new TimeStringConverter("HH:mm");
+        TimeStringConverter mdConverter = new TimeStringConverter("MM/dd");
+        String lastMD = "";
+        
+        @Override public String toString(Number t) {
+            Date d = new Date(t.longValue()*(1000));
+            String hourAndMinute = hmConverter.toString(d);
+            String monthAndDay = mdConverter.toString(d);
+            
+            if (lastMD.equals(monthAndDay))
+                return hourAndMinute;
+            
+            lastMD = monthAndDay;
+            return hourAndMinute + "\n" + monthAndDay;
+        }
+        
+        @Override public Number fromString(String string) { return Long.valueOf(string); }
     }
 }

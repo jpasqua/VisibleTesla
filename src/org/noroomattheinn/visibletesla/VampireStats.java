@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.TreeMap;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
@@ -56,7 +55,7 @@ public class VampireStats {
     }
     
     public void showStats() {
-        useMiles = appContext.lastKnownGUIState.get().distanceUnits.startsWith("mi");
+        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null)
             return;
@@ -201,7 +200,7 @@ public class VampireStats {
     }
     
     private Map<String,Object> genProps() {
-        TreeMap<Long,Map<String,Double>> rows = appContext.statsStore.getData();
+        NavigableMap<Long,Map<String,Double>> rows = appContext.statsStore.getData();
         Map<String,Object> props = new HashMap<>();
         long timestamp = rows.firstKey(); 
         Calendar start = Calendar.getInstance();
