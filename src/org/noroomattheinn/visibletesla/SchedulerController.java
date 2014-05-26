@@ -287,6 +287,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
         Tesla.logger.log(Level.FINE, entry);
+        appContext.schedulerActivityReport.set(null); // Force a change
         appContext.schedulerActivityReport.set(entry);
     }
     
