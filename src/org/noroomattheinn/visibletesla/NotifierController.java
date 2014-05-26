@@ -6,7 +6,10 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +33,8 @@ import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
-import org.noroomattheinn.visibletesla.dialogs.GeoOptionsDialog;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.trigger.Predicate;
 import org.noroomattheinn.visibletesla.trigger.Trigger;
@@ -246,9 +249,7 @@ public class NotifierController extends BaseController {
             startListening();
         }
         
-        useMiles = appContext.lastKnownGUIState.get().distanceUnits.equalsIgnoreCase("mi/hr");
-        if (appContext.simulatedUnits.get() != null)
-            useMiles = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
+        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
         if (useMiles) {
             speedUnitsLabel.setText("mph");
             speedHitsSlider.setMin(0);
@@ -276,17 +277,31 @@ public class NotifierController extends BaseController {
     
     private void showAreaDialog(ObjectProperty<Area> areaProp) {
         Map<Object, Object> props = new HashMap<>();
-        props.put("AREA", areaProp.get());
-        props.put("APP_CONTEXT", appContext);
+        props.put(ChooseLocationDialog.AREA_KEY, areaProp.get());
+        props.put(ChooseLocationDialog.API_KEY,
+                appContext.prefs.useCustomGoogleAPIKey.get() ?
+                    appContext.prefs.googleAPIKey.get() :
+                    AppContext.GoogleMapsAPIKey);
 
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                getClass().getResource("dialogs/GeoOptionsDialog.fxml"),
+                getClass().getResource("dialogs/ChooseLocation.fxml"),
                 "Select an Area", appContext.stage, props);
 
-        GeoOptionsDialog god = Utils.cast(dc);
-        if (!god.cancelled()) {
-            areaProp.set(god.getArea());
+        ChooseLocationDialog cld = Utils.cast(dc);
+        if (!cld.cancelled()) {
+            areaProp.set(cld.getArea());
         }
+//        props.put("AREA", areaProp.get());
+//        props.put("APP_CONTEXT", appContext);
+//
+//        DialogUtils.DialogController dc = DialogUtils.displayDialog(
+//                getClass().getResource("dialogs/GeoOptionsDialog.fxml"),
+//                "Select an Area", appContext.stage, props);
+//
+//        GeoOptionsDialog god = Utils.cast(dc);
+//        if (!god.cancelled()) {
+//            areaProp.set(god.getArea());
+//        }
     }
 
     private void showDialog(MessageTarget mt) {
@@ -333,6 +348,7 @@ public class NotifierController extends BaseController {
     private ChangeListener<String> schedListener = new ChangeListener<String>() {
         @Override public void changed(
                 ObservableValue<? extends String> ov, String old, String cur) {
+            if (cur == null) return;
             Trigger.Result result = seTrigger.evalPredicate(cur);
             if (result != null)
                 notifyUser(result, seMessageTarget);
@@ -344,8 +360,15 @@ public class NotifierController extends BaseController {
                 ObservableValue<? extends ChargeState.State> ov,
                 ChargeState.State old, ChargeState.State cur) {
             Trigger.Result result = csTrigger.evalPredicate(cur.chargingState.name());
-            if (result != null)
-                notifyUser(result, csMessageTarget);
+            if (result != null) {
+                String msg = result.defaultMessage();
+                double range = appContext.lastKnownChargeState.get().estimatedRange;
+                msg = String.format("%s\nSOC: %d%%\nRange: %3.1f %s", msg,
+                        appContext.lastKnownChargeState.get().batteryPercent,
+                        useMiles ? range : Utils.mToK(range),
+                        useMiles ? "mi" : "km");
+                notifyUser(msg, csMessageTarget);
+            }
         }
     };
             
@@ -390,10 +413,16 @@ public class NotifierController extends BaseController {
     
     private void notifyUser(String msg, MessageTarget mt) {
         String addr = mt.address == null ? appContext.prefs.notificationAddress.get() : mt.address;
-        if (mt.tag == null) {
-            appContext.sendNotification(addr, msg);
+        String lower = addr.toLowerCase();  // Don't muck with the original addr.
+                                            // URLs are case sensitive
+        if (lower.startsWith("http://") || lower.startsWith("https://")) {
+            (new HTTPAsyncGet(addr)).exec();
         } else {
-            appContext.sendNotification(addr, mt.tag, msg);
+            if (mt.tag == null) {
+                appContext.sendNotification(addr, msg);
+            } else {
+                appContext.sendNotification(addr, mt.tag, msg);
+            }
         }
     }
 
@@ -484,5 +513,45 @@ public class NotifierController extends BaseController {
             return vehicle.getVIN()+"_MT_"+base;
         }
 
+    }
+    
+    private class HTTPAsyncGet implements Runnable {
+        private static final int timeout = 5 * 1000;
+        
+        private URLConnection connection;
+        
+        HTTPAsyncGet(String urlString) {
+            try {
+                Tesla.logger.info("HTTPAsyncGet new with url: " + urlString);
+                URL url = new URL(urlString);
+                
+                connection = url.openConnection();
+                connection.setConnectTimeout(timeout);
+                if (url.getUserInfo() != null) {
+                    String basicAuth = "Basic " +  encode(url.getUserInfo().getBytes());
+                    connection.setRequestProperty("Authorization", basicAuth);
+                }
+            } catch (IOException ex) {
+                Tesla.logger.warning("Problem with URL: " + ex);
+            }
+        }
+        
+        void exec() {
+            Tesla.logger.info("HTTPAsyncGet exec with url: " + connection.getURL());
+            appContext.launchThread(this, "HTTPAsyncGet");
+        }
+        
+        @Override public void run() {
+            try {
+                Tesla.logger.info("HTTPAsyncGet run with url: " + connection.getURL());
+                connection.getInputStream();
+            } catch (IOException ex) {
+                Tesla.logger.warning("Problem with HTTP Get: " + ex);
+            }
+        }
+        
+        private String encode(byte[] bytes) {
+            return javax.xml.bind.DatatypeConverter.printBase64Binary(bytes);
+        }
     }
 }
