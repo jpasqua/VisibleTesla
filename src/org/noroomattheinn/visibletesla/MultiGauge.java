@@ -88,7 +88,7 @@ public class MultiGauge {
         readout.setBoundsType(TextBoundsType.VISUAL);
         double w = readout.getBoundsInLocal().getWidth();
         double h = readout.getBoundsInLocal().getHeight();
-        readout.relocate(radius - w/2, radius - h/2);
+        readout.relocate(radius - w/2 - 2, radius - h/2);
         readout.setWrappingWidth(w + 4);
 
         readout.setEffect(genTextEffect());
@@ -111,7 +111,9 @@ public class MultiGauge {
     void setPaint(Side s, Paint paint, Paint altPaint) {
         getGauge(s).setPaint(paint, altPaint);
     }
-    
+    void setLogScale(Side s, boolean logScale) {
+        getGauge(s).setLogScale(logScale);
+    }
     void useGradient(Side s, Color baseColor, Color altBaseColor) {
         getGauge(s).setPaint(gradientFromBase(baseColor), gradientFromBase(altBaseColor));
     }
@@ -142,11 +144,14 @@ public class MultiGauge {
 }
 
 class Gauge {
+    private static final double log100 = Math.log(100.0);
+
     private int direction;
     private double min, max;
     private Arc arc;
     private Paint paint, altPaint;
     private Side side;
+    private boolean logScale;
     
     Gauge(Side side, int radius, double min, double max, Paint p) {
         this.side = side;
@@ -176,6 +181,8 @@ class Gauge {
         }
     }
     
+    void setLogScale(boolean logScale) { this.logScale = logScale; } 
+    
     void setPaint(Paint mainPaint, Paint altPaint) {
         this.paint = mainPaint;
         this.altPaint = altPaint;
@@ -183,21 +190,31 @@ class Gauge {
     
     void setVal(double val) {
         val = Math.max(min, Math.min(max, val));
+
         // Ok, if min < 0 and max > 0 then we do something special. We put
         // 0.0 at the midpoint and paint up for positive values and down for
         // nragtive values
         if (max > 0 && min < 0) {
             if (val < 0) {
                 double percent = val / min;
+                if (logScale) {
+                    percent = (Math.log(percent*100)/log100);
+                }
                 arc.setFill(altPaint);
                 arc.setLength(90 * percent * direction * -1);
             } else {
-                arc.setFill(paint);
                 double percent = val / (max);
+                if (logScale) {
+                    percent = (Math.log(percent*100)/log100);
+                }
+                arc.setFill(paint);
                 arc.setLength(90 * percent * direction);
             }
         } else {
             double percent = val / (max-min);
+            if (logScale) {
+                percent = (Math.log(percent*100)/log100);
+            }
             arc.setFill(paint);
             arc.setLength(180 * percent * direction);
         }
