@@ -131,10 +131,10 @@
                     </tr>
                     <tr>
                         <td>
-                            Store files with app?
+                            Enable Proxy
                         </td>
                         <td>
-                            Allows the user to select where to store internal application data files. In general users should not check this box. It is provided for power-users and to maintain compatibility with older versions. The default setting will cause internal application data files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show User Folder" button.
+                            Allows the user to specify an HTTP proxy (not SOCKS) to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. You must quit and restart VisibleTesla for these settings to take effect.
                         </td>
                     </tr>
                     <tr>
@@ -158,15 +158,7 @@
                             <a name="mailgunkey">Use custom MailGun key</a>
                         </td>
                         <td>
-                            Advanced users may supply their own API key for MailGun. This is the service used to send notifications via email. It is up to you to set up an account with MailGun and agree to their terms of service. Supplying your own key provides no new functionality. It does, however, provide better privacy and may help to avoid usage limits. If you don't supply your own key, a default account is used and logging information is available to the author of VisibleTesla who administers the account. Please do not use this setting unless you are comfortable acquring your own MailGun key.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Enable Proxy
-                        </td>
-                        <td>
-                            Allows the user to specify an HTTP proxy (not SOCKS) to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. You must quit and restart VisibleTesla for these settings to take effect.
+                            Advanced users may supply their own API key for MailGun. This is the service used to send notifications via email. It is up to you to set up an account with MailGun and agree to their terms of service. Supplying your own key provides no new functionality. It does, however, provide better privacy and may help to avoid usage limits. If you don't supply your own key, a default account is used and logging information is available to the author of VisibleTesla who administers the account. Please do not use this setting unless you are comfortable acquiring your own MailGun key.
                         </td>
                     </tr>
                     <tr>
@@ -175,6 +167,28 @@
                         </td>
                         <td>
                             Users who are experiencing problems with fonts being too large and not displaying properly may use the new <span class="ui">Font Scale</span> setting to adjust the font size. Set the font scale to a value lower than 100% to reduce VisibleTesla's font size. Some experimentation may be necessary to find the right scaling. You must quit and restart VisibleTesla before the setting will take effect.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Enable REST Services
+                        </td>
+                        <td>
+                            VisibleTesla makes very limited functionality available via web services. Please read about it in the <a href="OtherTopics.html">Other Topics</a> documentation. These services are turned off by default. There are three preference settings:
+                            <ol>
+                                <li><span class="ui">Enable REST Services</span>: To enable this functionality, you must check this box. If you don't, all requests will be ignored.</li>
+                                <li><span class="ui">Port</span>: The service will be available on port 9090 unless you change the value in the  field. If you do change the value, it will not take effect until VisibleTesla restarts.</li>
+                                <li><span class="ui">Auth Code</span>: You must set an authorization code (password) in order to access the service. Enter your code into the  field and then press the <span class="ui">Set</span> button. Your new code will not be set unless you press the button. Once you do, the new code will be in force immediately.</li>
+                            </ol>
+                            <strong>If you are not comfortable with the direct use of web services, please leave this functional disabled.</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Store files with app?
+                        </td>
+                        <td>
+                            Allows the user to select where to store internal application data files. In general users should not check this box. It is provided for power-users and to maintain compatibility with older versions. The default setting will cause internal application data files to be stored in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. You can determine this location by clicking the "Show User Folder" button.
                         </td>
                     </tr>
                 </tbody>

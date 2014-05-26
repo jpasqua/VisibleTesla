@@ -91,6 +91,8 @@
                         </li>
                         <li>User preferences and other application state is stored unencrypted on your local disk. This includes things like your scheduled events, your Graph options, and your Notification settings. None of this is particularly sensitive information.  However, if you choose to enter sensitive information into a field such as a custom email subject in the <a href="NotifyTab.html">Notify Tab</a> then you must be aware that the information will be stored unencrypted on your local disk.
                         </li>
+                        <li>VisibleTesla includes an <strong>experimental</strong> web services mechanisms that allows a limited set of commands to be accessed remotely. Currently this only lets you set the inactivity mode of the application. It does not communicate with the car. This service is off by default. If it is turned on, it is protected via <code>HTTP Basic Authentication.</code>  The password for this is stored salted and encrypted on the local disk. The clear text of the password is never stored. VisibleTesla does nothing to make this function visible beyond your local network. Take care if you set up port forwarding to access the service remotely.
+                        </li>
                     </ul>Other than communicating with Tesla, VisibleTesla communicates with two other services - Dropbox and MailGun. It uses Dropbox to download up to three files that are used in the update process:
                     <ul>
                         <li>The first file is a list of the releases. The app uses this to determine whether a newer release is available.

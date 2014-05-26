@@ -9,10 +9,12 @@
         <link rel="stylesheet" href="../default.css" type="text/css">
         <link rel="shortcut icon" href="../images/favicon.ico?v=1" type="image/x-icon">
         <link rel="icon" href="../images/favicon.ico?v=1" type="image/x-icon">
-        <script src="../scripts/gcse.js"></script>
+        <script src="../scripts/gcse.js" type="text/javascript">
+</script>
     </head>
     <body>
-        <SCRIPT LANGUAGE="JavaScript" type="text/javascript" src="../scripts/hsp.js"></SCRIPT> 
+        <script language="JavaScript" type="text/javascript" src="../scripts/hsp.js">
+</script>
         <div id="content">
             <h1>
                 Other Topics
@@ -142,10 +144,10 @@
                 <a name="vampireLoss">Tracking Vampire Loss</a>
             </h2>
             <p>
-                "Vampire Loss" is the name given to power that is drained from the battery while the car is stationary. This power goes into running the car's onboard systems and is minimized when the car is sleeping. VisibleTesla can help you track how much power you are losing while your car is sitting still. It will review your data and look for any period where your car is stationary (and not charging) for an hour or more. These are called "rest periods." For each rest period it keeps track of when the period started and ended, and the starting and ending range (in miles or km).
+                "Vampire Loss" is the name given to power that is drained from the battery while the car is stationary. This power goes into running the car's on-board systems and is minimized when the car is sleeping. VisibleTesla can help you track how much power you are losing while your car is sitting still. It will review your data and look for any period where your car is stationary (and not charging) for an hour or more. These are called "rest periods." For each rest period it keeps track of when the period started and ended, and the starting and ending range (in miles or km).
             </p>
             <p>
-                You can access this data in several forms using the <span class="ui">File&rarr;Vampire Loss...</span> menu item as shown below. Once you do that, a Date Range dialog will appear (see below). Choose a day or range of days that you want to review. You can use the <span class="ui">Quick Select</span> dropdown to easily choose common ranges. Days for which data is available are highlighted in green. If you want more days of historical data available, adjust the value of the <span class="ui">Load data for</span> preference in the <span class="ui">General / Basic Preferences</span> section of the <a href=PrefsTab.html>Prefs Tab</a>. If you choose days for which there is no data, no information will be shown.
+                You can access this data in several forms using the <span class="ui">File→Vampire Loss...</span> menu item as shown below. Once you do that, a Date Range dialog will appear (see below). Choose a day or range of days that you want to review. You can use the <span class="ui">Quick Select</span> dropdown to easily choose common ranges. Days for which data is available are highlighted in green. If you want more days of historical data available, adjust the value of the <span class="ui">Load data for</span> preference in the <span class="ui">General / Basic Preferences</span> section of the <a href="PrefsTab.html">Prefs Tab</a>. If you choose days for which there is no data, no information will be shown.
             </p>
             <p>
                 <img class="screenshot" src="../images/26a_Vampire_Menu.png" alt="Vampire Loss Menu">
@@ -166,7 +168,7 @@
                 <img class="screenshot" src="../images/26d_Vampire_Scatter.png" alt="Vampire Scatter Chart">
             </p>
             <p>
-                The final chart is called <span class="ui">By Time</span>. Like the previous chart, the y axis represents the amount of vampire loss. There is also a line across the entire chart which represents the overall average. That's where the similarities end. In this chart the x axis represents the hour of the day from 0-23. Each rest period is represented by a horizontal line segment which spans the starting time through the ending time of the period. The height of the line segment represents the degree of loss. Let's say your car is staionary every day from 10:00-14:00. You'll see a line segment for that period for each day in the range you selected.
+                The final chart is called <span class="ui">By Time</span>. Like the previous chart, the y axis represents the amount of vampire loss. There is also a line across the entire chart which represents the overall average. That's where the similarities end. In this chart the x axis represents the hour of the day from 0-23. Each rest period is represented by a horizontal line segment which spans the starting time through the ending time of the period. The height of the line segment represents the degree of loss. Let's say your car is stationary every day from 10:00-14:00. You'll see a line segment for that period for each day in the range you selected.
             </p>
             <p>
                 This chart can be used to get a feel for when you car tends to be stationary and how much vampire loss there is during these periods. As with the <span class="ui">Sequence</span> chart, you can hover your mouse over any endpoint to see more detailed information about that rest period. If a period spans days (very common), it will be shown as two segments. In cases where your car sits idle for multiple days (what a shame!), the period will be broken up into multiple segments as needed.
@@ -181,7 +183,7 @@
                 Many of the Tabs in VisibleTesla collect data of one type or another to do their job. The Location Tab collects location-related data, the Charge Tab collects charge-related data, and so on. They only collect this data when they are the selected tab. For example, while you are viewing the Charge Tab it is collecting charge data, but as soon as you switch to the Location Tab, the Charge Tab stops collecting data and the Location Tab starts. A number of tabs don't collect any data (e.g. Login, Prefs). Some tabs collect data only as needed (e.g. Scheduler).
             </p>
             <p>
-                The Graphs Tab is special - it collects data even when you aren't viewing it. It's also opportunistic. It watches the data being collected by other Tabs and looks for anything it can use. In normal circumstances the Graphs Tab collects data every two minutes. If it sees your car in motion, it starts collecting data every 30 seconds. If your car stops, it continues collecting data every 30 seconds for a couple of minutes in case you're at a stop light or something like that. Eventually it will rever to collecting data at 2 minute intervals.
+                The Graphs Tab is special - it collects data even when you aren't viewing it. It's also opportunistic. It watches the data being collected by other Tabs and looks for anything it can use. In normal circumstances the Graphs Tab collects data every two minutes. If it sees your car in motion, it starts collecting data every 30 seconds. If your car stops, it continues collecting data every 30 seconds for a couple of minutes in case you're at a stop light or something like that. Eventually it will revert to collecting data at 2 minute intervals.
             </p>
             <p>
                 When viewing any tab you may refresh the displayed data by pressing the <span class="ui">Refresh</span> button. If you don't press the button, the app will automatically refresh the information every 30 seconds. Switching tabs automatically refreshes the newly selected tab. The screen shot below shows the "spinner" that is displayed when the app is communicating with your car.
@@ -196,11 +198,87 @@
                 Speaking of overloading Tesla's servers, VisibleTesla automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others. For example, the odometer reading on the <a href="OverviewTab.html">Overview Tab</a>. Since even at 60 mph the reading doesn't change much every minute, the app does not update it on every auto-refresh.
             </p>
             <h2>
+                <a name="rest">REST Services</a>
+            </h2>
+            <p>
+                <strong>For advanced users only - EXPERIMENTAL.</strong> VisibleTesla includes the ability to accept a *very* limited set of commands via http. At the moment, the only functionality available is setting the app's <a href="pages/SleepMode.html">inactivity mode</a>. Support for REST services is off by default and should only be used by people who are comfortable with direct access to these sorts of services. If you do enable the service, it is protected via <code>HTTP Basic Authentication.</code> To enable this feature, read more about the settings in the <a href="pages/PrefsTab.html">Prefs Tab</a>.
+            </p>
+            <p>
+                Once the service is enabled, you have selected a port (or used the default), and have set an authorization code (password), you may access the functionality using a web browser or a command line utility such as curl. The username for all commands is "VT". The password is whatever you establish in the preferences. Note that by default, these services will be visible only on your local network. To access them remotely, you must manually set up port forwarding or use other methods. This is for experienced network users only.
+            </p>
+            <p>
+                The following table lists the available functions and how to access them. In these examples, the host name is always 127.0.0.1. This is a place holder and should be replaced by your actual hostname or IP address.
+            </p>
+            <table class="grid_table">
+                <tr>
+                    <th>
+                        Function
+                    </th>
+                    <th>
+                        URL
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        Set Inactivity mode to <span class="ui">Stay Awake</span>
+                    </td>
+                    <td>
+                        <code>http://127.0.0.1:9090/action/activity/wakeup</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Set Inactivity mode to <span class="ui">Allow Daydreaming</span>
+                    </td>
+                    <td>
+                        <code>http://127.0.0.1:9090/action/activity/daydream</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Set Inactivity mode to <span class="ui">Allow Sleeping</span>
+                    </td>
+                    <td>
+                        <code>http://127.0.0.1:9090/action/activity/sleep</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Return extremely simple web page with links to the URLs mentioned above.
+                    </td>
+                    <td>
+                        <code>http://127.0.0.1:9090/action/activity</code>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                Let's say you have established a password of "tesla" in the advanced preferences (please don't use that as your password), and that your IP address is 192.168.1.45. You could set the app to <span class="ui">Stay Awake</span> mode with the following curl command. Note that this command contains your password in clear text - don't share it with anyone else:
+            </p>
+            <blockquote>
+                <code>curl http://VT:tesla@192.168.1.45:9090/action/activity/wakeup</code>
+            </blockquote>
+            <p>
+                You can also initiate this command via a web browser. Just type the address (without username and password) into your browser's address bar as shown in the screen shot below. Once you do, you will be prompted to enter a username and password. Use <span class="ui">VT</span> for the username and your authorization code as the password. In the example above, this was <span class="ui">tesla</span>.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/27_Browser_Bar.png">
+            </p>
+            <p>
+                You can bookmark these URLs for easy access in the future. Alternatively, you can enter the URL <code>http://127.0.0.1:9090/action/activity</code> into your browser and you will receive an extremely simple web page with with links to the three inactivity modes.
+            </p>
+            <h3>Why is this useful?</h3>
+            <p>
+                Setting the inactivity mode remotely is useful if your app is asleep and you are about to drive somewhere. If you want to be sure the trip is recorded without large gaps, you can make sure the app is awake using this mechanism.
+            </p>
+            <h2>
                 <a name="simulation">Simulation</a>
             </h2>
             <p>
                 The simulation menu can be found within the Options menu. It allows you to look at car configurations other than your own. These screen shots show changing the color to red and using 21" dark rims.
-            </p><img class="screenshot" src="../images/10_Simulate_Color_Red.png" alt="missing"><img class="screenshot" src="../images/11_Simulate_Dark_Rims.png" alt="missing">
+            </p>
+            <p>
+                <img class="screenshot" src="../images/10_Simulate_Color_Red.png" alt="missing"><img class="screenshot" src="../images/11_Simulate_Dark_Rims.png" alt="missing">
+            </p>
         </div>
         <div id="footer"></div>
     </body>
