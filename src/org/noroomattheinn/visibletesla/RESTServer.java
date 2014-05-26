@@ -92,6 +92,10 @@ public class RESTServer {
             }
             String path = exchange.getRequestURI().getPath();
             String mode = StringUtils.substringAfterLast(path, "/");
+            if (mode.equals("activity")) {
+                sendResponse(exchange, 200, InactivityOptions);
+                return;
+            }
             InactivityType requestedMode = toInactivityType.get(mode);
             if (requestedMode == null) {
                 Tesla.logger.warning("Unknown inactivity mode: " + mode + "\n");
@@ -124,4 +128,18 @@ public class RESTServer {
         os.close();
     }
     
+    // TO DO: Should read this from a resource!
+    private static final String InactivityOptions = 
+        "<html>\n" + 
+        "   <head>\n" + 
+        "       <title>Inactivity Mode</title>\n" + 
+        "   </head>\n" + 
+        "   <body>\n" + 
+        "       <ul>\n" + 
+        "           <li><a href=\"activity/wakeup\">Stay Awake</a></li>\n" + 
+        "           <li><a href=\"activity/daydream\">Allow Daydreaming</a></li>\n" + 
+        "           <li><a href=\"activity/sleep\">Allow Sleeping</a></li>\n" + 
+        "       </ul>\n" + 
+        "   </body>\n" + 
+        "</html>";
 }
