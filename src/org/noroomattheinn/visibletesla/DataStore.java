@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 import javafx.scene.control.Dialogs;
 import javafx.stage.FileChooser;
 import jxl.Workbook;
@@ -70,7 +70,7 @@ public abstract class DataStore implements StatsPublisher {
     
     protected AppContext appContext;
     protected StatsRepository repo;
-    protected TreeMap<Long,Map<String,Double>> rows = new TreeMap<>();
+    protected NavigableMap<Long,Map<String,Double>> rows = new ConcurrentSkipListMap<>();
     protected boolean dataLoaded = false;
     protected String[] publishedKeys;
     
@@ -99,7 +99,7 @@ public abstract class DataStore implements StatsPublisher {
         appContext.launchThread(new Loader(period), "00 - DataLoader");
     }
     
-    public final TreeMap<Long,Map<String,Double>> getData() {
+    public final NavigableMap<Long,Map<String,Double>> getData() {
         return dataLoaded ? rows : null;
     }
     
@@ -287,7 +287,7 @@ public abstract class DataStore implements StatsPublisher {
     }
 
     private void doExport(File file, Range<Long> exportPeriod) {
-        TreeMap<Long,Map<String,Double>> rowsForExport = loadForExport(exportPeriod);
+        NavigableMap<Long,Map<String,Double>> rowsForExport = loadForExport(exportPeriod);
         int columnNumberForExport = 0;
         Map<String, Integer> keyToColumn = new HashMap<>();
         for (String key : keysEncountered) { keyToColumn.put(key, columnNumberForExport++); }
@@ -374,8 +374,8 @@ public abstract class DataStore implements StatsPublisher {
             sheet.getSettings().setVerticalFreeze(1);
     }
     
-    private TreeMap<Long,Map<String,Double>> loadForExport(Range<Long> exportPeriod) {
-        final TreeMap<Long,Map<String,Double>> rowsToExport = new TreeMap<>();
+    private NavigableMap<Long,Map<String,Double>> loadForExport(Range<Long> exportPeriod) {
+        final NavigableMap<Long,Map<String,Double>> rowsToExport = new ConcurrentSkipListMap<>();
         
         repo.loadExistingData(new StatsRepository.Recorder() {
             @Override public void recordElement(long time, String type, double val) {
