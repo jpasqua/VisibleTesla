@@ -266,10 +266,21 @@
             <p>
                 You can bookmark these URLs for easy access in the future. Alternatively, you can enter the URL <code>http://127.0.0.1:9090/action/activity</code> into your browser and you will receive an extremely simple web page with with links to the three inactivity modes.
             </p>
-            <h3>Why is this useful?</h3>
+            <h3>
+                Why is this useful?
+            </h3>
             <p>
-                Setting the inactivity mode remotely is useful if your app is asleep and you are about to drive somewhere. If you want to be sure the trip is recorded without large gaps, you can make sure the app is awake using this mechanism.
+                Setting the inactivity mode remotely is useful if your app is asleep and you are about to drive somewhere. If you want to be sure the trip is recorded without large gaps, you can make sure the app is awake using this mechanism. If you are really comfortable with configuring your home network, and are comfortable with the security, you can use port forwarding on your router along with a service like dyndns to allow you to access this functionality from outside of your home network. Roughly speaking you need to:
             </p>
+            <ol>
+                <li>Establish an external IP address for your home network using a system like dyndns.org. At that point you'll have a publicly visible address like: <code>TheAndersons.dyndns.org</code>
+                </li>
+                <li>Use your router to set up port forwarding to the machine that is running VisibleTesla. Assuming you didn't change the port, you would set your router so that TCP traffic that is bound for port 9090 gets sent to port 9090 on the machine that's running VisibleTesla. This may involve giving that machine a static IP address.
+                </li>
+                <li>Try it out! From a web browser on a machine that is not on your home network, try accessing one of the commands. For example, you can enter the URL below. You will be prompted for your username and password (remember, the username is always "VT"), and once you enter them, you'll see a simple web page with the other options listed.<br>
+                    <code>http://TheAndersons.dyndns.org:9090/action/activity</code>
+                </li>
+            </ol>
             <h2>
                 <a name="simulation">Simulation</a>
             </h2>
