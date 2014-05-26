@@ -69,7 +69,7 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.27.00";
+    public static final String ProductVersion = "0.27.01";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -114,6 +114,8 @@ public class AppContext {
     public SnapshotStreamer snapshotStreamer;
     public StatsStreamer statsStreamer;
     
+    public byte[] restEncPW, restSalt;
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -124,6 +126,7 @@ public class AppContext {
     private Utils.Callback<InactivityType,Void> inactivityModeListener;
     private final Map<String,StatsPublisher> typeToPublisher = new HashMap<>();
     private MailGun mailer = null;
+    private RESTServer restServer = null;
     
 /*==============================================================================
  * -------                                                               -------
@@ -192,7 +195,20 @@ public class AppContext {
             if (statsStreamer != null) statsStreamer.stop();
             statsStreamer = new StatsStreamer(this, v);
             vampireStats = new VampireStats(this);
+            
+            (restServer = new RESTServer(this)).launch();
         }
+    }
+    
+    public Utils.UnitType unitType() {
+        Utils.UnitType units = simulatedUnits.get();
+        if (units != null) return units;
+        GUIState.State gs = lastKnownGUIState.get();
+        if (gs != null) {
+            return gs.distanceUnits.equalsIgnoreCase("mi/hr") ?
+                    Utils.UnitType.Imperial : Utils.UnitType.Metric;
+        }
+        return Utils.UnitType.Imperial;
     }
     
     public void noteUpdatedState(APICall state) {
@@ -398,6 +414,7 @@ public class AppContext {
     
     public void shutDown() {
         shuttingDown.set(true);
+        if (restServer != null) restServer.shutdown();
         int nActive;
         do {
             nActive = 0;
