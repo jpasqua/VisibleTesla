@@ -349,6 +349,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                 if (!enabled.isSelected() || cmd == Command.None)
                     return;
                 
+                if (!(cmd == Command.CHARGE_ON || cmd == Command.HVAC_ON || 
+                      cmd == Command.CHARGE_SET))
+                    targetValue = -1;
                 owner.runCommand(cmd, targetValue);
                 if (once.isSelected()) {
                     enabled.setSelected(false);
