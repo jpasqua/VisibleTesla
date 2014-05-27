@@ -17,8 +17,8 @@
         <Button fx:id="okButton" defaultButton="false" mnemonicParsing="false" onAction="#buttonPressed" text="OK" />
       </children>
     </HBox>
-    <TextField fx:id="nickname" layoutX="80.0" layoutY="448.0" prefWidth="183.0" text="Home" />
-    <Label layoutX="10.0" layoutY="451.0" text="Nickname:" textFill="WHITE" />
+    <TextField fx:id="nickname" prefWidth="183.0" text="Home" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="80.0" />
+    <Label text="Nickname:" textFill="WHITE" AnchorPane.bottomAnchor="13.0" AnchorPane.leftAnchor="10.0" />
   </children>
   <stylesheets>
     <URL value="@../../styles/VisibleTesla.css" />
