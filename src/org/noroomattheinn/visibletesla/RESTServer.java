@@ -90,7 +90,7 @@ public class RESTServer {
                 sendResponse(exchange, 400, "GET only on activity endpoint");
                 return;
             }
-            String path = exchange.getRequestURI().getPath();
+            String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
             String mode = StringUtils.substringAfterLast(path, "/");
             if (mode.equals("activity")) {
                 sendResponse(exchange, 200, InactivityOptions);
