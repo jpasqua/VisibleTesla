@@ -108,6 +108,7 @@
         <classpath file="dist/VisibleTesla.jar" />
         <classpath file="${env.JAVA_HOME}/jre/lib/jfxrt.jar" />
         <classpath dir="dist/lib" />
+        <option value="-Xmx1024m" />
     </bundleapp>
     <!-- Remove redundant jar. It's not found automatically here so it was copied above -->
     <delete verbose="true" >
