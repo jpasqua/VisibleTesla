@@ -6,7 +6,6 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.Date;
-import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -179,6 +178,27 @@ public class PrefsController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
+ * Preferences related to the Graphs Tab
+ * 
+ *----------------------------------------------------------------------------*/
+
+    //
+    // UI Elements
+    //
+    @FXML private CheckBox ignoreGaps;
+    @FXML private Slider gapTime;
+    @FXML private Label gapTimeDisplay;
+
+    //
+    // Initialize the UI
+    //
+    private void initGraphsPrefsUI() {
+        bindToCheckBox(ignoreGaps, appContext.prefs.ignoreGraphGaps);
+        bindToIntegerProperty(gapTime, gapTimeDisplay, appContext.prefs.graphGapTime);
+    }
+
+/*------------------------------------------------------------------------------
+ *
  * Preferences related to the Scheduler Tab
  * 
  *----------------------------------------------------------------------------*/
@@ -204,6 +224,7 @@ public class PrefsController extends BaseController {
             initGeneralPrefsUI();
             initSchedulerPrefsUI();
             initLocationPrefsUI();
+            initGraphsPrefsUI();
             loaded = true;
         }
     }

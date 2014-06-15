@@ -143,6 +143,18 @@
             </AnchorPane>
           </content>
         </TitledPane>
+        <TitledPane id="x7" animated="false" text="Graphs">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <CheckBox id="collectLocationData" fx:id="ignoreGaps" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Ignore Graph Gaps" />
+                <Slider id="locMinTime" fx:id="gapTime" layoutX="178.0" layoutY="16.0" majorTickUnit="10.0" max="60.0" min="10.0" minorTickCount="1" prefWidth="214.0" showTickLabels="true" showTickMarks="true" value="10.0" />
+                <Label id="locMinTimeDisplay" fx:id="gapTimeDisplay" layoutX="402.0" layoutY="16.0" prefWidth="36.0" text="10" />
+                <Label layoutX="428.0" layoutY="16.0" text="(minutes constituting a gap)" />
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
         <TitledPane fx:id="x7" animated="false" text="Scheduler">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

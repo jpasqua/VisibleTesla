@@ -294,6 +294,8 @@ public class GraphController extends BaseController {
             displayBothMI.setSelected(false);
             lineChart.setDisplayMode(VTLineChart.DisplayMode.MarkersOnly);
         }
+        lineChart.setIgnoreGap(appContext.prefs.ignoreGraphGaps.get() ?
+                appContext.prefs.graphGapTime.get() : VTLineChart.ALongLongTime);
     }
 
 /*------------------------------------------------------------------------------

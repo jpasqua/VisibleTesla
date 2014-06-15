@@ -101,16 +101,18 @@ public class Prefs {
  * Preferences related to the Graphs Tab
  * 
  *----------------------------------------------------------------------------*/
-    
-    public StringProperty   loadPeriod = new SimpleStringProperty();
-    public BooleanProperty  incrementalLoad = new SimpleBooleanProperty();
-    
+    private static final String GraphIgnoreGapsKey = "GRAPH_GAP_IGNORE";
+    private static final String GraphGapTimeKey = "GRAPH_GAP_TIME";
     private static final String GraphPeriodPrefKey = "GRAPH_PERIOD";
-    private static final String GraphIncLoadPrefKey = "GRAPH_INC_LOAD";
+     
+    public StringProperty   loadPeriod = new SimpleStringProperty();
+    public BooleanProperty  ignoreGraphGaps = new SimpleBooleanProperty();
+    public IntegerProperty  graphGapTime = new SimpleIntegerProperty();
     
     private void loadGraphPrefs() {
         stringPref(GraphPeriodPrefKey, loadPeriod, StatsStore.LoadPeriod.All.name());
-        booleanPref(GraphIncLoadPrefKey, incrementalLoad, true);
+        booleanPref(GraphIgnoreGapsKey, ignoreGraphGaps, false);
+        integerPref(GraphGapTimeKey, graphGapTime, 15); // 15 minutes        
     }
     
 /*------------------------------------------------------------------------------

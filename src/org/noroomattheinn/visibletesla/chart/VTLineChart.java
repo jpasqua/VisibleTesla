@@ -38,6 +38,7 @@ public class VTLineChart extends LineChart<Number,Number> {
  *----------------------------------------------------------------------------*/
     
     public enum DisplayMode {LinesOnly, MarkersOnly, Both};
+    public static final long ALongLongTime = 60*60*24*365*100;  // 100 Years in seconds
     
 /*------------------------------------------------------------------------------
  *
@@ -50,6 +51,7 @@ public class VTLineChart extends LineChart<Number,Number> {
     private DisplayMode displayMode = DisplayMode.LinesOnly;
     private double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
     private double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+    private long gapTime = ALongLongTime;
     
 /*==============================================================================
  * -------                                                               -------
@@ -117,6 +119,13 @@ public class VTLineChart extends LineChart<Number,Number> {
         refreshChart();
     }
     
+    /**
+     * Set the time in seconds which should be considered a gap in the data.
+     * Gaps are displayed without line segments, even in Both and LinesOnly mode.
+     * @param gapTime Time in seconds
+     */
+    public void setIgnoreGap(long gapTime) { this.gapTime = gapTime; }
+    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Utility Methods
@@ -136,8 +145,12 @@ public class VTLineChart extends LineChart<Number,Number> {
         }
     }
     
-    private void addLineSegment(ObservableList<PathElement> path, MutablePoint2D point) {
-        if (displayMode != DisplayMode.MarkersOnly) path.add(new LineTo(point.x, point.y));
+    private void addLineSegment(
+            ObservableList<PathElement> path, MutablePoint2D point, boolean gap) {
+        if (displayMode != DisplayMode.MarkersOnly) {
+            if (gap) path.add(new MoveTo(point.x, point.y));
+            else path.add(new LineTo(point.x, point.y));
+        }
     }
     
     private void addMarker(ObservableList<PathElement> path, MutablePoint2D point) {
@@ -187,11 +200,16 @@ public class VTLineChart extends LineChart<Number,Number> {
                 
                 MutablePoint2D start = null, end = null;
                 MutablePoint2D previous = MutablePoint2D.negativeInfinity();
+                long lastX = Long.MAX_VALUE;
                 
                 for (XYChart.Data<Number,Number> item : series.getData()) {
                     MutablePoint2D cur = new MutablePoint2D(
                         xAxis.toNumericValue(item.getXValue()),
                         yAxis.toNumericValue(item.getYValue()));
+                    
+                    long curX = item.getXValue().longValue();
+                    boolean gap = Math.abs(lastX - curX) > gapTime * 60;
+                    lastX = curX;
                     
                     trackMinMax(cur);
                     
@@ -212,7 +230,7 @@ public class VTLineChart extends LineChart<Number,Number> {
                     
                     if (Math.abs(display.x - previous.x) + Math.abs(display.y - previous.y) > 2) {
                         if (start == null) start = new MutablePoint2D(display);
-                        addLineSegment(line, display);
+                        addLineSegment(line, display, gap);
                         addMarker(markerPath, display);
                         previous.copy(display);
                     }
