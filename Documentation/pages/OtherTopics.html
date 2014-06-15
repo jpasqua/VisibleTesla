@@ -9,12 +9,10 @@
         <link rel="stylesheet" href="../default.css" type="text/css">
         <link rel="shortcut icon" href="../images/favicon.ico?v=1" type="image/x-icon">
         <link rel="icon" href="../images/favicon.ico?v=1" type="image/x-icon">
-        <script src="../scripts/gcse.js" type="text/javascript">
-</script>
+        <script src="../scripts/gcse.js" type="text/javascript"></script>
     </head>
     <body>
-        <script language="JavaScript" type="text/javascript" src="../scripts/hsp.js">
-</script>
+        <script language="JavaScript" type="text/javascript" src="../scripts/hsp.js"></script>
         <div id="content">
             <h1>
                 Other Topics
@@ -207,7 +205,7 @@
                 Once the service is enabled, you have selected a port (or used the default), and have set an authorization code (password), you may access the functionality using a web browser or a command line utility such as curl. The username for all commands is "VT". The password is whatever you establish in the preferences. Note that by default, these services will be visible only on your local network. To access them remotely, you must manually set up port forwarding or use other methods. This is for experienced network users only.
             </p>
             <p>
-                The following table lists the available functions and how to access them. In these examples, the host name is always 127.0.0.1. This is a place holder and should be replaced by your actual hostname or IP address.
+                The following table lists the available functions and how to access them. In these examples, the host name is always 127.0.0.1. This is a place holder and should be replaced by your actual hostname or IP address, OR it may be used to access this service from the local machine.
             </p>
             <table class="grid_table">
                 <tr>
@@ -223,7 +221,7 @@
                         Set Inactivity mode to <span class="ui">Stay Awake</span>
                     </td>
                     <td>
-                        <code>http://127.0.0.1:9090/action/activity/wakeup</code>
+                        <code>http://127.0.0.1:9090/v1/action/activity/wakeup</code>
                     </td>
                 </tr>
                 <tr>
@@ -231,7 +229,7 @@
                         Set Inactivity mode to <span class="ui">Allow Daydreaming</span>
                     </td>
                     <td>
-                        <code>http://127.0.0.1:9090/action/activity/daydream</code>
+                        <code>http://127.0.0.1:9090/v1/action/activity/daydream</code>
                     </td>
                 </tr>
                 <tr>
@@ -239,15 +237,15 @@
                         Set Inactivity mode to <span class="ui">Allow Sleeping</span>
                     </td>
                     <td>
-                        <code>http://127.0.0.1:9090/action/activity/sleep</code>
+                        <code>http://127.0.0.1:9090/v1/action/activity/sleep</code>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        Return extremely simple web page with links to the URLs mentioned above.
+                        Return web page with links to the URLs mentioned above
                     </td>
                     <td>
-                        <code>http://127.0.0.1:9090/action/activity</code>
+                        <code>http://127.0.0.1:9090/pages/InactivityOptions.html</code>
                     </td>
                 </tr>
             </table>
@@ -255,7 +253,7 @@
                 Let's say you have established a password of "tesla" in the advanced preferences (please don't use that as your password), and that your IP address is 192.168.1.45. You could set the app to <span class="ui">Stay Awake</span> mode with the following curl command. Note that this command contains your password in clear text - don't share it with anyone else:
             </p>
             <blockquote>
-                <code>curl http://VT:tesla@192.168.1.45:9090/action/activity/wakeup</code>
+                <code>curl http://VT:tesla@192.168.1.45:9090/v1/action/activity/wakeup</code>
             </blockquote>
             <p>
                 You can also initiate this command via a web browser. Just type the address (without username and password) into your browser's address bar as shown in the screen shot below. Once you do, you will be prompted to enter a username and password. Use <span class="ui">VT</span> for the username and your authorization code as the password. In the example above, this was <span class="ui">tesla</span>.
@@ -264,7 +262,7 @@
                 <img class="screenshot" src="../images/27_Browser_Bar.png">
             </p>
             <p>
-                You can bookmark these URLs for easy access in the future. Alternatively, you can enter the URL <code>http://127.0.0.1:9090/action/activity</code> into your browser and you will receive an extremely simple web page with with links to the three inactivity modes.
+                You can bookmark these URLs for easy access in the future. Alternatively, you can enter the URL <code>http://192.168.1.45:9090/pages/InactivityOptions.html</code> into your browser and you will receive a simple web page with with links to the three inactivity modes.
             </p>
             <h3>
                 Why is this useful?
@@ -278,9 +276,101 @@
                 <li>Use your router to set up port forwarding to the machine that is running VisibleTesla. Assuming you didn't change the port, you would set your router so that TCP traffic that is bound for port 9090 gets sent to port 9090 on the machine that's running VisibleTesla. This may involve giving that machine a static IP address.
                 </li>
                 <li>Try it out! From a web browser on a machine that is not on your home network, try accessing one of the commands. For example, you can enter the URL below. You will be prompted for your username and password (remember, the username is always "VT"), and once you enter them, you'll see a simple web page with the other options listed.<br>
-                    <code>http://TheAndersons.dyndns.org:9090/action/activity</code>
+                    <code>http://TheAndersons.dyndns.org:9090/pages/InactivityOptions.html</code>
                 </li>
             </ol>
+            <h3>
+                Getting Status
+            </h3>
+            <p>
+                You can receive basic status about your car using this service using the url:
+            </p>
+            <blockquote>
+                <code>http://192.168.1.45:9090/pages/VehicleStatus.html</code>
+            </blockquote>
+            <p>
+                Remember, you need to use your IP address or hostname. When you enter this URL, you'll get a page back with a table that looks similar to this:
+            </p>
+            <p style="margin-left:40px">
+                Vehicle Status as of 2014-06-07 10:27:27
+            </p>
+            <table class="grid_table">
+                <tr>
+                    <th>
+                        Item
+                    </th>
+                    <th>
+                        Value
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        SOC
+                    </td>
+                    <td>
+                        73%
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Ideal
+                    </td>
+                    <td>
+                        168.6 mi
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Rated
+                    </td>
+                    <td>
+                        148.2 mi
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Estimated
+                    </td>
+                    <td>
+                        157.5 mi
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Charge State
+                    </td>
+                    <td>
+                        Disconnected
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Speed
+                    </td>
+                    <td>
+                        27.3 mph
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Location
+                    </td>
+                    <td>
+                        123 Main St., Menlo Park, CA 94025, USA
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Inactivity Mode
+                    </td>
+                    <td>
+                        Allow Sleeping, Current State: Awake
+                    </td>
+                </tr>
+            </table>
+            <p>
+                Requesting status in this way will <strong>not</strong> wake up your car if it is sleeping. The data you receive will be the last known data. The car will not be asked for new information. The date and time shown at the top of the table correspond to when the table was prepared. the values in the table might be slightly older (or much older if your car is sleeping).
+            </p>
             <h2>
                 <a name="simulation">Simulation</a>
             </h2>

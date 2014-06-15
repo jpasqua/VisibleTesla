@@ -23,10 +23,13 @@
 				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. The following screen shot gives an example of what the Notify Tab looks like. Each notification can be enabled or disabled individually using the associated checkbox.
 			</p>
 			<p>
-				<img class="screenshot" src='../images/24_Notify_Tab.png' alt='Notify Tab'>
+				<img class="screenshot" src="../images/24_Notify_Tab.png" alt="Notify Tab">
 			</p>
 			<p>
-				Notifications are sent via email using the address specified in the <a href="PrefsTab.html">Prefs Tab</a>. Many wireless carriers provide an email-to-text gateway. You are provided an email address that corresponds to your cell phone's phone number. This will allow you to receive notifications as text messages. Please note that if you do so, normal text message rates may apply. Consult your carrier.
+				Notifications are sent via email using the address specified in the <a href="PrefsTab.html">Prefs Tab</a>. Many wireless carriers provide an email-to-text gateway where you are provided an email address that corresponds to your mobile phone's phone number. Using such a gateway allows you to receive notifications as text messages. Please note that if you do so, normal text message rates may apply. Consult your carrier for details.
+			</p>
+			<p>
+				Notifications are sent via a hosted service (MailGun). You don't need to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored. Advanced users may use their own MailGun account as described <a href="PrefsTab.html#mailgunkey">here</a>.
 			</p>
 			<p>
 				The following types of notifications are supported:
@@ -152,13 +155,13 @@
 				<img class="screenshot" src='../images/24b_Map_Default.png' alt='Notify Tab'>
 			</p>
 			<p>
-				You'll see a red arrow representing the selected location and blue circle around it representing the radius. The first time you bring up this dialog, the arrow will appear at the Tesla factory in Fremont, CA. Use the search box to navigate to a new location. As show in the screen shot below, as you type you will see an auto-complete list of possible locations.
+				You'll see a red arrow representing the selected location and blue circle around it representing the radius. The first time you bring up this dialog, the arrow will appear at the Tesla factory in Fremont, CA. Use the search box to navigate to a new location. As shown in the screen shot below, as you type you will see an auto-complete list of possible locations.
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24c_Map_Auto.png' alt='Notify Tab'>
 			</p>
 			<p>
-				Choose one of those locations or hit <span class="ui">Enter</span>. The map will relocate to show the selected location as shown below. Now you can begin to refine the location and radius. Use the normal map zoom controls as needed. To relocate the arrow, simply click and drag it to a new location. To change the radius, grab the white knob and drag it in or out. The blue circle will grow or shrink to show the new radius. VisibleTesla will not allow you to set a radius below 15 meters.
+				Choose one of those locations or hit <span class="ui">Enter</span>. The map will relocate to show the selected location as shown below. Now you can begin to refine the location and radius. Use the normal map controls to zoom and pan as needed. To relocate the arrow, simply click and drag it to a new location. To change the radius, grab the white knob and drag it in or out. The blue circle will grow or shrink to show the new radius. VisibleTesla will not allow you to set a radius below 15 meters.
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24d_Map_Result.png' alt='Notify Tab'>
@@ -173,19 +176,225 @@
 				<img class="screenshot" src='../images/24f_Map_Nickname.png' alt='Notify Tab'>
 			</p>
 			<h2>
-				Custom Address and Subject
+				<a name="custom_messages">Customizing Notifications</a>
 			</h2>
 			<p>
-				VisibleTesla allows you to optionally specify the email address and subject to use for each type of notification. This can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for notifications that you feel are more urgent. You could also use this facility if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.
+				VisibleTesla allows you to optionally specify the email address, subject and message body to use for each type of notification. This can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for urgent notifications. For urgent notifications you could enter a text message address instead of your default email address. You can also use this feature if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.
 			</p>
 			<p>
-				To use this feature, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address and/or a subject. You may also select <span class="ui">Use default values</span>, in which case the default email address and subject will be used. If you leave either field (email address or subject) blank, the default will be used for the blank item.
+				To access these options, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address, subject, and message. You may also select <span class="ui">Use default values</span>, in which case the default email address, subject, and message will be used. If you leave any field blank, the default will be used for the blank item(s).
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24a_Notify_Options.png' alt='Notify Tab'>
 			</p>
+			<h3>
+				Advanced Feature: Defining your own message using variables
+			</h3>
 			<p>
-				Notifications are sent via a hosted service (MailGun) and will not require you to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored. Advanced users may use their own MailGun account as described <a href="PrefsTab.html#mailgunkey">here</a>.
+				By default, VisibleTesla sends notification messages that include information relevant to each type of notification. For example, if you set up a <span class="ui">Speed Hits or Exceeds</span> notification, the app will tell you both the target speed (e.g. 75 mi/h) and the current speed (e.g. 80 mi/h).
+			</p>
+			<p>
+				You may want to customize the message that is sent for a given notification to include different information, different text, or use your native language. To facilitate that, VisibleTesla allows you to set a custom message as described above. However, to make that message meaningful, you'll need to specify the information you'd like to include such as the current speed, target speed, or state of charge. You can specify those values by using special keywords in your message. Those words are listed below and are always delimited by double curly braces: {{ and }}. We refer to these keywords as variables.
+			</p>
+			<table class="grid_table">
+				<tr>
+					<th>
+						<code>Variable Name</code>
+					</th>
+					<th>
+						Substituted By
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<code>{{SPEED}}</code>
+					</td>
+					<td>
+						The last known speed of the vehicle in the units set by the car (mph or km/h)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{SOC}}</code>
+					</td>
+					<td>
+						The last known state of charge. This is a percentage.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{IDEAL}}</code>
+					</td>
+					<td>
+						The last known ideal range of the vehicle in the units set by the car (mi or km)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{RATED}}</code>
+					</td>
+					<td>
+						The last known rated range of the vehicle in the units set by the car (mi or km)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{ESTIMATED}}</code>
+					</td>
+					<td>
+						The last known estimated range of the vehicle in the units set by the car (mi or km)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{CHARGE_STATE}}</code>
+					</td>
+					<td>
+						The last known charge state of the vehicle (e.g. Disconnected or Stopped)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{D_UNITS}}</code>
+					</td>
+					<td>
+						The distance units in used by the vehicle (mi or km)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{S_UNITS}}</code>
+					</td>
+					<td>
+						The speed units in used by the vehicle (mph or km/h)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{TARGET}}</code>
+					</td>
+					<td>
+						The target value of the notification. For example, if a notification was set for <span class="ui">Speed Hits or Exceeds 75.0</span>, then the target value would be 75.0
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{CUR}}</code>
+					</td>
+					<td>
+						The current value of the item being monitored for the notification. For example, if a notification was set for <span class="ui">Speed Hits or Exceeds 75.0</span>, and the car hit 76.3 mi/h, then the value would be 76.3. As another example, if a <span class="ui">Car entered area</span> notification was triggered, and the defined area had a nickname of "Home" and a radius of 20 meters, this variable would be "[Home] within 20 meters".
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{DATE}}</code>
+					</td>
+					<td>
+						The current date in the form YYYY-MM-DD. For example, 2014-12-25.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{TIME}}</code>
+					</td>
+					<td>
+						The current time in 24 hour format HH:MM:SS. For example, 20:12:35. Note that this is the time the message was generated which will be different from the time that you receive the message. How different depends on how long it takes for your message to be delivered. Note also that the time the message is generated may be later than the time the event actually occurred. It is usually pretty close, but may be quite a bit different if the app has been in sleep mode.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{LOC}}</code>
+					</td>
+					<td>
+						The last known location of the vehicle. The location presented is derived by taking the last known latitiude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitiude and longitude will be presented.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{I_MODE}}</code>
+					</td>
+					<td>
+						The app's inactivity mode, which could be <span class="ui">Stay Awake</span>, <span class="ui">Allow Daydreaming</span>, or <span class="ui">Allow Sleeping</span>. This corresponds to the setting of the <span class="ui">Options&rarr;Inactivity Mode</span> menu. 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{I_STATE}}</code>
+					</td>
+					<td>
+						The app's inactivity state, which could be <span class="ui">Awake</span>, <span class="ui">Daydreaming</span>, or <span class="ui">Sleeping</span>. Note that the app might be in <span class="ui">Allow Sleeping</span> mode, but still not be asleep. It only goes to sleep when in that mode <strong>and</strong> there is no user activity for 15 minutes. The same is true for <span class="ui">Allow Daydreaming</span> mode
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{P_CURRENT}}</code>
+					</td>
+					<td>
+						The pilot current being supplied to the car. When your car is plugged in, this value will indicate the power that is available to be supplied to your car when charging begins. When your car is not plugged in, this value will be 0. It is possible for this value to be -1 which indicates that the car did not report the pilot current.
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>
+						<strong>In the future, other variables may be added to the list</strong>
+					</td>
+				</tr>
+			</table>
+			<p>
+				Let's look at an example. Say we want to add a custom message to the <span class="ui">Charge State Becomes</span> notification. We want it to tell us the new charge state, the SOC, and the ideal and rated ranges. We could enter a message that looks like this:
+			</p>
+			<blockquote>
+				<code>
+					{{DATE}} {{TIME}}<br>
+					Charge State: {{CHARGE_STATE}}<br>
+					SOC: {{SOC}}%<br>
+					Range ({{D_UNITS}}): Rated={{RATED}}, Ideal={{IDEAL}}</code>
+			</blockquote>
+			<p>
+				This might produce a message such as:
+			</p>
+			<blockquote>
+				<code>
+					2014-06-03 10:00:00<br />
+					Charge State: Complete<br />
+					SOC: 90%<br />
+					Range (mi): Rated=177, Ideal=184
+				</code>
+			</blockquote>
+			<p>
+				You can use as many or as few variables as you'd like and they don't have to be related to the particular type of notification. For example, you can include the estimated range and/or SOC in every notification that you send.
+			</p>
+			<p>
+				You can also use variables in subject lines. Let's look at a couple of examples that might be used for the <span class="ui">Charge State Becomes</span> notification:
+			</p>
+			<table class="grid_table">
+				<tr>
+					<th>
+						Subject field
+					</th>
+					<th>
+						Example output
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<code>Charge State: {{CHARGE_STATE}}</code>
+					</td>
+					<td>
+						<code>Charge State: Stopped</code>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>Charge State: {{CHARGE_STATE}}, SOC: {{SOC}}%</code>
+					</td>
+					<td>
+						<code>Charge State: Stopped, SOC: 80%</code>
+					</td>
+				</tr>
+			</table>
+			<p>
+				<strong>Note</strong>: Variable names must be entered exactly and must always include the double curly braces. <code>{{Soc}</code> is not a substitute for <code>{{SOC}</code>; nor is <code>SOC</code>. It really needs to be an exact match to the items listed in the table above. You may not use double curly braces as part of the content of your message. Anything enclosed in double curly braces will be interpreted as a variable name.
 			</p>
 			<h2>
 				Accessing a URL: Advanced Users Only
@@ -194,13 +403,13 @@
 				When a notification occurs, VisibleTesla can perform an HTTP GET on a URL instead of sending an email. This mechanism allows notifications to trigger web services for home automation or other purposes. To use this feature, set the notification email in any custom notification setting to a URL rather than an email address. The URL must begin with <code>http://</code> or <code>https://</code>. It must be a fully formed URL with any special characters URL-encoded. If VisibleTesla sees a URL rather than an email, it will perform an HTTP GET on that URL. It <strong>will not</strong> check error codes returned from the server nor process any returned data. The custom subject field will be ignored.
 			</p>
 			<p>
-				A sample use case might be turning on outside lights at your home when your car is approaching. To do this you would start by setting up the <span class="ui">Car entered area</span> notification. You would then press the  <span class="ui">+ button</span> to bring up the custom address dialog as shown below. Now you can enter the URL corresponding to the "Lights On" command of your home automation controller. Put it in the <span class="ui">EMail</span> field where you would normally put an email address.
+				A sample use case might be turning on outside lights at your home when your car is approaching. To do this you would start by setting up the <span class="ui">Car entered area</span> notification. You would then press the <span class="ui">+ button</span> to bring up the custom address dialog as shown below. Now you can enter the URL corresponding to the "Lights On" command of your home automation controller. Put it in the <span class="ui">EMail</span> field where you would normally put an email address.
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24g_Enter_Custom.png' alt='Notify Tab'>
 			</p>
 			<p>
-				<strong>Security Note: </strong>Any information you enter in this field will be stored unencrypted on your computer's local disk. Be aware of that if you encode sensitive information into a URL.
+				<strong>Security Note:</strong> Any information you enter in this field will be stored unencrypted on your computer's local disk. Be aware of that if you encode sensitive information into a URL.
 			</p>
 		</div>
 		<div id="footer"></div>
