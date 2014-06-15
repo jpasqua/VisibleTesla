@@ -4,7 +4,7 @@
  * Created: May 24, 2014
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.rest;
 
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
@@ -12,13 +12,17 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.MessageTemplate;
+import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 
 /**
@@ -28,11 +32,21 @@ import org.noroomattheinn.visibletesla.AppContext.InactivityType;
  */
 public class RESTServer {
     
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+
     private static final Map<String,InactivityType> toInactivityType = 
             Utils.newHashMap("sleep", InactivityType.Sleep,
                              "daydream", InactivityType.Daydream,
                              "wakeup", InactivityType.Awake);
     
+    private static final String VSTemplateFileName = "pages/VehicleStatus.html";
+    private static final String IOTemplateFileName = "pages/InactivityOptions.html";
+
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -42,7 +56,9 @@ public class RESTServer {
     private final AppContext appContext;
     private HttpServer server;
     private PWUtils pwUtils = new PWUtils();
-    
+    private MessageTemplate statusTemplate;
+    private MessageTemplate inactivityTemplate;
+
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -52,6 +68,19 @@ public class RESTServer {
     public RESTServer(AppContext ac) {
         appContext = ac;
         server = null;
+
+        String vsTemplateString = "Internal Error in VisibleTesla";
+        String ioTemplateString = "Internal Error in VisibleTesla";
+        try {
+            vsTemplateString = IOUtils.toString(
+                getClass().getResourceAsStream(VSTemplateFileName));
+            ioTemplateString = IOUtils.toString(
+                getClass().getResourceAsStream(IOTemplateFileName));
+        } catch (IOException ex) {
+            Tesla.logger.severe("Error reading template file: " + ex.getMessage());
+        }
+        statusTemplate = new MessageTemplate(vsTemplateString);
+        inactivityTemplate = new MessageTemplate(ioTemplateString);
     }
 
     public synchronized void launch() {
@@ -62,8 +91,13 @@ public class RESTServer {
         int restPort = appContext.prefs.restPort.get();
         try {
             server = HttpServer.create(new InetSocketAddress(restPort), 0);
-            HttpContext cc  = server.createContext("/action/activity", activityRequest);
+            
+            HttpContext cc;
+            cc = server.createContext("/v1/action/activity", activityRequest);
             cc.setAuthenticator(authenticator);
+            cc = server.createContext("/", staticPageRequest);
+            cc.setAuthenticator(authenticator);
+
             server.setExecutor(null); // creates a default executor
             server.start();
         } catch (IOException ex) {
@@ -87,13 +121,13 @@ public class RESTServer {
     private HttpHandler activityRequest = new HttpHandler() {
         @Override public void handle(HttpExchange exchange) throws IOException {
             if (!exchange.getRequestMethod().equals("GET")) {
-                sendResponse(exchange, 400, "GET only on activity endpoint");
+                sendResponse(exchange, 400, "GET only on activity endpoint\n");
                 return;
             }
             String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
             String mode = StringUtils.substringAfterLast(path, "/");
             if (mode.equals("activity")) {
-                sendResponse(exchange, 200, InactivityOptions);
+                sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
             InactivityType requestedMode = toInactivityType.get(mode);
@@ -107,12 +141,43 @@ public class RESTServer {
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
         }
     };
+
+    private HttpHandler staticPageRequest = new HttpHandler() {
+        @Override public void handle(HttpExchange exchange) throws IOException {
+            // TO DO: Check for path traversal attack!
+            String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
+            path = StringUtils.stripStart(path, "/");
+            try {
+                InputStream is = getClass().getResourceAsStream(path);
+                if (is == null) {
+                    sendResponse(exchange, 404, "404 (Not Found)\n");
+                    return;
+                }
+                
+                String type = getMimeType(StringUtils.substringAfterLast(path, "."));
+                String content = IOUtils.toString(is);
+                
+                if (type.equalsIgnoreCase("text/html")) {
+                    MessageTemplate mt = new MessageTemplate(content);
+                    content = mt.getMessage(appContext, null);
+                }
+
+                exchange.getResponseHeaders().add("Content-Type", type);
+                sendResponse(exchange, 200, content);
+            } catch (IOException ex) {
+                Tesla.logger.severe("Error reading requested file: " + ex.getMessage());
+                sendResponse(exchange, 404, "404 (Not Found)\n");
+            }
+        }
+    };
     
+
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Utility Methods
  * 
  *----------------------------------------------------------------------------*/
+
     private BasicAuthenticator authenticator = new BasicAuthenticator("VT Action") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
@@ -128,18 +193,19 @@ public class RESTServer {
         os.close();
     }
     
-    // TO DO: Should read this from a resource!
-    private static final String InactivityOptions = 
-        "<html>\n" + 
-        "   <head>\n" + 
-        "       <title>Inactivity Mode</title>\n" + 
-        "   </head>\n" + 
-        "   <body>\n" + 
-        "       <ul>\n" + 
-        "           <li><a href=\"activity/wakeup\">Stay Awake</a></li>\n" + 
-        "           <li><a href=\"activity/daydream\">Allow Daydreaming</a></li>\n" + 
-        "           <li><a href=\"activity/sleep\">Allow Sleeping</a></li>\n" + 
-        "       </ul>\n" + 
-        "   </body>\n" + 
-        "</html>";
+    private String getMimeType(String type) {
+        if (type != null) {
+            switch (type) {
+                case "css": return "text/css";
+                case "htm":
+                case "html": return "text/html";
+                case "js": return "application/javascript";
+                case "png": return "image/png";
+                case "gif": return "image/gif";
+                case "jpg":
+                case "jpeg": return "image/jpeg";
+            }
+        }
+        return "text/plain";
+    }
 }

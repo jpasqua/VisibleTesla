@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Vehicle Status
+        </title>
+        <link rel="stylesheet" href="../css/ServedPages.css" type="text/css">
+        <link rel="shortcut icon" href="http://visibletesla.com/Documentation/images/favicon.ico?v=1" type="image/x-icon">
+        <link rel="icon" href="http://visibletesla.com/Documentation/images/favicon.ico?v=1" type="image/x-icon">
+    </head>
+    <body>
+        <div id="header">
+            <div class="wrap">
+                <img src="http://visibletesla.com/Documentation/images/Banner.png">
+            </div>
+        </div>
+        <div id="content">
+            <p>
+                Vehicle Status as of {{DATE}} {{TIME}}
+            </p>
+            <table class="stats_table">
+                <tr>
+                    <th>
+                        Item
+                    </th>
+                    <th>
+                        Value
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        SOC
+                    </td>
+                    <td>
+                        {{SOC}}%
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Ideal
+                    </td>
+                    <td>
+                        {{IDEAL}} {{D_UNITS}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Rated
+                    </td>
+                    <td>
+                        {{RATED}} {{D_UNITS}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Estimated
+                    </td>
+                    <td>
+                        {{ESTIMATED}} {{D_UNITS}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Charge State
+                    </td>
+                    <td>
+                        {{CHARGE_STATE}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Speed
+                    </td>
+                    <td>
+                        {{SPEED}} {{S_UNITS}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Location
+                    </td>
+                    <td>
+                        {{LOC}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Inactivity Mode
+                    </td>
+                    <td>
+                        {{I_MODE}}, Current State: {{I_STATE}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,48 @@
+html,body {
+    margin:0;
+    padding:0;
+    border:0;
+    color:#000;
+    background:#fff
+}
+.wrap {
+    position:relative;
+    width:100%;
+}
+
+#content {
+    position:relative;
+    margin-left:10px;
+    width:75%
+}
+
+#header {
+    margin:0;
+    padding:0;
+    width:100%;
+    float:top;
+    background-image:url(http://visibletesla.com/Documentation/images/BannerBackground.png)
+}
+html body {
+    font:.95em "Trebuchet MS",Helvetica,sans-serif
+}
+table.stats_table {
+        color:#333333;
+        border-width: 1px
+        border-color: #666666;
+        border-collapse: collapse;
+}
+table.stats_table th {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #dedede;
+}
+table.stats_table td {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #ffffff;
+}        
