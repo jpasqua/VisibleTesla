@@ -1,0 +1,4 @@
+zip -r VTW.zip VTW
+zip -z VTW.zip < /Users/joe/Dropbox/Dev/Tesla/VisibleTesla/InstallSupport/Windows/autorun.txt
+cat /Users/joe/Dropbox/Dev/Tesla/VisibleTesla/InstallSupport/Windows/unzipsfx.exe /Users/joe/Desktop/VTW.zip > VTW.exe
+zip -A VTW.exe
