@@ -131,6 +131,7 @@
                     <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
                     <String fx:value="-- None --" />
                   </FXCollections>
                 </items>

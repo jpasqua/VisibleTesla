@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
 /**
@@ -41,6 +42,7 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
     private Stage myStage;
     private String email;
     private String subject;
+    private String message;
     private boolean cancelled;
     
 /*------------------------------------------------------------------------------
@@ -56,6 +58,7 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
     @FXML private Button cancelButton;
     @FXML private TextField emailField;
     @FXML private TextField subjectField;
+    @FXML private TextArea messageField;
     @FXML private CheckBox useDefault;
     
 /*------------------------------------------------------------------------------
@@ -66,12 +69,12 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
     
     @FXML void initialize() {
         cancelled = true;
-        email = null;
-        subject = null;
+        email = subject = message = null;
         useDefault.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 emailField.setDisable(t1);
                 subjectField.setDisable(t1);
+                messageField.setDisable(t1);
             }
         });
     }
@@ -81,16 +84,15 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
         if (b == okButton) {
             cancelled = false;
             if (useDefault.isSelected()) {
-                email = null;
-                subject = null;
+                email = subject = message = null;
             } else {
                 email = emailField.getText().trim();
                 subject = subjectField.getText().trim();
+                message = messageField.getText();
             }
         } else if (b == cancelButton) {
             cancelled = true;
-            email = null;
-            subject = null;
+            email = subject = message = null;
         }
         myStage.close();
     }
@@ -102,14 +104,9 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
  *============================================================================*/
     
     
-    public String getEmail() {
-        if (email == null || email.isEmpty()) return null;
-        return email;
-    }
-    public String getSubject() {
-        if (subject == null || subject.isEmpty()) return null;
-        return subject;
-    }
+    public String getEmail() { return item(email); }
+    public String getSubject() { return item(subject); }
+    public String getMessage() { return item(message); }
     public boolean cancelled() { return cancelled; }
     public boolean useDefault() { return useDefault.isSelected(); }
 
@@ -131,7 +128,12 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
             subject = initSubject.trim();
             subjectField.setText(subject);
         }
-        if (initEmail == null && initSubject == null) {
+        String initMsg = (String)props.get("MESSAGE");
+        if (initMsg != null) {
+            message = initMsg;
+            messageField.setText(message);
+        }
+        if (initEmail == null && initSubject == null && initMsg == null) {
             useDefault.setSelected(true);
         }
     }
@@ -142,5 +144,10 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
  * PRIVATE - Utility Methods
  * 
  *----------------------------------------------------------------------------*/
-        
+
+    private String item(String item) {
+        if (item == null || item.isEmpty()) return null;
+        return item;
+    }
+   
 }

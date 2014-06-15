@@ -11,15 +11,25 @@
 <?import jfxtras.labs.scene.control.*?>
 <?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="102.0" prefWidth="409.0001220703125" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="206.0" prefWidth="409.0001220703125" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog">
   <children>
     <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#buttonHandler" text="OK" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
     <Button fx:id="cancelButton" cancelButton="true" defaultButton="false" mnemonicParsing="false" onAction="#buttonHandler" text="Cancel" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="62.0" />
     <CheckBox id="useCarSetpoint" fx:id="useDefault" mnemonicParsing="false" text="Use default values" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" />
-    <Label layoutX="14.0" layoutY="14.0" text="EMail:" />
-    <TextField fx:id="emailField" layoutX="71.0" layoutY="11.0" prefWidth="329.0" />
-    <Label layoutX="14.0" layoutY="43.0" prefWidth="57.0" text="Subject:" />
-    <TextField fx:id="subjectField" layoutX="71.0" layoutY="40.0" prefWidth="329.0" />
+    <VBox id="VBox" alignment="BASELINE_RIGHT" layoutX="9.0" layoutY="12.0" prefHeight="-1.0" spacing="10.0">
+      <children>
+        <Label text="EMail:" />
+        <Label prefWidth="-1.0" text="Subject:" />
+        <Label prefWidth="-1.0" text="Message:" />
+      </children>
+    </VBox>
+    <VBox id="VBox" alignment="CENTER" layoutX="71.0" layoutY="11.0" spacing="5.0">
+      <children>
+        <TextField fx:id="emailField" prefWidth="329.0" />
+        <TextField fx:id="subjectField" prefWidth="329.0" />
+        <TextArea fx:id="messageField" prefHeight="97.0" prefWidth="329.0" wrapText="true" />
+      </children>
+    </VBox>
   </children>
   <stylesheets>
     <URL value="@../../styles/VisibleTesla.css" />

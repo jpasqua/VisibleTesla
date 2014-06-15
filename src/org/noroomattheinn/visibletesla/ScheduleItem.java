@@ -28,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 
 
 
@@ -49,7 +50,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
 
     public enum Command {
         HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, CHARGE_SET, AWAKE, SLEEP, DAYDREAM,
-        UNPLUGGED, SET, None}
+        UNPLUGGED, SET, MESSAGE, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
         commandMap.put(Command.HVAC_ON, "HVAC: On");
@@ -61,8 +62,10 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         commandMap.put(Command.SLEEP, "Sleep");
         commandMap.put(Command.DAYDREAM, "Daydream");
         commandMap.put(Command.UNPLUGGED, "Unplugged?");
+        commandMap.put(Command.MESSAGE, "Message");
         commandMap.put(Command.SET, "Set Value");
     }
+    
     // the following map is here to keep track of any updates to the command names.
     // We store the command names in the prefs file so we need to track
     // any changes so that when we internalize, we get the new names, not the old ones.
@@ -76,10 +79,14 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         "Charge: Low", "None"               // Obsolete command
     );
     
+    private static final String SchedulerMsgKey = "SCHEDMSG";
+    private static final String DefaultSubject = "Scheduled Message";
+    private static final String DefaultMessage = "SOC: {{SOC}}%\n{{LOC}}\n";
+            
     public interface ScheduleOwner {
         public String getExternalKey();
         public Preferences getPreferences();
-        public void runCommand(ScheduleItem.Command command, double value);
+        public void runCommand(ScheduleItem.Command command, double value, MessageTarget mt);
         public AppContext getAppContext();
     }
 
@@ -101,6 +108,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private String schedulerID = null;  // ID of the cron4j instance
     private final ScheduleOwner owner;
     private double targetValue = -1;
+    private MessageTarget messageTarget = null;
     private boolean internalizing = false;
     
     private static final Scheduler scheduler = new Scheduler();
@@ -181,6 +189,12 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         internalizing = false;
     }
     
+    private MessageTarget loadMessageTarget() {
+        String baseKey = String.format("%s%02d", SchedulerMsgKey, id);
+        return new MessageTarget(
+            owner.getAppContext(), baseKey, DefaultSubject, DefaultMessage);
+    }
+    
     public static Command nameToCommand(String commandName) {
         Command cmd = commandMap.inverse().get(commandName);
         return (cmd == null) ? Command.None : cmd;
@@ -206,10 +220,49 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         } else if (forCommand.equals(commandMap.get(Command.CHARGE_ON))) {
             options.setVisible(true);
             options.setOnAction(getChargeOptions);
+        } else if (forCommand.equals(commandMap.get(Command.MESSAGE))) {
+            options.setVisible(true);
+            options.setOnAction(getMessageTarget);
         } else {
             options.setVisible(false);
         }
     }
+
+    private EventHandler<ActionEvent> getMessageTarget = new EventHandler<ActionEvent>() {
+        @Override public void handle(ActionEvent t) {
+            if (messageTarget == null) messageTarget = loadMessageTarget();
+            Map<Object, Object> props = new HashMap<>();
+            props.put("EMAIL", messageTarget.getEmail());
+            props.put("SUBJECT", messageTarget.getSubject());
+            props.put("MESSAGE", messageTarget.getMessage());
+
+            DialogUtils.DialogController dc = DialogUtils.displayDialog(
+                    getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
+                    "Message Options", owner.getAppContext().stage, props);
+            if (dc == null) {
+                Tesla.logger.warning("Can't display \"Message Options\" dialog");
+                messageTarget.setEmail(null); 
+                messageTarget.setSubject(null);
+                messageTarget.setMessage(null);
+                messageTarget.externalize();
+                return;
+            }
+
+            NotifyOptionsDialog nod = Utils.cast(dc);
+            if (!nod.cancelled()) {
+                if (!nod.useDefault()) {
+                    messageTarget.setEmail(nod.getEmail());
+                    messageTarget.setSubject(nod.getSubject());
+                    messageTarget.setMessage(nod.getMessage());
+                } else {
+                    messageTarget.setEmail(null);
+                    messageTarget.setSubject(null);
+                    messageTarget.setMessage(null);
+                }
+                messageTarget.externalize();
+            }
+        }
+    };
 
     EventHandler<ActionEvent> getChargeOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
@@ -330,29 +383,25 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  *----------------------------------------------------------------------------*/
     
     private void startScheduler() {
-        if (schedulerID != null) {
-            scheduler.deschedule(schedulerID);
-        }
+        if (schedulerID != null) { scheduler.deschedule(schedulerID); }
 
-        if (!enabled.isSelected()) {
-            return;
-        }
+        if (!enabled.isSelected()) { return; }
 
         String pattern = getSchedulePattern();
-        if (pattern.isEmpty()) {
-            return;
-        }
+        if (pattern.isEmpty()) { return; }
         
         schedulerID = scheduler.schedule(pattern, new Runnable() {
             @Override public void run() {
                 Command cmd = nameToCommand(command.getValue());
-                if (!enabled.isSelected() || cmd == Command.None)
-                    return;
+                if (!enabled.isSelected() || cmd == Command.None) return;
                 
                 if (!(cmd == Command.CHARGE_ON || cmd == Command.HVAC_ON || 
                       cmd == Command.CHARGE_SET))
                     targetValue = -1;
-                owner.runCommand(cmd, targetValue);
+                if (cmd == Command.MESSAGE && messageTarget == null) {
+                    messageTarget = loadMessageTarget();
+                }
+                owner.runCommand(cmd, targetValue, messageTarget);
                 if (once.isSelected()) {
                     enabled.setSelected(false);
                     enableItems(false);

@@ -74,30 +74,35 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     @Override public Preferences getPreferences() { return appContext.persistentState; }
     @Override public AppContext getAppContext() { return appContext; }
     
-    @Override public void runCommand(ScheduleItem.Command command, double value) {
+    @Override public void runCommand(
+            ScheduleItem.Command command, double value,
+            MessageTarget messageTarget) {
         if (command != ScheduleItem.Command.SLEEP) {
             if (!wakeAndGetChargeState()) {
-                logActivity("Can't wake vehicle - aborting");
+                logActivity("Can't wake vehicle - aborting", true);
                 return;
             }
         }
         if (!safeToRun(command)) return;
         
-        if (!tryCommand(command, value)) {
-            tryCommand(command, value);  // Try it again in case of transient errors
+        if (!tryCommand(command, value, messageTarget)) {
+            tryCommand(command, value, messageTarget);  // Try it again in case of transient errors
         }
     }
     
-    private boolean tryCommand(ScheduleItem.Command command, double value) {
+    private boolean tryCommand(
+            ScheduleItem.Command command, double value,
+            MessageTarget messageTarget) {
         String name = ScheduleItem.commandToName(command);
         Result r = Result.Succeeded;
+        boolean reportActvity = true;
         switch (command) {
             case CHARGE_SET:
             case CHARGE_ON:
                 if (value > 0) {
                     r = chargeController.setChargePercent((int)value);
                     if (!(r.success || r.explanation.equals("already_set"))) {
-                        logActivity("Unable to set charge target: " + r.explanation);
+                        logActivity("Unable to set charge target: " + r.explanation, true);
                     }
                 }
                 if (command == Command.CHARGE_ON)
@@ -118,14 +123,32 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             case AWAKE: appContext.requestInactivityMode(InactivityType.Awake); break;
             case SLEEP: appContext.requestInactivityMode(InactivityType.Sleep); break;
             case DAYDREAM: appContext.requestInactivityMode(InactivityType.Daydream); break;
-            case UNPLUGGED: r = unpluggedTrigger(); break;
+            case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
+            case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }
         if (value > 0) name = String.format("%s (%3.1f)", name, value);
         String entry = String.format("%s: %s", name, r.success ? "succeeded" : "failed");
         if (!r.success) entry = entry + ", " + r.explanation;
-        logActivity(entry);
+        logActivity(entry, reportActvity);
         return r.success;
     }
+    
+    private Result sendMessage(MessageTarget messageTarget) {
+        if (messageTarget == null) {
+            appContext.sendNotification(
+                appContext.prefs.notificationAddress.get(),
+                "No subject was specified",
+                "No body was specified");
+            return Result.Succeeded;
+        }
+        MessageTemplate body = new MessageTemplate(messageTarget.getActiveMsg());
+        MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
+        boolean sent = appContext.sendNotification(
+            messageTarget.getActiveEmail(),
+            subj.getMessage(appContext, null),
+            body.getMessage(appContext, null));
+        return sent ? Result.Succeeded : Result.Failed;
+    } 
     
     private boolean requiresSafeMode(ScheduleItem.Command command) {
         return (command == ScheduleItem.Command.HVAC_ON);
@@ -139,7 +162,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             if (charge.state.batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
-                logActivity(entry);
+                logActivity(entry, true);
                 return false;
             }
         }
@@ -150,11 +173,11 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             switch (ChargeController.getPilotCurent(charge)) {
                 case -1:
                     msg = String.format("%s: Can't tell if car is plugged in - aborted", name);
-                    logActivity(msg);
+                    logActivity(msg, true);
                     return false;
                 case 0:
                     msg = String.format("%s: Car is not plugged in - aborted", name);
-                    logActivity(msg);
+                    logActivity(msg, true);
                     return false;
                 default:
                     return true;
@@ -280,15 +303,17 @@ public class SchedulerController extends BaseController implements ScheduleItem.
  * 
  *----------------------------------------------------------------------------*/
     
-    private void logActivity(String entry) {
+    private void logActivity(String entry, boolean report) {
         Date now = new Date();
         String previousEntries = activityLog.getText();
         String datedEntry = String.format(
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
         Tesla.logger.log(Level.FINE, entry);
-        appContext.schedulerActivityReport.set(null); // Force a change
-        appContext.schedulerActivityReport.set(entry);
+        if (report) {
+            appContext.schedulerActivityReport.set(null); // Force a change
+            appContext.schedulerActivityReport.set(entry);
+        }
     }
     
 

@@ -6,12 +6,12 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.rest.RESTServer;
 import org.noroomattheinn.visibletesla.stats.StatsPublisher;
 import org.noroomattheinn.visibletesla.stats.Stat;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -69,7 +69,7 @@ public class AppContext {
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.27.01";
+    public static final String ProductVersion = "0.27.02";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey = 
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -92,6 +92,7 @@ public class AppContext {
     public Vehicle vehicle = null;
     
     public ObjectProperty<InactivityType> inactivityState;
+    public ObjectProperty<InactivityType> inactivityMode;
     public BooleanProperty shuttingDown;
     
     public ObjectProperty<Utils.UnitType> simulatedUnits;
@@ -141,6 +142,7 @@ public class AppContext {
         this.inactivityModeListener = null;
         
         this.inactivityState = new SimpleObjectProperty<>(InactivityType.Awake);
+        this.inactivityMode = new SimpleObjectProperty<>(InactivityType.Awake);
         this.shuttingDown = new SimpleBooleanProperty(false);
         
         this.lastKnownChargeState = new SimpleObjectProperty<>();
@@ -211,6 +213,11 @@ public class AppContext {
         return Utils.UnitType.Imperial;
     }
     
+    public double inProperUnits(double val) {
+        if (unitType() == Utils.UnitType.Imperial) return val;
+        return Utils.mToK(val);
+    }
+    
     public void noteUpdatedState(APICall state) {
         if (state instanceof ChargeState)
             lastKnownChargeState.set(((ChargeState)state).state);
@@ -247,9 +254,7 @@ public class AppContext {
                     "Unable to send a notification because no address was specified: " + msg);
             return false;
         }
-        String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        String body = date + "\n" + msg;
-        if (!mailer.send(addr, subject, body)) {
+        if (!mailer.send(addr, subject, msg)) {
             Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
             return false;
         }
@@ -331,7 +336,23 @@ public class AppContext {
     public boolean isSleeping() { return inactivityState.get() == InactivityType.Sleep; }
     public boolean isDaydreaming() { return inactivityState.get() == InactivityType.Daydream; }
     public boolean isAwake() { return inactivityState.get() == InactivityType.Awake; }
-    
+    public String inactivityStateAsString() {
+        switch (inactivityState.get()) {
+            case Sleep: return "Sleeping";
+            case Daydream: return "Daydreaming";
+            case Awake: return "Awake";
+        }
+        return "Unexpected state";
+    }
+    public String inactivityModeAsString() {
+        switch (inactivityMode.get()) {
+            case Sleep: return "Allow Sleeping";
+            case Daydream: return "Allow Daydreaming";
+            case Awake: return "Stay Awake";
+        }
+        return "Unexpected mode";
+    }
+
     
 /*------------------------------------------------------------------------------
  *

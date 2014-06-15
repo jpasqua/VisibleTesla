@@ -46,8 +46,6 @@ import org.noroomattheinn.visibletesla.trigger.RW;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-
-
 public class NotifierController extends BaseController {
 
 /*------------------------------------------------------------------------------
@@ -64,6 +62,27 @@ public class NotifierController extends BaseController {
     private static final String NotifyEnterKey = "NOTIFY_ENTER_AREA";
     private static final String NotifyLeftKey = "NOTIFY_LEFT_AREA";
     
+    private static final String SOCHitSubj = "SOC: {{CUR}}%";
+    private static final String SOCHitMsg = "SOC Hit or Exceeded: {{TARGET}}% ({{CUR}}%)";
+    private static final String SOCFellSubj = "SOC: {{CUR}}%";
+    private static final String SOCFellMsg = "SOC Fell Below: {{TARGET}}% ({{CUR}}%)";
+    private static final String SpeedHitSubj = "Speed: {{SPEED}} {{S_UNITS}}";
+    private static final String SpeedHitMsg = "Speed Hit or Exceeded: {{TARGET}} {{S_UNITS}}({{SPEED}})";
+    private static final String SchedEventSubj = "Scheduled Event: {{CUR}}";
+    private static final String SchedEventMsg = "Scheduled Event: {{CUR}})";
+    private static final String ChargeStateSubj = "Charge State: {{CHARGE_STATE}}";
+    private static final String ChargeStateMsg =
+        "Charge State: {{CHARGE_STATE}}" +
+        "\nSOC: {{SOC}}%" +
+        "\nRange: {{RATED}} {{D_UNITS}}" +
+        "\nEstimated Range: {{ESTIMATED}} {{D_UNITS}}" +
+        "\nIdeal Range: {{IDEAL}} {{D_UNITS}}";
+    private static final String EnterAreaSubj = "Entered {{TARGET}}";
+    private static final String EnterAreaMsg = "Entered {{TARGET}}";
+    private static final String LeftAreaSubj = "Left {{TARGET}}";
+    private static final String LeftAreaMsg = "Left {{TARGET}}";
+
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -201,44 +220,50 @@ public class NotifierController extends BaseController {
                 appContext, socHits.selectedProperty(), RW.bdHelper,
                 "SOC", NotifySOCHitsKey,  Predicate.Type.HitsOrExceeds,
                 socHitsField.numberProperty(), new BigDecimal(88.0));
-            socHitsMessageTarget = new MessageTarget(appContext, NotifySOCHitsKey);
-            
+            socHitsMessageTarget = new MessageTarget(
+                    appContext, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
             
             socFallsTrigger = new Trigger<>(
                 appContext, socFalls.selectedProperty(), RW.bdHelper,
                 "SOC", NotifySOCFallsKey, Predicate.Type.FallsBelow,
                 socFallsField.numberProperty(), new BigDecimal(50.0));
-            socFallsMessageTarget = new MessageTarget(appContext, NotifySOCFallsKey);
+            socFallsMessageTarget = new MessageTarget(
+                    appContext, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
             
             speedHitsTrigger = new Trigger<>(
                 appContext, speedHits.selectedProperty(), RW.bdHelper,
                 "Speed", NotifySpeedKey, Predicate.Type.HitsOrExceeds,
                 speedHitsField.numberProperty(), new BigDecimal(70.0));
-            shMessageTarget = new MessageTarget(appContext, NotifySpeedKey);
+            shMessageTarget = new MessageTarget(
+                    appContext, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
             
             seTrigger = new Trigger<>(
                 appContext, schedulerEvent.selectedProperty(), RW.stringHelper,
                 "Scheduler", NotifySEKey, Predicate.Type.AnyChange,
                 new SimpleObjectProperty<>("Anything"), "Anything");
-            seMessageTarget = new MessageTarget(appContext, NotifySEKey);
+            seMessageTarget = new MessageTarget(
+                    appContext, NotifySEKey, SchedEventSubj, SchedEventMsg);
 
             csTrigger = new Trigger<>(
                 appContext, chargeState.selectedProperty(), RW.stringHelper,
                 "Charge State", NotifyCSKey, Predicate.Type.Becomes,
                 csOptions.valueProperty(), csOptions.itemsProperty().get().get(0));
-            csMessageTarget = new MessageTarget(appContext, NotifyCSKey);
+            csMessageTarget = new MessageTarget(
+                    appContext, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
             
             enteredTrigger = new Trigger<>(
                 appContext, carEntered.selectedProperty(), RW.areaHelper,
                 "Enter Area", NotifyEnterKey, Predicate.Type.HitsOrExceeds,
                 enterAreaProp, new Area());
-            this.enteredMessageTarget = new MessageTarget(appContext, NotifyEnterKey);
+            this.enteredMessageTarget = new MessageTarget(
+                    appContext, NotifyEnterKey, EnterAreaSubj, EnterAreaMsg);
             
             leftTrigger = new Trigger<>(
                 appContext, carLeft.selectedProperty(), RW.areaHelper,
                 "Left Area", NotifyLeftKey, Predicate.Type.FallsBelow,
                 leftAreaProp, new Area());
-            this.leftMessageTarget = new MessageTarget(appContext, NotifyLeftKey);
+            this.leftMessageTarget = new MessageTarget(
+                    appContext, NotifyLeftKey, LeftAreaSubj, LeftAreaMsg);
             
             allTriggers.addAll(Arrays.asList(
                     speedHitsTrigger, socHitsTrigger, socFallsTrigger,
@@ -308,6 +333,7 @@ public class NotifierController extends BaseController {
         Map<Object, Object> props = new HashMap<>();
         props.put("EMAIL", mt.getEmail());
         props.put("SUBJECT", mt.getSubject());
+        props.put("MESSAGE", mt.getMessage());
 
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
                 getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
@@ -316,6 +342,7 @@ public class NotifierController extends BaseController {
             Tesla.logger.warning("Can't display \"Message Options\" dialog");
             mt.setEmail(null); 
             mt.setSubject(null);
+            mt.setMessage(null);
             mt.externalize();
             return;
         }
@@ -325,9 +352,11 @@ public class NotifierController extends BaseController {
             if (!nod.useDefault()) {
                 mt.setEmail(nod.getEmail());
                 mt.setSubject(nod.getSubject());
+                mt.setMessage(nod.getMessage());
             } else {
                 mt.setEmail(null);
                 mt.setSubject(null);
+                mt.setMessage(null);
             }
             mt.externalize();
         }
@@ -361,13 +390,7 @@ public class NotifierController extends BaseController {
                 ChargeState.State old, ChargeState.State cur) {
             Trigger.Result result = csTrigger.evalPredicate(cur.chargingState.name());
             if (result != null) {
-                String msg = result.defaultMessage();
-                double range = appContext.lastKnownChargeState.get().estimatedRange;
-                msg = String.format("%s\nSOC: %d%%\nRange: %3.1f %s", msg,
-                        appContext.lastKnownChargeState.get().batteryPercent,
-                        useMiles ? range : Utils.mToK(range),
-                        useMiles ? "mi" : "km");
-                notifyUser(msg, csMessageTarget);
+                notifyUser(result, csMessageTarget);
             }
         }
     };
@@ -399,37 +422,34 @@ public class NotifierController extends BaseController {
             result = enteredTrigger.evalPredicate(curLoc);
             if (result != null) {
                 Area a = enterAreaProp.get();
-                String msg = String.format("Arrived at [%s] within %3.0f meters", a.name, a.radius);
-                notifyUser(msg, enteredMessageTarget);
+                notifyUser(result, enteredMessageTarget);
             }
             result = leftTrigger.evalPredicate(curLoc);
             if (result != null) {
                 Area a = leftAreaProp.get();
-                String msg = String.format("Left [%s] within %3.0f meters", a.name, a.radius);
-                notifyUser(msg, leftMessageTarget);
+                notifyUser(result, leftMessageTarget);
             }
         }
     };
     
-    private void notifyUser(String msg, MessageTarget mt) {
-        String addr = mt.address == null ? appContext.prefs.notificationAddress.get() : mt.address;
+    private void notifyUser(Trigger.Result r, MessageTarget target) {
+        String addr = target.getActiveEmail();
         String lower = addr.toLowerCase();  // Don't muck with the original addr.
                                             // URLs are case sensitive
         if (lower.startsWith("http://") || lower.startsWith("https://")) {
             (new HTTPAsyncGet(addr)).exec();
         } else {
-            if (mt.tag == null) {
-                appContext.sendNotification(addr, msg);
-            } else {
-                appContext.sendNotification(addr, mt.tag, msg);
-            }
+            MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
+            MessageTemplate st = new MessageTemplate(target.getActiveSubj());
+            Map<String,String> contextSpecific = Utils.newHashMap(
+                "CUR", r.getCurrentValue(),
+                "TARGET", r.getTarget());
+            appContext.sendNotification(
+                addr, st.getMessage(appContext, contextSpecific),
+                mt.getMessage(appContext, contextSpecific));
         }
     }
 
-    private void notifyUser(Trigger.Result result, MessageTarget mt) {
-        notifyUser(result.defaultMessage(), mt);
-    }
-    
     private void bindBidrectional(final BigDecimalField bdf, final Slider slider) {
         bdf.setFormat(new DecimalFormat("##0.0"));
         bdf.setStepwidth(BigDecimal.valueOf(0.5));
@@ -458,62 +478,6 @@ public class NotifierController extends BaseController {
         return Math.round(val * 10.0)/10.0;
     }
     
-    private class MessageTarget {
-        private String address;
-        private String tag;
-        
-        private AppContext ac;
-        private String theKey;
-        
-        MessageTarget(AppContext ac, String baseKey) {
-            this.ac = ac;
-            this.theKey = key(baseKey);
-            this.internalize();
-        }
-        
-        String getEmail() { return address; }
-        String getSubject() { return tag; }
-        void setEmail(String email) {  address = email; }
-        void setSubject(String subject) { tag = subject; }
-        
-        final void externalize() {
-            String encoded = String.format("%s_%s",
-                    address == null ? "null" : encodeUnderscore(address),
-                    tag == null ? "null" : encodeUnderscore(tag));
-            ac.persistentState.put(theKey, encoded);
-        }
-        
-        final void internalize() {
-            String encoded = ac.persistentState.get(theKey, "");
-            if (encoded.isEmpty()) {    // lookupAndShowmessage target has been set
-                address = null;
-                tag = null;
-                return;
-            }
-            String[] elements = encoded.split("_");
-            if (elements.length != 2) {
-                Tesla.logger.warning("Malformed MessageTarget String: " + encoded);
-                address = null;
-                tag = null;
-            } else {
-                address = elements[0].equals("null") ? null : decodeUnderscore(elements[0]);
-                tag = elements[1].equals("null") ? null : decodeUnderscore(elements[1]);
-            }
-        }
-        
-        private String encodeUnderscore(String input) {
-            return input.replace("_", "&#95;");
-        }
-        
-        private String decodeUnderscore(String input) {
-            return input.replace("&#95;", "_");
-        }
-        
-        private String key(String base) {
-            return vehicle.getVIN()+"_MT_"+base;
-        }
-
-    }
     
     private class HTTPAsyncGet implements Runnable {
         private static final int timeout = 5 * 1000;

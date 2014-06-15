@@ -148,10 +148,19 @@ public class MainController extends BaseController {
     public void start(Application a, Stage s) {
         appContext = new AppContext(a, s);
         Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
+        
         Tesla.logger.info(
                 String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
+        List<String> jvmArgs = Utils.getJVMArgs();
+        Tesla.logger.info("JVM Arguments");
+        if (jvmArgs != null) {
+            for (String arg : jvmArgs) {
+                Tesla.logger.info("Arg: " + arg);
+            }
+        }
         
         inactivityMode = readInactivityMenu();
+        appContext.inactivityMode.set(inactivityMode);
         
         setTitle();
         appContext.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
@@ -386,6 +395,7 @@ public class MainController extends BaseController {
         }
 
         inactivityMode = InactivityType.valueOf(modeName);
+        appContext.inactivityMode.set(inactivityMode);
         setInactivityMenu(inactivityMode);
     }
 
@@ -534,7 +544,8 @@ public class MainController extends BaseController {
     }
     
     private void setInactivityMode(InactivityType newMode) {
-        setInactivityMenu(inactivityMode = newMode);        
+        setInactivityMenu(inactivityMode = newMode);
+        appContext.inactivityMode.set(newMode);      
         appContext.persistentState.put(selectedVehicle.getVIN()+"_InactivityMode", newMode.name());
         
         if (appContext.inactivityState.get() == InactivityType.Awake) return;

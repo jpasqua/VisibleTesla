@@ -79,8 +79,7 @@ class AreaHelper extends RW<Area> {
     }
 
     @Override public String formatted(Area value) {
-        return String.format("%s [%3.5f, %3.5f], %2.1f meters",
-                value.name, value.lat, value.lng, value.radius);
+        return String.format("[%s] within %2.1f meters", value.name, value.radius);
     }
 }
 
