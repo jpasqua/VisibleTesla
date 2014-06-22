@@ -163,6 +163,24 @@ public class MessageTemplate {
                         val = String.valueOf(
                                 ac.lastKnownChargeState.get().chargerPilotCurrent);
                         break;
+                    case "TIME_TO_FULL":
+                        val = ChargeController.getDurationString(
+                            ac.lastKnownChargeState.get().timeToFullCharge); 
+                        break;
+                    case "C_RATE":
+                        val = String.format(
+                            "%.1f", ac.inProperUnits(ac.lastKnownChargeState.get().chargeRate));
+                        break;
+                    case "C_AMP":
+                        val = String.format(
+                            "%.1f", ac.inProperUnits(ac.lastKnownChargeState.get().batteryCurrent));
+                        break;
+                    case "C_VLT":
+                        val = String.valueOf(ac.lastKnownChargeState.get().chargerVoltage);
+                        break;
+                    case "C_PWR":
+                        val = String.valueOf(ac.lastKnownChargeState.get().chargerPower);
+                        break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
                         if (val == null) val = "Unknown variable: " + varName;
