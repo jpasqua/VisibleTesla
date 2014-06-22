@@ -38,7 +38,7 @@ public class VTLineChart extends LineChart<Number,Number> {
  *----------------------------------------------------------------------------*/
     
     public enum DisplayMode {LinesOnly, MarkersOnly, Both};
-    public static final long ALongLongTime = 60*60*24*365*100;  // 100 Years in seconds
+    public static final long ALongLongTime = 60*24*365;  // 1 Year in minutes
     
 /*------------------------------------------------------------------------------
  *
@@ -51,7 +51,8 @@ public class VTLineChart extends LineChart<Number,Number> {
     private DisplayMode displayMode = DisplayMode.LinesOnly;
     private double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
     private double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
-    private long gapTime = ALongLongTime;
+    private long gapTime = ALongLongTime * 60;  // Time that constitutes a gap in data (seconds)
+    private boolean ignoreGaps = false;         // Should we ignore gaps
     
 /*==============================================================================
  * -------                                                               -------
@@ -120,11 +121,15 @@ public class VTLineChart extends LineChart<Number,Number> {
     }
     
     /**
-     * Set the time in seconds which should be considered a gap in the data.
-     * Gaps are displayed without line segments, even in Both and LinesOnly mode.
-     * @param gapTime Time in seconds
+     * Set whether or not to ignore gaps, and if so, what constitutes a gap.
+     * Gaps are displayed without line segments in "Both" and "LinesOnly" mode.
+     * @param ignore            Should we ignore gaps
+     * @param gapTimeMinutes    Time in minutes
      */
-    public void setIgnoreGap(long gapTime) { this.gapTime = gapTime; }
+    public void setIgnoreGap(boolean ignore, long gapTimeMinutes) {
+        this.ignoreGaps = ignore;
+        this.gapTime = gapTimeMinutes * 60;
+    }
     
 /*------------------------------------------------------------------------------
  *
@@ -208,7 +213,8 @@ public class VTLineChart extends LineChart<Number,Number> {
                         yAxis.toNumericValue(item.getYValue()));
                     
                     long curX = item.getXValue().longValue();
-                    boolean gap = Math.abs(lastX - curX) > gapTime * 60;
+                    boolean gap = false;
+                    if (ignoreGaps) gap = Math.abs(lastX - curX) > gapTime;
                     lastX = curX;
                     
                     trackMinMax(cur);

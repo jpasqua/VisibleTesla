@@ -41,7 +41,6 @@ public class Prefs {
  *----------------------------------------------------------------------------*/
     
     public IntegerProperty  idleThresholdInMinutes = new SimpleIntegerProperty();
-    public BooleanProperty  storeFilesWithApp = new SimpleBooleanProperty();
     public BooleanProperty  wakeOnTabChange = new SimpleBooleanProperty();
     public BooleanProperty  offerExperimental = new SimpleBooleanProperty();
     public BooleanProperty  enableProxy = new SimpleBooleanProperty();
@@ -56,7 +55,6 @@ public class Prefs {
     public IntegerProperty  restPort = new SimpleIntegerProperty();
     public StringProperty   authCode = new SimpleStringProperty();
 
-    private static final String AppFilesFolderKey = "APP_AFF";
     private static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     private static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     private static final String OfferExpKey = "APP_OFFER_EXP";
@@ -73,7 +71,6 @@ public class Prefs {
     private static final String AuthCodeKey = "APP_AUTH_CODE";
     
     private void loadGeneralPrefs() {
-        booleanPref(AppFilesFolderKey, storeFilesWithApp, false);
         booleanPref(WakeOnTCKey, wakeOnTabChange, true);
         booleanPref(OfferExpKey, offerExperimental, false);
         integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);

@@ -70,10 +70,7 @@
                           <content>
                             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="352.0" prefWidth="581.0">
                               <children>
-                                <Label prefWidth="138.0" text="Store files with app?" AnchorPane.leftAnchor="13.0" AnchorPane.topAnchor="230.0" />
-                                <Button mnemonicParsing="false" onAction="#showUserDirectory" prefWidth="149.0" text="Show User Folder" AnchorPane.rightAnchor="432.0" AnchorPane.topAnchor="255.0" />
-                                <CheckBox fx:id="storeFilesWithApp" mnemonicParsing="false" text="" AnchorPane.leftAnchor="150.0" AnchorPane.topAnchor="230.0" />
-                                <Label alignment="BASELINE_CENTER" layoutX="183.0" layoutY="230.0" prefHeight="50.0" prefWidth="290.0" style="-fx-border-color: black" text="Not Recommended.&#10;Leaving this unselected will store files in&#10;a User Folder which will faciltate upgrades." wrapText="true" />
+                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" AnchorPane.rightAnchor="420.0" AnchorPane.topAnchor="229.0" />
                                 <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="17.0" />
                                 <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="17.0" />
                                 <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="38.0" />

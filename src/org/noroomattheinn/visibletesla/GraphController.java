@@ -196,6 +196,18 @@ public class GraphController extends BaseController {
             appContext.statsStore.newestBatteryAmps.addListener(statHandler);
             appContext.statsStore.newestPower.addListener(statHandler);
             appContext.statsStore.newestSpeed.addListener(statHandler);
+        
+            setGap();
+            appContext.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
+                @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                    setGap(); lineChart.refreshChart();
+                }
+            });
+            appContext.prefs.graphGapTime.addListener(new ChangeListener<Number>() {
+                @Override public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
+                    setGap(); lineChart.refreshChart();
+                }
+            });
         }
     }
 
@@ -294,10 +306,13 @@ public class GraphController extends BaseController {
             displayBothMI.setSelected(false);
             lineChart.setDisplayMode(VTLineChart.DisplayMode.MarkersOnly);
         }
-        lineChart.setIgnoreGap(appContext.prefs.ignoreGraphGaps.get() ?
-                appContext.prefs.graphGapTime.get() : VTLineChart.ALongLongTime);
     }
 
+    private void setGap() {
+        lineChart.setIgnoreGap(appContext.prefs.ignoreGraphGaps.get(),
+                               appContext.prefs.graphGapTime.get());
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Loading existing data into the Series

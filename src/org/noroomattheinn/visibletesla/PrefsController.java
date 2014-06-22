@@ -45,7 +45,6 @@ public class PrefsController extends BaseController {
     //
     // UI Elements
     //
-    @FXML private CheckBox      storeFilesWithApp;
     @FXML private CheckBox      wakeOnTabChange;
     @FXML private Slider        idleThresholdSlider;
     @FXML private Label         idleThresholdLabel;
@@ -82,10 +81,8 @@ public class PrefsController extends BaseController {
         appContext.prefs.authCode.set(externalForm);
     }
     
-    @FXML void showUserDirectory(ActionEvent event) {
-        Dialogs.showInformationDialog(appContext.stage, 
-            appContext.getAppFileFolder().getAbsolutePath(),
-            "User Directory", "General Preferences");
+    @FXML void showAppFiles(ActionEvent event) {
+        appContext.openFileViewer(appContext.getAppFileFolder().getAbsolutePath());
     }
     
     @FXML void wakeOnTCHandler(ActionEvent event) {
@@ -136,7 +133,6 @@ public class PrefsController extends BaseController {
         bindToTextField(emailForNotifications, appContext.prefs.notificationAddress);
         
         // Advanced
-        bindToCheckBox(storeFilesWithApp, appContext.prefs.storeFilesWithApp);
         bindToCheckBox(enableProxy, appContext.prefs.enableProxy);
         bindToTextField(proxyHost, appContext.prefs.proxyHost);
         bindToTextField(proxyPort, appContext.prefs.proxyPort);
