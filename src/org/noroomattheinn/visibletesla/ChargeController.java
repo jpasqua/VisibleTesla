@@ -336,7 +336,7 @@ public class ChargeController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private String getDurationString(double hoursFloat) {
+    public static String getDurationString(double hoursFloat) {
         int hours = (int)hoursFloat;
         double fractionalHour = hoursFloat - hours;
         int minutes = (int)(fractionalHour * 60);
