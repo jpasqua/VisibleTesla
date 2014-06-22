@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -44,7 +43,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.GUIState;
@@ -142,11 +140,10 @@ public class MainController extends BaseController {
      * and perform any other app startup tasks. In particular, we (1) distribute
      * app context to all of the controllers, and (2) we set a listener for login
      * completion and try and automatic login.
-     * @param a 
-     * @param s 
+     * @param ac    The AppContext
      */
-    public void start(Application a, Stage s) {
-        appContext = new AppContext(a, s);
+    public void start(AppContext ac) {
+        appContext = ac;
         Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
         
         Tesla.logger.info(

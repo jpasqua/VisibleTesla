@@ -48,8 +48,6 @@ public class VisibleTesla extends Application {
      * @throws Exception
      */
     @Override public void start(Stage stage) throws Exception {
-        setupLogger();
-
         Parent root = FXMLLoader.load(getClass().getResource("MainUI.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -59,8 +57,9 @@ public class VisibleTesla extends Application {
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
         Dialogs.useNativeChrome(true);
+        AppContext ac = new AppContext(this, stage);
         mainController = Utils.cast(root.getUserData());
-        mainController.start(this, stage);
+        mainController.start(ac);
     }
     
     @Override public void stop() {
@@ -79,32 +78,5 @@ public class VisibleTesla extends Application {
         launch(args);
     }
 
-    private void setupLogger() {
-        rotateLogs(3);
-        
-        Logger logger = Logger.getLogger("");
-        FileHandler fileHandler;
-        try {
-            fileHandler = new FileHandler("visibletesla-00.log");
-            fileHandler.setFormatter(new SimpleFormatter());
-            fileHandler.setLevel(Level.ALL);
-            logger.addHandler(fileHandler);
-        } catch (IOException | SecurityException ex) {
-            logger.log(Level.SEVERE, "Unable to establish log file");
-        }
-    }
-    
-    private void rotateLogs(int max) {
-        File logfile = new File(String.format("visibletesla-%02d.log", max));
-        if (logfile.exists()) {
-            logfile.delete();
-        }
-        if (max > 0) {
-            File previous = new File(String.format("visibletesla-%02d.log", max-1));
-            if (previous.exists()) {
-                previous.renameTo(logfile);
-            }
-            rotateLogs(max-1);
-        }
-    }
+
 }
