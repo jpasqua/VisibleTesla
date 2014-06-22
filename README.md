@@ -59,7 +59,7 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	# Download the javafx-dialogs library
 	cd ../javafx-dialogs
 	# curl -s -O -L https://github.com/marcojakob/javafx-ui-sandbox/blob/master/javafx-dialogs/dist/javafx-dialogs-0.0.3.jar?raw=true
-	curl -s -O https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/javafx-dialogs-0.0.3JP.jar
+	curl -s -O https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/jars/javafx-dialogs-0.0.3JP.jar
 	mv javafx-dialogs-0.0.3.jar* javafx-dialogs-0.0.3.jar
 
 	# Download the  JExcelAPI library
