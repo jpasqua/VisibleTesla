@@ -18,6 +18,80 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
+		<h3>
+			VisibleTesla 0.27.03 [06-22-2014]
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: Log files are now stored in the same location as other program data files. You should never need to know or think about this unless you are reporting a bug.
+							</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: The <span class="ui">Ignore Gaps</span> preference that was introduced in the last release was a little overzealous. The graph would ignore gaps in data even if this preference was turned off. That is fixed now and changes to the preference are recognized immediately.
+							</li>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: Added new variables for custom messages including {{TIME_TO_FULL}}, {{C_RATE}}, {{C_AMP}}, {{C_VLT}}, {{C_PWR}}. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>.
+							</li>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: The advanced preference that allowed you to keep program data files in the application folder has been removed. App files (including logs) are now always kept in the user folder. There is still a button which allows you to display the subfolder where these files are kept. Now instead of just popping up a dialog with the name of the folder, it actually opens the folder in Finder or Explorer.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>
 			<h3>
 				VisibleTesla 0.27.02 [06-15-2014]
 			</h3>
