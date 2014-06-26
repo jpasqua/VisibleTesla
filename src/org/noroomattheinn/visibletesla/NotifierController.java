@@ -67,7 +67,7 @@ public class NotifierController extends BaseController {
     private static final String SOCFellSubj = "SOC: {{CUR}}%";
     private static final String SOCFellMsg = "SOC Fell Below: {{TARGET}}% ({{CUR}}%)";
     private static final String SpeedHitSubj = "Speed: {{SPEED}} {{S_UNITS}}";
-    private static final String SpeedHitMsg = "Speed Hit or Exceeded: {{TARGET}} {{S_UNITS}}({{SPEED}})";
+    private static final String SpeedHitMsg = "Speed Hit or Exceeded: {{TARGET}} {{S_UNITS}} ({{SPEED}})";
     private static final String SchedEventSubj = "Scheduled Event: {{CUR}}";
     private static final String SchedEventMsg = "Scheduled Event: {{CUR}})";
     private static final String ChargeStateSubj = "Charge State: {{CHARGE_STATE}}";
