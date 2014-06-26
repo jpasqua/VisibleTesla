@@ -120,7 +120,7 @@ public class MessageTemplate {
                 String val;
                 switch (varName) {
                     case "SPEED": val = String.format(
-                            "%3.1f", ac.lastKnownSnapshotState.get().speed);
+                            "%3.1f", ac.inProperUnits(ac.lastKnownSnapshotState.get().speed));
                         break;
                     case "SOC": val = String.valueOf(ac.lastKnownSnapshotState.get().soc);
                         break;
@@ -173,13 +173,23 @@ public class MessageTemplate {
                         break;
                     case "C_AMP":
                         val = String.format(
-                            "%.1f", ac.inProperUnits(ac.lastKnownChargeState.get().batteryCurrent));
+                            "%.1f", ac.lastKnownChargeState.get().batteryCurrent);
                         break;
                     case "C_VLT":
                         val = String.valueOf(ac.lastKnownChargeState.get().chargerVoltage);
                         break;
                     case "C_PWR":
                         val = String.valueOf(ac.lastKnownChargeState.get().chargerPower);
+                        break;
+                    case "HT_SOC_G":
+                        val = genSOCGauge(ac);
+                        break;
+                    case "HT_ODO":
+                        val = genODO(ac);
+                        break;
+                    case "ODO":
+                        val = String.format(
+                            "%.1f", ac.inProperUnits(ac.lastKnownSnapshotState.get().odometer));
                         break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
@@ -188,6 +198,76 @@ public class MessageTemplate {
                 }
                 return val;
             }
+            
+            private static final String SOCGaugeTemplate = 
+                "<div style='position: relative;'>\n" +
+                "   <div style='width: 100%%; height: 100%%;'>\n" +
+                "       <img src='%s' width='114' height='54'>\n" +
+                "   </div>\n" +
+                "   <div style='position: absolute; top: 15px; left: 25px;'>\n" +
+                "       <img src='%s' width='65' height='25'>\n" +
+                "   </div>\n" +
+                "   <div style='position: absolute; top: 17px; left: 125px;'>\n" +
+                "       %d%%\n" +
+                "   </div>\n" +
+                "</div>";
+            private static final String batteryURL = 
+                "http://visibletesla.com/Documentation/images/Battery/Solid/%02da.png";
+            private static final String plugURL = 
+                "http://visibletesla.com/Documentation/images/Battery/Solid/Plug.png";
+            private static final String emptyImage = 
+                "http://visibletesla.com/Documentation/images/Battery/Solid/1x1.png";
+
+            private String genSOCGauge(AppContext ac) {
+                int soc = ac.lastKnownSnapshotState.get().soc;
+                //soc = (int)(Math.random()*100); // FOR TESTING ONLY
+                double bandSize = 100.0/6.0;
+                double offset = bandSize/2.0;
+                int band = (int)((soc+offset)/bandSize);
+                boolean showPlug = false;
+                switch (ac.lastKnownChargeState.get().chargingState) {
+                    case Charging:
+                    case Complete:
+                        showPlug = true;
+                        break;
+                }
+                //showPlug = Math.random() > 0.5; // FOR TESTING ONLY
+                String b = String.format(batteryURL, band);
+                try {
+                    return String.format(SOCGaugeTemplate, b,
+                        showPlug ? plugURL : emptyImage, soc);
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                    return "Unexpected internal error";
+                }
+            }
+            
+            private static String genODO(AppContext ac) {
+                String punc = ac.unitType() == Utils.UnitType.Imperial ? "," : ".";
+                StringBuilder sb = new StringBuilder();
+                double odo = ac.inProperUnits(ac.lastKnownSnapshotState.get().odometer);
+                double modulus = 100000;
+                for (int i = 0; i < 6; i++) {
+                    int digit = (int)(odo / modulus);
+                    if (i == 3) {
+                        sb.append("<span class='punc_box'>");
+                        sb.append(punc);
+                        sb.append("</span>");
+                    }
+                    sb.append("<span class='dark_box'>");
+                    sb.append(digit);
+                    sb.append("</span>");
+                    odo = odo % modulus;
+                    modulus /= 10;
+                }
+                int tenths = (int)(odo * 10);
+                sb.append("<span class='light_box'>");
+                sb.append(tenths);
+                sb.append("</span>");
+                return sb.toString();
+            }
         }
+        
     }
+
 }
