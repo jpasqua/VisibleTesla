@@ -46,3 +46,43 @@ table.stats_table td {
         border-color: #666666;
         background-color: #ffffff;
 }        
+
+/* ===== BEGIN: Odometer Related ===== */
+.light_box, .dark_box, .punc_box {
+    font-family: monospace;
+    font-size: 1.5em;
+    border: 1px solid #666;
+    padding:.0em .15em .0em .15em;
+    margin:0px;
+    margin-right:-1px;
+}
+
+.dark_box, .punc_box {
+    color:white;
+    background: #aaaaaa; /* Old browsers */
+    background: -moz-linear-gradient(top, #aaaaaa 0%, #555555 31%, #000000 44%, #000000 53%, #555555 66%, #aaaaaa 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom,color-stop(0%,#aaaaaa), color-stop(31%,#555555), color-stop(44%,#000000), color-stop(53%,#000000), color-stop(66%,#555555), color-stop(100%,#aaaaaa)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #aaaaaa 0%,#555555 31%,#000000 44%,#000000 53%,#555555 66%,#aaaaaa 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #aaaaaa 0%,#555555 31%,#000000 44%,#000000 53%,#555555 66%,#aaaaaa 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #aaaaaa 0%,#555555 31%,#000000 44%,#000000 53%,#555555 66%,#aaaaaa 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #aaaaaa 0%,#555555 31%,#000000 44%,#000000 53%,#555555 66%,#aaaaaa 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#aaaaaa', endColorstr='#aaaaaa',GradientType=0 ); /* IE6-9 */
+}
+
+.punc_box {
+    padding-left:0em;
+    padding-right:0em;
+}
+
+.light_box {
+    color:black;
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(top, #ffffff 0%, #999999 49%, #ffffff 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(49%,#999999), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ffffff 0%,#999999 49%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ffffff 0%,#999999 49%,#ffffff 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #ffffff 0%,#999999 49%,#ffffff 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #ffffff 0%,#999999 49%,#ffffff 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+/* ===== END:   Odometer Related ===== */
