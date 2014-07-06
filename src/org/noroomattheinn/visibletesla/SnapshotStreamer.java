@@ -55,7 +55,7 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
         try {
             queue.add(new ProduceRequest(stream));
         } catch (java.lang.IllegalStateException qfe) { // Queue Full
-            getRequest(false);  // Drain an element from the queue
+            pollForRequest();   // Drain an element from the queue
             produce(stream);    // Wth space freed up, try again
         }
     }
@@ -86,46 +86,60 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
         appContext.inactivityState.addListener(this);
         inactivityState = appContext.inactivityState.get();
         
-        while (!appContext.shuttingDown.get()) {
-            ProduceRequest r = getRequest(true);    // Wait for a request
-            if (r == null) break;   // The thread was interrupted.
-            if (r.timeOfRequest < lastSnapshot) { continue; }
-            
-            if (!snapshot.refresh()) { continue; }
-            lastSnapshot = snapshot.state.timestamp;
-            appContext.lastKnownSnapshotState.set(snapshot.state);
-            
-            if (!r.stream) { continue; }
-            
-            // System.err.print("STRM: ");
-            // Now, stream data as long as it comes...
-            while (snapshot.refreshFromStream()) {
-                //System.err.print("|RF");
-                if (appContext.shuttingDown.get()) return;
-                if (inactivityState == AppContext.InactivityType.Sleep) {
-                    //System.err.print("|SL");
-                    break;
+        try {
+            while (!appContext.shuttingDown.get()) {
+                ProduceRequest r;
+                try {
+                    r = waitForRequest();
+                } catch (InterruptedException e) {
+                    if (appContext.shuttingDown.get()) {
+                        Tesla.logger.info("SnapshotStreamer Interrupted during normal shutdown");
+                    } else {
+                        Tesla.logger.info("SnapshotStreamer Interrupted unexpectedly: " + e.getMessage());
+                    }
+                    return;
                 }
-                if (snapshot.state.timestamp - lastSnapshot > StreamingThreshold) {
-                    //System.err.print("|GT");
-                    appContext.lastKnownSnapshotState.set(snapshot.state);
-                    lastSnapshot = snapshot.state.timestamp;
-                    getRequest(false);   // Consume a request if any - don't block
-                } else {
-                    //System.err.print("|SK");
+
+                if (r == null) break;   // The thread was interrupted.
+                if (r.timeOfRequest < lastSnapshot) { continue; }
+
+                if (!snapshot.refresh()) { continue; }
+                lastSnapshot = snapshot.state.timestamp;
+                appContext.lastKnownSnapshotState.set(snapshot.state);
+
+                if (!r.stream) { continue; }
+
+                // System.err.print("STRM: ");
+                // Now, stream data as long as it comes...
+                while (snapshot.refreshFromStream()) {
+                    //System.err.print("|RF");
+                    if (appContext.shuttingDown.get()) return;
+                    if (inactivityState == AppContext.InactivityType.Sleep) {
+                        //System.err.print("|SL");
+                        break;
+                    }
+                    if (snapshot.state.timestamp - lastSnapshot > StreamingThreshold) {
+                        //System.err.print("|GT");
+                        appContext.lastKnownSnapshotState.set(snapshot.state);
+                        lastSnapshot = snapshot.state.timestamp;
+                        pollForRequest();   // Consume a request if any - don't block
+                    } else {
+                        //System.err.print("|SK");
+                    }
                 }
+                //System.err.println("!");
             }
-            //System.err.println("!");
+        } catch (Exception e) {
+            Tesla.logger.severe("Uncaught exception in SnapshotStreamer: " + e.getMessage());
         }
     }
     
-    private ProduceRequest getRequest(boolean block) {
-        try {
-            return block ? queue.take() : queue.poll();
-        } catch (InterruptedException ex) {
-            Tesla.logger.info("SnapshotStreamer Interrupted");
-            return null;
-        }
+    private ProduceRequest waitForRequest() throws InterruptedException {
+        return queue.take();
+    }
+    
+    private ProduceRequest pollForRequest() {
+        return queue.poll();
     }
     
     private static class ProduceRequest {

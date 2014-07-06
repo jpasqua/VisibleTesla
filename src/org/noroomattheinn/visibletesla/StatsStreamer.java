@@ -116,40 +116,44 @@ public class StatsStreamer {
         private boolean appIsAwake() { return inactivityState != AppContext.InactivityType.Sleep; }
         
         @Override public void run() {
-            long sleepInterval;
-            
-            while (!appContext.shuttingDown.get() && !stopCollecting) {
-                boolean vehicleWasAsleep = false;
-                if (appIsAwake()) {
-                    produceStats();
-                    sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
-                    Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
-                } else if (vehicle.isAwake()) {
-                    produceStats();
-                    sleepInterval = isInMotion() ? MinInterval :
-                            (isCharging() ? DefaultInterval : AllowSleepInterval);
-                    Tesla.logger.info("App Asleep, Car Awake, interval = " + sleepInterval/1000L);
-                    if (sleepInterval < AllowSleepInterval)
-                        appContext.inactivityState.set(AppContext.InactivityType.Awake);
-                } else {
-                    sleepInterval = AllowSleepInterval;
-                    vehicleWasAsleep = true;
-                    Tesla.logger.info("App Asleep, Car Asleep, interval = " + sleepInterval/1000L);
-                }
+            try {
+                long sleepInterval;
 
-                if (sleepInterval < AllowSleepInterval) {
-                    Utils.sleep(sleepInterval);
-                } else {
-                    for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
-                        Utils.sleep(TestSleepInterval);
-                        if (appIsAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
-                        if (vehicleWasAsleep && vehicle.isAwake()) {
+                while (!appContext.shuttingDown.get() && !stopCollecting) {
+                    boolean vehicleWasAsleep = false;
+                    if (appIsAwake()) {
+                        produceStats();
+                        sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
+                        Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
+                    } else if (vehicle.isAwake()) {
+                        produceStats();
+                        sleepInterval = isInMotion() ? MinInterval :
+                                (isCharging() ? DefaultInterval : AllowSleepInterval);
+                        Tesla.logger.info("App Asleep, Car Awake, interval = " + sleepInterval/1000L);
+                        if (sleepInterval < AllowSleepInterval)
                             appContext.inactivityState.set(AppContext.InactivityType.Awake);
-                            Tesla.logger.info("Something woke the car, start polling");
-                            break; 
+                    } else {
+                        sleepInterval = AllowSleepInterval;
+                        vehicleWasAsleep = true;
+                        Tesla.logger.info("App Asleep, Car Asleep, interval = " + sleepInterval/1000L);
+                    }
+
+                    if (sleepInterval < AllowSleepInterval) {
+                        Utils.sleep(sleepInterval);
+                    } else {
+                        for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
+                            Utils.sleep(TestSleepInterval);
+                            if (appIsAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
+                            if (vehicleWasAsleep && vehicle.isAwake()) {
+                                appContext.inactivityState.set(AppContext.InactivityType.Awake);
+                                Tesla.logger.info("Something woke the car, start polling");
+                                break; 
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                Tesla.logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
             }
         }
     }
