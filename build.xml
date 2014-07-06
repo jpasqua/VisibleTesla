@@ -7,9 +7,8 @@
 <project name="VisibleTesla" default="default" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
     <description>Builds, tests, and runs the project VisibleTesla.</description>
     <target name="-post-compile">
-        <copy todir="${dist.dir}/Documentation">
-          <fileset dir="Documentation"/>
-        </copy>
+        <!--
+        <copy todir="${dist.dir}/Documentation"> <fileset dir="Documentation"/> </copy>
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.png" todir="${dist.dir}"/>     
         <copy file="src/org/noroomattheinn/TeslaResources/FobIcon.ico" todir="${dist.dir}"/>
         <copy file="src/org/noroomattheinn/TeslaResources/VTIcon.ico" todir="${dist.dir}"/>
@@ -20,6 +19,7 @@
         <exec executable="cp">
             <arg line="-R InstallSupport/MacAppTemplate/ ${dist.dir}/VisibleTesla.app"/>
         </exec>
+        -->
     </target>
 
     <target name="-post-jfx-deploy">
@@ -90,12 +90,15 @@
          classname="com.oracle.appbundler.AppBundlerTask"
          classpath="../../ThirdParty/appbundler-1.0.jar" />
 
-<target name="bundle-VisibleTesla">
+<target name="get-version">
     <exec executable="/bin/bash" outputproperty="vt.version">
         <arg value="-c" />
         <arg value="grep ProductVersion src/org/noroomattheinn/visibletesla/AppContext.java | sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'"/>
-    </exec>
+    </exec>    
     <echo>Version: ${vt.version}</echo>
+</target>
+
+<target name="bundle-VisibleTesla" depends="get-version">
     <bundleapp outputdirectory="dist"
         name="VisibleTesla"
         shortversion="${vt.version}"
@@ -117,5 +120,57 @@
    <move verbose="true" file="dist/VisibleTesla.app/Contents/Java/jfxrt.jar" tofile="dist/VisibleTesla.app/Contents/Java/zzz_jfxrt.jar" />
 </target>
 
+<target name="sign-mac">
+    <exec executable="codesign" dir="dist">
+        <arg value='-v' />
+        <arg value='-s' />
+        <arg value='${env.MAC_SIGNER}' />
+        <arg value='VisibleTesla.app' />
+        <arg value='--deep' />
+    </exec>
+</target>
+
+<target name="package-mac" depends="bundle-VisibleTesla,sign-mac">
+    <!-- Don't use the zip Ant task, it won't preserve permissions and this screws the executable! -->
+    <exec executable="zip" dir="dist">
+        <arg line="-r VTMac.zip VisibleTesla.app"/>
+    </exec>
+    <delete dir="dist/VisibleTesla.app" />
+</target>
+
+
+<target name="package-win" depends="get-version">
+    <!-- Make a staging directory and copy all needed files to it -->
+    <mkdir dir="dist/VisibleTesla"/>
+    <copy todir="dist/VisibleTesla/jre1.7"> <fileset dir="InstallSupport/Windows/jre1.7.0_60"/> </copy>
+    <copy todir="dist/VisibleTesla/lib"> <fileset dir="dist/lib"/> </copy>
+    <copy file="dist/VisibleTesla.jar" todir="dist/VisibleTesla"/>     
+    <copy file="InstallSupport/Windows/VTIcon.ico" todir="dist/VisibleTesla"/>     
+    <copy file="InstallSupport/Windows/Make_Windows_Shortcut.vbs" todir="dist/VisibleTesla"/>     
+    <copy file="InstallSupport/Windows/vtrunner.bat" todir="dist/VisibleTesla"/>
+    <zip destfile="dist/VTWin.zip"> <zipfileset dir="dist/VisibleTesla" prefix="VisibleTesla ${vt.version}"/> </zip>
+
+    <!-- The following creates a self-extracting zip which may be useful in the future, but really needs to be signed
+    <concat destfile="dist/InstallVT.exe" binary="yes">
+        <fileset file="InstallSupport/Windows/unzipsfx.exe" />
+        <fileset file="dist/VisibleTesla.zip" />
+    </concat>
+    <exec executable="zip"> <arg line="-A dist/InstallVT.exe"/> </exec>
+    -->
+
+    <!-- Cleanup temporary files and directories -->
+    <delete dir="dist/VisibleTesla" />
+</target>
+
+<target name="package-generic" depends="get-version">
+    <!-- Make a staging directory and copy all needed files to it -->
+    <mkdir dir="dist/VisibleTesla"/>
+    <copy todir="dist/VisibleTesla/lib"> <fileset dir="dist/lib"/> </copy>
+    <copy file="dist/VisibleTesla.jar" todir="dist/VisibleTesla"/>     
+    <copy file="src/org/noroomattheinn/TeslaResources/VTIcon.png" todir="dist/VisibleTesla"/>
+    <zip destfile="dist/VTGeneric.zip"> <zipfileset dir="dist/VisibleTesla" prefix="VisibleTesla ${vt.version}"/> </zip>
+    <!-- Cleanup temporary files and directories -->
+    <delete dir="dist/VisibleTesla" />
+</target>
 
 </project>

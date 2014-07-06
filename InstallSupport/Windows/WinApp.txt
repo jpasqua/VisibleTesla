@@ -1,4 +1,19 @@
-zip -r VTW.zip VTW
-zip -z VTW.zip < /Users/joe/Dropbox/Dev/Tesla/VisibleTesla/InstallSupport/Windows/autorun.txt
-cat /Users/joe/Dropbox/Dev/Tesla/VisibleTesla/InstallSupport/Windows/unzipsfx.exe /Users/joe/Desktop/VTW.zip > VTW.exe
-zip -A VTW.exe
+VT_ROOT=/Users/joe/Dropbox/Dev/Tesla/VisibleTesla
+DIST=$VT_ROOT/dist
+VT_NAME=VisibleTesla
+
+mkdir $VT_NAME
+cp -r $VT_ROOT/InstallSupport/Windows/jre1.7.0_60 $VT_NAME/jre1.7
+cp -r $DIST/lib $VT_NAME
+cp $DIST/Make_Windows_Shortcut.vbs $VT_NAME
+cp $DIST/VisibleTesla.jar $VT_NAME
+cp $DIST/VTIcon.ico $VT_NAME
+cp $DIST/vtrunner.bat $VT_NAME
+
+zip -r VisibleTesla.zip $VT_NAME
+zip -z VisibleTesla.zip < $VT_ROOT/InstallSupport/Windows/autorun.txt
+cat $VT_ROOT/InstallSupport/Windows/unzipsfx.exe VisibleTesla.zip > InstallVT.exe
+zip -A InstallVT.exe
+
+rm -rf $VT_NAME
+rm VisibleTesla.zip
