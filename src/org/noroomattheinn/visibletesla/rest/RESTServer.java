@@ -178,12 +178,11 @@ public class RESTServer {
  * 
  *----------------------------------------------------------------------------*/
 
-    private BasicAuthenticator authenticator = new BasicAuthenticator("VT Action") {
+    private BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
             return pwUtils.authenticate(pwd, appContext.restEncPW, appContext.restSalt);
         }
-        
     };
     
     private void sendResponse(HttpExchange exchange, int code, String response) throws IOException {
