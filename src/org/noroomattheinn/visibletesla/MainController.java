@@ -44,6 +44,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
@@ -80,8 +81,10 @@ public class MainController extends BaseController {
 
     private static final int MaxTriesToStart = 10;
     private static final String VersionsFile = 
-        "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/versions.xml";
-        //"https://dl.dropboxusercontent.com/u/7045813/test_versions.xml";
+      "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/versions.xml";
+      //"https://dl.dropboxusercontent.com/u/7045813/VTExtras/test_versions.xml";
+    private static final String DocumentationURL = 
+            "http://visibletesla.com/Documentation/pages/GettingStarted.html";
     
 /*------------------------------------------------------------------------------
  *
@@ -568,10 +571,15 @@ public class MainController extends BaseController {
         List<Release> releases = versions.getReleases();
 
         if (releases != null && !releases.isEmpty()) {
-            final Release lastRelease = releases.get(0);
-            if (lastRelease.getExperimental() &&  
-                !appContext.prefs.offerExperimental.get())
-                return false;
+            Release lastRelease = null;
+            for (Release cur : releases) {
+                if (cur.getInvisible()) continue;
+                if (cur.getExperimental() && !appContext.prefs.offerExperimental.get())
+                    continue;
+                lastRelease = cur;
+                break;
+            }
+            if (lastRelease == null) return false;
             String releaseNumber = lastRelease.getReleaseNumber();
             if (Utils.compareVersions(AppContext.ProductVersion, releaseNumber) < 0) {
                 VBox customPane = new VBox();
@@ -581,30 +589,29 @@ public class MainController extends BaseController {
                         releaseNumber, lastRelease.getReleaseDate());
                 Label msg = new Label(msgText);
                 Hyperlink platformLink = null;
-                String osName = System.getProperty("os.name").toLowerCase();
-                if (osName.contains("mac")) {
-                    final URL macURL = lastRelease.getMacURL();
-                    if (macURL != null) {
-                        platformLink = new Hyperlink("Download latest Mac Application");
-                        platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
-                        platformLink.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override public void handle(ActionEvent t) {
-                                appContext.app.getHostServices().showDocument(
-                                        macURL.toExternalForm());
-
-                            }
-                        });
-                    }
+                final URL platformURL;
+                final String linkText;
+                if (SystemUtils.IS_OS_MAC) {
+                    linkText = "Download the latest Mac version";
+                    platformURL = lastRelease.getMacURL();
+                } else if (SystemUtils.IS_OS_WINDOWS) {
+                    linkText = "Download the latest Windows version";
+                    platformURL = lastRelease.getWindowsURL();
+                } else  {
+                    linkText = "Download the latest Generic version";
+                    platformURL = lastRelease.getReleaseURL();
                 }
-                Hyperlink downloadLink = new Hyperlink("Download the latest release");
-                downloadLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
-                downloadLink.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent t) {
-                        appContext.app.getHostServices().showDocument(
-                                lastRelease.getReleaseURL().toExternalForm());
+                if (platformURL != null) {
+                    platformLink = new Hyperlink(linkText);
+                    platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
+                    platformLink.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override public void handle(ActionEvent t) {
+                            appContext.app.getHostServices().showDocument(
+                                    platformURL.toExternalForm());
 
-                    }
-                });
+                        }
+                    });
+                }
                 Hyperlink rnLink = new Hyperlink("Click to view the release notes");
                 rnLink.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent t) {
@@ -614,8 +621,7 @@ public class MainController extends BaseController {
                     }
                 });
                 customPane.getChildren().addAll(msg, rnLink);
-                if (platformLink != null) customPane.getChildren().add(platformLink);
-                customPane.getChildren().add(downloadLink);
+                customPane.getChildren().add(platformLink);
                 Dialogs.showCustomDialog(
                         appContext.stage, customPane,
                         "Newer Version Available",
@@ -695,9 +701,7 @@ public class MainController extends BaseController {
     
     // Help->Documentation
     @FXML private void helpHandler(ActionEvent event) {
-        appContext.app.getHostServices().showDocument(
-                appContext.app.getHostServices().getDocumentBase() +
-                "Documentation/Overview.html");
+        appContext.app.getHostServices().showDocument(DocumentationURL);
     }
     
     // Help->What's New
