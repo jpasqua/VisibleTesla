@@ -87,26 +87,42 @@ Be sure to either set these variables or adapt the commands below. Note that the
 
 Once you've built the application, you can run it simply by double-clicking <code>VisibleTesla.jar</code>in Tesla/VisibleTesla/dist. For details, refer to the documentation and release notes in Tesla/VisibleTesla/Documentation.
 
-#The "Stub" Mac OS X Application
+#Building a Mac OS X Bundled Application
 
-A standard build of VisibleTesla creates a "stub" application for OS X. It is a mostly empty shell that refers to the files in the dist folder rather than copying them. Furthermore, it does not include a bundled Java VM. As a result, this isn't a self contained unit as is the one described below. It does, however, give you a way of having an app with an icon that you can put in your dock. 
-
-**Notes**:
-
-+  You can drag this app to your dock but you **cannot** move it to the app folder, desktop, or elsewhere because it is not self-contained.
-+  You can make an alias to the app and put the alias whereever you'd like.
-+  If you use the bundle-VisibleTesla target (described below), it will overwrite the stub app.
-
-#Building Mac OS X Bundled Clickable Application
-
-You can build a version of VisibleTesla that has the Java runtime bundled and is a self contained Mac OS X application by issuing the commands
+You can build a version of VisibleTesla that has the Java runtime bundled and is a self-contained Mac OS X application. To build VisibleTesla.app, you need to set an environment variable that identifies the JVM you want to be bundled in. To do that, just point JAVA_HOME to the desired location. Once you've done that, you can build the bundle-VisibleTesla target. The following commands will do that for you:
 
 	export JAVA_HOME=`/usr/libexec/java_home`
 	ant bundle-VisibleTesla
-	
-Furthermore, if you wish to distribute the application, you can also codesign it by issuing the command
 
-	codesign -s "Developer ID Application: <Your Developer ID>"  dist/VisibleTesla.app --deep
+If you're a registered Apple developer and have your identity and signing certificates installed, you can execute the following command after building the app:
+
+	export MAC_SIGNER="Developer ID Application: <Your Developer ID>" 
+	ant sign-mac
+
+If you want to build the app, sign it, and bundle it into a zip file, just set the environment variables as above an invoke the package-mac target:
+
+	ant package-mac
 	
+**Notes**:
++ If you don't set MAC_SIGNER you can still use package-mac to create a zip file. You'll see a harmless warning saying that the codesign failed.   
++ The "stub" Mac application has been removed. Use this real version instead.
+
+#Building a Windows Zip file
+
+You can create a zip file that includes a Java VM and some additional windows scripts that make it more convenient to install and use VisibleTesla on a Windows machine. Just use the following command:
+
+		ant package-windows
+
+When the resulting zip file is extracted on a Windows machine, you'll see a file called "Make_Windows_Shortcut". Double click that to put a VisibleTesla icon on your desktop that will launch the app.
+
+
+#Building a Linux Zip file
+
+You can create a zip file that contains jsut the bare essentials for a Linux installation:
+
+		ant package-linux
+
+It does *not* include a pre-packaged Java VM.
+
 
 

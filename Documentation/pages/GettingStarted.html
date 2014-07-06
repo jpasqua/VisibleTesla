@@ -39,15 +39,15 @@
                 <a name="install">Installing, Running, and Updating VisibleTesla</a>
             </h2>
             <p>
-                VisibleTesla comes in two flavors: a standard Mac application and a standard Java package for Windows and Linux. Though they are the same application, installing and running them is different so they are described separately below. The generic package also works on the Mac.
+                VisibleTesla comes in several flavors: a standard Mac application, an installation for Windows, and a generic Java package that will run on Linux (and Mac and Windows for that mattter). Though they are the same application, installing and running them is different so they are described separately below.
             </p>
             <h3>
-                Using the Mac App
+                Installing and Using the Mac App
             </h3>
             <div>
                 <img class="screenshot" width="64" height="64" src='../images/VTIcon.png' alt='App Icon' style='float: right;'>
                 <p>
-                    The standard Mac application works like any other Mac app. Just download it from <a href="https://www.dropbox.com/sh/y1tj7fx9i72beo6/6lvCXtGbBR/VisibleTesla">here</a> and you'll find VisibleTesla.app in your Downloads folder. The icon looks like the one shown to the right. You can drag it to your Applications folder or leave it where it is. Now just double-click the icon to run it.
+                    The standard Mac application works like any other Mac app. Just download it from <a href="https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/MacApp/VisibleTesla.zip">here</a> and you'll find VisibleTesla.app in your Downloads folder. The icon looks like the one shown to the right. You can drag it to your Applications folder or leave it where it is. Now just double-click the icon to run it.
                 </p>
                 <p>
                     If you don't see VisibleTesla in your Downloads folder, but instead see VisibleTesla.zip, it means that your browser did not decompress the file for you. Just double-click VisibleTesla.zip and the app will appear.
@@ -57,64 +57,53 @@
                 </p>
             </div>
             <h3>
-                Using the Generic Package
+                Installing and Using the Windows Package
             </h3>
             <p>
-                <strong>System Requirements:</strong> VisibleTesla is a multi-platform application. It is developed on a Mac, but runs on Macs, Windows, and Linux. People are using it on a regular basis on systems such as Windows 7 &amp; 8, 32 and 64 bit, Mac OS 10.8 &amp; 10.9, and various flavors of Linux. It has also been run in virtualized environments such as VMware, though a few problems have been reported. In particular, you may need to disable 3D acceleration in order to avoid screen display issues. This is a low level problem that can't be addressed in VisibleTesla.
+                Using the VisibleTesla package for Windows is pretty easy:
+                <ol>
+                    <li>Download VisibleTesla.zip to your Downloads folder by clicking <a href="https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/WinApp/VisibleTesla.zip">here</a>.
+                    </li>
+                    <li>Double click the zip file and a window will pop up showing you a single folder named <span class="ui">VisibleTesla X.Y.Z</span>.
+                    </li>
+                    <li>Drag that folder to your Desktop or anywhere else you'd like, and open it up.
+                    </li>
+                    <li>Double click the file named <span class="ui">Make_Windows_Shortcut</span> and you'll see a VisibleTesla icon appear on your Desktop.
+                    </li>
+                </ol>
+            </P>
+            <p>
+                That's it - you're ready to go. Just double click the VisibleTesla icon on your Desktop any time you want to run the app.
+            </p>
+            <h3>
+                Installing the Generic Package
+            </h3>
+            <p>The generic package is primarily meant for use on Linux systems. Use the instructions above for Mac and Windows. 
             </p>
             <p>
-                <strong>Dependencies:</strong> VisibleTesla is a Java application and requires that you have a modern version of Java installed on your system. If you already have Java installed, you may be able to skip this step. However, VisibleTesla requires a recent version of Java so you may have to update your Java installation if it is old. You can download Java for Windows, Mac, and Linux from Java.com using the links below:
+                <strong>Dependencies:</strong> When using the generic package you must ensure that you have a modern version of Java installed on your system. If you already have Java installed, you may be able to skip this step. However, VisibleTesla requires a recent version of Java (at least 1.7u25) so you may have to update your Java installation if it is old. You can download Java for Linux <a target="_blank" href="http://www.java.com/en/download/help/linux_install.xml">here</a>.
             </p>
+            <p>
+                Once you have Java installed you need to download and install VisibleTesla:
+            </p>
+
             <ul>
-                <li>
-                    <a target="_blank" href="http://www.java.com/en/download/help/windows_manual_download.xml">Windows</a>
+                <li>You can always find the latest version (along with some older versions) <a href="https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/VisibleTesla.zip">here</a>.
                 </li>
-                <li>
-                    <a target="_blank" href="http://www.java.com/en/download/help/mac_install.xml">Mac</a>
+                <li>As you can see, it is a zip file and the contents need to be extracted in order to run the app.
                 </li>
-                <li>
-                    <a target="_blank" href="http://www.java.com/en/download/help/linux_install.xml">Linux</a>
-                </li>
-            </ul>
-            <p>
-                Be careful when installing Java for Windows. It may ask you to install other software from Oracle partners. You do not need this software to run VisibleTesla and may safely decline the installation.
-            </p>
-            <p>
-                <strong>Installing and Running:</strong> The very first thing you need to do is download and install VisibleTesla. You can do so by following these steps:
-            </p>
-            <ul>
-                <li>You can always find the latest version (along with some older versions) <a href="https://www.dropbox.com/sh/y1tj7fx9i72beo6/6lvCXtGbBR/VisibleTesla">here</a>.
-                </li>
-                <li>Choose the latest version and download it to your computer. The file you download will have a name like "VisibleTesla 0.25.00.zip".
-                </li>
-                <li>As you can see, it is a zip file and the contents need to be extracted in order to run the app. The extraction process differs for Windows, Mac, and Linux, but it typically amounts to double-clicking the downloaded file and potentially pressing an "extract" button.
-                </li>
-                <li>Once you have expanded the zip file you will be left with a folder with the same name, but without the ".zip" extension. Locate that folder. You can place this folder any where you like, or leave it where it is.
+                <li>Once you have expanded the zip file you will be left with a folder with a name similar to <span class="ui">VisibleTesla X.Y.Z</span>. You can place that folder any where you like, or leave it where it is.
                 </li>
                 <li>Open the folder and find the file named "VisibleTesla.jar". That is the application.
                 </li>
                 <li>Now just double-click that file and VisibleTesla will launch.
                 </li>
             </ul>
-            <p>
-                If you have trouble launching VisibleTesla, please consult the <a href="FAQ.html">FAQ</a> and/or the <a href="http://www.teslamotorsclub.com/showthread.php/19975-VisibleTesla">forum</a>. Typical problems include:
-            </p>
-            <ul>
-                <li>Mac: Permission to run the application may be denied based on your security settings.
-                </li>
-                <li>Windows: Some users believed they unzipped the downloaded file, but actually only viewed the content.
-                </li>
-                <li>General: If you did not install or update Java, the application may not run or run properly.
-                </li>
-            </ul>
-            <p>
-                The FAQ and forum also provide tips that make it easier to launch VisibleTesla by creating shortcuts. None of those steps are necessary, but they may be of interest.
-            </p>
             <h3>
                 Updating VisibleTesla
             </h3>
             <p>
-                Once you've installed and run VisibleTesla it will automatically check for updates on a weekly basis. You can also check for new updates at any time using the <span class="ui">Help→Check for Updates</span> menu item. If an update is available, a dialog box will provide a link to the Release Notes so that you can see what changed. If you'd like to update you'll see another link which will download the most recent version for you. If you are on a Mac, you'll be offered two links. One for the fully packaged Mac application, and one for the generic package that works on Mac, Windows, and Linux. When you download a newer version of VisibleTesla, just use the same process as above to install and launch the latest version.
+                Once you've installed and run VisibleTesla it will automatically check for updates on a weekly basis. You can also check for new updates at any time using the <span class="ui">Help→Check for Updates</span> menu item. If an update is available, you'll get a dialog box that gives you a link to the Release Notes (so you can see what changed) and a link to download the new version of the app. When you download the newer version, just use the same process as above to install and launch it.
             </p>
             <h2>
                 <a name="disclaimer">Warnings and Disclaimer</a>
