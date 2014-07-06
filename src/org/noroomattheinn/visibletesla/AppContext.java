@@ -58,11 +58,11 @@ import org.noroomattheinn.utils.Utils;
  */
 public class AppContext {
 
-    /*------------------------------------------------------------------------------
-     *
-     * Constants and Enums
-     * 
-     *----------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
     
     private static final String SimpleMapTemplate = "SimpleMap.html";
     
@@ -70,7 +70,7 @@ public class AppContext {
     public static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.27.03";
+    public static final String ProductVersion = "0.28.00";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey =
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -79,11 +79,12 @@ public class AppContext {
 
     public enum InactivityType { Sleep, Daydream, Awake };
     
-    /*------------------------------------------------------------------------------
-     *
-     * PUBLIC - Application State
-     * 
-     *----------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ *
+ * PUBLIC - Application State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     public Application app;
     public Stage stage;
     public Preferences persistentState;
@@ -110,22 +111,25 @@ public class AppContext {
     public SnapshotStreamer snapshotStreamer;
     public StatsStreamer statsStreamer;
     public byte[] restEncPW, restSalt;
-    /*------------------------------------------------------------------------------
-     *
-     * Internal State
-     * 
-     *----------------------------------------------------------------------------*/
+    
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private final ArrayList<Thread> threads = new ArrayList<>();
     private Utils.Callback<InactivityType, Void> inactivityModeListener;
     private final Map<String, StatsPublisher> typeToPublisher = new HashMap<>();
     private MailGun mailer = null;
     private RESTServer restServer = null;
 
-    /*==============================================================================
-     * -------                                                               -------
-     * -------              Public Interface To This Class                   ------- 
-     * -------                                                               -------
-     *============================================================================*/
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+    
     AppContext(Application app, Stage stage) {
         this.app = app;
         this.stage = stage;
@@ -312,11 +316,12 @@ public class AppContext {
         return wt;
     }
 
-    /*------------------------------------------------------------------------------
-     *
-     * PRIVATE - Utility Methods
-     * 
-     *----------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private void addStatPublisher(StatsPublisher sp) {
         List<String> types = sp.getStatTypes();
         if (types == null || types.isEmpty()) {
@@ -327,11 +332,12 @@ public class AppContext {
         }
     }
 
-    /*------------------------------------------------------------------------------
-     *
-     * Handling the InactivityMode and State
-     * 
-     *----------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ *
+ * Handling the InactivityMode and State
+ * 
+ *----------------------------------------------------------------------------*/
+    
     public void setInactivityModeListener(Utils.Callback<InactivityType, Void> listener) {
         inactivityModeListener = listener;
     }
@@ -386,11 +392,12 @@ public class AppContext {
         return "Unexpected mode";
     }
 
-    /*------------------------------------------------------------------------------
-     *
-     * Managing where application files and logs are stored
-     * 
-     *----------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ *
+ * Managing where application files and logs are stored
+ * 
+ *----------------------------------------------------------------------------*/
+    
     public final File ensureAppFilesFolder() {
         // It is no longer an option to store files with the app
 
@@ -491,11 +498,13 @@ public class AppContext {
             rotateLogs(where, max - 1);
         }
     }
-    /*------------------------------------------------------------------------------
-     *
-     * Managing Threads and Handling clean shutdown
-     * 
-     *----------------------------------------------------------------------------*/
+    
+/*------------------------------------------------------------------------------
+ *
+ * Managing Threads and Handling clean shutdown
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private int threadID = 0;
 
     public Thread launchThread(Runnable r, String name) {
