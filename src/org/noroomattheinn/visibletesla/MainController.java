@@ -39,10 +39,14 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.ActionController;
@@ -85,6 +89,8 @@ public class MainController extends BaseController {
       //"https://dl.dropboxusercontent.com/u/7045813/VTExtras/test_versions.xml";
     private static final String DocumentationURL = 
             "http://visibletesla.com/Documentation/pages/GettingStarted.html";
+    private static final String ReleaseNotesURL  = 
+            "http://visibletesla.com/Documentation/ReleaseNotes.html";
     
 /*------------------------------------------------------------------------------
  *
@@ -147,17 +153,8 @@ public class MainController extends BaseController {
      */
     public void start(AppContext ac) {
         appContext = ac;
-        Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
-        
-        Tesla.logger.info(
-                String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
-        List<String> jvmArgs = Utils.getJVMArgs();
-        Tesla.logger.info("JVM Arguments");
-        if (jvmArgs != null) {
-            for (String arg : jvmArgs) {
-                Tesla.logger.info("Arg: " + arg);
-            }
-        }
+        logAppInfo();
+        addSystemSpecificHandlers(ac);
         
         inactivityMode = readInactivityMenu();
         appContext.inactivityMode.set(inactivityMode);
@@ -491,6 +488,20 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
+    private void logAppInfo() {
+        Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
+        
+        Tesla.logger.info(
+                String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
+        List<String> jvmArgs = Utils.getJVMArgs();
+        Tesla.logger.info("JVM Arguments");
+        if (jvmArgs != null) {
+            for (String arg : jvmArgs) {
+                Tesla.logger.info("Arg: " + arg);
+            }
+        }
+    }
+    
     //private void releaseVehicle(Vehicle v) { }
     
     private boolean obtainVehicle(Vehicle v) {
@@ -706,9 +717,7 @@ public class MainController extends BaseController {
     
     // Help->What's New
     @FXML private void whatsNewHandler(ActionEvent event) {
-        appContext.app.getHostServices().showDocument(
-                appContext.app.getHostServices().getDocumentBase() +
-                "Documentation/ReleaseNotes.html");
+        appContext.app.getHostServices().showDocument(ReleaseNotesURL);
     }
     
     // Help->About
@@ -736,6 +745,19 @@ public class MainController extends BaseController {
     
     @FXML private void wakeButtonHandler(ActionEvent event) {
         forceWakeup.set(true);
+    }
+    
+    private void addSystemSpecificHandlers(AppContext ac) {
+        if (SystemUtils.IS_OS_MAC) {    // Add a handler for Command-H
+            final Stage theStage = ac.stage;
+            ac.stage.getScene().getAccelerators().put(
+                    new KeyCodeCombination(KeyCode.H, KeyCombination.SHORTCUT_DOWN),
+                    new Runnable() {
+                @Override public void run() {
+                    theStage.setIconified(true);
+                }
+            });
+        }
     }
 
 /*------------------------------------------------------------------------------
