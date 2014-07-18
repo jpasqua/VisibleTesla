@@ -64,6 +64,7 @@ public class PrefsController extends BaseController {
     @FXML private TextField     restPort;
     @FXML private PasswordField authCode;
     @FXML private Button        setAuthCodeButton;
+    @FXML private TextField     customURLSrc;
     
     //
     // Action Handlers
@@ -144,6 +145,7 @@ public class PrefsController extends BaseController {
         bindToIntegerProperty(fontScaleSlider, fontScale, appContext.prefs.fontScale);
         bindToCheckBox(enableRest, appContext.prefs.enableRest);
         bindToTextField(restPort, appContext.prefs.restPort);
+        bindToTextField(customURLSrc, appContext.prefs.customURLSource);
     }
     
 /*------------------------------------------------------------------------------

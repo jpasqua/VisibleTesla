@@ -54,7 +54,8 @@ public class Prefs {
     public BooleanProperty  enableRest = new SimpleBooleanProperty();
     public IntegerProperty  restPort = new SimpleIntegerProperty();
     public StringProperty   authCode = new SimpleStringProperty();
-
+    public StringProperty   customURLSource = new SimpleStringProperty();
+    
     private static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     private static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     private static final String OfferExpKey = "APP_OFFER_EXP";
@@ -69,6 +70,7 @@ public class Prefs {
     private static final String RestPortKey = "APP_REST_PORT";
     private static final String EnableRestKey = "APP_ENABLE_REST";
     private static final String AuthCodeKey = "APP_AUTH_CODE";
+    private static final String CustomURLKey = "APP_CUSTOM_URL";
     
     private void loadGeneralPrefs() {
         booleanPref(WakeOnTCKey, wakeOnTabChange, true);
@@ -84,6 +86,7 @@ public class Prefs {
         integerPref(FontScaleKey, fontScale, 100);
         booleanPref(EnableRestKey, enableRest, false);
         integerPref(RestPortKey, restPort, 9090);
+        stringPref(CustomURLKey, customURLSource, "");
         
         stringPref(AuthCodeKey, authCode, "");
         // Break down the external representation into the salt and password

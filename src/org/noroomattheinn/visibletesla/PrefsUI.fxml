@@ -70,7 +70,7 @@
                           <content>
                             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="352.0" prefWidth="581.0">
                               <children>
-                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" AnchorPane.rightAnchor="420.0" AnchorPane.topAnchor="229.0" />
+                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" AnchorPane.rightAnchor="422.0" AnchorPane.topAnchor="261.0" />
                                 <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="17.0" />
                                 <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="17.0" />
                                 <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="38.0" />
@@ -82,7 +82,7 @@
                                 </Label>
                                 <TextField fx:id="proxyPort" prefWidth="55.0" text="8080" AnchorPane.rightAnchor="328.0" AnchorPane.topAnchor="36.0" />
                                 <fx:reference source="offerExperimental" />
-                                <Separator layoutX="2.0" layoutY="222.0" prefWidth="598.0" style="&#10;" />
+                                <Separator layoutX="0.0" layoutY="253.0" prefWidth="598.0" style="&#10;" />
                                 <Separator layoutX="0.0" layoutY="62.0" prefWidth="598.0" style="&#10;" />
                                 <CheckBox fx:id="useCustomGoogleAPIKey" layoutX="198.0" layoutY="91.0" mnemonicParsing="false" text="" />
                                 <Label layoutX="14.0" layoutY="89.0" text="Use custom Google API Key:">
@@ -110,6 +110,8 @@
                                 <Label layoutX="297.0" layoutY="196.0" text="Auth Code:" />
                                 <PasswordField fx:id="authCode" layoutX="369.0" layoutY="193.0" prefWidth="141.0" promptText="Reset Auth Code" text="" />
                                 <Button id="setAuthCode" fx:id="setAuthCodeButton" layoutX="511.0" layoutY="193.0" mnemonicParsing="false" onAction="#setAuthCode" text="Set" />
+                                <TextField id="customURL" fx:id="customURLSrc" layoutX="153.0" layoutY="223.0" prefWidth="400.0" />
+                                <Label layoutX="14.0" layoutY="226.0" prefWidth="140.0" text="Custom Page Source" />
                               </children>
                             </AnchorPane>
                           </content>
