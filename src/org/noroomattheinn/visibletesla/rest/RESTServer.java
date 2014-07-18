@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.AppContext.InactivityType;
+import org.noroomattheinn.utils.LRUMap;
 
 /**
  * RESTServer: Provide minimal external services.
@@ -42,10 +44,6 @@ public class RESTServer {
             Utils.newHashMap("sleep", InactivityType.Sleep,
                              "daydream", InactivityType.Daydream,
                              "wakeup", InactivityType.Awake);
-    
-    private static final String VSTemplateFileName = "pages/VehicleStatus.html";
-    private static final String IOTemplateFileName = "pages/InactivityOptions.html";
-
 
 /*------------------------------------------------------------------------------
  *
@@ -56,9 +54,7 @@ public class RESTServer {
     private final AppContext appContext;
     private HttpServer server;
     private PWUtils pwUtils = new PWUtils();
-    private MessageTemplate statusTemplate;
-    private MessageTemplate inactivityTemplate;
-
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -68,19 +64,6 @@ public class RESTServer {
     public RESTServer(AppContext ac) {
         appContext = ac;
         server = null;
-
-        String vsTemplateString = "Internal Error in VisibleTesla";
-        String ioTemplateString = "Internal Error in VisibleTesla";
-        try {
-            vsTemplateString = IOUtils.toString(
-                getClass().getResourceAsStream(VSTemplateFileName));
-            ioTemplateString = IOUtils.toString(
-                getClass().getResourceAsStream(IOTemplateFileName));
-        } catch (IOException ex) {
-            Tesla.logger.severe("Error reading template file: " + ex.getMessage());
-        }
-        statusTemplate = new MessageTemplate(vsTemplateString);
-        inactivityTemplate = new MessageTemplate(ioTemplateString);
     }
 
     public synchronized void launch() {
@@ -143,20 +126,33 @@ public class RESTServer {
     };
 
     private HttpHandler staticPageRequest = new HttpHandler() {
+        LRUMap<String,String> cache = new LRUMap<>(10);
         @Override public void handle(HttpExchange exchange) throws IOException {
             // TO DO: Check for path traversal attack!
             String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
             path = StringUtils.stripStart(path, "/");
             try {
-                InputStream is = getClass().getResourceAsStream(path);
-                if (is == null) {
-                    sendResponse(exchange, 404, "404 (Not Found)\n");
-                    return;
+                String content = cache.get(path);
+                if (content == null) {
+                    InputStream is;
+                    if (path.startsWith("custom/")) {
+                        String cPath = path.substring(7);
+                        is = new URL(appContext.prefs.customURLSource.get()+cPath).openStream();
+                    } else {
+                        is = getClass().getResourceAsStream(path);
+                    }
+
+                    if (is == null) {
+                        sendResponse(exchange, 404, "404 (Not Found)\n");
+                        return;
+                    } else {
+                        content = IOUtils.toString(is);
+                        if (!path.startsWith("custom/_nc_"))
+                            cache.put(path, content);
+                    }
                 }
                 
                 String type = getMimeType(StringUtils.substringAfterLast(path, "."));
-                String content = IOUtils.toString(is);
-                
                 if (type.equalsIgnoreCase("text/html")) {
                     MessageTemplate mt = new MessageTemplate(content);
                     content = mt.getMessage(appContext, null);
@@ -181,6 +177,7 @@ public class RESTServer {
     private BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
+            if (appContext.restEncPW == null || appContext.restSalt == null) return false;
             return pwUtils.authenticate(pwd, appContext.restEncPW, appContext.restSalt);
         }
     };

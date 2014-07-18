@@ -28,7 +28,7 @@ html body {
 }
 table.stats_table {
         color:#333333;
-        border-width: 1px
+        border-width: 1px;
         border-color: #666666;
         border-collapse: collapse;
 }
@@ -86,3 +86,62 @@ table.stats_table td {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
 }
 /* ===== END:   Odometer Related ===== */
+
+
+/* ===== BEGIN: General UI Elements ===== */
+.inset {
+    width:100%;
+    box-sizing:border-box;
+    border-style:solid;
+    border-width:2px;
+    border-top-left-radius:5px;
+    border-top-right-radius:5px;
+    border-right-color:#555;
+    border-top-color: #555;
+    border-bottom-color: #aaa;
+    border-left-color: #aaa;
+    background: rgb(209,220,210); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(209,220,210,1) 0%, rgba(216,228,217,1) 2%, rgba(180,195,179,1) 48%, rgba(152,175,150,1) 50%, rgba(130,153,126,1) 80%, rgba(124,148,120,1) 89%, rgba(129,151,125,1) 95%, rgba(137,156,133,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(209,220,210,1)), color-stop(2%,rgba(216,228,217,1)), color-stop(48%,rgba(180,195,179,1)), color-stop(50%,rgba(152,175,150,1)), color-stop(80%,rgba(130,153,126,1)), color-stop(89%,rgba(124,148,120,1)), color-stop(95%,rgba(129,151,125,1)), color-stop(100%,rgba(137,156,133,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(209,220,210,1) 0%,rgba(216,228,217,1) 2%,rgba(180,195,179,1) 48%,rgba(152,175,150,1) 50%,rgba(130,153,126,1) 80%,rgba(124,148,120,1) 89%,rgba(129,151,125,1) 95%,rgba(137,156,133,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(209,220,210,1) 0%,rgba(216,228,217,1) 2%,rgba(180,195,179,1) 48%,rgba(152,175,150,1) 50%,rgba(130,153,126,1) 80%,rgba(124,148,120,1) 89%,rgba(129,151,125,1) 95%,rgba(137,156,133,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(209,220,210,1) 0%,rgba(216,228,217,1) 2%,rgba(180,195,179,1) 48%,rgba(152,175,150,1) 50%,rgba(130,153,126,1) 80%,rgba(124,148,120,1) 89%,rgba(129,151,125,1) 95%,rgba(137,156,133,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(209,220,210,1) 0%,rgba(216,228,217,1) 2%,rgba(180,195,179,1) 48%,rgba(152,175,150,1) 50%,rgba(130,153,126,1) 80%,rgba(124,148,120,1) 89%,rgba(129,151,125,1) 95%,rgba(137,156,133,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d1dcd2', endColorstr='#899c85',GradientType=0 ); /* IE6-9 */
+}
+/* ===== END:   General UI Elements ===== */
+
+
+/* ===== BEGIN: Gauge Elements ===== */
+.gaugeLabel,.gaugeReadout,.gaugeUnits,.gaugeSymbol {
+    font-family:sans-serif;
+    margin:0;
+    padding:0;
+    width:33%;
+    vertical-align:baseline
+}
+
+.gaugeLabel {
+    font-size:.7em;
+    text-align:center
+}
+
+.gaugeReadout {
+    font-size:1.3em;
+    font-weight: bold;
+    text-align:center
+}
+
+.gaugeUnits {
+    font-size:.8em;
+    text-align:right
+}
+
+.gaugeSymbol {
+    font-size:.8em;
+    text-align:left
+}
+/* ===== END: Gauge Elements ===== */
+
+
+

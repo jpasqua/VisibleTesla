@@ -15,48 +15,23 @@
             </div>
         </div>
         <div id="content">
-            <p>
-                Vehicle Status as of {{DATE}} {{TIME}}
-            </p>
+            <table>
+                <tr>
+                    <td>{{HT_IDEAL_G}} </td>
+                    <td>{{HT_RATED_G}}</td>
+                    <td>{{HT_ESTIMATED_G}}</td>
+                </tr>
+            </table>
             <table class="stats_table">
-                <tr>
-                    <th>
-                        Item
-                    </th>
-                    <th>
-                        Value
-                    </th>
-                </tr>
-                <tr>
-                    <td>
-                        SOC
-                    </td>
-                    <td>
-                        {{HT_SOC_G}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Ideal
-                    </td>
-                    <td>
-                        {{IDEAL}} {{D_UNITS}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Rated
-                    </td>
-                    <td>
-                        {{RATED}} {{D_UNITS}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Estimated
-                    </td>
-                    <td>
-                        {{ESTIMATED}} {{D_UNITS}}
+                <tr style="vertical-align: middle;">
+                    <td colspan="2">
+                        <table style="width:100%; border:none">
+                            <tr>
+                                <td style="text-align:left; padding:0px; margin:0px; border:none;">{{HT_SOC_G}}<br>{{SOC}}%</td>
+                                <td style="text-align:center; padding:0px; margin:0px; border:none;">{{HT_SPEEDO}}</td>
+                                <td style="text-align:right; padding:0px; margin:0px; border:none;">{{HT_ODO}}</td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
                 <tr>
@@ -69,18 +44,10 @@
                 </tr>
                 <tr>
                     <td>
-                        Speed
-                    </td>
-                    <td>
-                        {{SPEED}} {{S_UNITS}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
                         Location
                     </td>
                     <td>
-                        {{LOC}}
+                        {{HT_LOC}}
                     </td>
                 </tr>
                 <tr>
@@ -88,18 +55,15 @@
                         Inactivity Mode
                     </td>
                     <td>
+                      <a href="/pages/InactivityOptions.html">
                         {{I_MODE}}, Current State: {{I_STATE}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Odometer
-                    </td>
-                    <td>
-                        {{HT_ODO}}
+                      </a>
                     </td>
                 </tr>
             </table>
+            <p>
+                Vehicle Status as of {{DATE}} {{TIME}}
+            </p>
         </div>
     </body>
 </html>
