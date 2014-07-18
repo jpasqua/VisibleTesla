@@ -7,7 +7,7 @@ function hereDoc(f) {
 document.write(hereDoc(function() {/*!
     <div id="header">
         <div class="wrap">
-            <a href="site_index.html"><img src="images/Banner.png"></a>
+            <a href="site_index.html"><img src="images/Banner.png" style="display:block;"></a>
         </div>
         <div class="gsc-div">
             <gcse:search></gcse:search>

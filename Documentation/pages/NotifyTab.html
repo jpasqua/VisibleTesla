@@ -303,10 +303,11 @@
 				</tr>
 				<tr>
 					<td>
-						<code>{{LOC}}</code>
+						<code>{{LOC}}</code><BR>
+						<code>{{HT_LOC}}</code>
 					</td>
 					<td>
-						The last known location of the vehicle. The location presented is derived by taking the last known latitiude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitiude and longitude will be presented.
+						The last known location of the vehicle. The location presented is derived by taking the last known latitiude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitiude and longitude will be presented. If you use <code>{{HT_LOC}}</code>, the resulting string will be wrapped in an HTML link that points to a Google map centered on the given position.
 					</td>
 				</tr>
 				<tr>
@@ -466,7 +467,7 @@
 				Accessing a URL: Advanced Users Only
 			</h2>
 			<p>
-				When a notification occurs, VisibleTesla can perform an HTTP GET on a URL instead of sending an email. This mechanism allows notifications to trigger web services for home automation or other purposes. To use this feature, set the notification email in any custom notification setting to a URL rather than an email address. The URL must begin with <code>http://</code> or <code>https://</code>. It must be a fully formed URL with any special characters URL-encoded. If VisibleTesla sees a URL rather than an email, it will perform an HTTP GET on that URL. It <strong>will not</strong> check error codes returned from the server nor process any returned data. The custom subject field will be ignored.
+				When a notification occurs, VisibleTesla can perform an <code>HTTP GET</code> on a URL instead of sending an email. This mechanism allows notifications to trigger web services for home automation or other purposes. To use this feature, set the notification email in any custom notification setting to a URL rather than an email address. The URL must begin with <code>http://</code> or <code>https://</code>. It must be a fully formed URL with any special characters URL-encoded. If VisibleTesla sees a URL rather than an email, it will perform an <code>HTTP GET</code> on that URL. It <strong>will not</strong> check error codes returned from the server nor process any returned data. The custom subject field will be ignored.
 			</p>
 			<p>
 				A sample use case might be turning on outside lights at your home when your car is approaching. To do this you would start by setting up the <span class="ui">Car entered area</span> notification. You would then press the <span class="ui">+ button</span> to bring up the custom address dialog as shown below. Now you can enter the URL corresponding to the "Lights On" command of your home automation controller. Put it in the <span class="ui">EMail</span> field where you would normally put an email address.

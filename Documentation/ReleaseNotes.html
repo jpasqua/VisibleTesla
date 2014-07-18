@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -18,6 +19,92 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
+		<h3>
+			VisibleTesla 0.28.01 [07-17-2014]
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="added">Addition</span>: On the Mac you can now use <span class="ui">&#8984;-H</span>  to hide a window just like you can with other Mac apps. Note that unlike other Mac applications, you won't see this shortcut listed in the application menu. This is a deficiency with JavaFX on the Mac. Using <span class="ui">&#8984;-H</span> is the same as pressing the yellow minimize icon. On Windows 7 you and beyond you can use <span class="ui"><img src="images/other/WinKey.gif"> +↓</span> to minimize the VisibleTesla window. This has always been there. 
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: <strong>For advanced users only - EXPERIMENTAL.</strong>You may now set an advanced preference that specifies a URL that holds custom pages that can be served up by the built-in web server. Use template variables to customize the pages. See the <a href="pages/PrefsTab.html">Prefs Tab</a> and <a href="pages/OtherTopics.html#rest">Web Services</a> for details.
+							</li>
+							<li>
+								<span class="fixed">Fix</span>: The <span class="ui">Help->What's New</span> menu item works again.
+							</li>
+							<li>
+								<span class="fixed">Fix</span>: Fixed a minor issue with login to the web services which only affected those who are using this experimental feature.
+							</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+							<li>
+								<span class="added">Addition</span>: There is a new row in the Trip property table. In addition to displaying the starting and ending value for Range, SOC, and Odometer, it now displays an estimate of the power consumed in the selected trip (or trips). <strong>This is purely an estimate.</strong> It is not a value reported by the car, but rather a rough integration of area under the power curve that you see plotted in the Graphs Tab.
+							</li>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: Added the variable {{HT_SPEEDO}} and {{HT_LOC}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>.
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: The {{HT_SOC_G}} variable now more accurately represents the charge state.
+							</li>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+					<li>VisibleTesla is using HTML5 Canvas to render the {{HT_SOC_G}} and {{HT_SPEEDO}} elements.</li>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+					<li>There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. Debugging and testing is ongoing to address this problem.
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<hr>
 			<h3>
 				VisibleTesla 0.28.00 [07-05-2014] - <font color="red">[EXPERIMENTAL]</font>
 			</h3>
@@ -74,7 +161,7 @@
 									<span class="fixed">Fix</span>: A bug crept back into notification messages that caused speed to be reported in the wrong units in some cases. That has been addressed.
 								</li>
 								<li>
-									<span class="changed">Refinement</span>: Added new variables for custom messages {{HT_SOC_G}}, {{HT_ODO}}, and {{ODO}}. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>.
+									<span class="changed">Refinement</span>: Added new variables for custom messages: {{HT_SOC_G}}, {{HT_ODO}}, and {{ODO}}. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>.
 								</li>
 							</ul>
 						</li>
@@ -102,6 +189,7 @@
 					<ul>
 						<li>There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. Debugging and testing is ongoing to address this problem.
 						</li>
+						<li>The <span class="ui">Help->What's New</span> menu item is broken. For the time being please use the <span class="ui">Help->Documentation</span> menu item and then click on <span class="ui">Release Notes</span>. Alternatively, you click <a href="http://visibletesla.com/Documentation/ReleaseNotes.html">here</a>.</li>	
 					</ul>
 				</li>
 			</ul>

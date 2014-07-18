@@ -196,10 +196,10 @@
                 Speaking of overloading Tesla's servers, VisibleTesla automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others. For example, the odometer reading on the <a href="OverviewTab.html">Overview Tab</a>. Since even at 60 mph the reading doesn't change much every minute, the app does not update it on every auto-refresh.
             </p>
             <h2>
-                <a name="rest">REST Services</a>
+                <a name="rest">Web Services</a>
             </h2>
             <p>
-                <strong>For advanced users only - EXPERIMENTAL.</strong> VisibleTesla includes the ability to accept a *very* limited set of commands via http. At the moment, the only functionality available is setting the app's <a href="pages/SleepMode.html">inactivity mode</a>. Support for REST services is off by default and should only be used by people who are comfortable with direct access to these sorts of services. If you do enable the service, it is protected via <code>HTTP Basic Authentication.</code> To enable this feature, read more about the settings in the <a href="pages/PrefsTab.html">Prefs Tab</a>.
+                <strong>For advanced users only - EXPERIMENTAL.</strong> VisibleTesla includes the ability to accept a *very* limited set of commands via http. At the moment, the only functionality available is setting the app's <a href="pages/SleepMode.html">inactivity mode</a>. Support for web (REST) services is off by default and should only be used by people who are comfortable with direct access to these sorts of services. If you do enable the service, it is protected via <code>HTTP Basic Authentication.</code> To enable this feature, read more about the settings in the <a href="pages/PrefsTab.html">Prefs Tab</a>.
             </p>
             <p>
                 Once the service is enabled, you have selected a port (or used the default), and have set an authorization code (password), you may access the functionality using a web browser or a command line utility such as curl. The username for all commands is "VT". The password is whatever you establish in the preferences. Note that by default, these services will be visible only on your local network. To access them remotely, you must manually set up port forwarding or use other methods. This is for experienced network users only.
@@ -370,6 +370,13 @@
             </table>
             <p>
                 Requesting status in this way will <strong>not</strong> wake up your car if it is sleeping. The data you receive will be the last known data. The car will not be asked for new information. The date and time shown at the top of the table correspond to when the table was prepared. the values in the table might be slightly older (or much older if your car is sleeping).
+            </p>
+            <h3>Custom Pages</h3>
+            <p>
+                VisibleTesla can serve up web pages that are designed by you and can include template variables. You need to store these pages in a folder where VisibleTesla can find them. That folder can be on the web or on your local machine. Either way, the location is specified by a URL in the <a href="PrefsTab.html">Advanced Preferences</a>. To access custom pages in this folder, use URLs of the form: <code>http://localhost:9090/custom/MyCustomPage.html</code>
+            </p>
+            <p>
+                In this example, you would have a file named MyCustomPage.html stored in the folder that you specified in the advanced preferences.
             </p>
             <h2>
                 <a name="simulation">Simulation</a>
