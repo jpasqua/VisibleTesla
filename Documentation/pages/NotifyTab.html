@@ -179,10 +179,15 @@
 				<a name="custom_messages">Customizing Notifications</a>
 			</h2>
 			<p>
-				VisibleTesla allows you to optionally specify the email address, subject and message body to use for each type of notification. This can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for urgent notifications. For urgent notifications you could enter a text message address instead of your default email address. You can also use this feature if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.
+				VisibleTesla allows you to optionally specify the email address, subject and message body to use for each type of notification. The email address may be a comma-separated list of addresses if you'd like the message to go to more than one recipient.
 			</p>
 			<p>
-				To access these options, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address, subject, and message. You may also select <span class="ui">Use default values</span>, in which case the default email address, subject, and message will be used. If you leave any field blank, the default will be used for the blank item(s).
+				Custom notifications can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for urgent notifications. For urgent notifications you could enter a text message address instead of your default email address. You could also use this feature if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.</p>
+			<p>
+				To access these options, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address, subject, and message.
+			</p>
+			<p>
+				You may also select <span class="ui">Use default values</span>, in which case the default email address, subject, and message will be used. If you leave any field blank, the default will be used for the blank item(s).
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24a_Notify_Options.png' alt='Notify Tab'>
@@ -223,26 +228,29 @@
 				</tr>
 				<tr>
 					<td>
-						<code>{{IDEAL}}</code>
+						<code>{{IDEAL}}</code><br>
+						<code>{{HT_IDEAL_G}}</code>
 					</td>
 					<td>
-						The last known ideal range of the vehicle in the units set by the car (mi or km)
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<code>{{RATED}}</code>
-					</td>
-					<td>
-						The last known rated range of the vehicle in the units set by the car (mi or km)
+						The last known ideal range of the vehicle in the units set by the car (mi or km). If you use <code>{{HT_IDEAL_G}}</code>, a gauge will be generated using HTML. <strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<code>{{ESTIMATED}}</code>
+						<code>{{RATED}}</code><br>
+						<code>{{HT_RATED_G}}</code>
 					</td>
 					<td>
-						The last known estimated range of the vehicle in the units set by the car (mi or km)
+						The last known rated range of the vehicle in the units set by the car (mi or km). If you use <code>{{HT_RATED_G}}</code>, a gauge will be generated using HTML. <strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{ESTIMATED}}</code><br>
+						<code>{{HT_ESTIMATED_G}}</code>
+					</td>
+					<td>
+						The last known estimated range of the vehicle in the units set by the car (mi or km). If you use <code>{{HT_ESTIMATED_G}}</code>, a gauge will be generated using HTML. <strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
 					</td>
 				</tr>
 				<tr>
@@ -307,7 +315,7 @@
 						<code>{{HT_LOC}}</code>
 					</td>
 					<td>
-						The last known location of the vehicle. The location presented is derived by taking the last known latitiude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitiude and longitude will be presented. If you use <code>{{HT_LOC}}</code>, the resulting string will be wrapped in an HTML link that points to a Google map centered on the given position.
+						The last known location of the vehicle. The location presented is derived by taking the last known latitude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitude and longitude will be presented. If you use <code>{{HT_LOC}}</code>, the resulting string will be wrapped in an HTML link that points to a Google map centered on the given position.
 					</td>
 				</tr>
 				<tr>
@@ -388,7 +396,7 @@
 					</td>
 					<td>
 						Generates an HTML snippet that displays the state of charge in the form of a battery gauge. The image also displays a plug symbol if the car is currently being charged.<br>
-						<strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currntly this is only used by the built-in web pages.
+						<strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
 					</td>
 				</tr>
 				<tr>
@@ -397,7 +405,7 @@
 					</td>
 					<td>
 						Generates an HTML snippet that displays the last known odometer reading in a form that looks like an old fashioned physical odometer. The value is displayed in the units set by the car (mi or km).<br>
-						<strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currntly this is only used by the built-in web pages.
+						<strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
 					</td>
 				</tr>
 				<tr>
