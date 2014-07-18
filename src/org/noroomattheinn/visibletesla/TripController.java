@@ -46,7 +46,6 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
-import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
@@ -92,8 +91,9 @@ public class TripController extends BaseController {
     private final GenericProperty rangeRow = new GenericProperty(RangeRowName, "0.0", "0.0");
     private final GenericProperty socRow = new GenericProperty("SOC (%)", "0.0", "0.0");
     private final GenericProperty odoRow = new GenericProperty(OdoRowName, "0.0", "0.0");
+    private final GenericProperty powerRow = new GenericProperty("Power (kWh)", "0.0", "0.0");
     private final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
-            rangeRow, socRow, odoRow);
+            rangeRow, socRow, odoRow, powerRow);
     
 /*------------------------------------------------------------------------------
  *
@@ -301,6 +301,12 @@ public class TripController extends BaseController {
                 StatsStore.SOCKey, start.timestamp, end.timestamp,
                 socRow, 1.0);
         updateStartEndProps(odoRow, start.odo, end.odo, cvt);
+        
+        double power = 0.0;
+        for (Trip t:trips) {
+            power += t.estimatePower();
+        }
+        updateStartEndProps(powerRow, 0.0, power, 1.0);
     }
     
     private void updateStartEndProps(
@@ -372,8 +378,9 @@ public class TripController extends BaseController {
         sb.append("[\n");
         boolean first = true;
         for (Trip t : trips) {
-            if (includeGraph.isSelected() && t.firstWayPoint().decoration == null) {
-                decorateWayPoints(t);                
+            if (includeGraph.isSelected()) {
+                decorateWayPoints(t);
+                addElevations(t);
             }
             if (!first) sb.append(",\n");
             sb.append(t.asJSON(useMiles));
@@ -522,9 +529,8 @@ public class TripController extends BaseController {
         return (val == null) ? 0.0 : val.doubleValue();
     }
 
-    private double elevation = 0.0;
-
     private void decorateWayPoints(Trip t) {
+        if (t.firstWayPoint().decoration != null) return;
         long start = t.firstWayPoint().timestamp;
         long end   = t.lastWayPoint().timestamp;
 
@@ -545,8 +551,6 @@ public class TripController extends BaseController {
             if (pwrKey == null) pwrKey = pwrVals.firstEntry().getKey();
             wp.decoration.put(StatsStore.PowerKey, pwrVals.get(pwrKey));
         }
-        // Assumes wp.decoration has been initialized for all waypoints
-        addElevations(t.waypoints);
     }
 
     private NavigableMap<Long,Double> mapFromSamples(List<Stat.Sample> samples) {
@@ -556,7 +560,9 @@ public class TripController extends BaseController {
         return map;
     }
     
-    private void addElevations(List<WayPoint> waypoints) {
+    private void addElevations(Trip t) {
+        List<WayPoint> waypoints = t.waypoints;
+        if (waypoints.get(0).decoration.get("L_ELV") != null) return;   // Already added
         List<ElevationData> edl = GeoUtils.getElevations(waypoints);
         if (edl == null) return;
         for (int i = edl.size()-1; i >= 0; i--) {
@@ -577,6 +583,7 @@ public class TripController extends BaseController {
     
     public class Trip {
         private List<WayPoint> waypoints;
+        private double powerEstimate = Double.NaN;
         
         public Trip() {
             waypoints = new ArrayList<>();
@@ -593,6 +600,36 @@ public class TripController extends BaseController {
             return (endLoc - startLoc);
         }
         
+        public double estimatePower() {
+            if (!Double.isNaN(powerEstimate)) return powerEstimate;
+            double cumulative = 0.0;
+            
+            decorateWayPoints(this);
+            Double lastPower = null;
+            long lastTime = 0;
+            for (WayPoint wp: waypoints) {
+                Map<String,Double> decoration = wp.decoration;
+                if (decoration == null) continue;
+                Double power = decoration.get(StatsStore.PowerKey);
+                if (power == null) continue;
+                if (lastPower == null) {
+                    lastPower = power;
+                    lastTime = wp.timestamp;
+                } else {
+                    long dT = wp.timestamp - lastTime;
+                    double minP = Math.min(power, lastPower);
+                    double dP = Math.abs(power-lastPower);
+                    double thisPower = minP * dT + (dP*dT)/2.0;
+                    cumulative += thisPower;
+                    lastTime = wp.timestamp;
+                    lastPower = power;
+                }
+            }
+            powerEstimate = cumulative/(1000*60*60);
+            return powerEstimate;
+        }
+
+
         public boolean isEmpty() { return waypoints.isEmpty(); }
         public WayPoint firstWayPoint() { return waypoints.get(0); }
         public WayPoint lastWayPoint() { return waypoints.get(waypoints.size()-1); }
@@ -731,8 +768,7 @@ public class TripController extends BaseController {
             emitOpen("<Document>");
 
             for (Trip t : trips) {
-                if (t.firstWayPoint().decoration == null)
-                    decorateWayPoints(t);
+                decorateWayPoints(t);
                 emitPath(t);
                 emitFolderOfMarkers(t);
             }

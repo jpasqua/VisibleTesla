@@ -18,23 +18,16 @@
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="17.0" />
     <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
-    <Pane layoutX="19.0" layoutY="29.0" prefHeight="232.0" prefWidth="323.0" style="-fx-background-color:white;&#10;-fx-border-color: black">
+    <Pane layoutX="19.0" layoutY="19.0" prefHeight="232.0" prefWidth="323.0" style="-fx-background-color:white;&#10;-fx-border-color: black">
       <children>
         <CalendarPicker fx:id="calendarPicker" layoutX="-2.0" layoutY="14.0" mode="RANGE" prefHeight="186.0" prefWidth="311.0" showTime="false" style="&#10;" />
         <Button id="todayHandler" layoutX="184.0" layoutY="203.0" mnemonicParsing="false" onAction="#todayHandler" text="Today" />
         <Button layoutX="254.0" layoutY="203.0" mnemonicParsing="false" onAction="#clearSelection" text="Clear" />
       </children>
     </Pane>
-    <TableView fx:id="propertyTable" layoutX="350.0" layoutY="267.0" prefHeight="119.0" prefWidth="277.0" style="-fx-border-color: black">
-      <columns>
-        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="106.0" text="Property" fx:id="propNameCol" />
-        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="84.0" text="Start" fx:id="propStartCol" />
-        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="83.0" text="End" fx:id="propEndCol" />
-      </columns>
-    </TableView>
-    <ListView id="displaySelectedTrips" fx:id="availableTripsView" layoutX="350.0" layoutY="50.0" prefHeight="211.0" prefWidth="277.0" style="-fx-border-color: black" />
-    <Button fx:id="mapItButton" layoutX="350.0" layoutY="29.0" mnemonicParsing="false" onAction="#mapItHandler" prefWidth="138.5" style="-fx-base: #b6e7c9" styleClass="squareBottomLeft" text="Map It!" />
-    <ImageView fitHeight="117.2277999822786" fitWidth="323.0" layoutX="19.0" layoutY="267.0" pickOnBounds="true" preserveRatio="true">
+    <ListView id="displaySelectedTrips" fx:id="availableTripsView" layoutX="350.0" layoutY="40.0" prefHeight="211.0" prefWidth="277.0" style="-fx-border-color: black" />
+    <Button fx:id="mapItButton" layoutX="350.0" layoutY="19.0" mnemonicParsing="false" onAction="#mapItHandler" prefWidth="138.5" style="-fx-base: #b6e7c9" styleClass="squareBottomLeft" text="Map It!" />
+    <ImageView fitHeight="117.22780023719416" fitWidth="323.0" layoutX="19.0" layoutY="264.0" pickOnBounds="true" preserveRatio="true">
       <image>
         <Image url="@../TeslaResources/StreetGray.png" />
       </image>
@@ -44,9 +37,16 @@
         <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
       </image>
     </ImageView>
-    <Button id="mapItButton" fx:id="exportItButton" layoutX="489.0" layoutY="29.0" mnemonicParsing="false" onAction="#exportItHandler" prefWidth="138.5" style="-fx-base: #b6e7c9" styleClass="squareBottomRight" text="Export It!" />
-    <CheckBox fx:id="includeGraph" layoutX="168.0" layoutY="364.0" mnemonicParsing="false" text="Include graph in Map?" />
-    <CheckBox id="includeGraph" fx:id="snapToRoad" layoutX="168.0" layoutY="344.0" mnemonicParsing="false" prefWidth="119.0" text="Snap to road?" />
+    <TableView fx:id="propertyTable" layoutX="350.0" layoutY="257.0" prefHeight="129.75" prefWidth="277.0" style="-fx-border-color: black">
+      <columns>
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="106.0" text="Property" fx:id="propNameCol" />
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="84.0" text="Start" fx:id="propStartCol" />
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="83.0" text="End" fx:id="propEndCol" />
+      </columns>
+    </TableView>
+    <Button id="mapItButton" fx:id="exportItButton" layoutX="489.0" layoutY="19.0" mnemonicParsing="false" onAction="#exportItHandler" prefWidth="138.5" style="-fx-base: #b6e7c9" styleClass="squareBottomRight" text="Export It!" />
+    <CheckBox fx:id="includeGraph" layoutX="168.0" layoutY="354.0" mnemonicParsing="false" text="Include graph in Map?" />
+    <CheckBox id="includeGraph" fx:id="snapToRoad" layoutX="168.0" layoutY="334.0" mnemonicParsing="false" prefWidth="119.0" text="Snap to road?" />
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />
