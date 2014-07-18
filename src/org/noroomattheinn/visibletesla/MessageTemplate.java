@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
 
@@ -146,11 +147,21 @@ public class MessageTemplate {
                         val = String.format("%1$tH:%1$tM:%1$tS", new Date());
                         break;
                     case "LOC":
+                    case "HT_LOC":
                         String lat = String.valueOf(ac.lastKnownSnapshotState.get().estLat);
                         String lng = String.valueOf(ac.lastKnownSnapshotState.get().estLng);
                         val = GeoUtils.getAddrForLatLong(lat, lng);
                         if (val == null || val.isEmpty()) {
                             val = String.format("(%s, %s)", lat, lng);
+                        }
+                        if (varName.equals("HT_LOC")) {
+                            try {
+                            val = String.format(
+                                "<a href='http://maps.google.com/maps?z=12&t=m&q=loc:%s+%s'>%s</a>",
+                                lat, lng, val);
+                            } catch (Exception e) { // In case something goes wrong with the format
+                                Tesla.logger.severe(e.getMessage());
+                            }
                         }
                         break;
                     case "I_STATE":
@@ -187,6 +198,18 @@ public class MessageTemplate {
                     case "HT_ODO":
                         val = genODO(ac);
                         break;
+                    case "HT_RATED_G":
+                        val = genGaugeWrapper(ac, "Rated", ac.lastKnownChargeState.get().range);
+                        break;
+                    case "HT_IDEAL_G":
+                        val = genGaugeWrapper(ac, "Ideal", ac.lastKnownChargeState.get().idealRange);
+                        break;
+                    case "HT_ESTIMATED_G":
+                        val = genGaugeWrapper(ac, "Estimated", ac.lastKnownChargeState.get().estimatedRange);
+                        break;
+                    case "HT_SPEEDO":
+                        val = genSpeedo(ac);
+                        break;
                     case "ODO":
                         val = String.format(
                             "%.1f", ac.inProperUnits(ac.lastKnownSnapshotState.get().odometer));
@@ -199,31 +222,30 @@ public class MessageTemplate {
                 return val;
             }
             
+            private static final String SpeedoTemplate = 
+                "<canvas id='speedo' width='150' height='150'></canvas>" +
+                "<script src='../scripts/CanvasUtils.js' type='text/javascript'></script>" +
+                "<script src='../scripts/SpeedGauge.js' type='text/javascript'></script>" +
+                "<script type='text/javascript'>" +
+                "speedGauge(document.getElementById('speedo').getContext('2d'), 150, 150, %f, %f);" +
+                "</script>";
+            
+            private String genSpeedo(AppContext ac) {
+                double speed = ac.inProperUnits(ac.lastKnownSnapshotState.get().speed);
+                double power = ac.inProperUnits(ac.lastKnownSnapshotState.get().power);
+                return String.format(SpeedoTemplate, speed, power);
+            }
+            
             private static final String SOCGaugeTemplate = 
-                "<div style='position: relative;'>\n" +
-                "   <div style='width: 100%%; height: 100%%;'>\n" +
-                "       <img src='%s' width='114' height='54'>\n" +
-                "   </div>\n" +
-                "   <div style='position: absolute; top: 15px; left: 25px;'>\n" +
-                "       <img src='%s' width='65' height='25'>\n" +
-                "   </div>\n" +
-                "   <div style='position: absolute; top: 17px; left: 125px;'>\n" +
-                "       %d%%\n" +
-                "   </div>\n" +
-                "</div>";
-            private static final String batteryURL = 
-                "http://visibletesla.com/Documentation/images/Battery/Solid/%02da.png";
-            private static final String plugURL = 
-                "http://visibletesla.com/Documentation/images/Battery/Solid/Plug.png";
-            private static final String emptyImage = 
-                "http://visibletesla.com/Documentation/images/Battery/Solid/1x1.png";
-
+                "<canvas id='bg' width='140' height='50'></canvas>" +
+		"<script src='../scripts/CanvasUtils.js' type='text/javascript'></script>" +
+		"<script src='../scripts/BatteryGauge.js' type='text/javascript'></script>" +
+                "<script type='text/javascript'>" +
+		"batteryGauge(document.getElementById('bg').getContext('2d'), 100, 50, %d, %b);" +
+                "</script>";
+            
             private String genSOCGauge(AppContext ac) {
                 int soc = ac.lastKnownSnapshotState.get().soc;
-                //soc = (int)(Math.random()*100); // FOR TESTING ONLY
-                double bandSize = 100.0/6.0;
-                double offset = bandSize/2.0;
-                int band = (int)((soc+offset)/bandSize);
                 boolean showPlug = false;
                 switch (ac.lastKnownChargeState.get().chargingState) {
                     case Charging:
@@ -231,15 +253,7 @@ public class MessageTemplate {
                         showPlug = true;
                         break;
                 }
-                //showPlug = Math.random() > 0.5; // FOR TESTING ONLY
-                String b = String.format(batteryURL, band);
-                try {
-                    return String.format(SOCGaugeTemplate, b,
-                        showPlug ? plugURL : emptyImage, soc);
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
-                    return "Unexpected internal error";
-                }
+                return String.format(SOCGaugeTemplate, soc, showPlug);
             }
             
             private static String genODO(AppContext ac) {
@@ -264,6 +278,30 @@ public class MessageTemplate {
                 sb.append("<span class='light_box'>");
                 sb.append(tenths);
                 sb.append("</span>");
+                return sb.toString();
+            }
+
+            private static String genGaugeWrapper(AppContext ac, String label, double val) {
+                return genGauge(
+                        label, ac.inProperUnits(val),
+                        ac.unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",
+                        val < 25);
+            }
+            
+            private static String genGauge(
+                    String label, double val, String units, boolean critical) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("<div class='inset' style='width:140px'>");
+                sb.append("<table border='0' width='100%' style='margin:0px;padding:0px'>");
+                sb.append("<tr width='100%'> <td width='100%' colspan='3' align='center' class='gaugeLabel'>");
+                sb.append(label);
+                sb.append("</td> </tr> <tr> <td class='gaugeSymbol'>");
+                if (critical) sb.append("&#x2757");
+                sb.append("</td> <td class='gaugeReadout'>");
+                sb.append(String.format("%.1f", val));
+                sb.append("</td> <td class='gaugeUnits'>");
+                sb.append(units);
+                sb.append("</td></tr></table></div>");
                 return sb.toString();
             }
         }
