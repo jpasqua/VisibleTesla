@@ -78,6 +78,8 @@ public class RESTServer {
             HttpContext cc;
             cc = server.createContext("/v1/action/activity", activityRequest);
             cc.setAuthenticator(authenticator);
+            cc = server.createContext("/v1/action/info", infoRequest);
+            cc.setAuthenticator(authenticator);
             cc = server.createContext("/", staticPageRequest);
             cc.setAuthenticator(authenticator);
 
@@ -125,19 +127,53 @@ public class RESTServer {
         }
     };
 
+    private HttpHandler infoRequest = new HttpHandler() {
+        @Override public void handle(HttpExchange exchange) throws IOException {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                sendResponse(exchange, 400, "GET only on info endpoint\n");
+                return;
+            }
+            String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
+            String infoType = StringUtils.substringAfterLast(path, "/");
+            if (infoType.equals("info")) {
+                sendResponse(exchange, 403, "403 (Forbidden)\n");
+                return;
+            }
+            Tesla.logger.info("Requested info type: " + infoType);
+            String response;
+            switch (infoType) {
+                case "car_state":
+                    response = CarInfo.carStateAsJSON(appContext);
+                    break;
+                case "car_details":
+                    response = CarInfo.carDetailsAsJSON(appContext);
+                    break;
+                default:
+                    Tesla.logger.warning("Unknown info request: " + infoType + "\n");
+                    sendResponse(exchange, 400, "Unknown info request " + infoType);
+                    return;
+            }
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            sendResponse(exchange, 200,  response);
+        }
+    };
+
     private HttpHandler staticPageRequest = new HttpHandler() {
-        LRUMap<String,String> cache = new LRUMap<>(10);
+        LRUMap<String,byte[]> cache = new LRUMap<>(10);
         @Override public void handle(HttpExchange exchange) throws IOException {
             // TO DO: Check for path traversal attack!
             String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
             path = StringUtils.stripStart(path, "/");
             try {
-                String content = cache.get(path);
+                byte[] content = cache.get(path);
                 if (content == null) {
                     InputStream is;
                     if (path.startsWith("custom/")) {
                         String cPath = path.substring(7);
                         is = new URL(appContext.prefs.customURLSource.get()+cPath).openStream();
+                    } else if (path.startsWith("TeslaResources/")) {
+                        path = "org/noroomattheinn/" + path;
+                        is = getClass().getClassLoader().getResourceAsStream(path);
                     } else {
                         is = getClass().getResourceAsStream(path);
                     }
@@ -146,7 +182,7 @@ public class RESTServer {
                         sendResponse(exchange, 404, "404 (Not Found)\n");
                         return;
                     } else {
-                        content = IOUtils.toString(is);
+                        content = IOUtils.toByteArray(is);
                         if (!path.startsWith("custom/_nc_"))
                             cache.put(path, content);
                     }
@@ -154,8 +190,10 @@ public class RESTServer {
                 
                 String type = getMimeType(StringUtils.substringAfterLast(path, "."));
                 if (type.equalsIgnoreCase("text/html")) {
-                    MessageTemplate mt = new MessageTemplate(content);
-                    content = mt.getMessage(appContext, null);
+                    MessageTemplate mt = new MessageTemplate(appContext, new String(content, "UTF-8"));
+                    content = mt.getMessage(null).getBytes();
+                } else if (cacheOnClient(type)) {
+                    exchange.getResponseHeaders().add("Cache-Control", "max-age=2592000");
                 }
 
                 exchange.getResponseHeaders().add("Content-Type", type);
@@ -174,6 +212,10 @@ public class RESTServer {
  * 
  *----------------------------------------------------------------------------*/
 
+    private boolean cacheOnClient(String type) {
+        return (!type.equals("text/html"));
+    }
+    
     private BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
@@ -186,6 +228,13 @@ public class RESTServer {
         exchange.sendResponseHeaders(code, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
+        os.close();
+    }
+    
+    private void sendResponse(HttpExchange exchange, int code, byte[] response) throws IOException {
+        exchange.sendResponseHeaders(code, response.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(response);
         os.close();
     }
     

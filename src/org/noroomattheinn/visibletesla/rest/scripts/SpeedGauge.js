@@ -1,6 +1,11 @@
 // SpeedGauge.js
 
 
+var TWO_PI = 2.0 * Math.PI;
+var HALF_PI = 0.5 * Math.PI;
+var THREE_HALFS_PI = 1.5 * Math.PI;
+var EPS = 0.05;
+
 function logScale(val, max) {
     val = Math.min(val, max);
     return Math.log(val)/Math.log(max);
@@ -12,6 +17,7 @@ function speedGauge(ctx, w, h, speed, power) {
     var centerY = h / 2 + 1;
     var outerRadius = Math.min(w, h)/2;
     var innerRadius = outerRadius*0.75;
+    var end;
 
     var grd = ctx.createRadialGradient(centerX, centerY, innerRadius, centerX, centerY, outerRadius);
     grd.addColorStop(0.25, '#666');
@@ -29,7 +35,12 @@ function speedGauge(ctx, w, h, speed, power) {
     grd.addColorStop(0.25, '#4D4DFF');
     grd.addColorStop(0.75, '#A3C2FF');
     grd.addColorStop(1.00, '#4D4DFF');
-    ctx.drawArc(0.5 * Math.PI, (1.5 * Math.PI) * logScale(speed, 160), false, centerX, centerY, outerRadius, grd);
+    if (speed == 0) { end = HALF_PI; }
+    else {
+        end = THREE_HALFS_PI * logScale(speed, 120);
+        if (end < HALF_PI) end = HALF_PI + EPS;
+    }
+    ctx.drawArc(HALF_PI, end, false, centerX, centerY, outerRadius, grd);
 
     var cc, end, fill;
     grd = ctx.createRadialGradient(centerX, centerY, innerRadius, centerX, centerY, outerRadius);
@@ -39,15 +50,20 @@ function speedGauge(ctx, w, h, speed, power) {
         grd.addColorStop(0.75, '#009900');
         grd.addColorStop(1.00, '#006600');
         fill = grd;
-        end = (0.5 * Math.PI) * logScale(Math.min(-power, 60), 60);
+        var scaled = logScale(Math.min(-power, 60), 60);
+        end = (0.5 * Math.PI) * scaled;
+        if (end < 0) end = EPS;
     } else {    // Consuming power - orange segement
         cc = true;
         grd.addColorStop(0.25, '#FF9900');
         grd.addColorStop(0.75, '#FFD699');
         grd.addColorStop(1.00, '#FF9900');
         fill = grd;
-        var scaled = logScale(Math.min(power, 240), 240);
-        end = (scaled < 0) ? 0 : (2.0 - (0.5 * scaled)) * Math.PI;
+        if (power == 0) { end = 0.0; }
+        else {
+            end = (2.0 - (0.5 * logScale(Math.min(power, 240), 240))) * Math.PI;
+            if (end > TWO_PI) end = TWO_PI - EPS;
+        }
     }
     ctx.drawArc(0, end , cc, centerX, centerY, outerRadius, fill);
 
