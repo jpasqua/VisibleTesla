@@ -439,14 +439,14 @@ public class NotifierController extends BaseController {
         if (lower.startsWith("http://") || lower.startsWith("https://")) {
             (new HTTPAsyncGet(addr)).exec();
         } else {
-            MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
-            MessageTemplate st = new MessageTemplate(target.getActiveSubj());
+            MessageTemplate mt = new MessageTemplate(appContext, target.getActiveMsg());
+            MessageTemplate st = new MessageTemplate(appContext, target.getActiveSubj());
             Map<String,String> contextSpecific = Utils.newHashMap(
                 "CUR", r.getCurrentValue(),
                 "TARGET", r.getTarget());
             appContext.sendNotification(
-                addr, st.getMessage(appContext, contextSpecific),
-                mt.getMessage(appContext, contextSpecific));
+                addr, st.getMessage(contextSpecific),
+                mt.getMessage(contextSpecific));
         }
     }
 

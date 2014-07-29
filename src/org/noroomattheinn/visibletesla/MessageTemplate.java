@@ -12,6 +12,7 @@ import java.util.Map;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.rest.CarInfo;
 
 /**
  * MessageTemplate
@@ -28,22 +29,24 @@ public class MessageTemplate {
     
     // The overall message template is represented by a list of MsgComponents
     private List<MsgComponent> components;
-
+    private AppContext ac;
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
 
-    public MessageTemplate(String format) {
+    public MessageTemplate(AppContext ac, String format) {
         components = new ArrayList<>();
         if (format == null) {
             return;
         }
         parse(format);
+        this.ac = ac;
     }
 
-    public String getMessage(AppContext ac, Map<String,String> contextSpecific) {
+    public String getMessage(Map<String,String> contextSpecific) {
         StringBuilder sb = new StringBuilder();
         for (MsgComponent mc : components) {
             sb.append(mc.asString(ac, contextSpecific));
@@ -209,6 +212,9 @@ public class MessageTemplate {
                         break;
                     case "HT_SPEEDO":
                         val = genSpeedo(ac);
+                        break;
+                    case "HT_CARVIEW":
+                        val = CarInfo.genCarView(ac);
                         break;
                     case "ODO":
                         val = String.format(

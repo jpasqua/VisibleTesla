@@ -30,7 +30,6 @@ import org.noroomattheinn.tesla.DoorController;
 import org.noroomattheinn.tesla.DoorController.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.Options;
-import static org.noroomattheinn.tesla.Options.InteriorColor.Gray;
 import org.noroomattheinn.tesla.Options.PaintColor;
 import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;

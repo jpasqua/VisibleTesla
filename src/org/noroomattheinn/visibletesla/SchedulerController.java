@@ -141,12 +141,12 @@ public class SchedulerController extends BaseController implements ScheduleItem.
                 "No body was specified");
             return Result.Succeeded;
         }
-        MessageTemplate body = new MessageTemplate(messageTarget.getActiveMsg());
-        MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
+        MessageTemplate body = new MessageTemplate(appContext, messageTarget.getActiveMsg());
+        MessageTemplate subj = new MessageTemplate(appContext, messageTarget.getActiveSubj());
         boolean sent = appContext.sendNotification(
             messageTarget.getActiveEmail(),
-            subj.getMessage(appContext, null),
-            body.getMessage(appContext, null));
+            subj.getMessage(null),
+            body.getMessage(null));
         return sent ? Result.Succeeded : Result.Failed;
     } 
     
