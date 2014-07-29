@@ -91,7 +91,7 @@ public class TripController extends BaseController {
     private final GenericProperty rangeRow = new GenericProperty(RangeRowName, "0.0", "0.0");
     private final GenericProperty socRow = new GenericProperty("SOC (%)", "0.0", "0.0");
     private final GenericProperty odoRow = new GenericProperty(OdoRowName, "0.0", "0.0");
-    private final GenericProperty powerRow = new GenericProperty("Power (kWh)", "0.0", "0.0");
+    private final GenericProperty powerRow = new GenericProperty("Energy (kWh)", "0.0", "0.0");
     private final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
             rangeRow, socRow, odoRow, powerRow);
     
