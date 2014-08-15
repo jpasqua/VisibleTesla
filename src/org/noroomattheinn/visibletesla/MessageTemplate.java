@@ -160,7 +160,7 @@ public class MessageTemplate {
                         if (varName.equals("HT_LOC")) {
                             try {
                             val = String.format(
-                                "<a href='http://maps.google.com/maps?z=12&t=m&q=loc:%s+%s'>%s</a>",
+                                "<a href='http://maps.google.com/maps?z=12&t=m&q=@%s,%s'>%s</a>",
                                 lat, lng, val);
                             } catch (Exception e) { // In case something goes wrong with the format
                                 Tesla.logger.severe(e.getMessage());
