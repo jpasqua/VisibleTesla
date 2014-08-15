@@ -23,7 +23,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.PWUtils;
 
 public class PrefsController extends BaseController {
@@ -33,7 +32,6 @@ public class PrefsController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean loaded = false;
     private PWUtils pwUtils = new PWUtils();
     
 /*------------------------------------------------------------------------------
@@ -66,6 +64,18 @@ public class PrefsController extends BaseController {
     @FXML private Button        setAuthCodeButton;
     @FXML private TextField     customURLSrc;
     
+    // Overrides
+    @FXML private ComboBox<String>  overrideWheelsCombo;
+    @FXML private CheckBox          overrideWheelsActive;
+    @FXML private ComboBox<String>  overrideColorCombo;
+    @FXML private CheckBox          overrideColorActive;
+    @FXML private ComboBox<String>  overrideUnitsCombo;
+    @FXML private CheckBox          overrideUnitsActive;
+    @FXML private ComboBox<String>  overrideModelCombo;
+    @FXML private CheckBox          overrideModelActive;
+    @FXML private ComboBox<String>  overrideRoofCombo;
+    @FXML private CheckBox          overrideRoofActive;
+
     //
     // Action Handlers
     //
@@ -146,6 +156,18 @@ public class PrefsController extends BaseController {
         bindToCheckBox(enableRest, appContext.prefs.enableRest);
         bindToTextField(restPort, appContext.prefs.restPort);
         bindToTextField(customURLSrc, appContext.prefs.customURLSource);
+        
+        // Overrides
+        bindToComboBox(overrideWheelsCombo, appContext.prefs.overideWheelsTo);
+        bindToCheckBox(overrideWheelsActive, appContext.prefs.overideWheelsActive);
+        bindToComboBox(overrideColorCombo, appContext.prefs.overideColorTo);
+        bindToCheckBox(overrideColorActive, appContext.prefs.overideColorActive);
+        bindToComboBox(overrideUnitsCombo, appContext.prefs.overideUnitsTo);
+        bindToCheckBox(overrideUnitsActive, appContext.prefs.overideUnitsActive);
+        bindToComboBox(overrideModelCombo, appContext.prefs.overideModelTo);
+        bindToCheckBox(overrideModelActive, appContext.prefs.overideModelActive);
+        bindToComboBox(overrideRoofCombo, appContext.prefs.overideRoofTo);
+        bindToCheckBox(overrideRoofActive, appContext.prefs.overideRoofActive);
     }
     
 /*------------------------------------------------------------------------------
@@ -217,19 +239,15 @@ public class PrefsController extends BaseController {
     
     @Override protected void fxInitialize() { }
 
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (!loaded) {
-            initGeneralPrefsUI();
-            initSchedulerPrefsUI();
-            initLocationPrefsUI();
-            initGraphsPrefsUI();
-            loaded = true;
-        }
+    @Override protected void initializeState() {
+        initGeneralPrefsUI();
+        initSchedulerPrefsUI();
+        initLocationPrefsUI();
+        initGraphsPrefsUI();
     }
-
+    
+    @Override protected void activateTab() { }
     @Override protected void refresh() { }
-
-    @Override protected void reflectNewState() { }
 
 /*------------------------------------------------------------------------------
  *

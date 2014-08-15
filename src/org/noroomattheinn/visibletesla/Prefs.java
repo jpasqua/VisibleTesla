@@ -31,7 +31,6 @@ public class Prefs {
         loadGraphPrefs();
         loadSchedulerPrefs();
         loadLocationPrefs();
-        loadOtherPrefs();
     }
     
 /*------------------------------------------------------------------------------
@@ -40,42 +39,74 @@ public class Prefs {
  * 
  *----------------------------------------------------------------------------*/
     
-    public IntegerProperty  idleThresholdInMinutes = new SimpleIntegerProperty();
-    public BooleanProperty  wakeOnTabChange = new SimpleBooleanProperty();
-    public BooleanProperty  offerExperimental = new SimpleBooleanProperty();
-    public BooleanProperty  enableProxy = new SimpleBooleanProperty();
-    public StringProperty   proxyHost = new SimpleStringProperty();
-    public IntegerProperty  proxyPort = new SimpleIntegerProperty();
-    public BooleanProperty  useCustomGoogleAPIKey = new SimpleBooleanProperty();
-    public StringProperty   googleAPIKey = new SimpleStringProperty();
-    public BooleanProperty  useCustomMailGunKey = new SimpleBooleanProperty();
-    public StringProperty   mailGunKey = new SimpleStringProperty();
-    public IntegerProperty  fontScale = new SimpleIntegerProperty();
-    public BooleanProperty  enableRest = new SimpleBooleanProperty();
-    public IntegerProperty  restPort = new SimpleIntegerProperty();
-    public StringProperty   authCode = new SimpleStringProperty();
-    public StringProperty   customURLSource = new SimpleStringProperty();
-    
-    private static final String WakeOnTCKey = "APP_WAKE_ON_TC";
-    private static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
-    private static final String OfferExpKey = "APP_OFFER_EXP";
-    private static final String EnableProxyKey = "APP_ENABLE_PROXY";
-    private static final String ProxyHostKey = "APP_PROXY_HOST";
-    private static final String ProxyPortKey = "APP_PROXY_PORT";
-    private static final String UseCustomGoogleKey = "APP_USE_CUSTOM_GKEY";
-    private static final String CustomGoogleKey = "APP_CUSTOM_GKEY";
+    // Basic Preferences
+    public IntegerProperty  idleThresholdInMinutes  = new SimpleIntegerProperty();
+    public BooleanProperty  wakeOnTabChange         = new SimpleBooleanProperty();
+    public StringProperty   loadPeriod              = new SimpleStringProperty();
+    public StringProperty   notificationAddress     = new SimpleStringProperty();
+    private static final String WakeOnTCKey         = "APP_WAKE_ON_TC";
+    private static final String IdleThresholdKey    = "APP_IDLE_THRESHOLD";
+    private static final String GraphPeriodPrefKey  = "GRAPH_PERIOD";
+    private static final String NotifyAddressKey    = "NOTIFICATION_ADDR";
+
+    // Advanced
+    public BooleanProperty  offerExperimental       = new SimpleBooleanProperty();
+    public BooleanProperty  enableProxy             = new SimpleBooleanProperty();
+    public StringProperty   proxyHost               = new SimpleStringProperty();
+    public IntegerProperty  proxyPort               = new SimpleIntegerProperty();
+    public BooleanProperty  useCustomGoogleAPIKey   = new SimpleBooleanProperty();
+    public StringProperty   googleAPIKey            = new SimpleStringProperty();
+    public BooleanProperty  useCustomMailGunKey     = new SimpleBooleanProperty();
+    public StringProperty   mailGunKey              = new SimpleStringProperty();
+    public IntegerProperty  fontScale               = new SimpleIntegerProperty();
+    public BooleanProperty  enableRest              = new SimpleBooleanProperty();
+    public IntegerProperty  restPort                = new SimpleIntegerProperty();
+    public StringProperty   authCode                = new SimpleStringProperty();
+    public StringProperty   customURLSource         = new SimpleStringProperty();
+    private static final String OfferExpKey         = "APP_OFFER_EXP";
+    private static final String EnableProxyKey      = "APP_ENABLE_PROXY";
+    private static final String ProxyHostKey        = "APP_PROXY_HOST";
+    private static final String ProxyPortKey        = "APP_PROXY_PORT";
+    private static final String UseCustomGoogleKey  = "APP_USE_CUSTOM_GKEY";
+    private static final String CustomGoogleKey     = "APP_CUSTOM_GKEY";
     private static final String UseCustomMailGunKey = "APP_USE_CUSTOM_MGKEY";
-    private static final String CustomMailGunKey = "APP_CUSTOM_MGKEY";
-    private static final String FontScaleKey = "APP_FONT_SCALE";
-    private static final String RestPortKey = "APP_REST_PORT";
-    private static final String EnableRestKey = "APP_ENABLE_REST";
-    private static final String AuthCodeKey = "APP_AUTH_CODE";
-    private static final String CustomURLKey = "APP_CUSTOM_URL";
+    private static final String CustomMailGunKey    = "APP_CUSTOM_MGKEY";
+    private static final String FontScaleKey        = "APP_FONT_SCALE";
+    private static final String RestPortKey         = "APP_REST_PORT";
+    private static final String EnableRestKey       = "APP_ENABLE_REST";
+    private static final String AuthCodeKey         = "APP_AUTH_CODE";
+    private static final String CustomURLKey        = "APP_CUSTOM_URL";
+
+    // Overrides
+    public StringProperty   overideWheelsTo         = new SimpleStringProperty();
+    public BooleanProperty  overideWheelsActive     = new SimpleBooleanProperty();
+    public StringProperty   overideColorTo          = new SimpleStringProperty();
+    public BooleanProperty  overideColorActive      = new SimpleBooleanProperty();
+    public StringProperty   overideUnitsTo          = new SimpleStringProperty();
+    public BooleanProperty  overideUnitsActive      = new SimpleBooleanProperty();
+    public StringProperty   overideModelTo          = new SimpleStringProperty();
+    public BooleanProperty  overideModelActive      = new SimpleBooleanProperty();
+    public StringProperty   overideRoofTo           = new SimpleStringProperty();
+    public BooleanProperty  overideRoofActive       = new SimpleBooleanProperty();
+    private static final String ORWheelToKey        = "APP_OWT";
+    private static final String ORWheelActiveKey    = "APP_OWA";
+    private static final String ORColorToKey        = "APP_OCT";
+    private static final String ORColorActiveKey    = "APP_OCA";
+    private static final String ORUnitsToKey        = "APP_OUT";
+    private static final String ORUnitsActiveKey    = "APP_OUA";
+    private static final String ORModelToKey        = "APP_OMT";
+    private static final String ORModelActiveKey    = "APP_OMA";
+    private static final String ORRoofToKey         = "APP_ORT";
+    private static final String ORRoofActiveKey     = "APP_ORA";
     
     private void loadGeneralPrefs() {
-        booleanPref(WakeOnTCKey, wakeOnTabChange, true);
-        booleanPref(OfferExpKey, offerExperimental, false);
+        // ----- Basic Preferences
         integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
+        booleanPref(WakeOnTCKey, wakeOnTabChange, true);
+        stringPref(NotifyAddressKey, notificationAddress, "");
+        stringPref(GraphPeriodPrefKey, loadPeriod, StatsStore.LoadPeriod.All.name());
+        // ----- Advanced Preferences
+        booleanPref(OfferExpKey, offerExperimental, false);
         booleanPref(EnableProxyKey, enableProxy, false);
         stringPref(ProxyHostKey, proxyHost, "");
         integerPref(ProxyPortKey, proxyPort, 8080);
@@ -87,13 +118,22 @@ public class Prefs {
         booleanPref(EnableRestKey, enableRest, false);
         integerPref(RestPortKey, restPort, 9090);
         stringPref(CustomURLKey, customURLSource, "");
-        
         stringPref(AuthCodeKey, authCode, "");
         // Break down the external representation into the salt and password
-        String externalRep = authCode.get();
-        List<byte[]> internalForm = (new PWUtils()).internalRep(externalRep);
+        List<byte[]> internalForm = (new PWUtils()).internalRep(authCode.get());
         appContext.restSalt = internalForm.get(0);
         appContext.restEncPW = internalForm.get(1);
+        // ----- Overrides
+        stringPref(ORWheelToKey, overideWheelsTo, "From Car");
+        booleanPref(ORWheelActiveKey, overideWheelsActive, false);
+        stringPref(ORColorToKey, overideColorTo, "From Car");
+        booleanPref(ORColorActiveKey, overideColorActive, false);
+        stringPref(ORUnitsToKey, overideUnitsTo, "From Car");
+        booleanPref(ORUnitsActiveKey, overideUnitsActive, false);
+        stringPref(ORModelToKey, overideModelTo, "From Car");
+        booleanPref(ORModelActiveKey, overideModelActive, false);
+        stringPref(ORRoofToKey, overideRoofTo, "From Car");
+        booleanPref(ORRoofActiveKey, overideRoofActive, false);
     }
     
 /*------------------------------------------------------------------------------
@@ -101,16 +141,14 @@ public class Prefs {
  * Preferences related to the Graphs Tab
  * 
  *----------------------------------------------------------------------------*/
-    private static final String GraphIgnoreGapsKey = "GRAPH_GAP_IGNORE";
-    private static final String GraphGapTimeKey = "GRAPH_GAP_TIME";
-    private static final String GraphPeriodPrefKey = "GRAPH_PERIOD";
      
-    public StringProperty   loadPeriod = new SimpleStringProperty();
-    public BooleanProperty  ignoreGraphGaps = new SimpleBooleanProperty();
-    public IntegerProperty  graphGapTime = new SimpleIntegerProperty();
+    public BooleanProperty  ignoreGraphGaps         = new SimpleBooleanProperty();
+    public IntegerProperty  graphGapTime            = new SimpleIntegerProperty();
+    private static final String GraphIgnoreGapsKey  = "GRAPH_GAP_IGNORE";
+    private static final String GraphGapTimeKey     = "GRAPH_GAP_TIME";
+
     
     private void loadGraphPrefs() {
-        stringPref(GraphPeriodPrefKey, loadPeriod, StatsStore.LoadPeriod.All.name());
         booleanPref(GraphIgnoreGapsKey, ignoreGraphGaps, false);
         integerPref(GraphGapTimeKey, graphGapTime, 15); // 15 minutes        
     }
@@ -121,15 +159,14 @@ public class Prefs {
  * 
  *----------------------------------------------------------------------------*/
     
-    public BooleanProperty safeIncludesMinCharge = new SimpleBooleanProperty();
-    public BooleanProperty safeIncludesPluggedIn = new SimpleBooleanProperty();
-    
-    private static final String SchedSafeIncludesBattery = "SCHED_SAFE_BATTERY";
-    private static final String SchedSafeIncludesPlugged = "SCHED_SAFE_PLUGGED_IN";
+    public BooleanProperty safeIncludesMinCharge    = new SimpleBooleanProperty();
+    public BooleanProperty safeIncludesPluggedIn    = new SimpleBooleanProperty();
+    private static final String SchedSafeInclBat    = "SCHED_SAFE_BATTERY";
+    private static final String SchedSafeInclPlug   = "SCHED_SAFE_PLUGGED_IN";
     
     private void loadSchedulerPrefs() {
-        booleanPref(SchedSafeIncludesBattery, safeIncludesMinCharge, true);
-        booleanPref(SchedSafeIncludesPlugged, safeIncludesPluggedIn, false);
+        booleanPref(SchedSafeInclBat, safeIncludesMinCharge, true);
+        booleanPref(SchedSafeInclPlug, safeIncludesPluggedIn, false);
     }
     
 /*------------------------------------------------------------------------------
@@ -156,20 +193,6 @@ public class Prefs {
     }
     
 
-/*------------------------------------------------------------------------------
- *
- * OTHER Preferences
- * 
- *----------------------------------------------------------------------------*/
-    
-    public StringProperty   notificationAddress = new SimpleStringProperty();
-
-    private static final String NotificationAddressKey = "NOTIFICATION_ADDR";
-    
-    private void loadOtherPrefs() {
-        stringPref(NotificationAddressKey, notificationAddress, "");
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Convenience Methods for handling preferences

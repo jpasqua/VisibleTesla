@@ -46,7 +46,7 @@
                                 </FXCollections>
                               </items>
                             </ComboBox>
-                            <Label layoutX="14.0" layoutY="43.0" text="Load data for:" />
+                            <Label layoutX="14.0" layoutY="44.0" text="Load data for:" />
                             <Label layoutX="14.0" layoutY="81.0" text="Email for notifications:" />
                             <TextField fx:id="emailForNotifications" layoutX="163.0" layoutY="78.0" prefWidth="300.0" />
                             <Line endX="499.0" endY="0.0" layoutX="100.0" layoutY="34.0" startX="-100.0" />
@@ -116,6 +116,100 @@
                             </AnchorPane>
                           </content>
                         </ScrollPane>
+                      </content>
+                    </TitledPane>
+                    <TitledPane fx:id="x2" animated="false" expanded="false" text="Overrides">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <GridPane gridLinesVisible="true" layoutX="14.0" layoutY="14.0" prefWidth="272.0">
+                              <children>
+                                <ComboBox id="overideWheelsCombo" fx:id="overrideWheelsCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+                                  <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                      <String fx:value="From Car" />
+                                      <String fx:value="19&quot; Silver" />
+                                      <String fx:value="19&quot; Aero" />
+                                      <String fx:value="19&quot; Cyclone" />
+                                      <String fx:value="21&quot; Silver" />
+                                      <String fx:value="21&quot; Gray" />
+                                    </FXCollections>
+                                  </items>
+                                </ComboBox>
+                                <ComboBox fx:id="overrideColorCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                                  <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                      <String fx:value="From Car" />
+                                      <String fx:value="Red" />
+                                      <String fx:value="Blue" />
+                                      <String fx:value="Black" />
+                                      <String fx:value="Gren" />
+                                      <String fx:value="Pearl" />
+                                      <String fx:value="Sig. Red" />
+                                      <String fx:value="Brown" />
+                                      <String fx:value="Gray" />
+                                      <String fx:value="Silver" />
+                                      <String fx:value="White" />
+                                    </FXCollections>
+                                  </items>
+                                </ComboBox>
+                                <ComboBox fx:id="overrideUnitsCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+                                  <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                      <String fx:value="From Car" />
+                                      <String fx:value="Metric" />
+                                      <String fx:value="Imperial" />
+                                    </FXCollections>
+                                  </items>
+                                </ComboBox>
+                                <ComboBox fx:id="overrideModelCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+                                  <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                      <String fx:value="From Car" />
+                                      <String fx:value="Force P85+" />
+                                    </FXCollections>
+                                  </items>
+                                </ComboBox>
+                                <Label alignment="CENTER_RIGHT" contentDisplay="CENTER" prefWidth="58.0" text="Wheels" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Color" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Units" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="P85+?" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <Label text="Item" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
+                                <Label text="Value" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
+                                <Label text="Active" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
+                                <CheckBox fx:id="overrideWheelsActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                                <CheckBox fx:id="overrideColorActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                <CheckBox fx:id="overrideUnitsActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                <CheckBox fx:id="overrideModelActive" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Roof" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <ComboBox id="overrideModelCombo" fx:id="overrideRoofCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5">
+                                  <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                      <String fx:value="From Car" />
+                                      <String fx:value="Body Color" />
+                                      <String fx:value="Black" />
+                                      <String fx:value="Pano" />
+                                    </FXCollections>
+                                  </items>
+                                </ComboBox>
+                                <CheckBox id="overrideModelActive" fx:id="overrideRoofActive" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+                              </children>
+                              <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="79.0" minWidth="10.0" prefWidth="68.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="196.0" minWidth="10.0" prefWidth="162.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="1.0" prefWidth="42.0" />
+                              </columnConstraints>
+                              <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              </rowConstraints>
+                            </GridPane>
+                          </children>
+                        </AnchorPane>
                       </content>
                     </TitledPane>
                   </panes>
