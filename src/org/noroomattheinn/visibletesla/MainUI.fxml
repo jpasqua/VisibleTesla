@@ -97,46 +97,6 @@
                     <RadioMenuItem mnemonicParsing="false" onAction="#inactivityOptionsHandler" text="Stay Awake" toggleGroup="$inactivityItems" fx:id="stayAwakeMenuItem" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Simulate">
-                  <items>
-                    <Menu mnemonicParsing="false" text="Color">
-                      <items>
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Red" fx:id="simColorRed" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Blue" fx:id="simColorBlue" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Black" fx:id="simColorBlack" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Green" fx:id="simColorGreen" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Pearl" fx:id="simColorPearl" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Sig. Red" fx:id="simColorSigRed" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Brown" fx:id="simColorBrown" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Gray" fx:id="simColorGray" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="Silver" fx:id="simColorSilver" />
-                        <MenuItem mnemonicParsing="false" onAction="#simColorHandler" text="White" fx:id="simColorWhite" />
-                      </items>
-                    </Menu>
-                    <Menu mnemonicParsing="false" text="Rims">
-                      <items>
-                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Silver 21" fx:id="lightRims" />
-                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Gray 21" fx:id="darkRims" />
-                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Silver 19" fx:id="silver19Rims" />
-                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Aero 19" fx:id="aeroRims" />
-                        <MenuItem mnemonicParsing="false" onAction="#simRimsHandler" text="Cyclone 19" fx:id="cycloneRims" />
-                      </items>
-                    </Menu>
-                    <Menu mnemonicParsing="false" text="Roof">
-                      <items>
-                        <MenuItem mnemonicParsing="false" onAction="#simRoofHandler" text="Solid" fx:id="simSolidRoof" />
-                        <MenuItem mnemonicParsing="false" onAction="#simRoofHandler" text="Black" fx:id="simBlackRoof" />
-                        <MenuItem mnemonicParsing="false" onAction="#simRoofHandler" text="Pano" fx:id="simPanoRoof" />
-                      </items>
-                    </Menu>
-                    <Menu mnemonicParsing="false" text="Units">
-                      <items>
-                        <MenuItem mnemonicParsing="false" onAction="#simUnitsHandler" text="Metric" fx:id="simMetricUnits" />
-                        <MenuItem mnemonicParsing="false" onAction="#simUnitsHandler" text="Imperial" fx:id="simImperialUnits" />
-                      </items>
-                    </Menu>
-                  </items>
-                </Menu>
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Help">
@@ -151,7 +111,6 @@
         </MenuBar>
       </top>
     </BorderPane>
-    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
     <Pane fx:id="wakePane" prefHeight="202.0" prefWidth="432.0" style="-fx-background-color: #fff;&#10;" visible="false" AnchorPane.leftAnchor="104.0" AnchorPane.topAnchor="114.0">
       <children>

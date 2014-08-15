@@ -35,7 +35,7 @@
             <Button fx:id="socFallsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
-        <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="369.0" spacing="15.0">
+        <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="15.0">
           <children>
             <CheckBox fx:id="chargeState" mnemonicParsing="false" prefWidth="164.0" text="Charge State Becomes" />
             <ComboBox fx:id="csOptions" value="Complete">
@@ -56,7 +56,13 @@
             <Button fx:id="chargeBecomesOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
-        <Line endX="440.0" endY="0.0" startX="-150.0" />
+        <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
+          <children>
+            <CheckBox fx:id="chargeAnomaly" mnemonicParsing="false" prefWidth="-1.0" text="Detect Charge Anomalies" />
+            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+            <Button id="socFallsOptions" fx:id="caOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+          </children>
+        </HBox>
         <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
           <children>
             <CheckBox fx:id="speedHits" mnemonicParsing="false" prefWidth="164.0" text="Speed Hits or Exceeds" />
@@ -67,7 +73,6 @@
             <Button fx:id="speedHitsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
-        <Line endX="440.0" endY="0.0" startX="-150.0" />
         <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
           <children>
             <CheckBox fx:id="schedulerEvent" mnemonicParsing="false" text="Scheduler Event Triggered" />
@@ -75,7 +80,6 @@
             <Button fx:id="seOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
           </children>
         </HBox>
-        <Line endX="440.0" endY="0.0" startX="-150.0" />
         <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
           <children>
             <CheckBox id="schedulerEvent" fx:id="carEntered" mnemonicParsing="false" text="Car entered area" />

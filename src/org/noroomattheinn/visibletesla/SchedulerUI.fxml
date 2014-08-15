@@ -9,7 +9,6 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-
 <AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" style="-fx-background-color:#d0d0d0;" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.SchedulerController">
   <children>
     <GridPane id="heading" fx:id="headingPane" gridLinesVisible="true" prefWidth="611.0" AnchorPane.leftAnchor="21.0" AnchorPane.topAnchor="58.0">
@@ -121,7 +120,7 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="0" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                  <FXCollections fx:factory="observableArrayList" fx:id="commandList">
+                  <FXCollections fx:factory="observableArrayList">
                     <String fx:value="HVAC: On" />
                     <String fx:value="HVAC: Off" />
                     <String fx:value="Charge: Start" />
@@ -143,7 +142,7 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <FXCollections fx:factory="observableArrayList" fx:id="hoursList">
+                    <FXCollections fx:factory="observableArrayList">
                       <String fx:value="01" />
                       <String fx:value="02" />
                       <String fx:value="03" />
@@ -161,7 +160,7 @@
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <FXCollections fx:factory="observableArrayList" fx:id="minutesList">
+                    <FXCollections fx:factory="observableArrayList">
                       <String fx:value="00" />
                       <String fx:value="05" />
                       <String fx:value="10" />
@@ -179,7 +178,7 @@
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <FXCollections fx:factory="observableArrayList" fx:id="AM_PM">
+                    <FXCollections fx:factory="observableArrayList">
                       <String fx:value="AM" />
                       <String fx:value="PM" />
                     </FXCollections>
@@ -198,7 +197,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -206,19 +217,48 @@
             <CheckBox id="zeroOne" alignment="CENTER" text="" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
             <HBox id="HBox" alignment="CENTER" prefHeight="30.0" prefWidth="153.0" spacing="0.0" visible="true" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
               <children>
-                <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08" >
+                <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -234,7 +274,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -244,17 +296,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -270,7 +351,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -280,17 +373,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -306,7 +428,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -316,17 +450,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -342,7 +505,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="5" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -352,17 +527,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -378,7 +582,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -388,17 +604,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -414,7 +659,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="7" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -424,17 +681,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -450,7 +736,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="8" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -460,17 +758,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -486,7 +813,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="9" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -496,17 +835,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -522,7 +890,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="10" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -532,17 +912,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -558,7 +967,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="11" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -568,17 +989,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -594,7 +1044,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="12" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -604,17 +1066,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -630,7 +1121,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="13" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -640,17 +1143,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -666,7 +1198,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="14" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -676,17 +1220,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -702,7 +1275,19 @@
             <HBox alignment="CENTER" GridPane.columnIndex="10" GridPane.halignment="LEFT" GridPane.rowIndex="15" GridPane.valignment="CENTER">
               <ComboBox styleClass="squarecombo" value="-- None --">
                 <items>
-                    <fx:reference source="commandList"/>
+                  <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="HVAC: On" />
+                    <String fx:value="HVAC: Off" />
+                    <String fx:value="Charge: Start" />
+                    <String fx:value="Charge: Stop" />
+                    <String fx:value="Charge: Set" />
+                    <String fx:value="Sleep" />
+                    <String fx:value="Daydream" />
+                    <String fx:value="Awake" />
+                    <String fx:value="Unplugged?" />
+                    <String fx:value="Message" />
+                    <String fx:value="-- None --" />
+                  </FXCollections>
                 </items>
               </ComboBox>
               <Button disable="true" mnemonicParsing="false" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
@@ -712,17 +1297,46 @@
               <children>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08">
                   <items>
-                    <fx:reference source="hoursList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="01" />
+                      <String fx:value="02" />
+                      <String fx:value="03" />
+                      <String fx:value="04" />
+                      <String fx:value="05" />
+                      <String fx:value="06" />
+                      <String fx:value="07" />
+                      <String fx:value="08" />
+                      <String fx:value="09" />
+                      <String fx:value="10" />
+                      <String fx:value="11" />
+                      <String fx:value="12" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00">
                   <items>
-                    <fx:reference source="minutesList"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="00" />
+                      <String fx:value="05" />
+                      <String fx:value="10" />
+                      <String fx:value="15" />
+                      <String fx:value="20" />
+                      <String fx:value="25" />
+                      <String fx:value="30" />
+                      <String fx:value="35" />
+                      <String fx:value="40" />
+                      <String fx:value="45" />
+                      <String fx:value="50" />
+                      <String fx:value="55" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
                 <ComboBox minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
                   <items>
-                    <fx:reference source="AM_PM"/>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="AM" />
+                      <String fx:value="PM" />
+                    </FXCollections>
                   </items>
                 </ComboBox>
               </children>
@@ -769,7 +1383,6 @@
       </font>
     </Label>
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-    <Label id="lookupStatusLabel" fx:id="progressLabel" layoutX="55.0" layoutY="360.0" styleClass="semitransBackground" text="Label" visible="false" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
     <TitledPane alignment="TOP_LEFT" animated="false" contentDisplay="TEXT_ONLY" expanded="false" graphicTextGap="0.0" prefWidth="423.0" style="" styleClass="plane-pane" text="Recent Activity" textAlignment="LEFT" AnchorPane.rightAnchor="17.0" AnchorPane.topAnchor="36.0">
       <content>
