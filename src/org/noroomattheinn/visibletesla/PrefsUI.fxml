@@ -57,6 +57,17 @@
                                 <Font name="Arial Bold Italic" size="13.0" />
                               </font>
                             </Label>
+                            <ComboBox fx:id="overviewRange" layoutX="157.0" layoutY="131.0" value="Rated">
+                              <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                  <String fx:value="Rated" />
+                                  <String fx:value="Ideal" />
+                                  <String fx:value="Estimated" />
+                                </FXCollections>
+                              </items>
+                            </ComboBox>
+                            <Label layoutX="14.0" layoutY="134.0" text="Overview Range Type:" />
+                            <Line endX="499.0" endY="0.0" layoutX="95.0" layoutY="124.0" startX="-100.0" />
                           </children>
                         </AnchorPane>
                       </content>

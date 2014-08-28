@@ -43,10 +43,12 @@ public class Prefs {
     public IntegerProperty  idleThresholdInMinutes  = new SimpleIntegerProperty();
     public BooleanProperty  wakeOnTabChange         = new SimpleBooleanProperty();
     public StringProperty   loadPeriod              = new SimpleStringProperty();
+    public StringProperty   overviewRange           = new SimpleStringProperty();
     public StringProperty   notificationAddress     = new SimpleStringProperty();
     private static final String WakeOnTCKey         = "APP_WAKE_ON_TC";
     private static final String IdleThresholdKey    = "APP_IDLE_THRESHOLD";
     private static final String GraphPeriodPrefKey  = "GRAPH_PERIOD";
+    private static final String OverviewRangeKey    = "OVERVIEW_RANGE";
     private static final String NotifyAddressKey    = "NOTIFICATION_ADDR";
 
     // Advanced
@@ -105,6 +107,7 @@ public class Prefs {
         booleanPref(WakeOnTCKey, wakeOnTabChange, true);
         stringPref(NotifyAddressKey, notificationAddress, "");
         stringPref(GraphPeriodPrefKey, loadPeriod, StatsStore.LoadPeriod.All.name());
+        stringPref(OverviewRangeKey, overviewRange, "Rated");
         // ----- Advanced Preferences
         booleanPref(OfferExpKey, offerExperimental, false);
         booleanPref(EnableProxyKey, enableProxy, false);

@@ -63,7 +63,8 @@ public class PrefsController extends BaseController {
     @FXML private PasswordField authCode;
     @FXML private Button        setAuthCodeButton;
     @FXML private TextField     customURLSrc;
-    
+    @FXML private ComboBox<String> overviewRange;
+
     // Overrides
     @FXML private ComboBox<String>  overrideWheelsCombo;
     @FXML private CheckBox          overrideWheelsActive;
@@ -114,7 +115,7 @@ public class PrefsController extends BaseController {
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!appContext.sendNotification(addr, msg + date)) {
+        if (!appContext.utils.sendNotification(addr, msg + date)) {
             Dialogs.showWarningDialog(appContext.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +
@@ -142,7 +143,8 @@ public class PrefsController extends BaseController {
                               appContext.prefs.idleThresholdInMinutes);
         bindToComboBox(graphsTimePeriod, appContext.prefs.loadPeriod);
         bindToTextField(emailForNotifications, appContext.prefs.notificationAddress);
-        
+        bindToComboBox(overviewRange, appContext.prefs.overviewRange);
+
         // Advanced
         bindToCheckBox(enableProxy, appContext.prefs.enableProxy);
         bindToTextField(proxyHost, appContext.prefs.proxyHost);
