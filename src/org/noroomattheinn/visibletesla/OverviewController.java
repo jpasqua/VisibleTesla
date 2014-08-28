@@ -24,14 +24,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.apache.commons.lang3.StringUtils;
-import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DoorController;
 import org.noroomattheinn.tesla.DoorController.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.Options;
-import org.noroomattheinn.tesla.Options.PaintColor;
-import org.noroomattheinn.tesla.Options.WheelType;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Vehicle;
@@ -55,12 +52,8 @@ public class OverviewController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private VehicleState        car;            // The primary door state
-    private ChargeState         charge;         // For chargePortDoor status
     private DoorController      doorController; // For primary door controller
-    private ActionController    actions;        // For honk, flash, wake commands
     private double              storedOdometerReading;
-    private Callable<Result>    wakeupCB, flashCB, honkCB;
     
 /*------------------------------------------------------------------------------
  *
@@ -76,10 +69,15 @@ public class OverviewController extends BaseController {
     // Car Images (and Labels)
     //
     @FXML private ImageView bodyImg;
+    
+    // Wheels
     @FXML private ImageView darkRimFront, darkRimRear;
     @FXML private ImageView nineteenRimFront, nineteenRimRear;
     @FXML private ImageView aeroFront, aeroRear;
     @FXML private ImageView cycloneFront, cycloneRear;
+    private Map<Options.WheelType,Options.WheelType> wheelEquivs = new HashMap<>();  
+    private Map<Options.WheelType,ImageView[]> wheelImages = new HashMap<>();  
+    
     @FXML private ImageView seatsTanImg, seatsGrayImg;
 
     // Driver Side
@@ -104,6 +102,8 @@ public class OverviewController extends BaseController {
     @FXML private ImageView chargeCableImg, portClosedImg, portOpenImg, greenGlowImage;
     
     // Other Labels
+    @FXML private Label shiftStateLabel;
+    @FXML private Label rangeLabel;
     @FXML private Label odometerLabel;
     @FXML private Button vinButton;
     
@@ -113,7 +113,6 @@ public class OverviewController extends BaseController {
     //
     // Controls
     //
-    @FXML private Button honkButton, flashButton, wakeupButton;
     @FXML private Button lockButton, unlockButton;
     @FXML private Button closePanoButton, ventPanoButton, openPanoButton;
     
@@ -127,14 +126,10 @@ public class OverviewController extends BaseController {
         final Button source = (Button)event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                return doorController.setLockState(source == lockButton); } }, AfterCommand.Refresh);
-    }
-
-    @FXML void miscCommandHandler(ActionEvent event) {
-        Button source = (Button)event.getSource();
-        if (source == honkButton)  issueCommand(honkCB, AfterCommand.Nothing);
-        else if (source == flashButton) issueCommand(flashCB, AfterCommand.Nothing);
-        else if (source == wakeupButton) issueCommand(wakeupCB, AfterCommand.Nothing);
+                Result r = doorController.setLockState(source == lockButton);
+                updateState(StateProducer.StateType.Vehicle);
+                return r;
+            } });
     }
 
     @FXML void panoButtonHandler(ActionEvent event) {
@@ -143,17 +138,21 @@ public class OverviewController extends BaseController {
             source == ventPanoButton ? PanoCommand.vent :
                 ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
         issueCommand(new Callable<Result>() {
-            @Override public Result call() { return doorController.setPano(cmd); } },
-            AfterCommand.Refresh);
+            @Override public Result call() {
+                Result r = doorController.setPano(cmd);
+                updateState(StateProducer.StateType.Vehicle);
+                return r;
+            } });
     }
 
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
-        String info = vehicle.toString() +
-                "\nFirmware Version: " + car.state.version +
-                "\nHas Spoiler: " + car.state.hasSpoiler +
+        VehicleState.State car = appContext.lastKnownVehicleState.get();
+        String info = appContext.vehicle.toString() +
+                "\nFirmware Version: " + car.version +
+                "\nHas Spoiler: " + car.hasSpoiler +
                 "\n--------------------------------------------" +
-                "\nLow level information: " + vehicle.getUnderlyingValues() +
+                "\nLow level information: " + appContext.vehicle.getUnderlyingValues() +
                 "\nAPI Usage Rates:";
         for (Map.Entry<Integer,Integer> e: RestyWrapper.stats().entrySet()) {
             int seconds = e.getKey();
@@ -175,21 +174,17 @@ public class OverviewController extends BaseController {
     
     @Override protected void fxInitialize() {
         odometerLabel.setVisible(true);
-        honkCB = new Callable<Result>() {@Override public Result call() { return actions.honk(); } };
-        flashCB = new Callable<Result>() {@Override  public Result call() { return actions.flashLights(); } };
-        wakeupCB = new Callable<Result>() {@Override  public Result call() { return actions.wakeUp(); } };
+        
+        wheelImages.put(Options.WheelType.WTAE, new ImageView[] {aeroFront, aeroRear});
+        wheelImages.put(Options.WheelType.WTTB, new ImageView[] {cycloneFront, cycloneRear});
+        wheelImages.put(Options.WheelType.WT19, new ImageView[] {nineteenRimFront, nineteenRimRear});
+        wheelImages.put(Options.WheelType.WTSP, new ImageView[] {darkRimFront, darkRimRear});
+        wheelImages.put(Options.WheelType.WT21, new ImageView[] {});
+        wheelEquivs.put(Options.WheelType.WTX1, Options.WheelType.WT19);
+        wheelEquivs.put(Options.WheelType.WT1P, Options.WheelType.WT19);
+        wheelEquivs.put(Options.WheelType.WTSG, Options.WheelType.WTSP);
     }
 
-    @Override protected void appInitialize() {
-        appContext.simulatedColor.addListener(new ChangeListener<PaintColor>() {
-            @Override public void changed(
-                    ObservableValue<? extends PaintColor> ov,
-                    PaintColor oldPaint, PaintColor newPaint) {
-                getAppropriateImages(vehicle);
-            }
-        });
-    }
-    
     /**
      * Refresh the state either because the user requested it or because the 
      * auto-refresh interval has passed. We always update the car and
@@ -200,59 +195,60 @@ public class OverviewController extends BaseController {
      * 
      */
     @Override protected void refresh() {
-        updateState(car);
-        updateState(charge);
+        updateState(StateProducer.StateType.Vehicle);
+        updateState(StateProducer.StateType.Charge);
     }
     
-    @Override protected void prepForVehicle(final Vehicle v) {
-        if (differentVehicle()) {
-            actions = new ActionController(v);
-            doorController = new DoorController(v);
-            getAppropriateImages(v);
+    @Override protected void initializeState() {
+        final Vehicle v = appContext.vehicle;
+        doorController = new DoorController(v);
+        getAppropriateImages(v);
 
-            car = new VehicleState(v);
-            charge = new ChargeState(v);
-            
-            appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
-                @Override public void changed(
-                        ObservableValue<? extends SnapshotState.State> ov,
-                        SnapshotState.State old, final SnapshotState.State cur) {
-                    Platform.runLater(new Runnable() { @Override public void run() { updateOdometer(); } });
-                }
-            });
-            storedOdometerReading = appContext.persistentState.getDouble(v.getVIN()+"_odometer", 0);
-            appContext.snapshotStreamer.produce(false);
-                // Make sure we update the odometer reading at some point...
-
-            updateWheelView();  // Make sure we display the right wheels from the get-go
-            updateRoofView();   // Make sure we display the right roof from the get-go
-            if (storedOdometerReading != 0)
-                updateOdometer();   // Show at least an old reading to start
-            
-            reflectVINOrFirmware(v);
-            vinButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent event) {
-                    setDisplayVIN(v, !getDisplayVIN(v));
-                    reflectVINOrFirmware(v);
+        appContext.lastKnownVehicleState.addListener(new ChangeListener<VehicleState.State>() {
+            @Override public void changed(ObservableValue<? extends VehicleState.State> ov,
+                VehicleState.State old, VehicleState.State cur) {
+                Platform.runLater(new Runnable() {
+                    @Override public void run() { updateVehicleState(); }
+                });
             }
         });
+        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState.State>() {
+            @Override public void changed(ObservableValue<? extends ChargeState.State> ov,
+                ChargeState.State old, ChargeState.State cur) {
+                Platform.runLater(new Runnable() {
+                    @Override public void run() { updateChargePort(); updateRange(); }
+                });
+            }
+        });
+        appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+            @Override public void changed(
+                    ObservableValue<? extends SnapshotState.State> ov,
+                    SnapshotState.State old, final SnapshotState.State cur) {
+                Platform.runLater(new Runnable() {
+                    @Override public void run() { updateOdometer(); updateShiftState(); }
+                });
+            }
+        });
+        storedOdometerReading = appContext.persistentState.getDouble(v.getVIN() + "_odometer", 0);
+        appContext.snapshotStreamer.produce(false);
+            // Make sure we update the odometer reading at some point...
 
+        updateWheelView();  // Make sure we display the right wheels from the get-go
+        updateRoofView();   // Make sure we display the right roof from the get-go
+        if (storedOdometerReading != 0) {
+            updateOdometer();   // Show at least an old reading to start
         }
-    }
-        
-    @Override protected void reflectNewState() {
-        if (car.state == null) return;   // State's not ready yet
-
-        updateWheelView();
-        updateRoofView();
-        updateDoorView();
-        updateOdometer();
-        updateChargePort();
-        updateEmblem();
-        updateSeats();
+        reflectVINOrFirmware(v);
+        vinButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setDisplayVIN(v, !getDisplayVIN(v));
+                reflectVINOrFirmware(v);
+            }
+        });
     }
     
-    
+    @Override protected void activateTab() { }
 
 /*------------------------------------------------------------------------------
  *
@@ -260,28 +256,61 @@ public class OverviewController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
+    private void updateVehicleState() {
+        updateWheelView();
+        updateRoofView();
+        updateDoorView();
+        updateOdometer();
+        updateEmblem();
+        updateSeats();
+        updateRange();
+        updateShiftState();
+    }
+    
+    private void updateRange() {
+        ChargeState.State cs = appContext.lastKnownChargeState.get();
+        double range = 0;
+        String rangeType = appContext.prefs.overviewRange.get();
+        switch (rangeType) {
+            case "Estimated": range = cs.estimatedRange; break;
+            case "Ideal": range = cs.idealRange; break;
+            case "Rated": range = cs.range; break;
+        }
+        range = appContext.utils.inProperUnits(range);
+        String units = appContext.utils.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+        rangeLabel.setText(String.format("%s Range: %3.1f %s", rangeType, range, units));
+    }
+    
+    private void updateShiftState() {
+        SnapshotState.State snapshot = appContext.lastKnownSnapshotState.get();
+        if (snapshot == null) return;
+        String ss = snapshot.shiftState;
+        if (ss == null || ss.isEmpty()) ss = "P";
+        shiftStateLabel.setText(ss);
+    }
     
     private void updateDoorView() {
-        boolean rtOpen = car.state.isRTOpen;
+        VehicleState.State car = appContext.lastKnownVehicleState.get();
+        boolean rtOpen = car.isRTOpen;
         
         // Show the open/closed state of the doors and trunks
-        setOptionState(car.state.isFTOpen, ftOpenImg, ftClosedImg);
+        setOptionState(car.isFTOpen, ftOpenImg, ftClosedImg);
         setOptionState(rtOpen, rtOpenImg, rtClosedImg);
-        setOptionState(car.state.isDFOpen, dfOpenImg, dfClosedImg);
-        setOptionState(car.state.isPFOpen, pfOpenImg, null);
-        setOptionState(car.state.isDROpen, drOpenImg, drClosedImg);
-        setOptionState(car.state.isPROpen, prOpenImg, null);
-        setOptionState(car.state.locked, lockedImg, unlockedImg);
+        setOptionState(car.isDFOpen, dfOpenImg, dfClosedImg);
+        setOptionState(car.isPFOpen, pfOpenImg, null);
+        setOptionState(car.isDROpen, drOpenImg, drClosedImg);
+        setOptionState(car.isPROpen, prOpenImg, null);
+        setOptionState(car.locked, lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
-        if (car.state.hasSpoiler) {
+        if (appContext.lastKnownVehicleState.get().hasSpoiler) {
             setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         }        
     }
     
     private void updateRoofView() {
-        Options.RoofType type = (appContext.simulatedRoof.get() == null) ?
-            vehicle.getOptions().roofType() : appContext.simulatedRoof.get();
+        Options.RoofType type = appContext.utils.roofType();
+        
         boolean hasPano = (type == Options.RoofType.RFPO);
         
         // Start with all images set to invisible, then turn on the one right one
@@ -303,7 +332,8 @@ public class OverviewController extends BaseController {
     }
     
     private void updatePanoView() {
-        int pct = (car.state != null) ? car.state.panoPercent : 0;
+        VehicleState.State car = appContext.lastKnownVehicleState.get();
+        int pct = car.panoPercent;
         
         if (pct == 0) panoClosedImg.setVisible(true);
         else if (pct > 0 && pct < 90) panoVentImg.setVisible(true);
@@ -312,52 +342,23 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        WheelType wt = appContext.computedWheelType();
-        
-        nineteenRimFront.setVisible(false); nineteenRimRear.setVisible(false);
-        darkRimFront.setVisible(false); darkRimRear.setVisible(false);
-        aeroFront.setVisible(false);  aeroRear.setVisible(false);
-        cycloneFront.setVisible(false); cycloneRear.setVisible(false);
-        switch (wt) {
-            case WTAE:
-                aeroFront.setVisible(true);
-                aeroRear.setVisible(true);
-                break;
-            case WTTB:
-                cycloneFront.setVisible(true);
-                cycloneRear.setVisible(true);
-                break;
-            case WTX1:
-            case WT1P:
-            case WT19:
-                nineteenRimFront.setVisible(true);
-                nineteenRimRear.setVisible(true);
-                break;
-            case WTSP:
-            case WTSG:
-                darkRimFront.setVisible(true);
-                darkRimRear.setVisible(true);
-                break;
-            case WT21:
-            default:    // Unknown, use default which is WT21
-                break;
-        }
+        updateImages(appContext.utils.computedWheelType(), wheelImages, wheelEquivs);
     }
-      
+    
     private void updateChargePort() {
-        if (charge.state == null) return; // No state available yet...
+        ChargeState.State charge = appContext.lastKnownChargeState.get();
         
-        int pilotCurrent = charge.state.chargerPilotCurrent;
-        boolean chargePortDoorOpen = (charge.state.chargePortOpen || pilotCurrent > 0);
+        int pilotCurrent = charge.chargerPilotCurrent;
+        boolean chargePortDoorOpen = (charge.chargePortOpen || pilotCurrent > 0);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
         chargeCableImg.setVisible(pilotCurrent > 0);
-        greenGlowImage.setVisible(charge.state.chargingState == ChargeState.Status.Charging);
+        greenGlowImage.setVisible(charge.chargingState == ChargeState.Status.Charging);
     }
     
     private void updateSeats() {
         seatsGrayImg.setVisible(false);
         seatsTanImg.setVisible(false);
-        switch (vehicle.getOptions().seatType().getColor()) {
+        switch (appContext.vehicle.getOptions().seatType().getColor()) {
             case Gray:
             case White:
                 seatsGrayImg.setVisible(true);
@@ -376,7 +377,7 @@ public class OverviewController extends BaseController {
         s85Img.setVisible(false);
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
-        Options o = vehicle.getOptions();
+        Options o = appContext.vehicle.getOptions();
         if (o.isPerfPlus()) {
             p85pImg.setVisible(true);
         } else if (o.isPerformance()) {
@@ -394,25 +395,20 @@ public class OverviewController extends BaseController {
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
         // Save off the odometer reading (in miles)
-        appContext.persistentState.putDouble(vehicle.getVIN()+"_odometer", odometerReading);
-        boolean useMiles = appContext.unitType() == Utils.UnitType.Imperial;
+        appContext.persistentState.putDouble(appContext.vehicle.getVIN()+"_odometer", odometerReading);
+        boolean useMiles = appContext.utils.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
     }
     
     private void reflectVINOrFirmware(Vehicle v) {
+        VehicleState.State car = appContext.lastKnownVehicleState.get();
         if (getDisplayVIN(v))
             vinButton.setText("VIN " + StringUtils.right(v.getVIN(), 6));
         else {
-            String version;
-            if (car.state == null) {
-                 version = appContext.persistentState.get(vehicle.getVIN()+"_FIRMWARE", "...");
-            } else {
-                version = car.state.version;
-                appContext.persistentState.put(vehicle.getVIN()+"_FIRMWARE", version);
-            }
-            vinButton.setText(version);
+            appContext.persistentState.put(appContext.vehicle.getVIN()+"_FIRMWARE", car.version);
+            vinButton.setText(car.version);
         }
     }
     
@@ -453,8 +449,7 @@ public class OverviewController extends BaseController {
 
     // Replace the images that were selected by default with images for the actual color
     private void getAppropriateImages(Vehicle v) {
-        Options.PaintColor c = appContext.simulatedColor.get() != null ?
-                appContext.simulatedColor.get() : v.getOptions().paintColor();
+        Options.PaintColor c = appContext.utils.paintColor();
 
         ClassLoader cl = getClass().getClassLoader();
         String colorDirectory = colorToDirectory.get(c);

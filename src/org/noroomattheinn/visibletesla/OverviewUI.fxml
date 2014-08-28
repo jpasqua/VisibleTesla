@@ -124,13 +124,6 @@
         <Font name="System Bold" size="13.0" />
       </font>
     </Label>
-    <HBox id="HBox" alignment="CENTER" layoutX="275.0" layoutY="323.0" spacing="0.0">
-      <children>
-        <Button id="lockButton" fx:id="honkButton" mnemonicParsing="false" onAction="#miscCommandHandler" styleClass="pill-left" text="Honk" />
-        <Button id="unlockButton" fx:id="flashButton" mnemonicParsing="false" onAction="#miscCommandHandler" styleClass="pill-center" text="Flash" />
-        <Button id="unlockButton" fx:id="wakeupButton" mnemonicParsing="false" onAction="#miscCommandHandler" styleClass="pill-right" text="Wakeup" />
-      </children>
-    </HBox>
     <HBox id="HBox" alignment="CENTER" fillHeight="true" layoutX="242.0" layoutY="24.0" prefWidth="178.0" spacing="0.0" />
     <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshButtonHandler" text="Refresh" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
     <ProgressIndicator id="lookupProgress" fx:id="progressIndicator" layoutX="13.0" layoutY="350.0" progress="0.0" visible="false" />
@@ -160,7 +153,30 @@
         <Image url="@../TeslaResources/wheel_rear_19@2x.png" />
       </image>
     </ImageView>
-    <Label fx:id="odometerLabel" layoutX="275.0" layoutY="362.0" minHeight="13.9998779296875" prefHeight="21.0" text="Odometer: ..." visible="true" />
+    <HBox id="HBox" alignment="CENTER" layoutX="240.0" layoutY="316.0" spacing="5.0">
+      <children>
+        <StackPane minHeight="34.0" minWidth="40.0" prefHeight="34.0" prefWidth="40.0">
+          <children>
+            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" scaleX="0.25" scaleY="0.25">
+              <image>
+                <Image url="@../TeslaResources/02_home_status_circle@2x.png" />
+              </image>
+            </ImageView>
+            <Label fx:id="shiftStateLabel" text="P" textFill="WHITE">
+              <font>
+                <Font name="System Bold" size="16.0" />
+              </font>
+            </Label>
+          </children>
+        </StackPane>
+        <VBox id="VBox" alignment="TOP_LEFT" spacing="0.0">
+          <children>
+            <Label id="odometerLabel" fx:id="rangeLabel" minHeight="13.9998779296875" prefHeight="21.0" text="Range: ..." visible="true" />
+            <Label fx:id="odometerLabel" minHeight="13.9998779296875" prefHeight="21.0" text="Odometer: ..." visible="true" />
+          </children>
+        </VBox>
+      </children>
+    </HBox>
     <Button mnemonicParsing="false" onAction="#detailsButtonHandler" text="Details" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="92.0" />
     <ImageView id="spolierClosedImg" fx:id="spoilerClosedImg" fitHeight="0.0" fitWidth="0.0" layoutX="523.0" layoutY="129.0" pickOnBounds="true" preserveRatio="true" visible="false">
       <image>
@@ -247,7 +263,7 @@
         <Image url="@../TeslaResources/Emblems/85.png" />
       </image>
     </ImageView>
-    <ImageView fx:id="s60Img" fitHeight="0.0" fitWidth="0.0" layoutX="511.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+    <ImageView fx:id="s60Img" fitHeight="0.0" fitWidth="0.0" layoutX="511.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="true">
       <effect>
         <DropShadow color="$x1" height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0" />
       </effect>
