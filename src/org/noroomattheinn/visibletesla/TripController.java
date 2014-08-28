@@ -48,7 +48,6 @@ import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.GeoUtils.ElevationData;
 import org.noroomattheinn.utils.SimpleTemplate;
@@ -238,48 +237,21 @@ public class TripController extends BaseController {
 
     }
 
-    private boolean sameMonth(Calendar month, Calendar day) {
-        return (month.get(Calendar.YEAR) == day.get(Calendar.YEAR) &&
-                month.get(Calendar.MONTH) == day.get(Calendar.MONTH));
-    }
-
-    private void highlightDaysWithTrips(Calendar month) {
-        List<Calendar> daysToHighlight = new ArrayList<>();
-        for (List<Trip> trips : dateToTrips.values()) {
-            Calendar day = Calendar.getInstance();
-            day.setTimeInMillis(trips.get(0).firstWayPoint().timestamp);
-            if (sameMonth(month, day)) daysToHighlight.add(day);
-        }
-        calendarPicker.highlightedCalendars().clear();
-        calendarPicker.highlightedCalendars().addAll(daysToHighlight);
+    @Override protected void activateTab() {
+        String units = appContext.utils.unitType() == Utils.UnitType.Imperial ? " (mi)" : " (km)";
+        rangeRow.setName(RangeRowName + units);
+        odoRow.setName(OdoRowName + units);
     }
     
-    private Callback<CalendarPicker.CalendarRange,java.lang.Void> highlighter =
-        new Callback<CalendarPicker.CalendarRange,java.lang.Void>() {
-        
-        @Override public Void call(CalendarPicker.CalendarRange p) {
-            highlightDaysWithTrips(p.getStartCalendar());
-            return null;
-        }
-    };
-    
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            includeGraph.setSelected(
-                    appContext.persistentState.getBoolean(IncludeGraphKey, false));
-            snapToRoad.setSelected(
-                    appContext.persistentState.getBoolean(SnapToRoadKey, false));
-            readTrips();
-        }
-        
-        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
-        rangeRow.setName(RangeRowName + (useMiles ? " (mi)" : " (km)"));
-        odoRow.setName(OdoRowName + (useMiles ? " (mi)" : " (km)"));
+    @Override protected void initializeState() {
+        includeGraph.setSelected(
+                appContext.persistentState.getBoolean(IncludeGraphKey, false));
+        snapToRoad.setSelected(
+                appContext.persistentState.getBoolean(SnapToRoadKey, false));
+        readTrips();
     }
 
     @Override protected void refresh() { }
-
-    @Override protected void reflectNewState() { }
 
 /*------------------------------------------------------------------------------
  *
@@ -398,6 +370,22 @@ public class TripController extends BaseController {
                 "GMAP_API_KEY", appContext.prefs.useCustomGoogleAPIKey.get() ?
                     appContext.prefs.googleAPIKey.get() :
                     AppContext.GoogleMapsAPIKey);
+    }
+    
+    private boolean sameMonth(Calendar month, Calendar day) {
+        return (month.get(Calendar.YEAR) == day.get(Calendar.YEAR) &&
+                month.get(Calendar.MONTH) == day.get(Calendar.MONTH));
+    }
+
+    private void highlightDaysWithTrips(Calendar month) {
+        List<Calendar> daysToHighlight = new ArrayList<>();
+        for (List<Trip> trips : dateToTrips.values()) {
+            Calendar day = Calendar.getInstance();
+            day.setTimeInMillis(trips.get(0).firstWayPoint().timestamp);
+            if (sameMonth(month, day)) daysToHighlight.add(day);
+        }
+        calendarPicker.highlightedCalendars().clear();
+        calendarPicker.highlightedCalendars().addAll(daysToHighlight);
     }
     
 /*------------------------------------------------------------------------------

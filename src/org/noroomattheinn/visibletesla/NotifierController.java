@@ -31,11 +31,11 @@ import jfxtras.labs.scene.control.BigDecimalField;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
+import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
 import org.noroomattheinn.visibletesla.trigger.Predicate;
 import org.noroomattheinn.visibletesla.trigger.Trigger;
 import org.noroomattheinn.visibletesla.trigger.RW;
@@ -54,8 +54,13 @@ public class NotifierController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
+    private static final long TypicalDebounce = 10 * 60 * 1000; // 10 Minutes
+    private static final long SpeedDebounce = 30 * 60 * 1000;   // 30 Minutes
+    private static final long GeoDebounce = 30 * 1000;          // 30 Seconds
+
     private static final String NotifySEKey = "NOTIFY_SE";
     private static final String NotifyCSKey = "NOTIFY_CS";
+    private static final String NotifyCAKey = "NOTIFY_CA";
     private static final String NotifySpeedKey = "NOTIFY_SPEED";
     private static final String NotifySOCHitsKey = "NOTIFY_SOC_HITS";
     private static final String NotifySOCFallsKey = "NOTIFY_SOC_FALLS";
@@ -77,6 +82,11 @@ public class NotifierController extends BaseController {
         "\nRange: {{RATED}} {{D_UNITS}}" +
         "\nEstimated Range: {{ESTIMATED}} {{D_UNITS}}" +
         "\nIdeal Range: {{IDEAL}} {{D_UNITS}}";
+    private static final String ChargeAnomalySubj = "Charge Anomaly";
+    private static final String ChargeAnomalyMsg =
+            "{{A_CT}} current deviated significantly from baseline" +
+            "\nBaseline: {{TARGET}}A" +
+            "\nMost Recent: {{CUR}}A";
     private static final String EnterAreaSubj = "Entered {{TARGET}}";
     private static final String EnterAreaMsg = "Entered {{TARGET}}";
     private static final String LeftAreaSubj = "Left {{TARGET}}";
@@ -115,6 +125,11 @@ public class NotifierController extends BaseController {
     private MessageTarget       leftMessageTarget;
     private ObjectProperty<Area> leftAreaProp = new SimpleObjectProperty<>(new Area());
     
+    // Charge Anomoly Triggers
+    private DeviationTrigger    ccTrigger;
+    private DeviationTrigger    pcTrigger;
+    private MessageTarget       caMessageTarget;
+    
 /*------------------------------------------------------------------------------
  *
  * UI Elements
@@ -152,6 +167,9 @@ public class NotifierController extends BaseController {
     @FXML private Button defineLeftButton;
     @FXML private Button carLeftOptions;
     
+    @FXML private CheckBox chargeAnomaly;
+    @FXML private Button caOptions;
+
 /*------------------------------------------------------------------------------
  *
  * UI Action Handlers
@@ -194,11 +212,20 @@ public class NotifierController extends BaseController {
             showDialog(enteredMessageTarget);
         } else if (b == carLeftOptions) {
             showDialog(leftMessageTarget);
+        } else if (b == caOptions) {
+            showDialog(caMessageTarget);
         } else {
             Tesla.logger.warning("Unexpected button: " + b.toString());
         }
     }
-
+    
+    private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
+        @Override public void changed(
+                ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
+            appContext.persistentState.putBoolean(prefKey(NotifyCAKey), cur);
+        }
+    };
+    
     
 /*------------------------------------------------------------------------------
  *
@@ -210,58 +237,56 @@ public class NotifierController extends BaseController {
         bindBidrectional(speedHitsField, speedHitsSlider);
         bindBidrectional(socHitsField, socHitsSlider);
         bindBidrectional(socFallsField, socFallsSlider);
+        chargeAnomaly.selectedProperty().addListener(caListener);
     }
 
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            // TO DO: Remove old triggers!
-
+    @Override protected void initializeState() {
             socHitsTrigger = new Trigger<>(
                 appContext, socHits.selectedProperty(), RW.bdHelper,
                 "SOC", NotifySOCHitsKey,  Predicate.Type.HitsOrExceeds,
-                socHitsField.numberProperty(), new BigDecimal(88.0));
+                socHitsField.numberProperty(), new BigDecimal(88.0), TypicalDebounce);
             socHitsMessageTarget = new MessageTarget(
                     appContext, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
             
             socFallsTrigger = new Trigger<>(
                 appContext, socFalls.selectedProperty(), RW.bdHelper,
                 "SOC", NotifySOCFallsKey, Predicate.Type.FallsBelow,
-                socFallsField.numberProperty(), new BigDecimal(50.0));
+                socFallsField.numberProperty(), new BigDecimal(50.0), TypicalDebounce);
             socFallsMessageTarget = new MessageTarget(
                     appContext, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
             
             speedHitsTrigger = new Trigger<>(
                 appContext, speedHits.selectedProperty(), RW.bdHelper,
                 "Speed", NotifySpeedKey, Predicate.Type.HitsOrExceeds,
-                speedHitsField.numberProperty(), new BigDecimal(70.0));
+                speedHitsField.numberProperty(), new BigDecimal(70.0), SpeedDebounce);
             shMessageTarget = new MessageTarget(
                     appContext, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
             
             seTrigger = new Trigger<>(
                 appContext, schedulerEvent.selectedProperty(), RW.stringHelper,
                 "Scheduler", NotifySEKey, Predicate.Type.AnyChange,
-                new SimpleObjectProperty<>("Anything"), "Anything");
+                new SimpleObjectProperty<>("Anything"), "Anything", 0L);
             seMessageTarget = new MessageTarget(
                     appContext, NotifySEKey, SchedEventSubj, SchedEventMsg);
 
             csTrigger = new Trigger<>(
                 appContext, chargeState.selectedProperty(), RW.stringHelper,
                 "Charge State", NotifyCSKey, Predicate.Type.Becomes,
-                csOptions.valueProperty(), csOptions.itemsProperty().get().get(0));
+                csOptions.valueProperty(), csOptions.itemsProperty().get().get(0), 0L);
             csMessageTarget = new MessageTarget(
                     appContext, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
             
             enteredTrigger = new Trigger<>(
                 appContext, carEntered.selectedProperty(), RW.areaHelper,
                 "Enter Area", NotifyEnterKey, Predicate.Type.HitsOrExceeds,
-                enterAreaProp, new Area());
+                enterAreaProp, new Area(), GeoDebounce);
             this.enteredMessageTarget = new MessageTarget(
                     appContext, NotifyEnterKey, EnterAreaSubj, EnterAreaMsg);
             
             leftTrigger = new Trigger<>(
                 appContext, carLeft.selectedProperty(), RW.areaHelper,
                 "Left Area", NotifyLeftKey, Predicate.Type.FallsBelow,
-                leftAreaProp, new Area());
+                leftAreaProp, new Area(), GeoDebounce);
             this.leftMessageTarget = new MessageTarget(
                     appContext, NotifyLeftKey, LeftAreaSubj, LeftAreaMsg);
             
@@ -271,11 +296,20 @@ public class NotifierController extends BaseController {
             
             for (Trigger t : allTriggers) { t.init(); }
 
+            // Other types of trigger
+            ccTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
+            pcTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
+            caMessageTarget = new MessageTarget(
+                    appContext, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
+            chargeAnomaly.setSelected(
+                    appContext.persistentState.getBoolean(prefKey(NotifyCAKey),
+                    false));
+            
             startListening();
-        }
-        
-        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
-        if (useMiles) {
+    }
+    
+    @Override protected void activateTab() {
+        if (appContext.utils.unitType() == Utils.UnitType.Imperial) {
             speedUnitsLabel.setText("mph");
             speedHitsSlider.setMin(0);
             speedHitsSlider.setMax(100);
@@ -291,8 +325,6 @@ public class NotifierController extends BaseController {
     }
 
     @Override protected void refresh() { }
-
-    @Override protected void reflectNewState() {}
 
 /*------------------------------------------------------------------------------
  *
@@ -316,17 +348,6 @@ public class NotifierController extends BaseController {
         if (!cld.cancelled()) {
             areaProp.set(cld.getArea());
         }
-//        props.put("AREA", areaProp.get());
-//        props.put("APP_CONTEXT", appContext);
-//
-//        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-//                getClass().getResource("dialogs/GeoOptionsDialog.fxml"),
-//                "Select an Area", appContext.stage, props);
-//
-//        GeoOptionsDialog god = Utils.cast(dc);
-//        if (!god.cancelled()) {
-//            areaProp.set(god.getArea());
-//        }
     }
 
     private void showDialog(MessageTarget mt) {
@@ -392,6 +413,23 @@ public class NotifierController extends BaseController {
             if (result != null) {
                 notifyUser(result, csMessageTarget);
             }
+            // Handle other triggers
+            if (!cur.fastChargerPresent && chargeAnomaly.isSelected()) {
+                if (ccTrigger.handleSample(cur.chargerActualCurrent)) {
+                    Map<String,String> contextSpecific = Utils.newHashMap(
+                        "CUR", String.format("%d", cur.chargerActualCurrent),
+                        "TARGET", String.format("%.0f", ccTrigger.getBaseline()),
+                        "A_CT", "Charge");
+                    notifyUser(contextSpecific, caMessageTarget);
+                }
+                if (pcTrigger.handleSample(cur.chargerPilotCurrent)) {
+                    Map<String,String> contextSpecific = Utils.newHashMap(
+                        "CUR", String.format("%d", cur.chargerPilotCurrent),
+                        "TARGET", String.format("%.0f", pcTrigger.getBaseline()),
+                        "A_CT", "Pilot");
+                    notifyUser(contextSpecific, caMessageTarget);
+                }
+            }
         }
     };
             
@@ -402,37 +440,24 @@ public class NotifierController extends BaseController {
                 ObservableValue<? extends SnapshotState.State> ov,
                 SnapshotState.State old, SnapshotState.State cur) {
             Trigger.Result result = socHitsTrigger.evalPredicate(new BigDecimal(cur.soc));
-            if (result != null)
-                notifyUser(result, socHitsMessageTarget);
+            if (result != null) { notifyUser(result, socHitsMessageTarget); }
             
             result = socFallsTrigger.evalPredicate(new BigDecimal(cur.soc));
-            if (result != null)
-                notifyUser(result, socFallsMessageTarget);
+            if (result != null) { notifyUser(result, socFallsMessageTarget); }
             
             double speed = useMiles ? cur.speed : Utils.mToK(cur.speed);
             result = speedHitsTrigger.evalPredicate(new BigDecimal(speed));
-            if (result != null) {
-                if (System.currentTimeMillis() - lastSpeedNotification > 30 * 60 * 1000) {
-                    notifyUser(result, shMessageTarget);
-                    lastSpeedNotification = System.currentTimeMillis();
-                }
-            }
+            if (result != null) { notifyUser(result, shMessageTarget); }
             
             Area curLoc = new Area(cur.estLat, cur.estLng, 0, "Current Location");
             result = enteredTrigger.evalPredicate(curLoc);
-            if (result != null) {
-                Area a = enterAreaProp.get();
-                notifyUser(result, enteredMessageTarget);
-            }
+            if (result != null) { notifyUser(result, enteredMessageTarget); }
             result = leftTrigger.evalPredicate(curLoc);
-            if (result != null) {
-                Area a = leftAreaProp.get();
-                notifyUser(result, leftMessageTarget);
-            }
+            if (result != null) { notifyUser(result, leftMessageTarget); }
         }
     };
     
-    private void notifyUser(Trigger.Result r, MessageTarget target) {
+    private void notifyUser(Map<String,String> contextSpecific, MessageTarget target) {
         String addr = target.getActiveEmail();
         String lower = addr.toLowerCase();  // Don't muck with the original addr.
                                             // URLs are case sensitive
@@ -441,13 +466,17 @@ public class NotifierController extends BaseController {
         } else {
             MessageTemplate mt = new MessageTemplate(appContext, target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(appContext, target.getActiveSubj());
-            Map<String,String> contextSpecific = Utils.newHashMap(
-                "CUR", r.getCurrentValue(),
-                "TARGET", r.getTarget());
-            appContext.sendNotification(
+            appContext.utils.sendNotification(
                 addr, st.getMessage(contextSpecific),
                 mt.getMessage(contextSpecific));
         }
+    }
+    
+    private void notifyUser(Trigger.Result r, MessageTarget target) {
+        Map<String,String> contextSpecific = Utils.newHashMap(
+            "CUR", r.getCurrentValue(),
+            "TARGET", r.getTarget());
+        notifyUser(contextSpecific, target);
     }
 
     private void bindBidrectional(final BigDecimalField bdf, final Slider slider) {
@@ -502,7 +531,7 @@ public class NotifierController extends BaseController {
         
         void exec() {
             Tesla.logger.info("HTTPAsyncGet exec with url: " + connection.getURL());
-            appContext.launchThread(this, "HTTPAsyncGet");
+            appContext.tm.launch(this, "HTTPAsyncGet");
         }
         
         @Override public void run() {

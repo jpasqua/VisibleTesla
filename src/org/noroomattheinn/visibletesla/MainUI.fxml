@@ -97,6 +97,13 @@
                     <RadioMenuItem mnemonicParsing="false" onAction="#inactivityOptionsHandler" text="Stay Awake" toggleGroup="$inactivityItems" fx:id="stayAwakeMenuItem" />
                   </items>
                 </Menu>
+                <Menu mnemonicParsing="false" text="Actions">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#honk" text="Honk" />
+                    <MenuItem mnemonicParsing="false" onAction="#flash" text="Flash" />
+                    <MenuItem mnemonicParsing="false" onAction="#wakeup" text="Wakeup" />
+                  </items>
+                </Menu>
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Help">

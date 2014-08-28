@@ -36,16 +36,17 @@ public class Trigger<T extends Comparable<T>> {
  * 
  *----------------------------------------------------------------------------*/
     
-    private AppContext ac;
-    private BooleanProperty isEnabled;
-    private Subject<T> subject;
-    private Predicate<T> predicate;
-    private Target<T> target;
-    private ObjectProperty<Calendar> timeTarget;
-    
+    private final AppContext ac;
+    private final BooleanProperty isEnabled;
+    private final Subject<T> subject;
+    private final Predicate<T> predicate;
+    private final Target<T> target;
+    private final ObjectProperty<Calendar> timeTarget;
+    private final long bounceInterval;
     private Calendar lastDaySatisfied;
+    private long lastTimeSatisfied;
     
-/*==============================================================================
+    /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
@@ -60,26 +61,31 @@ public class Trigger<T extends Comparable<T>> {
         this.subject = subject;
         this.predicate = predicate;
         this.target = target;
+        this.timeTarget = null;
+        this.bounceInterval = 0;
     }
     
     public Trigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
             String name, String key, 
             Predicate.Type predicateType,
-            ObjectProperty<T> targetProperty, T targetDefault) {
+            ObjectProperty<T> targetProperty, T targetDefault,
+            long bounceInterval) {
         this(ac, isEnabled, th, name, key, predicateType,
-             null, targetProperty, targetDefault);
+             null, targetProperty, targetDefault, bounceInterval);
     }
     
     public Trigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
             String name, String key, 
             Predicate.Type predicateType, ObjectProperty<Calendar> timeTarget,
-            ObjectProperty<T> targetProperty, T targetDefault) {
+            ObjectProperty<T> targetProperty, T targetDefault,
+            long bounceInterval) {
         this.ac = ac;
         this.isEnabled = isEnabled;
         subject = new Subject<>(name, key, th);
         target = new Target<>(targetProperty, targetDefault, th);
         predicate = new Predicate<>(predicateType, target);
         this.timeTarget = timeTarget;
+        this.bounceInterval = bounceInterval;
     }
     
     /**
@@ -89,6 +95,7 @@ public class Trigger<T extends Comparable<T>> {
     public void init() {
         lastDaySatisfied = new GregorianCalendar();
         lastDaySatisfied.add(Calendar.DAY_OF_YEAR, -1);
+        lastTimeSatisfied = 0L;
         target.setListener(this);
         isEnabled.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
@@ -116,10 +123,11 @@ public class Trigger<T extends Comparable<T>> {
         subject.set(newVal);
         if (isEnabled.get()) {
             
-            if (!satisfiesTimeTrigger()) return null;
+            if (!satisfiesTimeTrigger() || bouncing()) return null;
             
             if (predicate.satisfied(subject.get())) {
                 lastDaySatisfied = new GregorianCalendar();
+                lastTimeSatisfied = lastDaySatisfied.getTimeInMillis();
                 return new Result(this);
             }
         }
@@ -193,6 +201,11 @@ public class Trigger<T extends Comparable<T>> {
             return (now.getTimeInMillis() - timeTarget.get().getTimeInMillis() < 10 * 60 * 1000);
         }
         return false;
+    }
+    
+    private boolean bouncing() {
+        if (bounceInterval == 0) return false;
+        return (System.currentTimeMillis() - lastTimeSatisfied < bounceInterval);
     }
     
     private void setTimeTarget(String encoded) {

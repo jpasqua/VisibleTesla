@@ -8,12 +8,6 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.net.URL;
-import java.nio.channels.FileLock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -21,46 +15,31 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialogs;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
-import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.noroomattheinn.tesla.ActionController;
-import org.noroomattheinn.tesla.GUIState;
-import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.utils.Versions;
-import org.noroomattheinn.utils.Versions.Release;
-import org.noroomattheinn.visibletesla.AppContext.InactivityType;
-import us.monoid.json.JSONObject;
+import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
+import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
+import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -68,11 +47,6 @@ import us.monoid.json.JSONObject;
  * This controller is associated with the Tab panel in which all of the 
  * individual tabs live.
  * 
- * TO DO:
- * - If the user has more than one vehicle on their account, the app should pop
- *   up a list and let them  select a specific car. Perhaps represent them by 
- *   vin and small colored car icon.
- *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class MainController extends BaseController {
@@ -83,10 +57,6 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final int MaxTriesToStart = 10;
-    private static final String VersionsFile = 
-      "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/versions.xml";
-      //"https://dl.dropboxusercontent.com/u/7045813/VTExtras/test_versions.xml";
     private static final String DocumentationURL = 
             "http://visibletesla.com/Documentation/pages/GettingStarted.html";
     private static final String ReleaseNotesURL  = 
@@ -98,12 +68,7 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private Tesla           tesla;
-    private Vehicle         selectedVehicle;
-    private InactivityType  inactivityMode;
-    private BooleanProperty forceWakeup = new SimpleBooleanProperty(false);
-    private FileLock        instanceLock = null;
-    private boolean         mobileEnabled = true;   // Presumptive positive
+    private final BooleanProperty   forceWakeup = new SimpleBooleanProperty(false);
     
 /*------------------------------------------------------------------------------
  *
@@ -115,18 +80,18 @@ public class MainController extends BaseController {
     @FXML private TabPane tabPane;
 
     // The individual tabs that comprise the overall UI
-    @FXML private Tab notifierTab;
-    @FXML private Tab prefsTab;
-    @FXML private Tab schedulerTab;
-    @FXML private Tab graphTab;
-    @FXML private Tab chargeTab;
-    @FXML private Tab hvacTab;
-    @FXML private Tab locationTab;
-    @FXML private Tab loginTab;
-    @FXML private Tab overviewTab;
-    @FXML private Tab tripsTab;
+    @FXML private Tab   notifierTab;
+    @FXML private Tab   prefsTab;
+    @FXML private Tab   schedulerTab;
+    @FXML private Tab   graphTab;
+    @FXML private Tab   chargeTab;
+    @FXML private Tab   hvacTab;
+    @FXML private Tab   locationTab;
+    @FXML private Tab   loginTab;
+    @FXML private Tab   overviewTab;
+    @FXML private Tab   tripsTab;
     @FXML private Pane  wakePane;
-    @FXML private Button  wakeButton;
+    @FXML private Button wakeButton;
     
     private List<Tab> tabs;
     
@@ -153,37 +118,25 @@ public class MainController extends BaseController {
      */
     public void start(AppContext ac) {
         appContext = ac;
-        logAppInfo();
+        appContext.utils.logAppInfo();
         addSystemSpecificHandlers(ac);
-        
-        inactivityMode = readInactivityMenu();
-        appContext.inactivityMode.set(inactivityMode);
-        
+
         setTitle();
         appContext.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
 
-        
-        tesla = (appContext.prefs.enableProxy.get()) ?
-            new Tesla(appContext.prefs.proxyHost.get(),
-                      appContext.prefs.proxyPort.get()) :
-            new Tesla();
-        
-        tesla.setCookieDir(appContext.appFilesFolder);
-
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
                 BaseController c = controllerFromTab(t1);
-                if (c != null) {
-                    c.activate(selectedVehicle);
-                }
+                if (c != null) { c.activate(); }
             }
         });
 
-        tabs = Arrays.asList(
-                prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
-                hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
+        tabs = Arrays.asList(prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
+                             hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
         for (Tab t : tabs) { controllerFromTab(t).setAppContext(appContext); }
+        
+        // Handle font scaling
         int fontScale = appContext.prefs.fontScale.get();
         if (fontScale != 100) {
             for (Tab t : tabs) { 
@@ -192,35 +145,29 @@ public class MainController extends BaseController {
             }
         }
         
-        LoginController lc = Utils.cast(controllerFromTab(loginTab));
-        lc.getLoginCompleteProperty().addListener(new HandleLoginEvent());
-        lc.attemptAutoLogin(tesla);
-        
-        appContext.inactivityState.addListener(new ChangeListener<InactivityType>() {
-            @Override public void changed(
-                    ObservableValue<? extends InactivityType> o,
-                    InactivityType ov, InactivityType nv) {
-                setTitle();
-                // If someone has forced the app awake, treat it as if a user event
-                // occurred. Don't go back to sleep until the Idle Threshold passes.
-                if (nv == InactivityType.Awake && ov != InactivityType.Awake) {
-                    Tesla.logger.info("Resetting Idle start time to now");
-                    timeOfLastEvent = System.currentTimeMillis();
-                }
+        // Watch for changes to the inactivity mode and state in order to update the UI
+        appContext.inactivity.addModeListener(new ChangeListener<Inactivity.Type>() {
+            @Override public void changed(ObservableValue<? extends Inactivity.Type> o, Inactivity.Type ov, Inactivity.Type nv) {
+                setInactivityMenu(nv);
             }
         });
-        
-        appContext.setInactivityModeListener(new Utils.Callback<InactivityType,Void>() {
-            @Override public Void call(InactivityType mode) {
-                setInactivityMode(mode);
-                return null; }});
+        appContext.inactivity.addStateListener(new ChangeListener<Inactivity.Type>() {
+            @Override public void changed(ObservableValue<? extends Inactivity.Type> o, Inactivity.Type ov, Inactivity.Type nv) {
+                setTitle();
+            }
+        });
+
+        // Kick off the login process
+        LoginController lc = Utils.cast(controllerFromTab(loginTab));
+        lc.getLoginCompleteProperty().addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue<? extends Boolean> observable, Boolean o, Boolean n) {
+                Platform.runLater(new LoginEventHandler(n, false));
+            }
+        });
+        lc.attemptAutoLogin();
     }
     
-    public void stop() {
-        appContext.shutDown();
-        SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
-        sc.shutDown();
-    }
+    public void stop() { appContext.tm.shutDown(); }
     
 /*------------------------------------------------------------------------------
  *
@@ -230,12 +177,9 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @Override protected void fxInitialize() { }
-
-    @Override protected void prepForVehicle(Vehicle v) { }
-
+    @Override protected void initializeState() { }
+    @Override protected void activateTab() { }
     @Override protected void refresh() { }
-
-    @Override protected void reflectNewState() { }
 
 /*------------------------------------------------------------------------------
  *
@@ -243,111 +187,34 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    /**
-     * Whenever we try to login, a boolean property is set with the result of
-     * the attempt. We monitor changes on that boolean property and if we see
-     * a successful login, we gather the appropriate state and make the app
-     * ready to go.
-     */
-    private class HandleLoginEvent implements ChangeListener<Boolean> {
-        @Override public void changed(
-                ObservableValue<? extends Boolean> observable,
-                Boolean oldValue, Boolean newValue) {
-            Platform.runLater(new DoLogin(newValue, false));
-        }
-    }
-
-    private Vehicle selectVehicle() {
-        int selectedVehicleIndex = 0;
-        List<Vehicle> vehicleList = tesla.getVehicles();
-        if (vehicleList.size() != 1) {
-            // Ask the  user to select a vehicle
-            List<String> cars = new ArrayList<>();
-            for (Vehicle v : vehicleList) {
-                StringBuilder descriptor = new StringBuilder();
-                descriptor.append(StringUtils.right(v.getVIN(), 6));
-                descriptor.append(": ");
-                descriptor.append(v.getOptions().paintColor());
-                descriptor.append(" ");
-                descriptor.append(v.getOptions().batteryType());
-                cars.add(descriptor.toString());
-            }
-            String selection = Dialogs.showInputDialog(
-                    appContext.stage,
-                    "Vehicle: ",
-                    "You lucky devil, you've got more than 1 Tesla!",
-                    "Select a vehicle", cars.get(0), cars);
-            selectedVehicleIndex = cars.indexOf(selection);
-            if (selectedVehicleIndex == -1) { selectedVehicleIndex = 0; }
-        }
-        Vehicle v = vehicleList.get(selectedVehicleIndex);
-        if (!obtainVehicle(v)) {
-            Dialogs.showErrorDialog(appContext.stage,
-                    "There appears to be another copy of VisibleTesla\n" +
-                    "running on this computer and trying to talk\n" +
-                    "to the same car. That can cause problems and\n" +
-                    "is not allowed\n\n"+
-                    "VisibleTesla will close when you close this window.",
-                    "Multiple Copies of VisibleTesla", "Problem launching application");
-            Platform.exit();
-        }
-        return v;
-    }
-
-    private void cacheBasicsInBackground() {
+    private void fetchInitialCarState() {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                cacheBasics(selectedVehicle);
-                Platform.runLater(completeLogin);
-                return Result.Succeeded;    // This result is not important
-            } },
-            AfterCommand.Nothing);
+                Result r = appContext.utils.cacheBasics();
+                if (!r.success) {
+                    if (r.explanation.equals("mobile_access_disabled"))  showMobileAccessError();
+                    else showCachingError();
+                    Platform.exit();
+                    return Result.Failed;
+                }
+                Platform.runLater(finishAppStartup);
+                return Result.Succeeded;
+            } });
     }
 
-    private boolean cacheBasics(Vehicle v) {
-        GUIState     gs = new GUIState(v);
-        VehicleState vs = new VehicleState(v);
-        ActionController action = new ActionController(v);
-        
-        int tries = 0;
-        if (gs.refresh()) {
-            JSONObject result = gs.getRawResult();
-            if (result.optString("reason").equals("mobile_access_disabled")) {
-                this.mobileEnabled = false;
-                return false;
-            }
-        }
-        vs.refresh();
-        while (gs.state == null ||  vs.state == null) {
-            if (tries++ > MaxTriesToStart) {
-                return false;
-            }
-            
-            action.wakeUp();
-            Utils.sleep(10000);
-            if (appContext.shuttingDown.get()) return false;
-            
-            if (gs.state == null) gs.refresh();
-            if (vs.state == null) vs.refresh();
-        }
-        
-        appContext.lastKnownGUIState.set(gs.state);
-        appContext.lastKnownVehicleState.set(vs.state);
-        return true;
-    }
-
-    private class DoLogin implements Runnable {
+    
+    private class LoginEventHandler implements Runnable {
         private final boolean loginSucceeded;
         private final boolean assumeAwake;
         
-        DoLogin(boolean loggedin, boolean assumeAwake) { 
+        LoginEventHandler(boolean loggedin, boolean assumeAwake) { 
             loginSucceeded = loggedin;
             this.assumeAwake = assumeAwake;
         }
         
         @Override public void run() {
             if (!loginSucceeded) {
-                selectedVehicle = null;
+                appContext.vehicle = null;
                 setTabsEnabled(false);
                 return;
             }
@@ -355,17 +222,19 @@ public class MainController extends BaseController {
             if (assumeAwake) {
                 wakePane.setVisible(false);
             } else {
-                selectedVehicle = selectVehicle();
-                
-                Tesla.logger.log(
-                        Level.INFO, "Vehicle Info: {0}",
-                        selectedVehicle.getUnderlyingValues());
+                appContext.vehicle = SelectVehicleDialog.select(appContext);
+                if (!appContext.lockAppInstance()) {
+                    showLockError();
+                    Platform.exit();
+                }
+                Tesla.logger.info("Vehicle Info: " + appContext.vehicle.getUnderlyingValues());
 
-                if (selectedVehicle.status().equals("asleep")) {
+                if (appContext.vehicle.status().equals("asleep")) {
                     if (letItSleep()) {
                         Tesla.logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        waitForVehicleToWake();
+                        appContext.utils.waitForVehicleToWake(
+                                new LoginEventHandler(true, true), forceWakeup);
                         return;
                     } else {
                         Tesla.logger.log(Level.INFO, "Waking up your vehicle");
@@ -373,297 +242,42 @@ public class MainController extends BaseController {
                 }
             }
                 
-            showDisclaimer();
-            conditionalCheckVersion();
-            restoreInactivityMode();
-            cacheBasicsInBackground();
+            DisclaimerDialog.show(appContext);
+            VersionUpdater.conditionalCheckVersion(appContext);
+            appContext.inactivity.restore();
+            fetchInitialCarState();
         }
     }
     
-    private void restoreInactivityMode() {
-        String modeName = appContext.persistentState.get(
-                selectedVehicle.getVIN()+"_InactivityMode",
-                InactivityType.Daydream.name());
-        // The names changed, do any required fixup of old stored values!
-        switch (modeName) {
-            case "AllowSleeping": modeName = "Sleep"; break;
-            case "AllowDaydreaming": modeName = "Daydream"; break;
-            case "StayAwake": modeName = "Awake"; break;
-        }
-
-        inactivityMode = InactivityType.valueOf(modeName);
-        appContext.inactivityMode.set(inactivityMode);
-        setInactivityMenu(inactivityMode);
-    }
-
-    private void showDisclaimer() {
-        boolean disclaimer = appContext.persistentState.getBoolean(
-                selectedVehicle.getVIN()+"_Disclaimer", false);
-        if (!disclaimer) {
-            Dialogs.showInformationDialog(
-                    appContext.stage,
-                    "Use this application at your own risk. The author\n" +
-                    "does not guarantee its proper functioning.\n" +
-                    "It is possible that use of this application may cause\n" +
-                    "unexpected damage for which nobody but you are\n" +
-                    "responsible. Use of this application can change the\n" +
-                    "settings on your car and may have negative\n" +
-                    "consequences such as (but not limited to):\n" +
-                    "unlocking the doors, opening the sun roof, or\n" +
-                    "reducing the available charge in the battery.",
-                    "Please Read Carefully", "Disclaimer");
-        }
-        appContext.persistentState.putBoolean(
-                selectedVehicle.getVIN()+"_Disclaimer", true);                
-    }
-    
-    private void waitForVehicleToWake() {
-        final long TestSleepInterval = 5 * 60 * 1000;
-               
-        Runnable poller = new Runnable() {
-            @Override public void run() {
-                while (selectedVehicle.isAsleep()) {
-                    if (forceWakeup.get()) break;
-                    Utils.sleep(TestSleepInterval);
-                    if (appContext.shuttingDown.get()) return;
-                }
-                forceWakeup.set(false);
-                Platform.runLater(new DoLogin(true, true));
-            }
-        };
-        final Thread pollThread = appContext.launchThread(poller, "00 - Wait For Wakeup");
-        
-        forceWakeup.addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(
-                    ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                if (t1) {
-                    pollThread.interrupt();
-                }
-            }
-        });
-    }
-    
-    private Runnable completeLogin = new Runnable() {
+    private Runnable finishAppStartup = new Runnable() {
         @Override public void run() {
-            if (!mobileEnabled) {
-                Dialogs.showErrorDialog(appContext.stage,
-                        "Your Tesla has not been configured to allow mobile " +
-                        "access. You have to enable this on your car's touch"  +
-                        "screen using Controls / Settings / Vehicle." +
-                        "\n\nChange that setting in your car, then relaunch VisibleTesla.",
-                        "Mobile access is not enabled", "Communication Problem");
-                Tesla.logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
-                Platform.exit();
-            }
-            
-            if (appContext.lastKnownGUIState.get() == null ||
-                appContext.lastKnownVehicleState.get() == null) {
-                // Couldn't wake up the vehicle and get the gui and vehicle state!
-                Dialogs.showErrorDialog(appContext.stage,
-                        "Failed to connect to your vehicle even after a successful " +
-                        "login. It may be in a deep sleep and can't be woken up.\n"  +
-                        "\nPlease try to wake your Tesla and then try VisibleTesla again.",
-                        "Unable to communicate with your Tesla", "Communication Problem");
-                Tesla.logger.log(Level.SEVERE, "Can't communicate with vehicle - exiting.");
-                Platform.exit();
-                return;
-            }
-
-            trackInactivity();
-            setTabsEnabled(true);
+            appContext.inactivity.trackInactivity(tabs);
+            appContext.prepForVehicle(appContext.vehicle);
             
             // Start the Scheduler and the Notifier
-            SchedulerController sc = Utils.cast(controllerFromTab(schedulerTab));
-            sc.activate(selectedVehicle);
-            NotifierController nc = Utils.cast(controllerFromTab(notifierTab));
-            nc.activate(selectedVehicle);
+            controllerFromTab(schedulerTab).activate();
+            controllerFromTab(notifierTab).activate();
             
+            setTabsEnabled(true);
             jumpToTab(overviewTab);
         }
     };
     
 /*------------------------------------------------------------------------------
  *
- * Private Utility Methods - General
- * 
- *----------------------------------------------------------------------------*/
-    
-    private void logAppInfo() {
-        Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
-        
-        Tesla.logger.info(
-                String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
-        List<String> jvmArgs = Utils.getJVMArgs();
-        Tesla.logger.info("JVM Arguments");
-        if (jvmArgs != null) {
-            for (String arg : jvmArgs) {
-                Tesla.logger.info("Arg: " + arg);
-            }
-        }
-    }
-    
-    //private void releaseVehicle(Vehicle v) { }
-    
-    private boolean obtainVehicle(Vehicle v) {
-        String lockFileName = v.getVIN() + ".lck";
-        File lockFile = new File(appContext.appFilesFolder, lockFileName);
-        try {
-            RandomAccessFile raf = new RandomAccessFile(lockFile, "rw");
-            instanceLock = raf.getChannel().tryLock();
-        } catch (IOException ex ) {
-            Tesla.logger.severe(ex.getMessage());
-        }
-        return instanceLock != null;
-    }
-    
-    private void setTitle() {
-        String title = AppContext.ProductName + " " + AppContext.ProductVersion;
-        String time = String.format("%1$tH:%1$tM", new Date());
-        switch (appContext.inactivityState.get()) {
-            case Sleep: title = title + " [sleeping at " + time + "]"; break;
-            case Daydream: title = title + " [daydreaming at " + time + "]"; break;
-            case Awake: break;
-        }
-        appContext.stage.setTitle(title);
-    }
-    
-
-    private boolean letItSleep() {
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                getClass().getResource("dialogs/WakeSleepDialog.fxml"),
-                "Wake up your car?", appContext.stage, null);
-        if (dc == null) return true;
-        WakeSleepDialog wsd = Utils.cast(dc);
-        return wsd.letItSleep();
-    }
-    
-    private InactivityType readInactivityMenu() {
-        if (allowSleepMenuItem.isSelected()) return InactivityType.Sleep;
-        if (allowIdlingMenuItem.isSelected()) return InactivityType.Daydream;
-        return InactivityType.Awake;
-    }
-    
-    private void setInactivityMenu(InactivityType mode) {
-        switch (mode) {
-            case Awake:
-                stayAwakeMenuItem.setSelected(true); break;
-            case Sleep:
-                allowSleepMenuItem.setSelected(true); break;
-            case Daydream:
-                allowIdlingMenuItem.setSelected(true); break;
-        }
-    }
-    
-    private void setInactivityMode(InactivityType newMode) {
-        setInactivityMenu(inactivityMode = newMode);
-        appContext.inactivityMode.set(newMode);      
-        appContext.persistentState.put(selectedVehicle.getVIN()+"_InactivityMode", newMode.name());
-        
-        if (appContext.inactivityState.get() == InactivityType.Awake) return;
-        appContext.inactivityState.set(newMode);
-    }
-    
-    private void conditionalCheckVersion() {
-        long lastVersionCheck = appContext.persistentState.getLong(
-                selectedVehicle.getVIN() + "_LastVersionCheck", 0);
-        long now = System.currentTimeMillis();
-        if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
-            checkForNewerVersion();
-        }
-    }
-    
-    private boolean checkForNewerVersion() {
-        appContext.persistentState.putLong(
-                selectedVehicle.getVIN() + "_LastVersionCheck", System.currentTimeMillis());
-        
-        final Versions versions = Versions.getVersionInfo(VersionsFile);
-        if (versions == null) return false; // Missing, empty, or corrupt versions file
-        
-        List<Release> releases = versions.getReleases();
-
-        if (releases != null && !releases.isEmpty()) {
-            Release lastRelease = null;
-            for (Release cur : releases) {
-                if (cur.getInvisible()) continue;
-                if (cur.getExperimental() && !appContext.prefs.offerExperimental.get())
-                    continue;
-                lastRelease = cur;
-                break;
-            }
-            if (lastRelease == null) return false;
-            String releaseNumber = lastRelease.getReleaseNumber();
-            if (Utils.compareVersions(AppContext.ProductVersion, releaseNumber) < 0) {
-                VBox customPane = new VBox();
-                String msgText = String.format(
-                        "A newer version of VisibleTesla is available:\n" +
-                        "Version: %s, Date: %tD",
-                        releaseNumber, lastRelease.getReleaseDate());
-                Label msg = new Label(msgText);
-                Hyperlink platformLink = null;
-                final URL platformURL;
-                final String linkText;
-                if (SystemUtils.IS_OS_MAC) {
-                    linkText = "Download the latest Mac version";
-                    platformURL = lastRelease.getMacURL();
-                } else if (SystemUtils.IS_OS_WINDOWS) {
-                    linkText = "Download the latest Windows version";
-                    platformURL = lastRelease.getWindowsURL();
-                } else  {
-                    linkText = "Download the latest Generic version";
-                    platformURL = lastRelease.getReleaseURL();
-                }
-                if (platformURL != null) {
-                    platformLink = new Hyperlink(linkText);
-                    platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
-                    platformLink.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent t) {
-                            appContext.app.getHostServices().showDocument(
-                                    platformURL.toExternalForm());
-
-                        }
-                    });
-                }
-                Hyperlink rnLink = new Hyperlink("Click to view the release notes");
-                rnLink.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override public void handle(ActionEvent t) {
-                        appContext.app.getHostServices().showDocument(
-                                versions.getReleaseNotes().toExternalForm());
-
-                    }
-                });
-                customPane.getChildren().addAll(msg, rnLink);
-                customPane.getChildren().add(platformLink);
-                Dialogs.showCustomDialog(
-                        appContext.stage, customPane,
-                        "Newer Version Available",
-                        "Checking for Updates", Dialogs.DialogOptions.OK, null);
-                return true;
-            }
-        }
-        return false;
-    }
-    
-
-/*------------------------------------------------------------------------------
- *
  * Private Utility Methods for Tab handling
  * 
  *----------------------------------------------------------------------------*/
     
-
     private void setTabsEnabled(boolean enabled) {
-        for (Tab t : tabs) {
-            t.setDisable(!enabled);
-        }
+        for (Tab t : tabs) { t.setDisable(!enabled); }
         loginTab.setDisable(false);     // The Login Tab is always enabled
         prefsTab.setDisable(false);     // The Prefs Tab is always enabled
     }
     
     private void jumpToTab(final Tab tab) {
         Platform.runLater(new Runnable() {
-            @Override public void run() {
-                tabPane.getSelectionModel().select(tab);    // Jump to Overview Tab     
-            }
+            @Override public void run() { tabPane.getSelectionModel().select(tab);  }
         });
     }
 
@@ -681,7 +295,7 @@ public class MainController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
- * This section implements UI Actionhandlers
+ * This section implements UI Actionhandlers for the menu items
  * 
  *----------------------------------------------------------------------------*/
     
@@ -704,10 +318,10 @@ public class MainController extends BaseController {
     
     // Options->"Allow Sleep" and Options->"Allow Daydreaming" menu options
     @FXML void inactivityOptionsHandler(ActionEvent event) {
-        InactivityType mode = InactivityType.Awake;
-        if (event.getTarget() == allowSleepMenuItem) mode = InactivityType.Sleep;
-        if (event.getTarget() == allowIdlingMenuItem) mode = InactivityType.Daydream;
-        setInactivityMode(mode);
+        Inactivity.Type mode = Inactivity.Type.Awake;
+        if (event.getTarget() == allowSleepMenuItem) mode = Inactivity.Type.Sleep;
+        if (event.getTarget() == allowIdlingMenuItem) mode = Inactivity.Type.Daydream;
+        appContext.inactivity.setMode(mode);
     }
     
     // Help->Documentation
@@ -735,18 +349,24 @@ public class MainController extends BaseController {
 
     // Help->Check for Updates
     @FXML private void updatesHandler(ActionEvent event) {
-        boolean newer = checkForNewerVersion();
-        if (!newer) 
+        if (!VersionUpdater.checkForNewerVersion(appContext)) 
             Dialogs.showInformationDialog(
                     appContext.stage,
                     "There is no newer version available.",
                     "Update Check Results", "Checking for Updates");
     }
     
-    @FXML private void wakeButtonHandler(ActionEvent event) {
-        forceWakeup.set(true);
-    }
+    // Options->Action_>{Honk,Flsh,Wakeup}
+    @FXML private void honk(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Honk); }
+    @FXML private void flash(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Flash); }
+    @FXML private void wakeup(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Wakeup); }
     
+/*------------------------------------------------------------------------------
+ *
+ * Other UI Handlers and utilities
+ * 
+ *----------------------------------------------------------------------------*/
+
     private void addSystemSpecificHandlers(AppContext ac) {
         if (SystemUtils.IS_OS_MAC) {    // Add a handler for Command-H
             final Stage theStage = ac.stage;
@@ -759,110 +379,77 @@ public class MainController extends BaseController {
             });
         }
     }
-
-/*------------------------------------------------------------------------------
- * 
- * This section implements the mechanism that tracks whether the app is idle.
- * It does it by hooking the event stream and looking for mouse or keyboard
- * activity. A separate thread checks periodically to see how long it's been
- * since the last event. If a threshold is passed, we say that we're idle.
- * 
- *----------------------------------------------------------------------------*/
-
-    private long timeOfLastEvent = System.currentTimeMillis();
-
-    private void trackInactivity() {
-        for (Tab t : tabs) {
-            Node n = t.getContent();
-            n.addEventFilter(KeyEvent.ANY, new EventPassThrough());
-            n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
-            n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
+    
+    private void setTitle() {
+        String title = AppContext.ProductName + " " + AppContext.ProductVersion;
+        String time = String.format("%1$tH:%1$tM", new Date());
+        switch (appContext.inactivity.getState()) {
+            case Sleep: title = title + " [sleeping at " + time + "]"; break;
+            case Daydream: title = title + " [daydreaming at " + time + "]"; break;
+            case Awake: break;
         }
-        appContext.launchThread(new InactivityThread(), "00 Inactivity");
+        appContext.stage.setTitle(title);
+    }
+
+    private void setInactivityMenu(Inactivity.Type mode) {
+        switch (mode) {
+            case Awake: stayAwakeMenuItem.setSelected(true); break;
+            case Sleep: allowSleepMenuItem.setSelected(true); break;
+            case Daydream: allowIdlingMenuItem.setSelected(true); break;
+        }
     }
     
-    class InactivityThread implements Runnable {
-        @Override public void run() {
-            while (true) {
-                Utils.sleep(60 * 1000);
-                if (appContext.shuttingDown.get())
-                    return;
-                long idleThreshold = appContext.prefs.idleThresholdInMinutes.get() * 60 * 1000;
-                if (System.currentTimeMillis() - timeOfLastEvent > idleThreshold) {
-                    appContext.inactivityState.set(inactivityMode);
-                }
+/*------------------------------------------------------------------------------
+ *
+ * Display various info and warning dialogs
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private boolean letItSleep() {
+        DialogUtils.DialogController dc = DialogUtils.displayDialog(
+                getClass().getResource("dialogs/WakeSleepDialog.fxml"),
+                "Wake up your car?", appContext.stage, null);
+        if (dc == null) return true;
+        WakeSleepDialog wsd = Utils.cast(dc);
+        return wsd.letItSleep();
+    }
+    
+    @FXML private void wakeButtonHandler(ActionEvent event) { forceWakeup.set(true); }
+    
+    private void showMobileAccessError() {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                Dialogs.showErrorDialog(appContext.stage,
+                        "Your Tesla has not been configured to allow mobile " +
+                        "access. You have to enable this on your car's touch"  +
+                        "screen using Controls / Settings / Vehicle." +
+                        "\n\nChange that setting in your car, then relaunch VisibleTesla.",
+                        "Mobile access is not enabled", "Communication Problem");
+                Tesla.logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
             }
-        }
+        });
     }
     
-    class EventPassThrough implements EventHandler<InputEvent> {
-        @Override public void handle(InputEvent ie) {
-            timeOfLastEvent = System.currentTimeMillis();
-            appContext.inactivityState.set(InactivityType.Awake);
-        }
+    private void showCachingError() {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                Dialogs.showErrorDialog(appContext.stage,
+                        "Failed to connect to your vehicle even after a successful " +
+                        "login. It may be in a deep sleep and can't be woken up.\n"  +
+                        "\nPlease try to wake your Tesla and then try VisibleTesla again.",
+                        "Unable to communicate with your Tesla", "Communication Problem");
+                Tesla.logger.severe("Can't communicate with vehicle - exiting.");
+            }
+        });
     }
     
-
-/*------------------------------------------------------------------------------
- * 
- * Everything below has to do with simulated vehicle properties. For example,
- * the user can ask to simulate a different car color, roof type, or wheel
- * type. The simulation options are selected here and implemented in the
- * OverviewController. They could be implemented in the lower level state
- * objects, but I decided to keep those unsullied by this stuff.
- * 
- * TO DO: This way of handling the simulation feels clunky. Perhaps do it
- * with observable properties instead
- * 
- *----------------------------------------------------------------------------*/
-    
-    @FXML MenuItem simColorRed, simColorBlue, simColorGreen, simColorBrown, simColorBlack;
-    @FXML MenuItem simColorSigRed, simColorSilver, simColorGray, simColorPearl, simColorWhite;
-    @FXML MenuItem darkRims, lightRims, silver19Rims, aeroRims, cycloneRims;
-    @FXML MenuItem simSolidRoof, simPanoRoof, simBlackRoof;
-    @FXML private MenuItem simImperialUnits, simMetricUnits;
-
-    @FXML void simUnitsHandler(ActionEvent event) {
-        MenuItem source = (MenuItem)event.getSource();
-        Utils.UnitType ut = (source == simImperialUnits) ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
-        appContext.simulatedUnits.set(ut);
+    private void showLockError() {
+        Dialogs.showErrorDialog(appContext.stage,
+            "There appears to be another copy of VisibleTesla\n" +
+            "running on this computer and trying to talk\n" +
+            "to the same car. That can cause problems and\n" +
+            "is not allowed\n\n"+
+            "VisibleTesla will close when you close this window.",
+            "Multiple Copies of VisibleTesla", "Problem launching application");
     }
-    
-    @FXML void simRimsHandler(ActionEvent event) {
-        MenuItem source = (MenuItem)event.getSource();
-        Options.WheelType simWheels = null;
-
-        if (source == darkRims) simWheels = Options.WheelType.WTSP;
-        else if (source == lightRims) simWheels = Options.WheelType.WT21;
-        else if (source == silver19Rims) simWheels = Options.WheelType.WT19;
-        else if (source == aeroRims) simWheels = Options.WheelType.WTAE;
-        else if (source == cycloneRims) simWheels = Options.WheelType.WTTB;
-        
-        if (simWheels != null)
-            appContext.simulatedWheels.set(simWheels);
-    }
-    
-    @FXML void simColorHandler(ActionEvent event) {
-        MenuItem source = (MenuItem)event.getSource();
-        ObjectProperty<Options.PaintColor> pc = appContext.simulatedColor;
-        if (source == simColorRed) pc.set(Options.PaintColor.PPMR);
-        else if (source == simColorGreen) pc.set(Options.PaintColor.PMSG);
-        else if (source == simColorBlue) pc.set(Options.PaintColor.PMMB);
-        else if (source == simColorBlack) pc.set(Options.PaintColor.PBSB);
-        else if (source == simColorSilver) pc.set(Options.PaintColor.PMSS);
-        else if (source == simColorGray) pc.set(Options.PaintColor.PMTG);
-        else if (source == simColorSigRed) pc.set(Options.PaintColor.PPSR);
-        else if (source == simColorPearl) pc.set(Options.PaintColor.PPSW);
-        else if (source == simColorBrown) pc.set(Options.PaintColor.PMAB);
-        else if (source == simColorWhite) pc.set(Options.PaintColor.PPSW);
-    }
-
-    @FXML void simRoofHandler(ActionEvent event) {
-        MenuItem source = (MenuItem)event.getSource();
-        ObjectProperty<Options.RoofType> rt = appContext.simulatedRoof;
-        if (source == simSolidRoof) rt.set(Options.RoofType.RFBC);
-        else if (source == simBlackRoof) rt.set(Options.RoofType.RFBK);
-        else if (source == simPanoRoof) rt.set(Options.RoofType.RFPO);
-    }
-
 }

@@ -55,7 +55,7 @@ public class VampireStats {
     }
     
     public void showStats() {
-        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
+        useMiles = appContext.utils.unitType() == Utils.UnitType.Imperial;
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null)
             return;

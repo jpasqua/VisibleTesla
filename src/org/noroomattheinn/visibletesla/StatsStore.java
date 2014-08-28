@@ -25,7 +25,7 @@ import org.noroomattheinn.visibletesla.stats.Stat;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StatsStore extends DataStore {
+public class StatsStore extends DataStore implements ThreadManager.Stoppable {
 
 /*------------------------------------------------------------------------------
  *
@@ -87,6 +87,7 @@ public class StatsStore extends DataStore {
     public StatsStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
         
+        appContext.tm.addStoppable(this);
         this.timer = new Timer("00 - VT StatsFlusher", true);
         timer.schedule(flusher, 0L, 5 * 1000L);
         
@@ -108,6 +109,8 @@ public class StatsStore extends DataStore {
         
         load(getLoadPeriod());
     }
+    
+    @Override public void stop() { close(); }
     
     @Override public void close() {
         super.close();
@@ -172,5 +175,5 @@ public class StatsStore extends DataStore {
         lastState = state;
         deferredSnapshot = null;
     }    
-    
+
 }

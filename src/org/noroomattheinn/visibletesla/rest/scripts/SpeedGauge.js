@@ -35,7 +35,7 @@ function speedGauge(ctx, w, h, speed, power) {
     grd.addColorStop(0.25, '#4D4DFF');
     grd.addColorStop(0.75, '#A3C2FF');
     grd.addColorStop(1.00, '#4D4DFF');
-    if (speed == 0) { end = HALF_PI; }
+    if (speed === 0) { end = HALF_PI; }
     else {
         end = THREE_HALFS_PI * logScale(speed, 120);
         if (end < HALF_PI) end = HALF_PI + EPS;
@@ -59,10 +59,10 @@ function speedGauge(ctx, w, h, speed, power) {
         grd.addColorStop(0.75, '#FFD699');
         grd.addColorStop(1.00, '#FF9900');
         fill = grd;
-        if (power == 0) { end = 0.0; }
+        if (power === 0) { end = 0.0; }
         else {
             end = (2.0 - (0.5 * logScale(Math.min(power, 240), 240))) * Math.PI;
-            if (end > TWO_PI) end = TWO_PI - EPS;
+            if (end >= TWO_PI) end = TWO_PI - EPS;
         }
     }
     ctx.drawArc(0, end , cc, centerX, centerY, outerRadius, fill);

@@ -124,24 +124,24 @@ public class MessageTemplate {
                 String val;
                 switch (varName) {
                     case "SPEED": val = String.format(
-                            "%3.1f", ac.inProperUnits(ac.lastKnownSnapshotState.get().speed));
+                            "%3.1f", ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().speed));
                         break;
                     case "SOC": val = String.valueOf(ac.lastKnownSnapshotState.get().soc);
                         break;
                     case "IDEAL": val = String.format(
-                            "%3.1f", ac.inProperUnits(ac.lastKnownChargeState.get().idealRange));
+                            "%3.1f", ac.utils.inProperUnits(ac.lastKnownChargeState.get().idealRange));
                         break;
                     case "RATED": val = String.format(
-                            "%3.1f", ac.inProperUnits(ac.lastKnownChargeState.get().range));
+                            "%3.1f", ac.utils.inProperUnits(ac.lastKnownChargeState.get().range));
                         break;
                     case "ESTIMATED": val = String.format(
-                            "%3.1f", ac.inProperUnits(ac.lastKnownChargeState.get().estimatedRange));
+                            "%3.1f", ac.utils.inProperUnits(ac.lastKnownChargeState.get().estimatedRange));
                         break;
                     case "CHARGE_STATE": val = ac.lastKnownChargeState.get().chargingState.name();
                         break;
-                    case "D_UNITS": val = ac.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+                    case "D_UNITS": val = ac.utils.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
                         break;
-                    case "S_UNITS": val = ac.unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
+                    case "S_UNITS": val = ac.utils.unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
                         break;
                     case "DATE":
                         val = String.format("%1$tY-%1$tm-%1$td", new Date());
@@ -168,10 +168,10 @@ public class MessageTemplate {
                         }
                         break;
                     case "I_STATE":
-                        val = ac.inactivityStateAsString();
+                        val = ac.inactivity.stateAsString();
                         break;
                     case "I_MODE":
-                        val = ac.inactivityModeAsString();
+                        val = ac.inactivity.modeAsString();
                         break;
                     case "P_CURRENT":
                         val = String.valueOf(
@@ -183,7 +183,7 @@ public class MessageTemplate {
                         break;
                     case "C_RATE":
                         val = String.format(
-                            "%.1f", ac.inProperUnits(ac.lastKnownChargeState.get().chargeRate));
+                            "%.1f", ac.utils.inProperUnits(ac.lastKnownChargeState.get().chargeRate));
                         break;
                     case "C_AMP":
                         val = String.format(
@@ -218,7 +218,7 @@ public class MessageTemplate {
                         break;
                     case "ODO":
                         val = String.format(
-                            "%.1f", ac.inProperUnits(ac.lastKnownSnapshotState.get().odometer));
+                            "%.1f", ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().odometer));
                         break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
@@ -237,8 +237,8 @@ public class MessageTemplate {
                 "</script>";
             
             private String genSpeedo(AppContext ac) {
-                double speed = ac.inProperUnits(ac.lastKnownSnapshotState.get().speed);
-                double power = ac.inProperUnits(ac.lastKnownSnapshotState.get().power);
+                double speed = ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().speed);
+                double power = ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().power);
                 return String.format(SpeedoTemplate, speed, power);
             }
             
@@ -263,9 +263,9 @@ public class MessageTemplate {
             }
             
             private static String genODO(AppContext ac) {
-                String punc = ac.unitType() == Utils.UnitType.Imperial ? "," : ".";
+                String punc = ac.utils.unitType() == Utils.UnitType.Imperial ? "," : ".";
                 StringBuilder sb = new StringBuilder();
-                double odo = ac.inProperUnits(ac.lastKnownSnapshotState.get().odometer);
+                double odo = ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().odometer);
                 double modulus = 100000;
                 for (int i = 0; i < 6; i++) {
                     int digit = (int)(odo / modulus);
@@ -289,8 +289,8 @@ public class MessageTemplate {
 
             private static String genGaugeWrapper(AppContext ac, String label, double val) {
                 return genGauge(
-                        label, ac.inProperUnits(val),
-                        ac.unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",
+                        label, ac.utils.inProperUnits(val),
+                        ac.utils.unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",
                         val < 25);
             }
             

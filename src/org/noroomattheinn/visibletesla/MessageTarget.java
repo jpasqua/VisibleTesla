@@ -68,7 +68,7 @@ public class MessageTarget {
         address = elements[0].equals("null") ? null : decodeUnderscore(elements[0]);
         subject = elements[1].equals("null") ? null : decodeUnderscore(elements[1]);
         if (elements.length == 3) {
-            message = Utils.decodeB64(elements[2]);
+            message = elements[2].equals("null") ? null : Utils.decodeB64(elements[2]);
         }
     }
 

@@ -20,6 +20,109 @@
 				VisibleTesla Release Notes
 			</h1>
 		<h3>
+			VisibleTesla 0.29.00 [08-20-2014] - <strong>EXPERIMENTAL</strong>
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="changed">Note</span>: If you're using an old version of VisibleTesla (older than 0.27.03) AND you have overriden the advanced option describing where to store application files, you'll need to be careful about upgrading. Upgrade to verion 0.27.03 manually and then you can upgrade to the latst version.
+							</li>
+							<li>
+								<span class="added">Addition</span>: The <span class="ui">Options&rarr;Simulate</span> menu has been replaced by a new and more general <span class="ui">Overrides</span> mechanism.
+								<ul>
+									<li>The simulate menu gave you the ability to see variations of your car during a specific run of VisibleTesla. The new Overrides capability gives you to simulate an option and remember that state across sessions. There are cases where the information reported by Tesla's servers to VisibleTesla does not reflect the actual state of the car. This is usually the result of a change to the car after it was initially delivered.</li>
+									<li>For example, you may have ordered your car with 21" wheels but later decided to switch to 19's. In fact, some people keep both types and switch during the year based on weather. Today, VisibleTesla has no way to track those changes.
+									<li>With this new feature, you can manually override the wheel setting when you change the actual wheels. For details of the UI, please refer to the documentation of the <span class="ui">Overrides</span> section of the <a href="pages/PrefsTab.html">Prefs Tab</a>.</li>
+								</ul>
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: Added the variable {{HT_CARVIEW}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>. This variable  generates an HTML canvas representing the current state of the doors, trunks, and roof. It's similar to the car view that is displayed by the Overview Tab. This variable is for use in HTML pages only, not in notification messages.
+							</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+							<li>
+								<span class="changed">Refinement</span>: In principle there should be no user visible changes to the Login Tab. In practice, there were quite a few code changes. Hopefully I did not introduce any bugs into this area, but please let me know if I did.
+							</li>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+							<li>
+								<span class="added">Addition</span>: The range is now displayed on the Overview Tab. You can select which type of range is displayed using the preferences. it can be either Rated, Ideal, or Estimated. 
+							</li>
+							<li>
+								<span class="added">Addition</span>: The shift state is now displayed. It is either P (park), N (neutral), D (drive), or R (reverse). There are times when the car may not respond with an accurate drive state. In this case a "P" will be displayed. 
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: The <span class="ui">Honk</span>, <span class="ui">Flash</span>, and <span class="ui">Wakeup</span> buttons have been moved to the <span class="ui">Options&rarr;Activity</span> menu.
+							</li>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+							<li>
+								<span class="fixed">Fix</span>: When a trip is selected, an estimate of the kWh consumed is displayed. It was previously mislabeled as <span class="ui">Power</span>. It has been changed to <span class="ui">Energy</span>.
+							</li>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+							<li>
+								<span class="added">Addition</span>: You may now request to be notified a charge anomaly occurs. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during a charging cycle. This feature is highly <strong>experimental</strong> since I have no way to safelt recreate such a charge anomaly. 
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: Sometimes certain readings can fluctuate enough that a notification like <span class="ui">SOC Hits or Exceeds</span> may be triggered multiple times in a short period. VisibleTesla now avoids sending you multiple notifications in these circumstances. 
+							</li>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+							<li>
+								<span class="added">Addition</span>: There is a new option in the <span class="ui">General/Basic</span> preferences. It controls which type of range is displayed on the Overview Tab. It can be either Rated, Estimated, or Ideal.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+					<li>Moved to a fully observer-based model for state updates.</li>
+					<li>Changed the way commands are issued to Tesla's servers. There is now one background thread to issue commands rather than threads spawning and completing per command. Removed some dead code.</li>
+					<li>Fairly massive code refactoring to make the modules more manageable. The extent of these changes is in large part the reason that this release is experimental.</li>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>
+		<h3>
 			VisibleTesla 0.28.01 [07-18-2014]
 		</h3>
 		<ul>

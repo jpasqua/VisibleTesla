@@ -25,7 +25,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.chart.VTLineChart;
 import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
@@ -130,7 +129,7 @@ public class GraphController extends BaseController {
     
     private void prepSeries() {
         VTSeries.Transform<Number> distTransform = 
-                appContext.unitType() == Utils.UnitType.Imperial 
+                appContext.utils.unitType() == Utils.UnitType.Imperial 
                 ? VTSeries.idTransform : VTSeries.mToKTransform;
         lineChart.clearSeries();
 
@@ -183,60 +182,54 @@ public class GraphController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            prepSeries();
-            loadExistingData();
-            // Register for additions to the data
-            appContext.statsStore.newestVoltage.addListener(statHandler);
-            appContext.statsStore.newestCurrent.addListener(statHandler);
-            appContext.statsStore.newestEstRange.addListener(statHandler);
-            appContext.statsStore.newestSOC.addListener(statHandler);
-            appContext.statsStore.newestROC.addListener(statHandler);
-            appContext.statsStore.newestBatteryAmps.addListener(statHandler);
-            appContext.statsStore.newestPower.addListener(statHandler);
-            appContext.statsStore.newestSpeed.addListener(statHandler);
-        
-            setGap();
-            appContext.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
-                @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                    setGap(); lineChart.refreshChart();
-                }
-            });
-            appContext.prefs.graphGapTime.addListener(new ChangeListener<Number>() {
-                @Override public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                    setGap(); lineChart.refreshChart();
-                }
-            });
-        }
-    }
-
-    @Override protected void refresh() { }
-
-    @Override protected void reflectNewState() {    }
-
-    
-    @Override protected void fxInitialize() {
-        nowButton.setVisible(false);
-        refreshButton.setDisable(true);
-        refreshButton.setVisible(false);
-        progressIndicator.setVisible(false);
-        progressLabel.setVisible(false);
-        chart = new TimeBasedChart(root, readout);
-        lineChart = chart.getChart();
-        createContextMenu();
-        showItemList(false);
-        root.getChildren().add(0, lineChart);
-        nowButton.setVisible(true);
-    }
-
-    @Override protected void appInitialize() {
+    @Override protected void initializeState() {
         // This is a hack!! For some reason this is the only way I can get styles
         // to work for ToolTips. I should be able to just choose the appropriate
         // css class decalratively, but that doesn't work and no one seems to
         // know why. This is a workaround.
         URL url = getClass().getClassLoader().getResource("org/noroomattheinn/styles/tooltip.css");
         appContext.stage.getScene().getStylesheets().add(url.toExternalForm());
+        
+        prepSeries();
+        loadExistingData();
+        // Register for additions to the data
+        appContext.statsStore.newestVoltage.addListener(statHandler);
+        appContext.statsStore.newestCurrent.addListener(statHandler);
+        appContext.statsStore.newestEstRange.addListener(statHandler);
+        appContext.statsStore.newestSOC.addListener(statHandler);
+        appContext.statsStore.newestROC.addListener(statHandler);
+        appContext.statsStore.newestBatteryAmps.addListener(statHandler);
+        appContext.statsStore.newestPower.addListener(statHandler);
+        appContext.statsStore.newestSpeed.addListener(statHandler);
+
+        setGap();
+        appContext.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                setGap(); lineChart.refreshChart();
+            }
+        });
+        appContext.prefs.graphGapTime.addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
+                setGap(); lineChart.refreshChart();
+            }
+        });
+    }
+    
+    @Override protected void activateTab() { }
+
+    @Override protected void refresh() { }
+
+    @Override protected void fxInitialize() {
+        nowButton.setVisible(false);
+        refreshButton.setDisable(true);
+        refreshButton.setVisible(false);
+        progressIndicator.setVisible(false);
+        chart = new TimeBasedChart(root, readout);
+        lineChart = chart.getChart();
+        createContextMenu();
+        showItemList(false);
+        root.getChildren().add(0, lineChart);
+        nowButton.setVisible(true);
     }
 
 /*------------------------------------------------------------------------------

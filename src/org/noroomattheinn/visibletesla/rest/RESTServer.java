@@ -24,15 +24,16 @@ import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
 import org.noroomattheinn.visibletesla.AppContext;
-import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 import org.noroomattheinn.utils.LRUMap;
+import org.noroomattheinn.visibletesla.Inactivity;
+import org.noroomattheinn.visibletesla.ThreadManager;
 
 /**
  * RESTServer: Provide minimal external services.
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class RESTServer {
+public class RESTServer implements ThreadManager.Stoppable {
     
 /*------------------------------------------------------------------------------
  *
@@ -40,10 +41,10 @@ public class RESTServer {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final Map<String,InactivityType> toInactivityType = 
-            Utils.newHashMap("sleep", InactivityType.Sleep,
-                             "daydream", InactivityType.Daydream,
-                             "wakeup", InactivityType.Awake);
+    private static final Map<String,Inactivity.Type> toInactivityType = 
+            Utils.newHashMap("sleep", Inactivity.Type.Sleep,
+                             "daydream", Inactivity.Type.Daydream,
+                             "wakeup", Inactivity.Type.Awake);
 
 /*------------------------------------------------------------------------------
  *
@@ -90,7 +91,7 @@ public class RESTServer {
         }
     }
 
-    public synchronized void shutdown() {
+    @Override public synchronized void stop() {
         if (server != null) {
             server.stop(0);
             server = null;
@@ -115,14 +116,14 @@ public class RESTServer {
                 sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
-            InactivityType requestedMode = toInactivityType.get(mode);
+            Inactivity.Type requestedMode = toInactivityType.get(mode);
             if (requestedMode == null) {
                 Tesla.logger.warning("Unknown inactivity mode: " + mode + "\n");
                 sendResponse(exchange, 400, "Unknown activity mode");
                 return;
             }
             Tesla.logger.info("Requested inactivity mode: " + mode);
-            appContext.requestInactivityMode(requestedMode);
+            appContext.inactivity.setMode(requestedMode);
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
         }
     };

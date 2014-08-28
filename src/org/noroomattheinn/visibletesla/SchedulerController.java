@@ -25,15 +25,16 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext.InactivityType;
 import org.noroomattheinn.visibletesla.ScheduleItem.Command;
+import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
 
 /**
  * FXML Controller class
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class SchedulerController extends BaseController implements ScheduleItem.ScheduleOwner {
+public class SchedulerController extends BaseController
+    implements ScheduleItem.ScheduleOwner, Stoppable {
 
     private static final int Safe_Threshold = 25;
     
@@ -52,13 +53,13 @@ public class SchedulerController extends BaseController implements ScheduleItem.
 
     private final List<ScheduleItem> schedulers = new ArrayList<>();
     
-/*==============================================================================
- * -------                                                               -------
- * -------              Public Interface To This Class                   ------- 
- * -------                                                               -------
- *============================================================================*/
-
-    public void shutDown() {
+/*------------------------------------------------------------------------------
+ *
+ * Implementation of the Stoppable interface
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    @Override public void stop() {
         for (ScheduleItem si : schedulers) {
             si.shutDown();
         }
@@ -70,7 +71,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override public String getExternalKey() { return vehicle.getVIN(); }
+    @Override public String getExternalKey() { return appContext.vehicle.getVIN(); }
     @Override public Preferences getPreferences() { return appContext.persistentState; }
     @Override public AppContext getAppContext() { return appContext; }
     
@@ -86,7 +87,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         if (!safeToRun(command)) return;
         
         if (!tryCommand(command, value, messageTarget)) {
-            tryCommand(command, value, messageTarget);  // Try it again in case of transient errors
+            tryCommand(command, value, messageTarget);  // Retry to avoid transient errors
         }
     }
     
@@ -120,9 +121,9 @@ public class SchedulerController extends BaseController implements ScheduleItem.
                 r = hvacController.startAC();
                 break;
             case HVAC_OFF: r = hvacController.stopAC();break;
-            case AWAKE: appContext.requestInactivityMode(InactivityType.Awake); break;
-            case SLEEP: appContext.requestInactivityMode(InactivityType.Sleep); break;
-            case DAYDREAM: appContext.requestInactivityMode(InactivityType.Daydream); break;
+            case AWAKE: appContext.inactivity.setMode(Inactivity.Type.Awake); break;
+            case SLEEP: appContext.inactivity.setMode(Inactivity.Type.Sleep); break;
+            case DAYDREAM: appContext.inactivity.setMode(Inactivity.Type.Daydream); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
             case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }
@@ -135,7 +136,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
-            appContext.sendNotification(
+            appContext.utils.sendNotification(
                 appContext.prefs.notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
@@ -143,7 +144,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         }
         MessageTemplate body = new MessageTemplate(appContext, messageTarget.getActiveMsg());
         MessageTemplate subj = new MessageTemplate(appContext, messageTarget.getActiveSubj());
-        boolean sent = appContext.sendNotification(
+        boolean sent = appContext.utils.sendNotification(
             messageTarget.getActiveEmail(),
             subj.getMessage(null),
             body.getMessage(null));
@@ -188,10 +189,10 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     }
     
     private boolean wakeAndGetChargeState() {
-        appContext.inactivityState.set(InactivityType.Awake);
+        appContext.inactivity.setState(Inactivity.Type.Awake);
         if (charge.refresh()) return true;
         
-        ActionController a = new ActionController(vehicle);
+        ActionController a = new ActionController(appContext.vehicle);
         for (int i = 0; i < 20; i++) {
             a.wakeUp();
             if (charge.refresh())
@@ -204,7 +205,7 @@ public class SchedulerController extends BaseController implements ScheduleItem.
     private synchronized Result unpluggedTrigger() {
         int pilotCurrent = ChargeController.getPilotCurent(charge);
         if (pilotCurrent == 0) {
-            appContext.sendNotification(
+            appContext.utils.sendNotification(
                 appContext.prefs.notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.state.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
@@ -270,31 +271,25 @@ public class SchedulerController extends BaseController implements ScheduleItem.
         refreshButton.setDisable(true);
         refreshButton.setVisible(false);
         progressIndicator.setVisible(false);
-        progressLabel.setVisible(false);
 
         prepareSchedulerUI(gridPane);
     }
 
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            appContext.schedulerActivityReport.set("");
+    @Override protected void initializeState() {
+        appContext.schedulerActivityReport.set("");
 
-            charge = new ChargeState(v);
-            chargeController = new org.noroomattheinn.tesla.ChargeController(v);
-            hvacController = new org.noroomattheinn.tesla.HVACController(v);
-
-        }
-        
+        Vehicle v = appContext.vehicle;
+        charge = new ChargeState(v);
+        chargeController = new org.noroomattheinn.tesla.ChargeController(v);
+        hvacController = new org.noroomattheinn.tesla.HVACController(v);
+        appContext.tm.addStoppable(this);
+    }
+    
+    @Override protected void activateTab() {
         for (ScheduleItem item : schedulers) { item.loadExistingSchedule(); }
     }
     
-    @Override
-    protected void refresh() {
-    }
-
-    @Override
-    protected void reflectNewState() {
-    }
+    @Override protected void refresh() { }
 
     
 /*------------------------------------------------------------------------------
@@ -315,7 +310,6 @@ public class SchedulerController extends BaseController implements ScheduleItem.
             appContext.schedulerActivityReport.set(entry);
         }
     }
-    
 
 }
 

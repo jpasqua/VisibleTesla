@@ -17,7 +17,7 @@ import org.noroomattheinn.utils.Utils;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.InactivityType> {
+public class SnapshotStreamer implements Runnable, ChangeListener<Inactivity.Type> {
     
 /*------------------------------------------------------------------------------
  *
@@ -35,7 +35,7 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
     
     private final AppContext appContext;
     private SnapshotState snapshot;
-    private AppContext.InactivityType inactivityState = AppContext.InactivityType.Awake;
+    private Inactivity.Type inactivityState = Inactivity.Type.Awake;
     private Thread streamer = null;
     private ArrayBlockingQueue<ProduceRequest> queue = new ArrayBlockingQueue<>(20);
     
@@ -68,7 +68,8 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
 
     private void ensureStreamer() {
         if (streamer == null) {
-            streamer = appContext.launchThread(this, "00 SnapshotStreamer");
+            streamer = appContext.tm.launch(this, "00 SnapshotStreamer");
+            if (streamer == null) return;   // We're shutting down!
             while (streamer.getState() != Thread.State.WAITING) {
                 Utils.yieldFor(10);
             }
@@ -76,15 +77,15 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
     }
     
     @Override public void changed(
-            ObservableValue<? extends AppContext.InactivityType> o,
-            AppContext.InactivityType ov, AppContext.InactivityType nv) {
+            ObservableValue<? extends Inactivity.Type> o,
+            Inactivity.Type ov, Inactivity.Type nv) {
         inactivityState = nv;
     }
 
     @Override public void run() {
         long lastSnapshot = 0;
-        appContext.inactivityState.addListener(this);
-        inactivityState = appContext.inactivityState.get();
+        appContext.inactivity.addStateListener(this);
+        inactivityState = appContext.inactivity.getState();
         
         try {
             while (!appContext.shuttingDown.get()) {
@@ -114,7 +115,7 @@ public class SnapshotStreamer implements Runnable, ChangeListener<AppContext.Ina
                 while (snapshot.refreshFromStream()) {
                     //System.err.print("|RF");
                     if (appContext.shuttingDown.get()) return;
-                    if (inactivityState == AppContext.InactivityType.Sleep) {
+                    if (inactivityState == Inactivity.Type.Sleep) {
                         //System.err.print("|SL");
                         break;
                     }

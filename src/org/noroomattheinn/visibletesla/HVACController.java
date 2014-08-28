@@ -6,6 +6,8 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -19,9 +21,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.HVACState;
-import org.noroomattheinn.tesla.Options.WheelType;
+import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
 public class HVACController extends BaseController {
@@ -39,7 +40,6 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private org.noroomattheinn.tesla.HVACController controller;
-    private HVACState hvac;
     private boolean useDegreesF = false;
     DoubleProperty sliderValue = new SimpleDoubleProperty(70);
     
@@ -72,7 +72,9 @@ public class HVACController extends BaseController {
     @FXML private ImageView nineteenRimFront, nineteenRimRear;
     @FXML private ImageView aeroFront, aeroRear;
     @FXML private ImageView cycloneFront, cycloneRear;
-    
+    private Map<Options.WheelType,Options.WheelType> wheelEquivs = new HashMap<>();  
+    private Map<Options.WheelType,ImageView[]> wheelImages = new HashMap<>();  
+
     // Controls
     @FXML private ToggleButton  hvacOffButton, hvacOnButton;
     @FXML private Slider        tempSlider;
@@ -86,15 +88,16 @@ public class HVACController extends BaseController {
     @FXML void hvacOnOffHandler(ActionEvent event) {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                return controller.setAC(hvacOnButton.isSelected()); } },
-                AfterCommand.RefreshLater);
+                Result r = controller.setAC(hvacOnButton.isSelected());
+                updateState(StateProducer.StateType.HVAC);
+                return r;
+            } });
     }
     
     @FXML void tempChangeHandler(MouseEvent event) {
         double temp = tempSlider.valueProperty().doubleValue();
         if (useDegreesF) temp = Math.round(temp);
         else temp = nearestHalf(temp);
-        //targetTempLabel.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
         tempSlider.setValue(temp);
         setTemp(temp);
     }
@@ -102,10 +105,12 @@ public class HVACController extends BaseController {
     private void setTemp(final double temp) {
         final boolean setF = useDegreesF;   // Must be final, so copy it...
         issueCommand(new Callable<Result>() {
-            @Override public Result call() { 
-                if (setF) return controller.setTempF(temp, temp);
-                return controller.setTempC(temp, temp); }
-            }, AfterCommand.Refresh);
+            @Override public Result call() {
+                Result r = (setF) ? controller.setTempF(temp, temp)
+                                  : controller.setTempC(temp, temp);
+                updateState(StateProducer.StateType.HVAC);
+                return r;
+            } });
     }
     
     private double nearestHalf(double val) { return Math.floor(val*2.0)/2.0; }
@@ -116,16 +121,20 @@ public class HVACController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            controller = new org.noroomattheinn.tesla.HVACController(v);
-            hvac = new HVACState(v);
-            useDegreesF = appContext.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F");
-            updateWheelView();  // Make sure we show the right wheels from the get-go
-        }            
-        if (appContext.simulatedUnits.get() != null)
-            useDegreesF = (appContext.simulatedUnits.get() == Utils.UnitType.Imperial);
-
+    @Override protected void initializeState() {
+        controller = new org.noroomattheinn.tesla.HVACController(appContext.vehicle);
+        appContext.lastKnownHVACState.addListener(new ChangeListener<HVACState.State>() {
+            @Override public void changed(ObservableValue<? extends HVACState.State> ov,
+                HVACState.State old, HVACState.State cur) {
+                if (active()) { reflectNewState(); }
+            }
+        });
+        useDegreesF = appContext.utils.useDegreesF();
+        updateWheelView();  // Make sure we show the right wheels from the get-go
+    }
+    
+    @Override protected void activateTab() {
+        useDegreesF = appContext.utils.useDegreesF();
         if (useDegreesF) {
             tempSlider.setMin(62);
             tempSlider.setMax(90);
@@ -140,19 +149,20 @@ public class HVACController extends BaseController {
             tempSlider.setValue(19.5);    // Until the real value is retrieved
         }
     }
-
-    @Override protected void refresh() { updateState(hvac); }
-
-    @Override protected void reflectNewState() {
-        if (hvac.state == null) return; // State is not ready...
-        updateWheelView();
-        reflectHVACOnState();
-        reflectActualTemps();
-        reflectDefrosterState();
-    }
     
+    @Override protected void refresh() { updateState(StateProducer.StateType.HVAC); }
+
     // Controller-specific initialization
     @Override protected void fxInitialize() {
+        wheelImages.put(Options.WheelType.WTAE, new ImageView[] {aeroFront, aeroRear});
+        wheelImages.put(Options.WheelType.WTTB, new ImageView[] {cycloneFront, cycloneRear});
+        wheelImages.put(Options.WheelType.WT19, new ImageView[] {nineteenRimFront, nineteenRimRear});
+        wheelImages.put(Options.WheelType.WTSP, new ImageView[] {darkRimFront, darkRimRear});
+        wheelImages.put(Options.WheelType.WT21, new ImageView[] {});
+        wheelEquivs.put(Options.WheelType.WTX1, Options.WheelType.WT19);
+        wheelEquivs.put(Options.WheelType.WT1P, Options.WheelType.WT19);
+        wheelEquivs.put(Options.WheelType.WTSG, Options.WheelType.WTSP);
+
         tempSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override public void changed(ObservableValue<? extends Number> ov,
                                           Number old, Number cur) {
@@ -162,14 +172,18 @@ public class HVACController extends BaseController {
         });
     }    
     
-    private double adjustedTemp(double temp) {
-        return (useDegreesF) ? Math.round(temp): nearestHalf(temp);
-    }
 /*------------------------------------------------------------------------------
  *
  * Methods to Reflect the State of the HVAC System
  * 
  *----------------------------------------------------------------------------*/
+
+    private void reflectNewState() {
+        updateWheelView();
+        reflectHVACOnState();
+        reflectActualTemps();
+        reflectDefrosterState();
+    }
     
     private void reflectHVACOnState() {
         // Determining whether the HVAC is on is a little tricky. You'd think
@@ -177,12 +191,13 @@ public class HVACController extends BaseController {
         // you whether the AC is running - not the heat. Until I determine a better
         // way, I'm using the fan speed to indicate whether the HVAC is on and using
         // the temp vs. temp set point to determine whether it is heating or cooling.
-        boolean hvacOn = (hvac.state.fanStatus > 0);
+        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        boolean hvacOn = (hvac.fanStatus > 0);
         hvacOnButton.setSelected(hvacOn);
         hvacOffButton.setSelected(!hvacOn);
         reflectFanStatus();
         updateCoolHotImages();
-        double temp = hvac.state.driverTemp;
+        double temp = hvac.driverTemp;
         if (useDegreesF) temp = Math.round(Utils.cToF(temp));
         else temp = nearestHalf(temp);
         tempSlider.setValue(temp);
@@ -194,7 +209,7 @@ public class HVACController extends BaseController {
         fan2.setVisible(false); fan3.setVisible(false); fan4.setVisible(false);
         
         // Now turn on the right one...
-        int fanSpeed = hvac.state.fanStatus;   // Range of 0-7
+        int fanSpeed = appContext.lastKnownHVACState.get().fanStatus;   // Range of 0-7
         if (fanSpeed >= 6) fan4.setVisible(true);
         else if (fanSpeed >= 4) fan3.setVisible(true);
         else if (fanSpeed >= 2) fan2.setVisible(true);
@@ -203,29 +218,36 @@ public class HVACController extends BaseController {
     }
     
     private void reflectDefrosterState() {
-        setOptionState(hvac.state.isFrontDefrosterOn != 0, frontDefOnImg, frontDefOffImg);
-        setOptionState(hvac.state.isRearDefrosterOn, rearDefOnImg, rearDefOffImg);
+        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        setOptionState(hvac.isFrontDefrosterOn != 0, frontDefOnImg, frontDefOffImg);
+        setOptionState(hvac.isRearDefrosterOn, rearDefOnImg, rearDefOffImg);
     }
     
     private void reflectActualTemps() {
-        setTempLabel(insideTmpLabel, hvac.state.insideTemp);
-        setTempLabel(outsideTempLabel, hvac.state.outsideTemp);
+        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        setTempLabel(insideTmpLabel, hvac.insideTemp);
+        setTempLabel(outsideTempLabel, hvac.outsideTemp);
     }
     
     private void updateCoolHotImages() {
+        HVACState.State hvac = appContext.lastKnownHVACState.get();
         climateColdImg.setVisible(false);
         climateHotImg.setVisible(false);
         
-        if (hvac.state.fanStatus > 0) {
-            double insideTemp = hvac.state.insideTemp;
-            if (insideTemp > hvac.state.driverTemp)
+        if (hvac.fanStatus > 0) {
+            double insideTemp = hvac.insideTemp;
+            if (insideTemp > hvac.driverTemp)
                 climateColdImg.setVisible(true);
-            else if (insideTemp < hvac.state.driverTemp) {
+            else if (insideTemp < hvac.driverTemp) {
                 climateHotImg.setVisible(true);
             }
         }
     } 
-
+    
+    private double adjustedTemp(double temp) {
+        return (useDegreesF) ? Math.round(temp): nearestHalf(temp);
+    }
+    
     private void setTempLabel(Label label, double tempC) {
         if (Double.isNaN(tempC)) {   // No value is available
             label.setText("...");
@@ -235,40 +257,8 @@ public class HVACController extends BaseController {
         label.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
     }
 
-    
-    // TO DO: This wheel-related code duplicates functionality in OverviewController. 
-    // Refactor this to make it shareable (somehow).
     private void updateWheelView() {
-        WheelType wt = appContext.computedWheelType();
-        
-        nineteenRimFront.setVisible(false); nineteenRimRear.setVisible(false);
-        darkRimFront.setVisible(false); darkRimRear.setVisible(false);
-        aeroFront.setVisible(false);  aeroRear.setVisible(false);
-        cycloneFront.setVisible(false); cycloneRear.setVisible(false);
-        switch (wt) {
-            case WTAE:
-                aeroFront.setVisible(true);
-                aeroRear.setVisible(true);
-                break;
-            case WTTB:
-                cycloneFront.setVisible(true);
-                cycloneRear.setVisible(true);
-                break;
-            case WTX1:
-            case WT1P:
-            case WT19:
-                nineteenRimFront.setVisible(true);
-                nineteenRimRear.setVisible(true);
-                break;
-            case WTSP:
-            case WTSG:
-                darkRimFront.setVisible(true);
-                darkRimRear.setVisible(true);
-                break;
-            case WT21:
-            default:    // Unknown, use default which is WT21
-                break;
-        }
+        updateImages(appContext.utils.computedWheelType(), wheelImages, wheelEquivs);
     }
 
 

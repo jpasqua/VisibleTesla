@@ -33,7 +33,6 @@ import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 
@@ -81,7 +80,7 @@ public class LocationController extends BaseController {
         // TITLE, ZOOM, LAT, LNG
         SnapshotState.State state = appContext.lastKnownSnapshotState.get();
         if (state == null) return;
-        appContext.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
+        appContext.utils.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
     }
     
 /*------------------------------------------------------------------------------
@@ -93,7 +92,6 @@ public class LocationController extends BaseController {
     @Override protected void fxInitialize() {
         engine = webView.getEngine();
         progressIndicator.setVisible(false);
-        progressLabel.setVisible(false);
         multigauge = new MultiGauge(25, 8, 0, 100, -60, 320);
         multigauge.useGradient(Side.RIGHT, Color.DARKORANGE, Color.GREEN);
         multigauge.useGradient(Side.LEFT, Color.BLUE, Color.BLUE);
@@ -106,32 +104,29 @@ public class LocationController extends BaseController {
         multigauge.setVal(Side.RIGHT, 40);
     }
     
-    @Override protected void reflectNewState() { }
-
     @Override protected void refresh() {
         appContext.snapshotStreamer.produce(true);
     }
 
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            blipAnimation = animateBlip();
-            
-            appContext.snapshotStreamer.produce(true);
+    @Override protected void initializeState() {
+        blipAnimation = animateBlip();
+        appContext.snapshotStreamer.produce(true);
+        appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+            @Override
+            public void changed(
+                    ObservableValue<? extends SnapshotState.State> ov,
+                    SnapshotState.State old, final SnapshotState.State cur) {
+                doUpdateLater(cur);
+            }
+        });
 
-            appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
-                @Override public void changed(
-                        ObservableValue<? extends SnapshotState.State> ov,
-                        SnapshotState.State old, final SnapshotState.State cur) {
-                    doUpdateLater(cur);
-                }
-            });
-            
-            SnapshotState.State ss = appContext.lastKnownSnapshotState.get();
-            if (ss != null) { doUpdateLater(ss); }
-            
-            if (!useMiles) { multigauge.setRange(Side.LEFT, 0, 160); }
-        }
+        SnapshotState.State ss = appContext.lastKnownSnapshotState.get();
+        if (ss != null) { doUpdateLater(ss); }
+
+        if (!useMiles) { multigauge.setRange(Side.LEFT, 0, 160); }
     }
+    
+    @Override protected void activateTab() { }
     
     private void doUpdateLater(final SnapshotState.State state) {
         Platform.runLater(new Runnable() {

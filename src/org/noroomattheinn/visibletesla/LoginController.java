@@ -10,6 +10,8 @@ import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -20,8 +22,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.tesla.Vehicle;
 
 /**
  * This controller allows the user to login and logout. The "logged-in" state
@@ -60,14 +60,6 @@ public class LoginController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
- * Internal State
- * 
- *----------------------------------------------------------------------------*/
-
-    private Tesla tesla;
-    
-/*------------------------------------------------------------------------------
- *
  * UI Elements
  * 
  *----------------------------------------------------------------------------*/
@@ -87,8 +79,7 @@ public class LoginController extends BaseController {
  * -------                                                               -------
  *============================================================================*/
     
-    void attemptAutoLogin(Tesla t) {
-        this.tesla = t;
+    void attemptAutoLogin() {
         Boolean rememberPref = appContext.persistentState.getBoolean(RememberMePrefKey, false);
         rememberMe.setSelected(rememberPref);
 
@@ -105,7 +96,7 @@ public class LoginController extends BaseController {
         loginCompleteProperty.set(false);
         usernameField.setText("");
         passwordField.setText("");
-        reflectNewState();
+        reflectLoginState();
     }
 
     @FXML void loginAction(ActionEvent event) {
@@ -121,7 +112,7 @@ public class LoginController extends BaseController {
     @FXML void rememberMeHandler(ActionEvent event) {
         appContext.persistentState.putBoolean(RememberMePrefKey, rememberMe.isSelected());
         if (!rememberMe.isSelected())
-            tesla.clearCookies();
+            appContext.tesla.clearCookies();
     }
 
 /*------------------------------------------------------------------------------
@@ -130,16 +121,17 @@ public class LoginController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    @Override protected void fxInitialize() { showAutoLoginUI(); }
+    @Override protected void fxInitialize() {
+        showAutoLoginUI();
+        loginCompleteProperty.addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue<? extends Boolean> ov,
+                    Boolean old, Boolean cur) { reflectLoginState(); }
+        });
+    }
     
     @Override protected void refresh() { }
-
-    @Override protected void prepForVehicle(Vehicle v) { }
-
-    @Override protected void reflectNewState() {
-        if (loginCompleteProperty.get()) showLoginSucceeded();
-        else { showManualLoginUI(); }
-    }
+    @Override protected void initializeState() { }
+    @Override protected void activateTab() { }
 
 /*------------------------------------------------------------------------------
  *
@@ -158,12 +150,24 @@ public class LoginController extends BaseController {
         logoutButton.setDisable(!loggedIn);
     }
     
+    private void reflectLoginState() {
+        Platform.runLater(new Runnable() {  // Ensure we're on the FX thread 
+            @Override public void run() {
+                if (loginCompleteProperty.get()) showLoginSucceeded();
+                else { showManualLoginUI(); }
+            }
+        });
+    }
+
+
     private void showManualLoginUI() {
         showLoginUI("Please enter your credentials", "", false);
         usernameField.requestFocus();
     }
     
-    private void showLoginSucceeded() { showLoginUI("Logged in as:", tesla.getUsername(), true); }
+    private void showLoginSucceeded() {
+        showLoginUI("Logged in as:", appContext.tesla.getUsername(), true);
+    }
     
     private void showAutoLoginUI() {
         showLoginUI("Attempting Automatic Login", "", false);
@@ -177,7 +181,7 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void attemptLogin(String username, String password) {
-        issueCommand(new AttemptLogin(username, password), AfterCommand.Reflect);
+        issueCommand(new AttemptLogin(username, password));
     }
 
     private class AttemptLogin implements Callable<Result> {
@@ -192,9 +196,9 @@ public class LoginController extends BaseController {
             boolean loggedIn;
             
             if (username == null)   // Try auto login
-                loggedIn = tesla.connect();
+                loggedIn = appContext.tesla.connect();
             else {   // Login with the specified username and password
-                loggedIn = tesla.connect(username, password, rememberMe.isSelected());
+                loggedIn = appContext.tesla.connect(username, password, rememberMe.isSelected());
                 if (!loggedIn) {
                     Platform.runLater(new Runnable() {
                         @Override public void run() {

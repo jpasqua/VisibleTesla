@@ -9,6 +9,8 @@ package org.noroomattheinn.visibletesla;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,11 +28,8 @@ import javafx.scene.paint.Stop;
 import jfxtras.labs.scene.control.gauge.Battery;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-
 
 public class ChargeController extends BaseController {
     
@@ -41,9 +40,6 @@ public class ChargeController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private static final double KilometersPerMile = 1.60934;
-    private static final double UsableRangeThresholdMiles = 5;
-    private static final double UsableRangeThresholdKm = 
-            UsableRangeThresholdMiles * KilometersPerMile;
     private static final String MinVersionForChargePct = "1.33.38";
         // This value is taken from the wiki here: http://tinyurl.com/mzwxbps
     
@@ -53,7 +49,6 @@ public class ChargeController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private ChargeState charge;
     private org.noroomattheinn.tesla.ChargeController chargeController;
     private boolean useMiles;
     
@@ -123,18 +118,20 @@ public class ChargeController extends BaseController {
     
     @FXML void rangeLinkHandler(ActionEvent event) {
         Hyperlink h = (Hyperlink)event.getSource();
-        int percent = (h == stdLink) ?
-                charge.state.chargeLimitSOCStd : charge.state.chargeLimitSOCMax;
+        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        int percent = (h == stdLink) ? charge.chargeLimitSOCStd : charge.chargeLimitSOCMax;
         setChargePercent(percent);
     }
 
     
     @FXML void chargeButtonHandler(ActionEvent event) {
-        final Button b = (Button)event.getSource();
+        final Button b = (Button) event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                return chargeController.setChargeState(b == startButton); } },
-            AfterCommand.Refresh);
+                Result r = chargeController.setChargeState(b == startButton);
+                updateState(StateProducer.StateType.Charge);
+                return r;
+            } });
     }
     
     private void setChargePercent(final int percent) {
@@ -142,8 +139,10 @@ public class ChargeController extends BaseController {
         chargeSetting.setText(percent + " %");
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                return chargeController.setChargePercent(percent); } },
-            AfterCommand.Refresh);
+                Result r = chargeController.setChargePercent(percent);
+                updateState(StateProducer.StateType.Charge);
+                return r;
+            } });
     }
     
     
@@ -172,37 +171,30 @@ public class ChargeController extends BaseController {
         chargeSlider.setDisable(true);
     }
 
-    @Override protected void prepForVehicle(Vehicle v) {
-        if (differentVehicle()) {
-            chargeController = new org.noroomattheinn.tesla.ChargeController(v);
-            charge = new ChargeState(v);
-        }
-        
-        GUIState.State guiState = appContext.lastKnownGUIState.get();
-        useMiles = appContext.unitType() == Utils.UnitType.Imperial;
+    @Override protected void initializeState() {
+        chargeController = new org.noroomattheinn.tesla.ChargeController(
+                appContext.vehicle);
+        chargeSlider.setDisable(Utils.compareVersions(
+            appContext.lastKnownVehicleState.get().version, MinVersionForChargePct) < 0);
+        reflectNewState();
+        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState.State>() {
+            @Override public void changed(ObservableValue<? extends ChargeState.State> ov,
+                ChargeState.State old, ChargeState.State cur) {
+                if (active()) { reflectNewState(); }
+            }
+        });
+    }
+    
+    @Override protected void activateTab() {
+        useMiles = appContext.utils.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "Miles" : "Km";
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);
         ratedOdometer.setUnit(units);
-
         chargeRate.setUnits(useMiles ? "mph" : "km/h");
     }
 
-    @Override protected void refresh() {  updateState(charge); }
-    
-    @Override protected void reflectNewState() {
-        if (charge.state == null) return; // No State Yet...
-        
-        reflectRange();
-        reflectBatteryStats();
-        reflectChargeStatus();
-        reflectProperties();
-        chargeSlider.setDisable(Utils.compareVersions(
-            appContext.lastKnownVehicleState.get().version, MinVersionForChargePct) < 0);
-        boolean isConnectedToPower = (charge.state.chargerPilotCurrent > 0);
-        startButton.setDisable(!isConnectedToPower);
-        stopButton.setDisable(!isConnectedToPower);
-    }
+    @Override protected void refresh() { updateState(StateProducer.StateType.Charge); }
     
     public static int getPilotCurent(ChargeState cs) {
         for (int i = 0; i < 3; i++) {
@@ -220,43 +212,56 @@ public class ChargeController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
+    private void reflectNewState() {
+        reflectRange();
+        reflectBatteryStats();
+        reflectChargeStatus();
+        reflectProperties();
+        boolean isConnectedToPower =
+                appContext.lastKnownChargeState.get().chargerPilotCurrent > 0;
+        startButton.setDisable(!isConnectedToPower);
+        stopButton.setDisable(!isConnectedToPower);
+    }
+
     private void reflectProperties() {
+        ChargeState.State charge = appContext.lastKnownChargeState.get();
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        int pc = charge.state.chargerPilotCurrent;
+        int pc = charge.chargerPilotCurrent;
         if (pc == -1) pilotCurrent.setValue("Unknown");
         else pilotCurrent.setValue(String.valueOf(pc));
-        voltage.setValue(String.valueOf(charge.state.chargerVoltage));
-        batteryCurrent.setValue(String.format("%.1f", charge.state.batteryCurrent));
-        nRangeCharges.setValue(String.valueOf(charge.state.maxRangeCharges));
-        fastCharger.setValue(charge.state.fastChargerPresent ? "Yes":"No");
-        chargeRate.setValue(String.format("%.1f", charge.state.chargeRate*conversionFactor));
-        remaining.setValue(getDurationString(charge.state.timeToFullCharge));
-        actualCurrent.setValue(String.valueOf(charge.state.chargerActualCurrent));
-        chargerPower.setValue(String.valueOf(charge.state.chargerPower));
-        chargingState.setValue(charge.state.chargingState.name());
-        if (charge.state.chargerPhases == 3)
+        voltage.setValue(String.valueOf(charge.chargerVoltage));
+        batteryCurrent.setValue(String.format("%.1f", charge.batteryCurrent));
+        nRangeCharges.setValue(String.valueOf(charge.maxRangeCharges));
+        fastCharger.setValue(charge.fastChargerPresent ? "Yes":"No");
+        chargeRate.setValue(String.format("%.1f", charge.chargeRate*conversionFactor));
+        remaining.setValue(getDurationString(charge.timeToFullCharge));
+        actualCurrent.setValue(String.valueOf(charge.chargerActualCurrent));
+        chargerPower.setValue(String.valueOf(charge.chargerPower));
+        chargingState.setValue(charge.chargingState.name());
+        if (charge.chargerPhases == 3)
             actualCurrent.setName("Current \u2462");
         else
             actualCurrent.setName("Current");
         batteryLevels.setValue(String.format(
-                "%d/%d", charge.state.batteryPercent,
-                charge.state.usableBatteryLevel));
+                "%d/%d", charge.batteryPercent,
+                charge.usableBatteryLevel));
     }
     
     private void reflectChargeStatus() {
-        int percent = charge.state.chargeLimitSOC;
-        chargeSlider.setMin((charge.state.chargeLimitSOCMin/10)*10);
+        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        int percent = charge.chargeLimitSOC;
+        chargeSlider.setMin((charge.chargeLimitSOCMin/10)*10);
         chargeSlider.setMax(100);
         chargeSlider.setMajorTickUnit(10);
         chargeSlider.setMinorTickCount(4);
         chargeSlider.setBlockIncrement(10);
         chargeSlider.setValue(percent);
         chargeSetting.setText(percent + " %");
-        stdLink.setVisited(percent == charge.state.chargeLimitSOCStd);
-        maxLink.setVisited(percent == charge.state.chargeLimitSOCMax);      
+        stdLink.setVisited(percent == charge.chargeLimitSOCStd);
+        maxLink.setVisited(percent == charge.chargeLimitSOCMax);      
         // Set the labels that indicate a charge is pending
-        if (charge.state.scheduledChargePending) {
-            Date d = new Date(charge.state.scheduledStart*1000);
+        if (charge.scheduledChargePending) {
+            Date d = new Date(charge.scheduledStart*1000);
             String time = new SimpleDateFormat("hh:mm a").format(d);
             scheduledTimeLabel.setText("Charging will start at " + time);
             updatePendingChargeLabels(true);
@@ -266,21 +271,15 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectBatteryStats() {
-        double range = charge.state.range;
-        int bl = charge.state.batteryPercent;
-        int ubl = charge.state.usableBatteryLevel;
-//        double usableRangeThreshold = useMiles ? UsableRangeThresholdMiles :
-//                                                 UsableRangeThresholdKm;
-        
-//        TEST CODE        
-//        int bl = (int)(Math.random() * 99);
-//        int ubl = bl - (int)(Math.random() * 10);
-//        double range = 200.0*(ubl/100.0)*0.8;
+        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        double range = charge.range;
+        int bl = charge.batteryPercent;
+        int ubl = charge.usableBatteryLevel;
         
         batteryGauge.setChargingLevel(bl/100.0);
         usableGauge.setChargingLevel(ubl/100.0);
         
-        switch (charge.state.chargingState) {
+        switch (charge.chargingState) {
             case Complete:
             case Charging:
                 batteryGauge.setCharging(true);
@@ -293,12 +292,6 @@ public class ChargeController extends BaseController {
         }
 
         if (ubl == 0) ubl = bl;
-//        double rangeDelta = range - ((ubl*range)/bl);
-//        System.err.println("range = " + range);
-//        System.err.println("rangeDelta = " + rangeDelta);
-//        System.err.println("bl = " + bl);
-//        System.err.println("ubl = " + ubl);
-//        if (rangeDelta >= usableRangeThreshold) {
         if (bl - ubl >= 2) {
             usableGauge.setVisible(true);
             batteryPercentLabel.setTextFill(Color.BLUE);
@@ -311,10 +304,11 @@ public class ChargeController extends BaseController {
     }
 
     private void reflectRange() {
+        ChargeState.State charge = appContext.lastKnownChargeState.get();
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        estOdometer.setValue(osd(charge.state.estimatedRange * conversionFactor));
-        idealOdometer.setValue(osd(charge.state.idealRange * conversionFactor));
-        ratedOdometer.setValue(osd(charge.state.range * conversionFactor));
+        estOdometer.setValue(osd(charge.estimatedRange * conversionFactor));
+        idealOdometer.setValue(osd(charge.idealRange * conversionFactor));
+        ratedOdometer.setValue(osd(charge.range * conversionFactor));
         
     }
     
