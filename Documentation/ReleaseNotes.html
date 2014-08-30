@@ -20,7 +20,7 @@
 				VisibleTesla Release Notes
 			</h1>
 		<h3>
-			VisibleTesla 0.29.00 [08-20-2014] - <strong>EXPERIMENTAL</strong>
+			VisibleTesla 0.29.00 [08-30-2014] - <strong>EXPERIMENTAL</strong>
 		</h3>
 		<ul>
 			<li>User-Visible Changes
@@ -40,6 +40,9 @@
 							</li>
 							<li>
 								<span class="changed">Refinement</span>: Added the variable {{HT_CARVIEW}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>. This variable  generates an HTML canvas representing the current state of the doors, trunks, and roof. It's similar to the car view that is displayed by the Overview Tab. This variable is for use in HTML pages only, not in notification messages.
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: Improvements to the way various wheel types are detected to handle some unusual cases.
 							</li>
 						</ul>
 					</li>
@@ -105,6 +108,9 @@
 							<li>
 								<span class="added">Addition</span>: There is a new option in the <span class="ui">General/Basic</span> preferences. It controls which type of range is displayed on the Overview Tab. It can be either Rated, Estimated, or Ideal.
 							</li>
+							<li>
+								<span class="changed">Refinement</span>: Removed the option to store application data files with the app. I've been phasing this out for a few releases and the option is now completely removed. There were a number of logistical problems maintaining this option. If you used this option in past and are upgrading from a version before 0.27.03, please follow the process listed at the very top of the release notes.
+							</li>
 						</ul>
 					</li>
 				</ul>
@@ -113,7 +119,7 @@
 				<ul>
 					<li>Moved to a fully observer-based model for state updates.</li>
 					<li>Changed the way commands are issued to Tesla's servers. There is now one background thread to issue commands rather than threads spawning and completing per command. Removed some dead code.</li>
-					<li>Fairly massive code refactoring to make the modules more manageable. The extent of these changes is in large part the reason that this release is experimental.</li>
+					<li>Fairly massive code refactoring to make the code more manageable. Lots more could be done, but that will happen over time. The extent of these changes is in large part the reason that this release is experimental.</li>
 				</ul>
 			</li>
 			<li>Known problems

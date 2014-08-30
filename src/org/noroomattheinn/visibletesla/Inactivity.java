@@ -6,7 +6,9 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.util.ArrayList;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -35,7 +37,8 @@ public class Inactivity {
  *----------------------------------------------------------------------------*/
 
     public enum Type { Sleep, Daydream, Awake };
-
+    public interface Listener { public void handle(Inactivity.Type type); }
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -45,6 +48,8 @@ public class Inactivity {
     private final ObjectProperty<Type> state;
     private final ObjectProperty<Type> mode;
     private final AppContext  appContext;
+    private final Notifier modeNotifier = new Notifier();
+    private final Notifier stateNotifier = new Notifier();
     private long  timeOfLastEvent = System.currentTimeMillis();
 
 /*==============================================================================
@@ -67,13 +72,13 @@ public class Inactivity {
                 }
             }
         });
+        state.addListener(stateNotifier);
+        mode.addListener(modeNotifier);
     }
 
     public Type getState() { return state.get(); }
     public void setState(Type newState) { state.set(newState); }
-    public void addStateListener(ChangeListener<Inactivity.Type> l) {
-        state.addListener(l);
-    }
+    public void addStateListener(Listener l) { stateNotifier.addListener(l); }
     public String stateAsString() { return asString(state.get(), "state"); }
 
     public Type getMode() { return mode.get(); }
@@ -85,9 +90,7 @@ public class Inactivity {
         state.set(newMode);
     }
     public String modeAsString() { return asString(mode.get(), "mode"); }
-    public void addModeListener(ChangeListener<Inactivity.Type> l) {
-        mode.addListener(l);
-    }
+    public void addModeListener(Listener l) {modeNotifier.addListener(l); }
     
     public void trackInactivity(List<Tab> tabs) {
         for (Tab t : tabs) {
@@ -131,6 +134,20 @@ public class Inactivity {
  * 
  *----------------------------------------------------------------------------*/
     
+    private class Notifier implements ChangeListener<Inactivity.Type> {
+        private List<Listener> listeners = new ArrayList<>(5);
+                
+        @Override public void changed(
+                final ObservableValue<? extends Inactivity.Type> o,
+                final Inactivity.Type ov, final Inactivity.Type nv) {
+            Platform.runLater(new Runnable() {
+                @Override public void run() { for (Listener l : listeners) { l.handle(nv); } }
+            });
+        }
+        
+        public void addListener(Listener l) { listeners.add(l); }
+    }
+
     private String asString(Type t, String which) {
         switch (t) {
             case Sleep: return "Allow Sleeping";

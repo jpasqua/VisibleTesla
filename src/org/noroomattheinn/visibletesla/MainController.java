@@ -146,16 +146,10 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        appContext.inactivity.addModeListener(new ChangeListener<Inactivity.Type>() {
-            @Override public void changed(ObservableValue<? extends Inactivity.Type> o, Inactivity.Type ov, Inactivity.Type nv) {
-                setInactivityMenu(nv);
-            }
-        });
-        appContext.inactivity.addStateListener(new ChangeListener<Inactivity.Type>() {
-            @Override public void changed(ObservableValue<? extends Inactivity.Type> o, Inactivity.Type ov, Inactivity.Type nv) {
-                setTitle();
-            }
-        });
+        appContext.inactivity.addModeListener(new Inactivity.Listener() {
+            @Override public void handle(Inactivity.Type nv) { setInactivityMenu(nv); } });
+        appContext.inactivity.addStateListener(new Inactivity.Listener() {
+            @Override public void handle(Inactivity.Type nv) { setTitle(); } });
 
         // Kick off the login process
         LoginController lc = Utils.cast(controllerFromTab(loginTab));

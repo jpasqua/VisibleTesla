@@ -149,6 +149,9 @@ public class RESTServer implements ThreadManager.Stoppable {
                 case "car_details":
                     response = CarInfo.carDetailsAsJSON(appContext);
                     break;
+                case "inactivity_mode":
+                    response = String.format("{ \"mode\": \"%s\" }", appContext.inactivity.getMode());
+                    break;
                 default:
                     Tesla.logger.warning("Unknown info request: " + infoType + "\n");
                     sendResponse(exchange, 400, "Unknown info request " + infoType);

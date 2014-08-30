@@ -101,6 +101,16 @@
 					</tr>
 					<tr>
 						<td>
+							Detect Charge Anomalies
+						</td>
+						<td>N/A
+						</td>
+						<td>
+							A notification will be sent if something odd happens during a charge cycle. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during the cycle. The drop must be sustained for a small number of minutes before a notification will be sent. The baseline from which the drop is detected is also established over a number of minutes. This notification will not be sent when using a supercharger since changes in current are normal. This feature is <strong>highly experimental</strong> since I have no way to safely recreate such a charge anomaly. 
+						</td>
+					</tr>
+					<tr>
+						<td>
 							Speed Hits or Exceeds
 						</td>
 						<td>
@@ -145,6 +155,8 @@
 					</tr>
 				</tbody>
 			</table>
+			<p>Some readings can vary slightly over a short period of time which could, in theory, cause multiple notifications. For example, say that you asked to be notified whenever your SOC drops below 50%. If your SOC is hovering right around 50% and you fall below, you'll get a notification. If you go down a big hill and regeneration brings your SOC back up to 50%, you're likely to get another notification again very soon. VisibleTesla will avoid sending multiple redundant notifications in these cases.
+			</p>
 			<h2>
 				<a name="locs">Defining Locations</a>
 			</h2>
@@ -193,7 +205,7 @@
 				<img class="screenshot" src='../images/24a_Notify_Options.png' alt='Notify Tab'>
 			</p>
 			<h3>
-				Advanced Feature: Defining your own message using variables
+				Defining your own message using variables
 			</h3>
 			<p>
 				By default, VisibleTesla sends notification messages that include information relevant to each type of notification. For example, if you set up a <span class="ui">Speed Hits or Exceeds</span> notification, the app will tell you both the target speed (e.g. 75 mi/h) and the current speed (e.g. 80 mi/h).
@@ -229,28 +241,25 @@
 				<tr>
 					<td>
 						<code>{{IDEAL}}</code><br>
-						<code>{{HT_IDEAL_G}}</code>
 					</td>
 					<td>
-						The last known ideal range of the vehicle in the units set by the car (mi or km). If you use <code>{{HT_IDEAL_G}}</code>, a gauge will be generated using HTML. <strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
+						The last known ideal range of the vehicle in the units set by the car (mi or km).
 					</td>
 				</tr>
 				<tr>
 					<td>
 						<code>{{RATED}}</code><br>
-						<code>{{HT_RATED_G}}</code>
 					</td>
 					<td>
-						The last known rated range of the vehicle in the units set by the car (mi or km). If you use <code>{{HT_RATED_G}}</code>, a gauge will be generated using HTML. <strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
+						The last known rated range of the vehicle in the units set by the car (mi or km).
 					</td>
 				</tr>
 				<tr>
 					<td>
 						<code>{{ESTIMATED}}</code><br>
-						<code>{{HT_ESTIMATED_G}}</code>
 					</td>
 					<td>
-						The last known estimated range of the vehicle in the units set by the car (mi or km). If you use <code>{{HT_ESTIMATED_G}}</code>, a gauge will be generated using HTML. <strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
+						The last known estimated range of the vehicle in the units set by the car (mi or km).
 					</td>
 				</tr>
 				<tr>
@@ -312,10 +321,9 @@
 				<tr>
 					<td>
 						<code>{{LOC}}</code><BR>
-						<code>{{HT_LOC}}</code>
 					</td>
 					<td>
-						The last known location of the vehicle. The location presented is derived by taking the last known latitude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitude and longitude will be presented. If you use <code>{{HT_LOC}}</code>, the resulting string will be wrapped in an HTML link that points to a Google map centered on the given position.
+						The last known location of the vehicle. The location presented is derived by taking the last known latitude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitude and longitude will be presented. 
 					</td>
 				</tr>
 				<tr>
@@ -390,23 +398,6 @@
 						Displays the last known odometer reading in the units set by the car (mi or km).
 					</td>
 				</tr>
-				<tr>
-					<td>
-						<code>{{HT_SOC_G}</code>
-					</td>
-					<td>
-						Generates an HTML snippet that displays the state of charge in the form of a battery gauge. The image also displays a plug symbol if the car is currently being charged.<br>
-						<strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<code>{{HT_ODO}</code>
-					</td>
-					<td>
-						Generates an HTML snippet that displays the last known odometer reading in a form that looks like an old fashioned physical odometer. The value is displayed in the units set by the car (mi or km).<br>
-						<strong>Important Note:</strong> This isn't currently useful for notification messages since they are sent as plain text rather than html. Currently this is only used by the built-in web pages.
-					</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -471,6 +462,77 @@
 			<p>
 				<strong>Note</strong>: Variable names must be entered exactly and must always include the double curly braces. <code>{{Soc}</code> is not a substitute for <code>{{SOC}</code>; nor is <code>SOC</code>. It really needs to be an exact match to the items listed in the table above. You may not use double curly braces as part of the content of your message. Anything enclosed in double curly braces will be interpreted as a variable name.
 			</p>
+			<h3>
+				Advanced Feature: Messages for use in custom html pages
+			</h3>
+			<p>Variables can also be used by custom pages generated by the built in <a href="OtherTopics.html#rest">web services</a>. These variables, listed and described in the table below, generate snippets of HTML rather than plain text. Of course the plain text variables listed above can also be used in html pages.
+			</p>
+			<table class="grid_table">
+				<tr>
+					<th>
+						<code>Variable Name</code>
+					</th>
+					<th>
+						Substituted By
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_IDEAL_G}}</code>
+					</td>
+					<td>
+						The last known ideal range of the vehicle in the units set by the car (mi or km), represented as a gauge similar to the one on the Charge Tab.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_RATED_G}}</code>
+					</td>
+					<td>
+						The last known rated range of the vehicle in the units set by the car (mi or km), represented as a gauge similar to the one on the Charge Tab.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_ESTIMATED_G}}</code>
+					</td>
+					<td>
+						The last known estimated range of the vehicle in the units set by the car (mi or km), represented as a gauge similar to the one on the Charge Tab.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_LOC}}</code>
+					</td>
+					<td>
+						The last known location of the vehicle. The location presented is derived by taking the last known latitude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitude and longitude will be presented. The resulting string will be wrapped in an HTML link that points to a Google map centered on the given position.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_SOC_G}</code>
+					</td>
+					<td>
+						Generates an HTML snippet that displays the state of charge in the form of a battery gauge. The image also displays a plug symbol if the car is currently being charged.<br>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_ODO}</code>
+					</td>
+					<td>
+						Generates an HTML snippet that displays the last known odometer reading in a form that looks like an old fashioned physical odometer. The value is displayed in the units set by the car (mi or km).<br>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<code>{{HT_CARVIEW}}</code>
+					</td>
+					<td>
+						Generates an HTML canvas representing the current state of the doors, trunks, and roof. It's similar to the car view that is displayed by the Overview Tab.<br>
+					</td>
+				</tr>
+			</table>
 			<h2>
 				Accessing a URL: Advanced Users Only
 			</h2>

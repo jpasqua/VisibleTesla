@@ -12,8 +12,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -117,8 +115,6 @@ abstract class BaseController {
         } else {
             doRefresh();
         }
-        
-        
     }
     
 /*------------------------------------------------------------------------------
@@ -224,17 +220,9 @@ abstract class BaseController {
         }
     }
     
-    class AutoRefresh implements Runnable, ChangeListener<Inactivity.Type> {
-        private Inactivity.Type inactivityState = Inactivity.Type.Awake;
+    class AutoRefresh implements Runnable {
         
-        @Override public void
-        changed(ObservableValue<? extends Inactivity.Type> o, Inactivity.Type ov, Inactivity.Type nv) {
-            inactivityState = nv;
-        }
-
         @Override public void run() {
-            appContext.inactivity.addStateListener(this);
-            inactivityState = appContext.inactivity.getState();
             while (true) {
                 long timeToSleep = AutoRefreshInterval;
                 while (timeToSleep > 0) {
@@ -245,7 +233,7 @@ abstract class BaseController {
                             (System.currentTimeMillis() - lastRefreshTime);
                     timeToSleep = Math.min(timeToSleep, AutoRefreshInterval);
                 }
-                if (inactivityState == Inactivity.Type.Awake)
+                if (appContext.inactivity.isAwake())
                     Platform.runLater(new FireRefresh());
             }
         }

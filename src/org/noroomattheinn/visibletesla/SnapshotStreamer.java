@@ -6,8 +6,6 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.concurrent.ArrayBlockingQueue;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
@@ -17,7 +15,7 @@ import org.noroomattheinn.utils.Utils;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class SnapshotStreamer implements Runnable, ChangeListener<Inactivity.Type> {
+public class SnapshotStreamer implements Runnable {
     
 /*------------------------------------------------------------------------------
  *
@@ -35,7 +33,6 @@ public class SnapshotStreamer implements Runnable, ChangeListener<Inactivity.Typ
     
     private final AppContext appContext;
     private SnapshotState snapshot;
-    private Inactivity.Type inactivityState = Inactivity.Type.Awake;
     private Thread streamer = null;
     private ArrayBlockingQueue<ProduceRequest> queue = new ArrayBlockingQueue<>(20);
     
@@ -76,16 +73,8 @@ public class SnapshotStreamer implements Runnable, ChangeListener<Inactivity.Typ
         }
     }
     
-    @Override public void changed(
-            ObservableValue<? extends Inactivity.Type> o,
-            Inactivity.Type ov, Inactivity.Type nv) {
-        inactivityState = nv;
-    }
-
     @Override public void run() {
         long lastSnapshot = 0;
-        appContext.inactivity.addStateListener(this);
-        inactivityState = appContext.inactivity.getState();
         
         try {
             while (!appContext.shuttingDown.get()) {
@@ -115,7 +104,7 @@ public class SnapshotStreamer implements Runnable, ChangeListener<Inactivity.Typ
                 while (snapshot.refreshFromStream()) {
                     //System.err.print("|RF");
                     if (appContext.shuttingDown.get()) return;
-                    if (inactivityState == Inactivity.Type.Sleep) {
+                    if (appContext.inactivity.isSleeping()) {
                         //System.err.print("|SL");
                         break;
                     }

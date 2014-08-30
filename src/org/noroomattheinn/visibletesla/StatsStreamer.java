@@ -6,8 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
@@ -69,19 +67,6 @@ public class StatsStreamer {
     private class AutoCollect implements Runnable {
         private static final long AllowSleepInterval = 30 * 60 * 1000;   // 30 Minutes
 
-        private Inactivity.Type inactivityState;
-        
-        public AutoCollect() {
-            inactivityState = appContext.inactivity.getState();
-            appContext.inactivity.addStateListener(new ChangeListener<Inactivity.Type>() {
-                @Override public void changed(
-                        ObservableValue<? extends Inactivity.Type> ov,
-                        Inactivity.Type old, Inactivity.Type cur) {
-                    inactivityState = cur;
-                }
-            });
-        }
-        
         private void produceStats() {
             long time = System.currentTimeMillis(); // Syncrhonize the timestamps to now
             
@@ -110,15 +95,13 @@ public class StatsStreamer {
             return (--decay > 0);
         }
         
-        private boolean appIsAwake() { return inactivityState != Inactivity.Type.Sleep; }
-        
         @Override public void run() {
             try {
                 long sleepInterval;
 
                 while (!appContext.shuttingDown.get() && !stopCollecting) {
                     boolean vehicleWasAsleep = false;
-                    if (appIsAwake()) {
+                    if (appContext.inactivity.isAwake()) {
                         produceStats();
                         sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
                         Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
@@ -140,7 +123,7 @@ public class StatsStreamer {
                     } else {
                         for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
                             Utils.sleep(TestSleepInterval);
-                            if (appIsAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
+                            if (appContext.inactivity.isAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
                             if (vehicleWasAsleep && appContext.vehicle.isAwake()) {
                                 appContext.inactivity.setState(Inactivity.Type.Awake);
                                 Tesla.logger.info("Something woke the car, start polling");
