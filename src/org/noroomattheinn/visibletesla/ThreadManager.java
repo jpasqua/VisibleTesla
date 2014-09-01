@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.IOException;
 import static java.lang.Thread.State.BLOCKED;
 import static java.lang.Thread.State.NEW;
 import static java.lang.Thread.State.RUNNABLE;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
+import org.apache.commons.io.IOUtils;
+import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -54,7 +57,8 @@ public class ThreadManager {
         if (shuttingDown.get())
             return null;
         Thread t = new Thread(r);
-        t.setName(name == null ? ("00 VT - " + threadID++) : name);
+        if (name == null) name = String.valueOf(threadID++);
+        t.setName("00 VT - " + name);
         t.setDaemon(true);
         t.start();
         threads.add(t);
@@ -106,4 +110,52 @@ public class ThreadManager {
         } while (nActive > 0);
     }
 
+    
+    public Process launchExternal(String command, String args, String input, long timeout) {
+        String fullCommand = command + " " + (args == null ? "" : args);
+        try {
+            Process p = Runtime.getRuntime().exec(fullCommand);
+            if (input != null) {
+                IOUtils.copy(IOUtils.toInputStream(input), p.getOutputStream());
+                p.getOutputStream().close();
+            }
+            
+            watch(command, p, timeout); // Launch a watchdog thread
+            return p;
+        } catch (IOException ex) {
+            Tesla.logger.warning("External command (" + fullCommand + ") failed to launch: " + ex);
+            return null;
+        }
+    }
+    
+    private int wdID = 0;
+    private void watch(final String name, final Process p, final long timeout) {
+        Runnable watchdog = new Runnable() {
+            @Override public void run() {
+                long targetTime = System.currentTimeMillis() + timeout;
+                while (System.currentTimeMillis() < targetTime) {
+                    if (hasExited(p)) {
+                        int exitVal = p.exitValue();
+                        Tesla.logger.info("External process completed: " + name + "(" + exitVal + ")");
+                        return;
+                    }
+                    Utils.sleep(Math.min(5 * 1000, targetTime - System.currentTimeMillis()));
+                }
+                // p hasn't terminated yet! Kill it.
+                p.destroy();
+                Tesla.logger.warning("External process timed out - killing it: " + name);
+            }
+        };
+        
+        launch(watchdog, String.format("Watchdog %d", wdID++));
+    }
+    
+    private boolean hasExited(Process p) {
+        try {
+            p.exitValue();  // An exception will be raised if it hasn't exited yet
+            return true;
+        } catch (IllegalThreadStateException e) {
+            return false;
+        }
+    }
 }

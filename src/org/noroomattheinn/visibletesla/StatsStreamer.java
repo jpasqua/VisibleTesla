@@ -47,7 +47,7 @@ public class StatsStreamer {
     public StatsStreamer(AppContext appContext) {
         this.appContext = appContext;
         this.charge = new ChargeState(appContext.vehicle);
-        this.collector = appContext.tm.launch(new AutoCollect(), "00 VT - CollectStats");
+        this.collector = appContext.tm.launch(new AutoCollect(), "CollectStats");
     }
     
     

@@ -96,7 +96,7 @@ public abstract class DataStore implements StatsPublisher {
     public StatsRepository getRepo() { return repo; }
     
     public final void load(Range<Long> period) {
-        appContext.tm.launch(new Loader(period), "00 - DataLoader");
+        appContext.tm.launch(new Loader(period), "DataLoader");
     }
     
     public final NavigableMap<Long,Map<String,Double>> getData() {

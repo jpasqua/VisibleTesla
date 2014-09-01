@@ -70,7 +70,7 @@ public class StateProducer implements Runnable {
 
     private void ensureProducer() {
         if (producer == null) {
-            producer = appContext.tm.launch(this, "00 StateProducer");
+            producer = appContext.tm.launch(this, "StateProducer");
             if (producer == null) return;   // We're shutting down!
             while (producer.getState() != Thread.State.WAITING) {
                 Utils.yieldFor(10);

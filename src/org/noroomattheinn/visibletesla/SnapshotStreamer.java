@@ -65,7 +65,7 @@ public class SnapshotStreamer implements Runnable {
 
     private void ensureStreamer() {
         if (streamer == null) {
-            streamer = appContext.tm.launch(this, "00 SnapshotStreamer");
+            streamer = appContext.tm.launch(this, "SnapshotStreamer");
             if (streamer == null) return;   // We're shutting down!
             while (streamer.getState() != Thread.State.WAITING) {
                 Utils.yieldFor(10);

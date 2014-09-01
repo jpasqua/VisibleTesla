@@ -56,7 +56,7 @@ public class CommandIssuer implements Runnable {
 
     private void ensureIssuer() {
         if (issuer == null) {
-            issuer = appContext.tm.launch(this, "00 CommandIssuer");
+            issuer = appContext.tm.launch(this, "CommandIssuer");
             while (issuer.getState() != Thread.State.WAITING) {
                 Utils.yieldFor(10);
             }

@@ -215,7 +215,7 @@ abstract class BaseController {
         
     private void ensureRefreshThread() {
         if (refreshThread == null) {
-            refreshThread = appContext.tm.launch(new AutoRefresh(), "00 AutoRefresh");
+            refreshThread = appContext.tm.launch(new AutoRefresh(), "AutoRefresh");
             lastRefreshTime = System.currentTimeMillis();
         }
     }

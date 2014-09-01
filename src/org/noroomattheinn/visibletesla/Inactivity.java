@@ -99,7 +99,7 @@ public class Inactivity {
             n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
             n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
         }
-        appContext.tm.launch(new InactivityThread(), "00 VT - Inactivity");
+        appContext.tm.launch(new InactivityThread(), "Inactivity");
     }
     
     public void wakeup() {

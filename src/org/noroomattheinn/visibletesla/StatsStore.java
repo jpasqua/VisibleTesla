@@ -88,7 +88,7 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
         super(appContext, locationFile, Keys);
         
         appContext.tm.addStoppable(this);
-        this.timer = new Timer("00 - VT StatsFlusher", true);
+        this.timer = new Timer("00 VT - StatsFlusher", true);
         timer.schedule(flusher, 0L, 5 * 1000L);
         
         appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
