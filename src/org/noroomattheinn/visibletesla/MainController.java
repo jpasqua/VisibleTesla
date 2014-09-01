@@ -153,11 +153,7 @@ public class MainController extends BaseController {
 
         // Kick off the login process
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
-        lc.getLoginCompleteProperty().addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(ObservableValue<? extends Boolean> observable, Boolean o, Boolean n) {
-                Platform.runLater(new LoginEventHandler(n, false));
-            }
-        });
+        lc.loggedIn.addTracker(true, new LoginStateChange(lc.loggedIn, false));
         lc.attemptAutoLogin();
     }
     
@@ -197,17 +193,17 @@ public class MainController extends BaseController {
     }
 
     
-    private class LoginEventHandler implements Runnable {
-        private final boolean loginSucceeded;
+    private class LoginStateChange implements Runnable {
+        private final VTUtils.StateTracker<Boolean> loggedIn;
         private final boolean assumeAwake;
         
-        LoginEventHandler(boolean loggedin, boolean assumeAwake) { 
-            loginSucceeded = loggedin;
+        LoginStateChange(VTUtils.StateTracker<Boolean> loggedIn, boolean assumeAwake) {
+            this.loggedIn = loggedIn;
             this.assumeAwake = assumeAwake;
         }
         
         @Override public void run() {
-            if (!loginSucceeded) {
+            if (!loggedIn.get()) {
                 appContext.vehicle = null;
                 setTabsEnabled(false);
                 return;
@@ -228,7 +224,7 @@ public class MainController extends BaseController {
                         Tesla.logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
                         appContext.utils.waitForVehicleToWake(
-                                new LoginEventHandler(true, true), forceWakeup);
+                                new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
                         Tesla.logger.log(Level.INFO, "Waking up your vehicle");

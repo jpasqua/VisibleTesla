@@ -8,11 +8,14 @@ package org.noroomattheinn.visibletesla;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.apache.commons.io.FileUtils;
@@ -284,7 +287,7 @@ public class VTUtils {
                 Platform.runLater(r);
             }
         };
-        final Thread pollThread = ac.tm.launch(poller, "00 - Wait For Wakeup");
+        final Thread pollThread = ac.tm.launch(poller, "Wait For Wakeup");
         
         forceWakeup.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
@@ -294,5 +297,35 @@ public class VTUtils {
                 }
             }
         });
+    }
+    
+    public static class StateTracker<T> {
+        private class Tracker {
+            boolean runLater;
+            Runnable r;
+            Tracker(Runnable r, boolean later) { this.r = r; this.runLater = later; }
+        }
+        private final List<Tracker> trackers;
+        private T val;
+        
+        private StateTracker() { this(null); }
+        
+        public StateTracker(T initialVal) {
+            trackers = new ArrayList<>(4);
+            val = initialVal;
+        }
+        
+        public T get() { return val; }
+        public void set(T newVal) {
+            this.val = newVal;
+            for (Tracker tracker : trackers) {
+                if (tracker.runLater) Platform.runLater(tracker.r);
+                else tracker.r.run();
+            }
+        }
+        
+        public void addTracker(boolean runLater, Runnable r) {
+            trackers.add(new Tracker(r, runLater));
+        }
     }
 }

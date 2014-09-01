@@ -8,10 +8,6 @@ package org.noroomattheinn.visibletesla;
 
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -55,8 +51,7 @@ public class LoginController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final BooleanProperty loginCompleteProperty = new SimpleBooleanProperty(false);
-    BooleanProperty getLoginCompleteProperty() { return loginCompleteProperty; }
+    public VTUtils.StateTracker<Boolean> loggedIn = new VTUtils.StateTracker<>(false);
     
 /*------------------------------------------------------------------------------
  *
@@ -86,6 +81,8 @@ public class LoginController extends BaseController {
         attemptLogin(null, null);
     }
     
+    boolean loggedIn() { return loggedIn.get(); }
+    
 /*------------------------------------------------------------------------------
  *
  *  UI Action Handlers
@@ -93,7 +90,7 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @FXML void logoutAction(ActionEvent event) {
-        loginCompleteProperty.set(false);
+        loggedIn.set(false);
         usernameField.setText("");
         passwordField.setText("");
         reflectLoginState();
@@ -123,10 +120,8 @@ public class LoginController extends BaseController {
 
     @Override protected void fxInitialize() {
         showAutoLoginUI();
-        loginCompleteProperty.addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(ObservableValue<? extends Boolean> ov,
-                    Boolean old, Boolean cur) { reflectLoginState(); }
-        });
+        loggedIn.addTracker(true, 
+                new Runnable() { @Override public void run() { reflectLoginState(); } });
     }
     
     @Override protected void refresh() { }
@@ -151,12 +146,8 @@ public class LoginController extends BaseController {
     }
     
     private void reflectLoginState() {
-        Platform.runLater(new Runnable() {  // Ensure we're on the FX thread 
-            @Override public void run() {
-                if (loginCompleteProperty.get()) showLoginSucceeded();
-                else { showManualLoginUI(); }
-            }
-        });
+        if (loggedIn.get()) { showLoginSucceeded(); }
+        else { showManualLoginUI(); }
     }
 
 
@@ -193,13 +184,13 @@ public class LoginController extends BaseController {
         }
         
         @Override public Result call() {
-            boolean loggedIn;
+            boolean succeeded;
             
             if (username == null)   // Try auto login
-                loggedIn = appContext.tesla.connect();
+                succeeded = appContext.tesla.connect();
             else {   // Login with the specified username and password
-                loggedIn = appContext.tesla.connect(username, password, rememberMe.isSelected());
-                if (!loggedIn) {
+                succeeded = appContext.tesla.connect(username, password, rememberMe.isSelected());
+                if (!succeeded) {
                     Platform.runLater(new Runnable() {
                         @Override public void run() {
                             Dialogs.showErrorDialog(
@@ -212,8 +203,8 @@ public class LoginController extends BaseController {
                 }
             }
             
-            loginCompleteProperty.set(loggedIn);
-            return loggedIn ? Result.Succeeded : Result.Failed;
+            loggedIn.set(succeeded);
+            return succeeded ? Result.Succeeded : Result.Failed;
         }
         
     }
