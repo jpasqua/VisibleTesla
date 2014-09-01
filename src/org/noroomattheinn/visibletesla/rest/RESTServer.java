@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +153,13 @@ public class RESTServer implements ThreadManager.Stoppable {
                 case "inactivity_mode":
                     response = String.format("{ \"mode\": \"%s\" }", appContext.inactivity.getMode());
                     break;
+                case "dbg_sar":
+                    Map<String,String> params = getParams(exchange.getRequestURI().getQuery());
+                    response = params.get("p1");
+                    if (response == null) response = "DBG_SAR";
+                    appContext.schedulerActivityReport.set(null); // Force a change
+                    appContext.schedulerActivityReport.set(response);
+                    break;
                 default:
                     Tesla.logger.warning("Unknown info request: " + infoType + "\n");
                     sendResponse(exchange, 400, "Unknown info request " + infoType);
@@ -162,6 +170,21 @@ public class RESTServer implements ThreadManager.Stoppable {
         }
     };
 
+    private Map<String, String> getParams(String query) {
+        Map<String, String> params = new HashMap<>();
+        if (query != null) {
+            for (String param : query.split("&")) {
+                String pair[] = param.split("=");
+                if (pair.length > 1) {
+                    params.put(pair[0], pair[1]);
+                } else {
+                    params.put(pair[0], "");
+                }
+            }
+        }
+        return params;
+    }
+    
     private HttpHandler staticPageRequest = new HttpHandler() {
         LRUMap<String,byte[]> cache = new LRUMap<>(10);
         @Override public void handle(HttpExchange exchange) throws IOException {
