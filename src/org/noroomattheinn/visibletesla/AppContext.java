@@ -88,7 +88,7 @@ public class AppContext {
     public ObjectProperty<HVACState.State> lastKnownHVACState;
     public ObjectProperty<SnapshotState.State> lastKnownSnapshotState;
     public ObjectProperty<VehicleState.State> lastKnownVehicleState;
-    public ObjectProperty<String> schedulerActivityReport;
+    public VTUtils.StateTracker<String> schedulerActivity;
     public LocationStore locationStore;
     public StatsStore statsStore;
     public VampireStats vampireStats;
@@ -131,7 +131,7 @@ public class AppContext {
         this.lastKnownHVACState = new SimpleObjectProperty<>();
         this.lastKnownSnapshotState = new SimpleObjectProperty<>();
         this.lastKnownVehicleState = new SimpleObjectProperty<>();
-        this.schedulerActivityReport = new SimpleObjectProperty<>();
+        this.schedulerActivity = new VTUtils.StateTracker<>("");
 
         // Establish the prefs first, they are used be code below
         this.prefs = new Prefs(this);

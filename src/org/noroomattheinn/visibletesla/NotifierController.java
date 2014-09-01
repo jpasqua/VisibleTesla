@@ -28,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import jfxtras.labs.scene.control.BigDecimalField;
+import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
@@ -392,16 +393,13 @@ public class NotifierController extends BaseController {
     private void startListening() {
         appContext.lastKnownChargeState.addListener(csListener);
         appContext.lastKnownSnapshotState.addListener(ssListener);
-        appContext.schedulerActivityReport.addListener(schedListener);
+        appContext.schedulerActivity.addTracker(false, schedListener);
     }
     
-    private ChangeListener<String> schedListener = new ChangeListener<String>() {
-        @Override public void changed(
-                ObservableValue<? extends String> ov, String old, String cur) {
-            if (cur == null) return;
-            Trigger.Result result = seTrigger.evalPredicate(cur);
-            if (result != null)
-                notifyUser(result, seMessageTarget);
+    private Runnable schedListener = new Runnable() {
+        @Override public void run() {
+            Trigger.Result result = seTrigger.evalPredicate(appContext.schedulerActivity.get());
+            if (result != null) { notifyUser(result, seMessageTarget); }
         }
     };
 
@@ -463,6 +461,14 @@ public class NotifierController extends BaseController {
                                             // URLs are case sensitive
         if (lower.startsWith("http://") || lower.startsWith("https://")) {
             (new HTTPAsyncGet(addr)).exec();
+        } if (lower.startsWith("command:")) {
+            String command = StringUtils.remove(addr, "command:");
+            String args = target.getSubject();
+            if (args != null) args = (new MessageTemplate(appContext, args)).getMessage(contextSpecific);
+            String stdin = target.getMessage();
+            if (stdin != null) stdin = (new MessageTemplate(appContext, stdin)).getMessage(contextSpecific);
+            appContext.tm.launchExternal(command, args, stdin, 60 * 1000);
+            Tesla.logger.info("Executing external command for notification: " + command);
         } else {
             MessageTemplate mt = new MessageTemplate(appContext, target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(appContext, target.getActiveSubj());

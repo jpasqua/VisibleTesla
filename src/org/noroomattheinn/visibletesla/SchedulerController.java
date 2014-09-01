@@ -276,8 +276,6 @@ public class SchedulerController extends BaseController
     }
 
     @Override protected void initializeState() {
-        appContext.schedulerActivityReport.set("");
-
         Vehicle v = appContext.vehicle;
         charge = new ChargeState(v);
         chargeController = new org.noroomattheinn.tesla.ChargeController(v);
@@ -305,10 +303,7 @@ public class SchedulerController extends BaseController
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
         Tesla.logger.log(Level.FINE, entry);
-        if (report) {
-            appContext.schedulerActivityReport.set(null); // Force a change
-            appContext.schedulerActivityReport.set(entry);
-        }
+        if (report) { appContext.schedulerActivity.set(entry); }
     }
 
 }

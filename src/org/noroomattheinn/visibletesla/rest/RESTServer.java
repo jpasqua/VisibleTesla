@@ -156,9 +156,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 case "dbg_sar":
                     Map<String,String> params = getParams(exchange.getRequestURI().getQuery());
                     response = params.get("p1");
-                    if (response == null) response = "DBG_SAR";
-                    appContext.schedulerActivityReport.set(null); // Force a change
-                    appContext.schedulerActivityReport.set(response);
+                    appContext.schedulerActivity.set(response == null ? "DBG_SAR" : response);
                     break;
                 default:
                     Tesla.logger.warning("Unknown info request: " + infoType + "\n");
