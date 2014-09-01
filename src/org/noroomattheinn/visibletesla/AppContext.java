@@ -59,7 +59,7 @@ public class AppContext {
     public static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.29.00";
+    public static final String ProductVersion = "0.29.01";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey =
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
