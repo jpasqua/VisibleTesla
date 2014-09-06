@@ -33,10 +33,8 @@ public class StatsStreamer {
  * 
  *----------------------------------------------------------------------------*/
     
-    private static boolean      stopCollecting = false;
     private final AppContext    appContext;
     private final Thread        collector;
-    private final ChargeState   charge;
     
 /*==============================================================================
  * -------                                                               -------
@@ -46,13 +44,12 @@ public class StatsStreamer {
     
     public StatsStreamer(AppContext appContext) {
         this.appContext = appContext;
-        this.charge = new ChargeState(appContext.vehicle);
         this.collector = appContext.tm.launch(new AutoCollect(), "CollectStats");
     }
     
     
     public void stop() {
-        stopCollecting = true;
+        collector.interrupt();
         try { collector.join(); } catch (InterruptedException e) {}
     }
 
@@ -68,44 +65,44 @@ public class StatsStreamer {
         private static final long AllowSleepInterval = 30 * 60 * 1000;   // 30 Minutes
 
         private void produceStats() {
-            long time = System.currentTimeMillis(); // Syncrhonize the timestamps to now
-            
-            appContext.snapshotStreamer.produce(appContext.prefs.streamWhenPossible.get());
-            if (charge.refresh()) {
-                charge.state.timestamp = time;
-                appContext.lastKnownChargeState.set(charge.state);
-            }
+            appContext.snapshotProducer.produce(appContext.prefs.streamWhenPossible.get());
+            appContext.stateProducer.produce(StateProducer.StateType.Charge, null);
         }
 
         private boolean isCharging() {
-            if (charge.state == null) return false;
-            return(charge.state.chargingState == ChargeState.Status.Charging ||
-                   charge.state.chargeRate > 0);
+            ChargeState.State charge = appContext.lastKnownChargeState.get();
+            return(charge.chargingState == ChargeState.Status.Charging ||
+                   charge.chargeRate > 0);
         }
 
         private int decay = 0;
-        private boolean isInMotion() { return isInMotion(4); }
-        private boolean isInMotion(int decaySetting) {
+        private boolean isInMotion() {
             if (appContext.lastKnownSnapshotState.get() != null) {
                 if (appContext.lastKnownSnapshotState.get().speed > 0.0) {
-                    decay = decaySetting;
+                    decay = 4;
                     return true;
                 }
             }
-            return (--decay > 0);
+            return (Math.max(--decay, 0) > 0);
+        }
+        
+        private boolean isCarAwake() {
+            boolean awake = appContext.vehicle.isAwake();
+            Tesla.logger.info("ICA="+awake);
+            return awake;
         }
         
         @Override public void run() {
             try {
                 long sleepInterval;
 
-                while (!appContext.shuttingDown.get() && !stopCollecting) {
+                while (!appContext.shuttingDown.get()) {
                     boolean vehicleWasAsleep = false;
-                    if (appContext.inactivity.isAwake()) {
+                    if (!appContext.inactivity.isSleeping()) {
                         produceStats();
                         sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
                         Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
-                    } else if (appContext.vehicle.isAwake()) {
+                    } else if (isCarAwake()) {
                         produceStats();
                         sleepInterval = isInMotion() ? MinInterval :
                                 (isCharging() ? DefaultInterval : AllowSleepInterval);
@@ -123,8 +120,8 @@ public class StatsStreamer {
                     } else {
                         for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
                             Utils.sleep(TestSleepInterval);
-                            if (appContext.inactivity.isAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
-                            if (vehicleWasAsleep && appContext.vehicle.isAwake()) {
+                            if (!appContext.inactivity.isSleeping()) { Tesla.logger.info("App is awake, start polling"); break; }
+                            if (vehicleWasAsleep && isCarAwake()) {
                                 appContext.inactivity.setState(Inactivity.Type.Awake);
                                 Tesla.logger.info("Something woke the car, start polling");
                                 break;
@@ -133,6 +130,7 @@ public class StatsStreamer {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 Tesla.logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
             }
         }

@@ -44,7 +44,6 @@ public class RESTServer implements ThreadManager.Stoppable {
 
     private static final Map<String,Inactivity.Type> toInactivityType = 
             Utils.newHashMap("sleep", Inactivity.Type.Sleep,
-                             "daydream", Inactivity.Type.Daydream,
                              "wakeup", Inactivity.Type.Awake);
 
 /*------------------------------------------------------------------------------

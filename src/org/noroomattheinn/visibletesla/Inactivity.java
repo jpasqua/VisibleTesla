@@ -36,7 +36,7 @@ public class Inactivity {
  * 
  *----------------------------------------------------------------------------*/
 
-    public enum Type { Sleep, Daydream, Awake };
+    public enum Type { Sleep, Awake };
     public interface Listener { public void handle(Inactivity.Type type); }
     
 /*------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ public class Inactivity {
         state.addListener(new ChangeListener<Type>() {
             @Override public void changed(
                     ObservableValue<? extends Type> o, Type ov, Type nv) {
-                if (nv == Type.Awake && ov != Type.Awake) {
+                if (nv == Type.Awake) {
                     Tesla.logger.info("Resetting Idle start time to now");
                     timeOfLastEvent = System.currentTimeMillis();
                 }
@@ -111,18 +111,18 @@ public class Inactivity {
     }
 
     public boolean isSleeping() { return state.get() == Type.Sleep; }
-    public boolean isDaydreaming() { return state.get() == Type.Daydream; }
     public boolean isAwake() { return state.get() == Type.Awake; }
     
     public void restore() {
         String modeName = appContext.persistentState.get(
                 appContext.vehicle.getVIN()+"_InactivityMode",
-                Inactivity.Type.Daydream.name());
-        // The names changed, do any required fixup of old stored values!
+                Inactivity.Type.Awake.name());
+        // Handle obsolete values or changed names
         switch (modeName) {
-            case "AllowSleeping": modeName = "Sleep"; break;
-            case "AllowDaydreaming": modeName = "Daydream"; break;
-            case "StayAwake": modeName = "Awake"; break;
+            case "AllowSleeping": modeName = "Sleep"; break;    // Name Changed
+            case "StayAwake": modeName = "Awake"; break;        // Name Changed
+            case "AllowDaydreaming": modeName = "Awake"; break; // Obsolete
+            case "Daydream": modeName = "Awake"; break;         // Obsolete
         }
 
         appContext.inactivity.setMode(Inactivity.Type.valueOf(modeName));
@@ -151,7 +151,6 @@ public class Inactivity {
     private String asString(Type t, String which) {
         switch (t) {
             case Sleep: return "Allow Sleeping";
-            case Daydream: return "Allow Daydreaming";
             case Awake: return "Stay Awake";
         }
         return "Unexpected " + which;

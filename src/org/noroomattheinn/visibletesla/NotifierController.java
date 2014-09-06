@@ -75,7 +75,7 @@ public class NotifierController extends BaseController {
     private static final String SpeedHitSubj = "Speed: {{SPEED}} {{S_UNITS}}";
     private static final String SpeedHitMsg = "Speed Hit or Exceeded: {{TARGET}} {{S_UNITS}} ({{SPEED}})";
     private static final String SchedEventSubj = "Scheduled Event: {{CUR}}";
-    private static final String SchedEventMsg = "Scheduled Event: {{CUR}})";
+    private static final String SchedEventMsg = "Scheduled Event: {{CUR}}";
     private static final String ChargeStateSubj = "Charge State: {{CHARGE_STATE}}";
     private static final String ChargeStateMsg =
         "Charge State: {{CHARGE_STATE}}" +
@@ -223,7 +223,7 @@ public class NotifierController extends BaseController {
     private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            appContext.persistentState.putBoolean(prefKey(NotifyCAKey), cur);
+            appContext.persistentState.putBoolean(vinBased(NotifyCAKey), cur);
         }
     };
     
@@ -303,7 +303,7 @@ public class NotifierController extends BaseController {
             caMessageTarget = new MessageTarget(
                     appContext, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
-                    appContext.persistentState.getBoolean(prefKey(NotifyCAKey),
+                    appContext.persistentState.getBoolean(vinBased(NotifyCAKey),
                     false));
             
             startListening();

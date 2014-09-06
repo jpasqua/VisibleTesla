@@ -115,7 +115,7 @@ public class GraphController extends BaseController {
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
-        appContext.persistentState.putBoolean(prefKey(series.getName()), visible);
+        appContext.persistentState.putBoolean(vinBased(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
@@ -164,14 +164,14 @@ public class GraphController extends BaseController {
         // Restore the last settings of the checkboxes
         for (CheckBox cb : cbToSeries.keySet()) {
             VTSeries s = cbToSeries.get(cb);
-            boolean selected = appContext.persistentState.getBoolean(prefKey(s.getName()), true);
+            boolean selected = appContext.persistentState.getBoolean(vinBased(s.getName()), true);
             cb.setSelected(selected);
             lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
-        displayLines = appContext.persistentState.getBoolean(prefKey("DISPLAY_LINES"), true);
-        displayMarkers = appContext.persistentState.getBoolean(prefKey("DISPLAY_MARKERS"), true);
+        displayLines = appContext.persistentState.getBoolean(vinBased("DISPLAY_LINES"), true);
+        displayMarkers = appContext.persistentState.getBoolean(vinBased("DISPLAY_MARKERS"), true);
 
         reflectDisplayOptions();
     }
@@ -281,8 +281,8 @@ public class GraphController extends BaseController {
 
             reflectDisplayOptions();
 
-            appContext.persistentState.putBoolean(prefKey("DISPLAY_LINES"), displayLines);
-            appContext.persistentState.putBoolean(prefKey("DISPLAY_MARKERS"), displayMarkers);
+            appContext.persistentState.putBoolean(vinBased("DISPLAY_LINES"), displayLines);
+            appContext.persistentState.putBoolean(vinBased("DISPLAY_MARKERS"), displayMarkers);
         }
     };
 

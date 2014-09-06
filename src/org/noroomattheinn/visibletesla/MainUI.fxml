@@ -93,7 +93,6 @@
                         <ToggleGroup fx:id="inactivityItems" />
                       </toggleGroup>
                     </RadioMenuItem>
-                    <RadioMenuItem mnemonicParsing="false" onAction="#inactivityOptionsHandler" selected="true" text="Allow Daydreaming" toggleGroup="$inactivityItems" fx:id="allowIdlingMenuItem" />
                     <RadioMenuItem mnemonicParsing="false" onAction="#inactivityOptionsHandler" text="Stay Awake" toggleGroup="$inactivityItems" fx:id="stayAwakeMenuItem" />
                   </items>
                 </Menu>

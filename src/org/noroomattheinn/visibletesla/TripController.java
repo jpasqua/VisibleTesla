@@ -543,8 +543,9 @@ public class TripController extends BaseController {
 
     private NavigableMap<Long,Double> mapFromSamples(List<Stat.Sample> samples) {
         NavigableMap<Long,Double> map = new TreeMap<>();
-        for (Stat.Sample s : samples)
-            map.put(s.timestamp, s.value);
+        if (samples != null) {
+            for (Stat.Sample s : samples) { map.put(s.timestamp, s.value); }
+        }
         return map;
     }
     

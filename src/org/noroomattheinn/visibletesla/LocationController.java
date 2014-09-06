@@ -105,12 +105,12 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void refresh() {
-        appContext.snapshotStreamer.produce(true);
+        appContext.snapshotProducer.produce(true);
     }
 
     @Override protected void initializeState() {
         blipAnimation = animateBlip();
-        appContext.snapshotStreamer.produce(true);
+        appContext.snapshotProducer.produce(true);
         appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
             @Override
             public void changed(

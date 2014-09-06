@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -20,7 +19,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.utils.Utils;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
@@ -45,7 +43,6 @@ abstract class BaseController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-    protected static final long AutoRefreshInterval = 30 * 1000;
     protected static final long MinRefreshInterval =   2 * 1000;
     
 /*------------------------------------------------------------------------------
@@ -54,9 +51,8 @@ abstract class BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static Thread refreshThread = null;
     private static BaseController activeController = null;
-    private static long lastRefreshTime;  // Primarily used by AutoRefresh
+    private static long lastRefreshTime;
     
     protected boolean       initialized = false;    // Has this controller been init'd?
     protected AppContext    appContext;             // The overall app context
@@ -97,7 +93,6 @@ abstract class BaseController {
      */
     public final void setAppContext(AppContext ctxt) {
         this.appContext = ctxt;
-        ensureRefreshThread();
     }
     
     /**
@@ -124,8 +119,7 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/
     
     @FXML protected void refreshButtonHandler(ActionEvent event) {
-        long now = System.currentTimeMillis();
-        if (now - lastRefreshTime < MinRefreshInterval) {
+        if (System.currentTimeMillis() - lastRefreshTime < MinRefreshInterval) {
             Tesla.logger.log(Level.INFO, "Ignoring refresh button - we just refreshed!");
             return;
         }
@@ -201,51 +195,10 @@ abstract class BaseController {
         for (ImageView image: images) { image.setVisible(true); }
     }
       
-    protected String prefKey(String key) {
-        return appContext.vehicle.getVIN() + "_" + key;
-    }
+    protected final String vinBased(String key) { return appContext.utils.vinBased(key); }
     
     protected final boolean active() { return activeController == this; }
     
-/*------------------------------------------------------------------------------
- * 
- * The following methods and classes implement the auto-refresh mechanism.
- * 
- *----------------------------------------------------------------------------*/    
-        
-    private void ensureRefreshThread() {
-        if (refreshThread == null) {
-            refreshThread = appContext.tm.launch(new AutoRefresh(), "AutoRefresh");
-            lastRefreshTime = System.currentTimeMillis();
-        }
-    }
-    
-    class AutoRefresh implements Runnable {
-        
-        @Override public void run() {
-            while (true) {
-                long timeToSleep = AutoRefreshInterval;
-                while (timeToSleep > 0) {
-                    Utils.sleep(timeToSleep);
-                    if (appContext.shuttingDown.get())
-                        return;
-                    timeToSleep = AutoRefreshInterval - 
-                            (System.currentTimeMillis() - lastRefreshTime);
-                    timeToSleep = Math.min(timeToSleep, AutoRefreshInterval);
-                }
-                if (appContext.inactivity.isAwake())
-                    Platform.runLater(new FireRefresh());
-            }
-        }
-
-        class FireRefresh implements Runnable {
-            @Override public void run() {
-                BaseController active = BaseController.activeController;
-                if (active == null) return;
-                active.doRefresh();
-            }
-        }
-    }
 
 /*------------------------------------------------------------------------------
  * 

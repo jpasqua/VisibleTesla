@@ -27,6 +27,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.APICall;
@@ -92,13 +93,14 @@ public class AppContext {
     public LocationStore locationStore;
     public StatsStore statsStore;
     public VampireStats vampireStats;
-    public SnapshotStreamer snapshotStreamer;
+    public SnapshotProducer snapshotProducer;
     public StatsStreamer statsStreamer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
     public byte[] restEncPW, restSalt;
     public MailGun mailer = null;
-
+    public String uuidForVehicle;
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -175,11 +177,12 @@ public class AppContext {
             Platform.exit();
         }
 
-        // Start SnapshotStreamer before StatsStreamer since StatsStreamer
-        // asks SnapshotStreamer to produce some of the stats
-        snapshotStreamer = new SnapshotStreamer(this);
-        statsStreamer = new StatsStreamer(this);
+        uuidForVehicle = DigestUtils.sha256Hex(vehicle.getVIN());   
+
+        snapshotProducer = new SnapshotProducer(this);
         stateProducer = new StateProducer(this);
+        statsStreamer = new StatsStreamer(this);
+        
         vampireStats = new VampireStats(this);
 
         (restServer = new RESTServer(this)).launch();

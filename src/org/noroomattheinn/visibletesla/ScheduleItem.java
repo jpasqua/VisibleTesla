@@ -49,7 +49,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  *----------------------------------------------------------------------------*/
 
     public enum Command {
-        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, CHARGE_SET, AWAKE, SLEEP, DAYDREAM,
+        HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, CHARGE_SET, AWAKE, SLEEP,
         UNPLUGGED, SET, MESSAGE, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
     static {
@@ -60,7 +60,6 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         commandMap.put(Command.CHARGE_OFF, "Charge: Stop");
         commandMap.put(Command.AWAKE, "Awake");
         commandMap.put(Command.SLEEP, "Sleep");
-        commandMap.put(Command.DAYDREAM, "Daydream");
         commandMap.put(Command.UNPLUGGED, "Unplugged?");
         commandMap.put(Command.MESSAGE, "Message");
         commandMap.put(Command.SET, "Set Value");
@@ -76,7 +75,8 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         "Stop Charging", "Charge: Stop",
         "Charge: Std", "None",              // Obsolete command
         "Charge: Max", "None",              // Obsolete command
-        "Charge: Low", "None"               // Obsolete command
+        "Charge: Low", "None",              // Obsolete command
+        "Daydream", "None"
     );
     
     private static final String SchedulerMsgKey = "SCHEDMSG";

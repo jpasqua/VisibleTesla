@@ -127,7 +127,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -204,7 +203,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -281,7 +279,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -358,7 +355,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -435,7 +431,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -512,7 +507,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -589,7 +583,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -666,7 +659,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -743,7 +735,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -820,7 +811,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -897,7 +887,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -974,7 +963,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -1051,7 +1039,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -1128,7 +1115,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -1205,7 +1191,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />
@@ -1282,7 +1267,6 @@
                     <String fx:value="Charge: Stop" />
                     <String fx:value="Charge: Set" />
                     <String fx:value="Sleep" />
-                    <String fx:value="Daydream" />
                     <String fx:value="Awake" />
                     <String fx:value="Unplugged?" />
                     <String fx:value="Message" />

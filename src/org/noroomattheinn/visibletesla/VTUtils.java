@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.apache.commons.io.FileUtils;
@@ -299,6 +297,8 @@ public class VTUtils {
         });
     }
     
+    public final String vinBased(String key) { return ac.vehicle.getVIN() + "_" + key; }
+
     public static class StateTracker<T> {
         private class Tracker {
             boolean runLater;

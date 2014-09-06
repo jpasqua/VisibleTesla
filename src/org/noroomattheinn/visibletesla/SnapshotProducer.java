@@ -1,5 +1,5 @@
 /*
- * SnapshotStreamer.java - Copyright(c) 2014 Joe Pasqua
+ * SnapshotProducer.java - Copyright(c) 2014 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Apr 27, 2014
  */
@@ -11,11 +11,11 @@ import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 
 /**
- * SnapshotStreamer: Generate a stream of locations on demand.
+ * SnapshotProducer: Generate a stream of locations on demand.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class SnapshotStreamer implements Runnable {
+public class SnapshotProducer implements Runnable {
     
 /*------------------------------------------------------------------------------
  *
@@ -42,7 +42,7 @@ public class SnapshotStreamer implements Runnable {
  * -------                                                               -------
  *============================================================================*/
     
-    public SnapshotStreamer(AppContext ac) {
+    public SnapshotProducer(AppContext ac) {
         this.appContext = ac;
         this.snapshot = new SnapshotState(appContext.vehicle);
         ensureStreamer();

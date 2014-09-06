@@ -140,10 +140,13 @@ public abstract class DataStore implements StatsPublisher {
     @Override public List<Stat.Sample> valuesForRange(String type, long start, long end) {
         Long low = rows.floorKey(start);
         Long high = rows.ceilingKey(end);
-        if (low == null || high == null) return null;
+        List<Stat.Sample> emptyList = new ArrayList<>(1);
+        emptyList.add(new Stat.Sample(start, 0.0));
+        
+        if (low == null || high == null) return emptyList;
         
         NavigableMap<Long, Map<String, Double>> subMap = rows.subMap(low, true, high, true);
-        if (subMap == null || subMap.size() == 0) return null;
+        if (subMap == null || subMap.size() == 0) return emptyList;
         
         List<Stat.Sample> results = new ArrayList<>(subMap.size());
         for (Map.Entry<Long, Map<String, Double>> e : subMap.entrySet()) {
@@ -152,9 +155,9 @@ public abstract class DataStore implements StatsPublisher {
             if (val != null)
                 results.add(new Stat.Sample(time, val));
         }
-        return (results.isEmpty())  ? null : results;
+        return (results.isEmpty())  ? emptyList : results;
     }
-    
+        
     @Override public List<String> getStatTypes() {
        return  Arrays.asList(publishedKeys);
     }

@@ -123,7 +123,6 @@ public class SchedulerController extends BaseController
             case HVAC_OFF: r = hvacController.stopAC();break;
             case AWAKE: appContext.inactivity.setMode(Inactivity.Type.Awake); break;
             case SLEEP: appContext.inactivity.setMode(Inactivity.Type.Sleep); break;
-            case DAYDREAM: appContext.inactivity.setMode(Inactivity.Type.Daydream); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
             case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }

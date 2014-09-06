@@ -100,7 +100,6 @@ public class MainController extends BaseController {
     
     // The menu items that are handled in this controller directly
     @FXML private RadioMenuItem allowSleepMenuItem;
-    @FXML private RadioMenuItem allowIdlingMenuItem;
     @FXML private RadioMenuItem stayAwakeMenuItem;
     
 /*==============================================================================
@@ -306,11 +305,10 @@ public class MainController extends BaseController {
         }
     }
     
-    // Options->"Allow Sleep" and Options->"Allow Daydreaming" menu options
+    // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
         Inactivity.Type mode = Inactivity.Type.Awake;
         if (event.getTarget() == allowSleepMenuItem) mode = Inactivity.Type.Sleep;
-        if (event.getTarget() == allowIdlingMenuItem) mode = Inactivity.Type.Daydream;
         appContext.inactivity.setMode(mode);
     }
     
@@ -372,11 +370,9 @@ public class MainController extends BaseController {
     
     private void setTitle() {
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
-        String time = String.format("%1$tH:%1$tM", new Date());
-        switch (appContext.inactivity.getState()) {
-            case Sleep: title = title + " [sleeping at " + time + "]"; break;
-            case Daydream: title = title + " [daydreaming at " + time + "]"; break;
-            case Awake: break;
+        if (appContext.inactivity.getState() == Inactivity.Type.Sleep) {
+            String time = String.format("%1$tH:%1$tM", new Date());
+            title = title + " [sleeping at " + time + "]";
         }
         appContext.stage.setTitle(title);
     }
@@ -385,7 +381,6 @@ public class MainController extends BaseController {
         switch (mode) {
             case Awake: stayAwakeMenuItem.setSelected(true); break;
             case Sleep: allowSleepMenuItem.setSelected(true); break;
-            case Daydream: allowIdlingMenuItem.setSelected(true); break;
         }
     }
     
