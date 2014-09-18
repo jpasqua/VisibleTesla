@@ -127,7 +127,8 @@ public class VTUtils {
         "Blue", Options.PaintColor.PMMB,
         "Green", Options.PaintColor.PMSG,
         "Silver", Options.PaintColor.PMSS,
-        "Gray", Options.PaintColor.PMTG,
+        "Grey", Options.PaintColor.PMTG,
+        "Steel Grey", Options.PaintColor.PMNG,
         "Red", Options.PaintColor.PPMR,
         "Sig. Red", Options.PaintColor.PPSR,
         "Pearl", Options.PaintColor.PPSW);
@@ -170,12 +171,13 @@ public class VTUtils {
         return Utils.mToK(val);
     }
 
-    private static final Map<String,Options.WheelType> overrideWheels= Utils.newHashMap(
+    private static final Map<String,Options.WheelType> overrideWheels = Utils.newHashMap(
         "19\" Silver", Options.WheelType.WT19,
         "19\" Aero", Options.WheelType.WTAE,
-        "19\" Cyclone", Options.WheelType.WTTB,
+        "19\" Turbine", Options.WheelType.WTTB,
+        "19\" Turbine Grey", Options.WheelType.WTTG,
         "21\" Silver", Options.WheelType.WT21,
-        "21\" Gray", Options.WheelType.WTSP);
+        "21\" Grey", Options.WheelType.WTSP);
     
     public Options.WheelType computedWheelType() {
         Options.WheelType wt = overrideWheels.get(ac.prefs.overideWheelsTo.get());
