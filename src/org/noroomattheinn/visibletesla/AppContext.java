@@ -143,7 +143,6 @@ public class AppContext {
         
         tesla = (prefs.enableProxy.get()) ?
             new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
-        tesla.setCookieDir(appFilesFolder);
 
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : MailGunKey);
@@ -181,6 +180,7 @@ public class AppContext {
 
         snapshotProducer = new SnapshotProducer(this);
         stateProducer = new StateProducer(this);
+
         statsStreamer = new StatsStreamer(this);
         
         vampireStats = new VampireStats(this);
