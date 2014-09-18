@@ -5,17 +5,20 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.noroomattheinn.tesla.SnapshotState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
 
 /**
  * SnapshotProducer: Generate a stream of locations on demand.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class SnapshotProducer implements Runnable {
+public class SnapshotProducer implements Runnable, Stoppable {
     
 /*------------------------------------------------------------------------------
  *
@@ -24,8 +27,9 @@ public class SnapshotProducer implements Runnable {
  *----------------------------------------------------------------------------*/
     
     private static final long StreamingThreshold = 400;
-    
-/*------------------------------------------------------------------------------
+    private long RetryDelay = 20 * 1000;
+
+    /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
@@ -33,8 +37,9 @@ public class SnapshotProducer implements Runnable {
     
     private final AppContext appContext;
     private SnapshotState snapshot;
-    private Thread streamer = null;
+    private Thread producer = null;
     private ArrayBlockingQueue<ProduceRequest> queue = new ArrayBlockingQueue<>(20);
+    private Timer timer = new Timer();
     
 /*==============================================================================
  * -------                                                               -------
@@ -45,15 +50,33 @@ public class SnapshotProducer implements Runnable {
     public SnapshotProducer(AppContext ac) {
         this.appContext = ac;
         this.snapshot = new SnapshotState(appContext.vehicle);
-        ensureStreamer();
+        ensureProducer();
+        ac.tm.addStoppable((Stoppable)this);
     }
     
-    public void produce(boolean stream) {
+    public void produce(boolean stream) { produce(stream, true); }
+    
+    public void produce(boolean stream, boolean allowRetry) {
         try {
             queue.add(new ProduceRequest(stream));
         } catch (java.lang.IllegalStateException qfe) { // Queue Full
             pollForRequest();   // Drain an element from the queue
-            produce(stream);    // Wth space freed up, try again
+            produce(stream, allowRetry);    // Wth space freed up, try again
+        }
+    }
+    
+    public void produceLater(final boolean stream) { produceLater(stream, false);  }
+    
+    public void produceLater(final boolean stream, final boolean allowRetry) {
+        timer.schedule(new TimerTask() {
+            @Override public void run() { produce(stream, allowRetry); } },
+            RetryDelay);
+    }
+    
+    @Override public void stop() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
         }
     }
     
@@ -63,11 +86,11 @@ public class SnapshotProducer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private void ensureStreamer() {
-        if (streamer == null) {
-            streamer = appContext.tm.launch(this, "SnapshotStreamer");
-            if (streamer == null) return;   // We're shutting down!
-            while (streamer.getState() != Thread.State.WAITING) {
+    private void ensureProducer() {
+        if (producer == null) {
+            producer = appContext.tm.launch(this, "SnapshotProducer");
+            if (producer == null) return;   // We're shutting down!
+            while (producer.getState() != Thread.State.WAITING) {
                 Utils.yieldFor(10);
             }
         }
@@ -83,9 +106,9 @@ public class SnapshotProducer implements Runnable {
                     r = waitForRequest();
                 } catch (InterruptedException e) {
                     if (appContext.shuttingDown.get()) {
-                        Tesla.logger.info("SnapshotStreamer Interrupted during normal shutdown");
+                        Tesla.logger.info("SnapshotProducer Interrupted during normal shutdown");
                     } else {
-                        Tesla.logger.info("SnapshotStreamer Interrupted unexpectedly: " + e.getMessage());
+                        Tesla.logger.info("SnapshotProducer Interrupted unexpectedly: " + e.getMessage());
                     }
                     return;
                 }
@@ -93,7 +116,14 @@ public class SnapshotProducer implements Runnable {
                 if (r == null) break;   // The thread was interrupted.
                 if (r.timeOfRequest < lastSnapshot) { continue; }
 
-                if (!snapshot.refresh()) { continue; }
+                if (!snapshot.refresh()) {
+                    if (r.allowRetry()) {
+                        Tesla.logger.warning("Refresh failed, retrying after 20 secs");
+                        produceLater(r.stream, false);
+                    }
+                    continue;
+                }
+                
                 lastSnapshot = snapshot.state.timestamp;
                 appContext.lastKnownSnapshotState.set(snapshot.state);
 
@@ -120,7 +150,7 @@ public class SnapshotProducer implements Runnable {
                 //System.err.println("!");
             }
         } catch (Exception e) {
-            Tesla.logger.severe("Uncaught exception in SnapshotStreamer: " + e.getMessage());
+            Tesla.logger.severe("Uncaught exception in SnapshotProducer: " + e.getMessage());
         }
     }
     
@@ -135,10 +165,16 @@ public class SnapshotProducer implements Runnable {
     private static class ProduceRequest {
         public long timeOfRequest;
         public boolean stream;
+        private boolean allowRetry;
         
-        ProduceRequest(boolean stream) {
+        ProduceRequest(boolean stream, boolean allowRetry) {
             timeOfRequest = System.currentTimeMillis();
             this.stream = stream;
+            this.allowRetry = allowRetry;
         }
+        
+        ProduceRequest(boolean stream) { this(stream, false); }
+        
+        boolean allowRetry() { return allowRetry; }
     }
 }
