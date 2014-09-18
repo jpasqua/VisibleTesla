@@ -141,9 +141,10 @@
                                       <String fx:value="From Car" />
                                       <String fx:value="19&quot; Silver" />
                                       <String fx:value="19&quot; Aero" />
-                                      <String fx:value="19&quot; Cyclone" />
+                                      <String fx:value="19&quot; Turbine" />
+                                      <String fx:value="19&quot; Turbine Grey" />
                                       <String fx:value="21&quot; Silver" />
-                                      <String fx:value="21&quot; Gray" />
+                                      <String fx:value="21&quot; Grey" />
                                     </FXCollections>
                                   </items>
                                 </ComboBox>
@@ -158,7 +159,8 @@
                                       <String fx:value="Pearl" />
                                       <String fx:value="Sig. Red" />
                                       <String fx:value="Brown" />
-                                      <String fx:value="Gray" />
+                                      <String fx:value="Grey" />
+                                      <String fx:value="Steel Grey" />
                                       <String fx:value="Silver" />
                                       <String fx:value="White" />
                                     </FXCollections>
