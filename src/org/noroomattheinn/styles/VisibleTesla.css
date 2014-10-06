@@ -137,3 +137,8 @@
     -fx-fill: transparent;
 }
 
+/*
+.slider .axis {
+    -fx-tick-label-font: 0.8em System; 
+}
+*/
