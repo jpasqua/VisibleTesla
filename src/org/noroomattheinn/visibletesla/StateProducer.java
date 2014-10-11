@@ -6,16 +6,13 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
-import org.noroomattheinn.tesla.APICall;
-import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.DrivingState;
-import org.noroomattheinn.tesla.GUIState;
-import org.noroomattheinn.tesla.HVACState;
+import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.tesla.VehicleState;
+import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -31,7 +28,7 @@ public class StateProducer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    public static enum StateType {Charge, Driving, GUI, HVAC, Vehicle};
+    private long RetryDelay = 20 * 1000;
     
 /*------------------------------------------------------------------------------
  *
@@ -54,14 +51,27 @@ public class StateProducer implements Runnable {
         ensureProducer();
     }
     
-    public void produce(StateType whichState, ProgressIndicator pi) {
+    public void produce(Vehicle.StateType whichState, ProgressIndicator pi) {
+        produce(whichState, true, pi);
+    }
+    
+    public void produce(Vehicle.StateType whichState, boolean allowRetry, ProgressIndicator pi) {
         try {
-            queue.put(new ProduceRequest(whichState, pi));
+            queue.put(new ProduceRequest(whichState, allowRetry, pi));
         } catch (InterruptedException ex) {
             Tesla.logger.warning("Interrupted while adding request to queue: " + ex.getMessage());
         }
     }
+        
+    private void retry(
+            final Vehicle.StateType whichState,
+            final ProgressIndicator pi) {
+        appContext.utils.addTimedTask(new TimerTask() {
+            @Override public void run() { produce(whichState, false, pi); } },
+            RetryDelay);
+    }
     
+
 /*------------------------------------------------------------------------------
  *
  * Internal Methods - Some declared public since they implement interfaces
@@ -79,15 +89,10 @@ public class StateProducer implements Runnable {
     }
     
     @Override public void run() {
-        Map<StateType,Long> lastProduced = Utils.newHashMap(
-            StateType.Charge, 0L, StateType.Driving, 0L, StateType.GUI, 0L,
-            StateType.HVAC, 0L, StateType.Vehicle, 0L);
-        Map<StateType,APICall> states = Utils.newHashMap(
-            StateType.Charge, new ChargeState(appContext.vehicle),
-            StateType.Driving, new DrivingState(appContext.vehicle),
-            StateType.GUI, new GUIState(appContext.vehicle),
-            StateType.HVAC, new HVACState(appContext.vehicle),
-            StateType.Vehicle, new VehicleState(appContext.vehicle));
+        Map<Vehicle.StateType,Long> lastProduced = Utils.newHashMap(
+            Vehicle.StateType.Charge, 0L, Vehicle.StateType.Drive, 0L,
+            Vehicle.StateType.GUI, 0L, Vehicle.StateType.HVAC, 0L,
+            Vehicle.StateType.Vehicle, 0L);
         
         ProduceRequest r = null;    // Initialize for the finally clause
         try {
@@ -101,13 +106,17 @@ public class StateProducer implements Runnable {
                 }
 
                 if (r.timeOfRequest > lastProduced.get(r.stateType)) {
-                    final APICall a = states.get(r.stateType);
                     appContext.showProgress(r.pi, true);
-                    if (a.refresh()) {
+                    final BaseState state = appContext.vehicle.query(r.stateType);
+                    if (state.valid) {
                         lastProduced.put(r.stateType, System.currentTimeMillis());
                         Platform.runLater(new Runnable() {
-                            @Override public void run() { appContext.noteUpdatedState(a); }
+                            @Override public void run() { appContext.noteUpdatedState(state); }
                         });
+                    } else if (r.allowRetry()) {
+                        //Tesla.logger.warning("Query failed, retrying after 20 secs");
+                        System.err.println("Query failed, retrying after 20 secs");
+                        retry(r.stateType, r.pi);
                     }
                     appContext.showProgress(r.pi, false);
                 }
@@ -121,13 +130,21 @@ public class StateProducer implements Runnable {
     
     private static class ProduceRequest {
         public long timeOfRequest;
-        public StateType stateType;
+        public Vehicle.StateType stateType;
         public ProgressIndicator pi;
+        private boolean allowRetry;
         
-        ProduceRequest(StateType stateType, ProgressIndicator pi) {
+        ProduceRequest(Vehicle.StateType stateType, boolean allowRetry, ProgressIndicator pi) {
             timeOfRequest = System.currentTimeMillis();
             this.stateType = stateType;
             this.pi = pi;
+            this.allowRetry = allowRetry;
         }
+        
+        ProduceRequest(Vehicle.StateType stateType, ProgressIndicator pi) {
+            this(stateType, false, pi);
+        }
+        
+        public boolean allowRetry() { return allowRetry; }
     }
 }
