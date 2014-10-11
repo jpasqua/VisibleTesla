@@ -5,21 +5,19 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Streamer;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
 
 /**
  * SnapshotProducer: Generate a stream of locations on demand.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class SnapshotProducer implements Runnable, Stoppable {
+public class SnapshotProducer implements Runnable {
     
 /*------------------------------------------------------------------------------
  *
@@ -27,8 +25,8 @@ public class SnapshotProducer implements Runnable, Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private static final long StreamingThreshold = 400;
-    private long RetryDelay = 20 * 1000;
+    private static final long StreamingThreshold = 400;     // 0.4 seconds
+    private static final long RetryDelay = 20 * 1000;       // 20 Seconds
 
 /*------------------------------------------------------------------------------
  *
@@ -36,12 +34,10 @@ public class SnapshotProducer implements Runnable, Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext appContext;
-    private StreamState snapshot;
-    private Thread producer = null;
-    private ArrayBlockingQueue<ProduceRequest> queue = new ArrayBlockingQueue<>(20);
-    private Timer timer = new Timer();
-    private Streamer streamer;
+    private static Thread       producer = null;
+    private final  AppContext   appContext;
+    private final  Streamer     streamer;
+    private final  ArrayBlockingQueue<ProduceRequest> queue;
     
 /*==============================================================================
  * -------                                                               -------
@@ -51,34 +47,18 @@ public class SnapshotProducer implements Runnable, Stoppable {
     
     public SnapshotProducer(AppContext ac) {
         this.appContext = ac;
+        this.queue = new ArrayBlockingQueue<>(20);
         this.streamer = appContext.vehicle.getStreamer();
         ensureProducer();
-        ac.tm.addStoppable((Stoppable)this);
     }
     
     public void produce(boolean stream) { produce(stream, true); }
     
     public void produce(boolean stream, boolean allowRetry) {
         try {
-            queue.add(new ProduceRequest(stream));
-        } catch (java.lang.IllegalStateException qfe) { // Queue Full
-            pollForRequest();   // Drain an element from the queue
-            produce(stream, allowRetry);    // Wth space freed up, try again
-        }
-    }
-    
-    public void produceLater(final boolean stream) { produceLater(stream, false);  }
-    
-    public void produceLater(final boolean stream, final boolean allowRetry) {
-        timer.schedule(new TimerTask() {
-            @Override public void run() { produce(stream, allowRetry); } },
-            RetryDelay);
-    }
-    
-    @Override public void stop() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+            queue.put(new ProduceRequest(stream));
+        } catch (InterruptedException ex) {
+            Tesla.logger.warning("SnapshotProducer interrupted adding to queue: " + ex.getMessage());
         }
     }
     
@@ -87,8 +67,13 @@ public class SnapshotProducer implements Runnable, Stoppable {
  * Internal Methods - Some declared public since they implement interfaces
  * 
  *----------------------------------------------------------------------------*/
-
-    private void ensureProducer() {
+        
+    private void retry(final boolean stream) {
+        appContext.utils.addTimedTask(new TimerTask() {
+            @Override public void run() { produce(stream, false); } }, RetryDelay);
+    }
+    
+    private synchronized void ensureProducer() {
         if (producer == null) {
             producer = appContext.tm.launch(this, "SnapshotProducer");
             if (producer == null) return;   // We're shutting down!
@@ -99,13 +84,14 @@ public class SnapshotProducer implements Runnable, Stoppable {
     }
     
     @Override public void run() {
-        long lastSnapshot = 0;
+        StreamState snapshot;
+        long lastSnapshotTime = 0;
         
         try {
             while (!appContext.shuttingDown.get()) {
                 ProduceRequest r;
                 try {
-                    r = waitForRequest();
+                    r = queue.take();   // Wait for a request
                 } catch (InterruptedException e) {
                     if (appContext.shuttingDown.get()) {
                         Tesla.logger.info("SnapshotProducer Interrupted during normal shutdown");
@@ -116,17 +102,17 @@ public class SnapshotProducer implements Runnable, Stoppable {
                 }
 
                 if (r == null) break;   // The thread was interrupted.
-                if (r.timeOfRequest < lastSnapshot) { continue; }
+                if (r.timeOfRequest < lastSnapshotTime) { continue; }
 
                 if ((snapshot = streamer.beginNewStream()) == null) {
-                    if (r.allowRetry()) {
+                    if (r.allowRetry) {
                         Tesla.logger.warning("Snapshot failed, retrying after 20 secs");
-                        produceLater(r.stream, false);
+                        retry(r.stream);
                     }
                     continue;
                 }
                 
-                lastSnapshot = snapshot.timestamp;
+                lastSnapshotTime = snapshot.timestamp;
                 appContext.lastKnownStreamState.set(snapshot);
 
                 if (!r.stream) { continue; }
@@ -140,11 +126,11 @@ public class SnapshotProducer implements Runnable, Stoppable {
                         //System.err.print("|SL");
                         break;
                     }
-                    if (snapshot.timestamp - lastSnapshot > StreamingThreshold) {
+                    if (snapshot.timestamp - lastSnapshotTime > StreamingThreshold) {
                         //System.err.print("|GT");
                         appContext.lastKnownStreamState.set(snapshot);
-                        lastSnapshot = snapshot.timestamp;
-                        pollForRequest();   // Consume a request if any - don't block
+                        lastSnapshotTime = snapshot.timestamp;
+                        queue.poll();   // Drain a request if there is one
                     } else {
                         //System.err.print("|SK");
                     }
@@ -156,18 +142,10 @@ public class SnapshotProducer implements Runnable, Stoppable {
         }
     }
     
-    private ProduceRequest waitForRequest() throws InterruptedException {
-        return queue.take();
-    }
-    
-    private ProduceRequest pollForRequest() {
-        return queue.poll();
-    }
-    
     private static class ProduceRequest {
         public long timeOfRequest;
         public boolean stream;
-        private boolean allowRetry;
+        public boolean allowRetry;
         
         ProduceRequest(boolean stream, boolean allowRetry) {
             timeOfRequest = System.currentTimeMillis();
@@ -176,7 +154,5 @@ public class SnapshotProducer implements Runnable, Stoppable {
         }
         
         ProduceRequest(boolean stream) { this(stream, false); }
-        
-        boolean allowRetry() { return allowRetry; }
     }
 }

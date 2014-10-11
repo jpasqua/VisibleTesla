@@ -83,11 +83,7 @@ public class VTUtils implements Stoppable {
         ac.tm.addStoppable((Stoppable)this);
     }
     
-    @Override public void stop() {
-        if (timer != null) {
-            timer.cancel();
-        }
-    }
+    @Override public void stop() { timer.cancel(); }
     
     public void addTimedTask(TimerTask task, long delay) {
         timer.schedule(task, delay);

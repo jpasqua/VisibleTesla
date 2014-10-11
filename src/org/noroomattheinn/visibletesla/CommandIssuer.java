@@ -25,7 +25,7 @@ public class CommandIssuer implements Runnable {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-    private long RetryDelay = 20 * 1000;
+    private static final long RetryDelay = 20 * 1000;
 
 /*------------------------------------------------------------------------------
  *
@@ -33,9 +33,9 @@ public class CommandIssuer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext appContext;
-    private Thread issuer = null;
-    private final ArrayBlockingQueue<Request> queue = new ArrayBlockingQueue<>(20);
+    private static Thread issuer = null;
+    private final  AppContext appContext;
+    private final  ArrayBlockingQueue<Request> queue;
     
 /*==============================================================================
  * -------                                                               -------
@@ -45,11 +45,12 @@ public class CommandIssuer implements Runnable {
     
     public CommandIssuer(AppContext ac) {
         this.appContext = ac;
+        this.queue = new ArrayBlockingQueue<>(20);
         ensureIssuer();
     }
     
     public void issueCommand(Callable<Result> request, ProgressIndicator pi) {
-        queueCommand(request, true, pi);
+        issueCommand(request, true, pi);
     }
     
 /*------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ public class CommandIssuer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private void queueCommand(Callable<Result> request, boolean retry, ProgressIndicator pi) {
+    private void issueCommand(Callable<Result> request, boolean retry, ProgressIndicator pi) {
         try {
             queue.put(new Request(request, retry, pi));
         } catch (InterruptedException ex) {
@@ -68,7 +69,7 @@ public class CommandIssuer implements Runnable {
     
     private void retryRequest(final Request r) {
         appContext.utils.addTimedTask(new TimerTask() {
-            @Override public void run() { queueCommand(r.request, false, r.pi); } },
+            @Override public void run() { issueCommand(r.request, false, r.pi); } },
             RetryDelay);
     }
     

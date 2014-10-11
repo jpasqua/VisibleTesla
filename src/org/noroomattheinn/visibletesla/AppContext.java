@@ -253,7 +253,7 @@ public class AppContext {
  * 
  *----------------------------------------------------------------------------*/
     
-    public final File ensureAppFilesFolder() {
+    private File ensureAppFilesFolder() {
         File aff = getAppFileFolder();
         if (aff.exists()) { return aff; }
         if (aff.mkdir()) { return aff; }

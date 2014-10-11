@@ -36,9 +36,9 @@ public class StateProducer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext appContext;
-    private Thread producer = null;
-    private final ArrayBlockingQueue<ProduceRequest> queue = new ArrayBlockingQueue<>(20);
+    private static Thread       producer = null;
+    private final  AppContext   appContext;
+    private final  ArrayBlockingQueue<ProduceRequest> queue;
     
 /*==============================================================================
  * -------                                                               -------
@@ -48,6 +48,7 @@ public class StateProducer implements Runnable {
     
     public StateProducer(AppContext ac) {
         this.appContext = ac;
+        this.queue = new ArrayBlockingQueue<>(20);
         ensureProducer();
     }
     
@@ -59,10 +60,16 @@ public class StateProducer implements Runnable {
         try {
             queue.put(new ProduceRequest(whichState, allowRetry, pi));
         } catch (InterruptedException ex) {
-            Tesla.logger.warning("Interrupted while adding request to queue: " + ex.getMessage());
+            Tesla.logger.warning("StateProducer interrupted adding  to queue: " + ex.getMessage());
         }
     }
         
+/*------------------------------------------------------------------------------
+ *
+ * Internal Methods - Some declared public since they implement interfaces
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private void retry(
             final Vehicle.StateType whichState,
             final ProgressIndicator pi) {
@@ -71,12 +78,6 @@ public class StateProducer implements Runnable {
             RetryDelay);
     }
     
-
-/*------------------------------------------------------------------------------
- *
- * Internal Methods - Some declared public since they implement interfaces
- * 
- *----------------------------------------------------------------------------*/
 
     private void ensureProducer() {
         if (producer == null) {
@@ -113,7 +114,7 @@ public class StateProducer implements Runnable {
                         Platform.runLater(new Runnable() {
                             @Override public void run() { appContext.noteUpdatedState(state); }
                         });
-                    } else if (r.allowRetry()) {
+                    } else if (r.allowRetry) {
                         //Tesla.logger.warning("Query failed, retrying after 20 secs");
                         System.err.println("Query failed, retrying after 20 secs");
                         retry(r.stateType, r.pi);
@@ -132,7 +133,7 @@ public class StateProducer implements Runnable {
         public long timeOfRequest;
         public Vehicle.StateType stateType;
         public ProgressIndicator pi;
-        private boolean allowRetry;
+        public boolean allowRetry;
         
         ProduceRequest(Vehicle.StateType stateType, boolean allowRetry, ProgressIndicator pi) {
             timeOfRequest = System.currentTimeMillis();
@@ -144,7 +145,5 @@ public class StateProducer implements Runnable {
         ProduceRequest(Vehicle.StateType stateType, ProgressIndicator pi) {
             this(stateType, false, pi);
         }
-        
-        public boolean allowRetry() { return allowRetry; }
     }
 }
