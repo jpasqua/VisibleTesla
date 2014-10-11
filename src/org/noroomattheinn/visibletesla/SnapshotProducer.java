@@ -118,7 +118,7 @@ public class SnapshotProducer implements Runnable, Stoppable {
                 if (r == null) break;   // The thread was interrupted.
                 if (r.timeOfRequest < lastSnapshot) { continue; }
 
-                if ((snapshot = streamer.refresh()) == null) {
+                if ((snapshot = streamer.beginNewStream()) == null) {
                     if (r.allowRetry()) {
                         Tesla.logger.warning("Snapshot failed, retrying after 20 secs");
                         produceLater(r.stream, false);
@@ -133,7 +133,7 @@ public class SnapshotProducer implements Runnable, Stoppable {
 
                 //System.err.print("STRM: ");
                 // Now, stream data as long as it comes...
-                while ((snapshot = streamer.refreshFromStream()) != null) {
+                while ((snapshot = streamer.tryExistingStream()) != null) {
                     //System.err.print("|RF");
                     if (appContext.shuttingDown.get()) return;
                     if (appContext.inactivity.isSleeping()) {
