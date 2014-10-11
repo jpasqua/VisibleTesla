@@ -124,9 +124,9 @@ public class MessageTemplate {
                 String val;
                 switch (varName) {
                     case "SPEED": val = String.format(
-                            "%3.1f", ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().speed));
+                            "%3.1f", ac.utils.inProperUnits(ac.lastKnownStreamState.get().speed));
                         break;
-                    case "SOC": val = String.valueOf(ac.lastKnownSnapshotState.get().soc);
+                    case "SOC": val = String.valueOf(ac.lastKnownStreamState.get().soc);
                         break;
                     case "IDEAL": val = String.format(
                             "%3.1f", ac.utils.inProperUnits(ac.lastKnownChargeState.get().idealRange));
@@ -151,8 +151,8 @@ public class MessageTemplate {
                         break;
                     case "LOC":
                     case "HT_LOC":
-                        String lat = String.valueOf(ac.lastKnownSnapshotState.get().estLat);
-                        String lng = String.valueOf(ac.lastKnownSnapshotState.get().estLng);
+                        String lat = String.valueOf(ac.lastKnownStreamState.get().estLat);
+                        String lng = String.valueOf(ac.lastKnownStreamState.get().estLng);
                         val = GeoUtils.getAddrForLatLong(lat, lng);
                         if (val == null || val.isEmpty()) {
                             val = String.format("(%s, %s)", lat, lng);
@@ -218,7 +218,7 @@ public class MessageTemplate {
                         break;
                     case "ODO":
                         val = String.format(
-                            "%.1f", ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().odometer));
+                            "%.1f", ac.utils.inProperUnits(ac.lastKnownStreamState.get().odometer));
                         break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
@@ -237,8 +237,8 @@ public class MessageTemplate {
                 "</script>";
             
             private String genSpeedo(AppContext ac) {
-                double speed = ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().speed);
-                double power = ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().power);
+                double speed = ac.utils.inProperUnits(ac.lastKnownStreamState.get().speed);
+                double power = ac.utils.inProperUnits(ac.lastKnownStreamState.get().power);
                 return String.format(SpeedoTemplate, speed, power);
             }
             
@@ -251,7 +251,7 @@ public class MessageTemplate {
                 "</script>";
             
             private String genSOCGauge(AppContext ac) {
-                int soc = ac.lastKnownSnapshotState.get().soc;
+                int soc = ac.lastKnownStreamState.get().soc;
                 boolean showPlug = false;
                 switch (ac.lastKnownChargeState.get().chargingState) {
                     case Charging:
@@ -265,7 +265,7 @@ public class MessageTemplate {
             private static String genODO(AppContext ac) {
                 String punc = ac.utils.unitType() == Utils.UnitType.Imperial ? "," : ".";
                 StringBuilder sb = new StringBuilder();
-                double odo = ac.utils.inProperUnits(ac.lastKnownSnapshotState.get().odometer);
+                double odo = ac.utils.inProperUnits(ac.lastKnownStreamState.get().odometer);
                 double modulus = 100000;
                 for (int i = 0; i < 6; i++) {
                     int digit = (int)(odo / modulus);
