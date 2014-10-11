@@ -30,8 +30,10 @@ import javafx.scene.control.Slider;
 import jfxtras.labs.scene.control.BigDecimalField;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
@@ -40,6 +42,7 @@ import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
 import org.noroomattheinn.visibletesla.trigger.Predicate;
 import org.noroomattheinn.visibletesla.trigger.Trigger;
 import org.noroomattheinn.visibletesla.trigger.RW;
+import org.noroomattheinn.visibletesla.trigger.UnlockedTrigger;
 
 /**
  * NotifierController
@@ -58,16 +61,21 @@ public class NotifierController extends BaseController {
     private static final long TypicalDebounce = 10 * 60 * 1000; // 10 Minutes
     private static final long SpeedDebounce = 30 * 60 * 1000;   // 30 Minutes
     private static final long GeoDebounce = 30 * 1000;          // 30 Seconds
-
+    private static final long UnlockedThreshold = 10;           // 10 Minutes
+    
     private static final String NotifySEKey = "NOTIFY_SE";
     private static final String NotifyCSKey = "NOTIFY_CS";
     private static final String NotifyCAKey = "NOTIFY_CA";
+    private static final String NotifyULKey = "NOTIFY_UL";
+    private static final String NotifyULValKey = "NOTIFY_UL_VAL";
     private static final String NotifySpeedKey = "NOTIFY_SPEED";
     private static final String NotifySOCHitsKey = "NOTIFY_SOC_HITS";
     private static final String NotifySOCFallsKey = "NOTIFY_SOC_FALLS";
     private static final String NotifyEnterKey = "NOTIFY_ENTER_AREA";
     private static final String NotifyLeftKey = "NOTIFY_LEFT_AREA";
     
+    private static final String UnlockedSubj = "Unlocked at {{TIME}}";
+    private static final String UnlockedMsg = "Unlocked at {{TIME}} for {{CUR}} minutes";
     private static final String SOCHitSubj = "SOC: {{CUR}}%";
     private static final String SOCHitMsg = "SOC Hit or Exceeded: {{TARGET}}% ({{CUR}}%)";
     private static final String SOCFellSubj = "SOC: {{CUR}}%";
@@ -131,6 +139,11 @@ public class NotifierController extends BaseController {
     private DeviationTrigger    pcTrigger;
     private MessageTarget       caMessageTarget;
     
+    // Unlocked Trigger
+    private UnlockedTrigger     unlockedTrigger;
+    private MessageTarget       ulMessageTarget;
+    private boolean             checkForUnlocked;
+    
 /*------------------------------------------------------------------------------
  *
  * UI Elements
@@ -170,6 +183,11 @@ public class NotifierController extends BaseController {
     
     @FXML private CheckBox chargeAnomaly;
     @FXML private Button caOptions;
+
+    @FXML private CheckBox unlocked;
+    @FXML private Button unlockedOptions;
+    @FXML private BigDecimalField unlockedDoorsField;
+    @FXML private Slider unlockedDoorsSlider;
 
 /*------------------------------------------------------------------------------
  *
@@ -215,6 +233,8 @@ public class NotifierController extends BaseController {
             showDialog(leftMessageTarget);
         } else if (b == caOptions) {
             showDialog(caMessageTarget);
+        } else if (b == unlockedOptions) {
+            showDialog(ulMessageTarget);
         } else {
             Tesla.logger.warning("Unexpected button: " + b.toString());
         }
@@ -227,6 +247,19 @@ public class NotifierController extends BaseController {
         }
     };
     
+    private ChangeListener<Boolean> ulListener = new ChangeListener<Boolean>() {
+        @Override public void changed(
+                ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
+            appContext.persistentState.putBoolean(vinBased(NotifyULKey), cur);
+        }
+    };
+    
+    private ChangeListener<BigDecimal> ulvListener = new ChangeListener<BigDecimal>() {
+        @Override public void changed(
+                ObservableValue<? extends BigDecimal> ov, BigDecimal old, BigDecimal cur) {
+            appContext.persistentState.putLong(vinBased(NotifyULValKey), cur.longValue());
+        }
+    };
     
 /*------------------------------------------------------------------------------
  *
@@ -238,7 +271,10 @@ public class NotifierController extends BaseController {
         bindBidrectional(speedHitsField, speedHitsSlider);
         bindBidrectional(socHitsField, socHitsSlider);
         bindBidrectional(socFallsField, socFallsSlider);
+        bindBidrectional(unlockedDoorsField, unlockedDoorsSlider);
         chargeAnomaly.selectedProperty().addListener(caListener);
+        unlocked.selectedProperty().addListener(ulListener);
+        unlockedDoorsField.numberProperty().addListener(ulvListener);
     }
 
     @Override protected void initializeState() {
@@ -305,6 +341,19 @@ public class NotifierController extends BaseController {
             chargeAnomaly.setSelected(
                     appContext.persistentState.getBoolean(vinBased(NotifyCAKey),
                     false));
+            
+            unlockedTrigger = new UnlockedTrigger(
+                    unlocked.selectedProperty(),
+                    unlockedDoorsField.numberProperty());
+            ulMessageTarget = new MessageTarget(
+                    appContext, NotifyULKey, UnlockedSubj, UnlockedMsg);
+            unlocked.setSelected(
+                    appContext.persistentState.getBoolean(vinBased(NotifyULKey),
+                    false));
+            unlockedDoorsField.numberProperty().set(
+                    new BigDecimal(appContext.persistentState.getLong(
+                        vinBased(NotifyULValKey), UnlockedThreshold)));
+            checkForUnlocked = false;
             
             startListening();
     }
@@ -392,7 +441,8 @@ public class NotifierController extends BaseController {
     
     private void startListening() {
         appContext.lastKnownChargeState.addListener(csListener);
-        appContext.lastKnownSnapshotState.addListener(ssListener);
+        appContext.lastKnownStreamState.addListener(ssListener);
+        appContext.lastKnownVehicleState.addListener(vsListener);
         appContext.schedulerActivity.addTracker(false, schedListener);
     }
     
@@ -403,10 +453,10 @@ public class NotifierController extends BaseController {
         }
     };
 
-    private ChangeListener<ChargeState.State> csListener = new ChangeListener<ChargeState.State>() {
+    private ChangeListener<ChargeState> csListener = new ChangeListener<ChargeState>() {
         @Override public synchronized void  changed(
-                ObservableValue<? extends ChargeState.State> ov,
-                ChargeState.State old, ChargeState.State cur) {
+                ObservableValue<? extends ChargeState> ov,
+                ChargeState old, ChargeState cur) {
             Trigger.Result result = csTrigger.evalPredicate(cur.chargingState.name());
             if (result != null) {
                 notifyUser(result, csMessageTarget);
@@ -431,12 +481,12 @@ public class NotifierController extends BaseController {
         }
     };
             
-    private ChangeListener<SnapshotState.State> ssListener = new ChangeListener<SnapshotState.State>() {
+    private ChangeListener<StreamState> ssListener = new ChangeListener<StreamState>() {
         long lastSpeedNotification = 0;
         
         @Override public void changed(
-                ObservableValue<? extends SnapshotState.State> ov,
-                SnapshotState.State old, SnapshotState.State cur) {
+                ObservableValue<? extends StreamState> ov,
+                StreamState old, StreamState cur) {
             Trigger.Result result = socHitsTrigger.evalPredicate(new BigDecimal(cur.soc));
             if (result != null) { notifyUser(result, socHitsMessageTarget); }
             
@@ -452,9 +502,31 @@ public class NotifierController extends BaseController {
             if (result != null) { notifyUser(result, enteredMessageTarget); }
             result = leftTrigger.evalPredicate(curLoc);
             if (result != null) { notifyUser(result, leftMessageTarget); }
+
+            // Handle other triggers
+            if (unlockedTrigger.unlocked(cur.speed, cur.shiftState)) {
+                checkForUnlocked = true;
+                updateState(Vehicle.StateType.Vehicle);
+            }
         }
     };
     
+    private ChangeListener<VehicleState> vsListener = new ChangeListener<VehicleState>() {
+        @Override public void changed(
+                ObservableValue<? extends VehicleState> ov,
+                VehicleState old, VehicleState cur) {
+            if (!checkForUnlocked) { return; }
+            if (!cur.locked) {
+                int minutes = unlockedDoorsField.numberProperty().getValue().intValue();
+                Map<String, String> contextSpecific = Utils.newHashMap(
+                        "CUR", String.format("%d", minutes),
+                        "TARGET", String.format("%d", minutes));
+                notifyUser(contextSpecific, ulMessageTarget);
+                checkForUnlocked = false;
+            }
+        }
+    };
+
     private void notifyUser(Map<String,String> contextSpecific, MessageTarget target) {
         String addr = target.getActiveEmail();
         String lower = addr.toLowerCase();  // Don't muck with the original addr.
