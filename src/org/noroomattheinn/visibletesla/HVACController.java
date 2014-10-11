@@ -6,8 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -18,11 +16,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.HVACState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
+import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
 public class HVACController extends BaseController {
@@ -39,8 +39,8 @@ public class HVACController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private org.noroomattheinn.tesla.HVACController controller;
     private boolean useDegreesF = false;
+    private Vehicle v;
     DoubleProperty sliderValue = new SimpleDoubleProperty(70);
     
 /*------------------------------------------------------------------------------
@@ -48,6 +48,8 @@ public class HVACController extends BaseController {
  * UI Elements
  * 
  *----------------------------------------------------------------------------*/
+    
+    @FXML private ImageView bodyImg;
     
     // Temperature Readouts    
     @FXML private Label insideTmpLabel, outsideTempLabel;
@@ -67,13 +69,6 @@ public class HVACController extends BaseController {
     @FXML private ImageView rearDefOffImg;
     @FXML private ImageView rearDefOnImg;
 
-    // Wheel Images
-    @FXML private ImageView darkRimFront, darkRimRear;
-    @FXML private ImageView nineteenRimFront, nineteenRimRear;
-    @FXML private ImageView aeroFront, aeroRear;
-    @FXML private ImageView cycloneFront, cycloneRear;
-    private Map<Options.WheelType,Options.WheelType> wheelEquivs = new HashMap<>();  
-    private Map<Options.WheelType,ImageView[]> wheelImages = new HashMap<>();  
 
     // Controls
     @FXML private ToggleButton  hvacOffButton, hvacOnButton;
@@ -88,12 +83,13 @@ public class HVACController extends BaseController {
     @FXML void hvacOnOffHandler(ActionEvent event) {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = controller.setAC(hvacOnButton.isSelected());
-                updateState(StateProducer.StateType.HVAC);
+                Result r = v.setAC(hvacOnButton.isSelected());
+                updateState(Vehicle.StateType.HVAC);
                 return r;
             } });
     }
     
+    // Only called on MOUSE_RELEASED
     @FXML void tempChangeHandler(MouseEvent event) {
         double temp = tempSlider.valueProperty().doubleValue();
         if (useDegreesF) temp = Math.round(temp);
@@ -106,9 +102,9 @@ public class HVACController extends BaseController {
         final boolean setF = useDegreesF;   // Must be final, so copy it...
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = (setF) ? controller.setTempF(temp, temp)
-                                  : controller.setTempC(temp, temp);
-                updateState(StateProducer.StateType.HVAC);
+                Result r = (setF) ? v.setTempF(temp, temp)
+                                  : v.setTempC(temp, temp);
+                updateState(Vehicle.StateType.HVAC);
                 return r;
             } });
     }
@@ -122,15 +118,28 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @Override protected void initializeState() {
-        controller = new org.noroomattheinn.tesla.HVACController(appContext.vehicle);
-        appContext.lastKnownHVACState.addListener(new ChangeListener<HVACState.State>() {
-            @Override public void changed(ObservableValue<? extends HVACState.State> ov,
-                HVACState.State old, HVACState.State cur) {
+        v = appContext.vehicle;
+        appContext.lastKnownHVACState.addListener(new ChangeListener<HVACState>() {
+            @Override public void changed(ObservableValue<? extends HVACState> ov,
+                HVACState old, HVACState cur) {
                 if (active()) { reflectNewState(); }
             }
         });
+        
+        getAppropriateBody();   // Get the body image that matches the wheels
+        appContext.prefs.overideWheelsTo.addListener(new ChangeListener<String>() {
+            @Override public void changed(
+                    ObservableValue<? extends String> ov, String t, String t1) {
+                getAppropriateBody();   // Get the body image that matches the wheels
+            }
+        });
+        appContext.prefs.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(
+                    ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                getAppropriateBody();   // Get the body image that matches the wheels
+            }
+        });
         useDegreesF = appContext.utils.useDegreesF();
-        updateWheelView();  // Make sure we show the right wheels from the get-go
     }
     
     @Override protected void activateTab() {
@@ -150,23 +159,14 @@ public class HVACController extends BaseController {
         }
     }
     
-    @Override protected void refresh() { updateState(StateProducer.StateType.HVAC); }
+    @Override protected void refresh() { updateState(Vehicle.StateType.HVAC); }
 
     // Controller-specific initialization
     @Override protected void fxInitialize() {
-        wheelImages.put(Options.WheelType.WTAE, new ImageView[] {aeroFront, aeroRear});
-        wheelImages.put(Options.WheelType.WTTB, new ImageView[] {cycloneFront, cycloneRear});
-        wheelImages.put(Options.WheelType.WT19, new ImageView[] {nineteenRimFront, nineteenRimRear});
-        wheelImages.put(Options.WheelType.WTSP, new ImageView[] {darkRimFront, darkRimRear});
-        wheelImages.put(Options.WheelType.WT21, new ImageView[] {});
-        wheelEquivs.put(Options.WheelType.WTX1, Options.WheelType.WT19);
-        wheelEquivs.put(Options.WheelType.WT1P, Options.WheelType.WT19);
-        wheelEquivs.put(Options.WheelType.WTSG, Options.WheelType.WTSP);
-
         tempSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override public void changed(ObservableValue<? extends Number> ov,
                                           Number old, Number cur) {
-                double temp = adjustedTemp(tempSlider.valueProperty().doubleValue());
+                double temp = adjustedTemp(cur.doubleValue());
                 targetTempLabel.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
             }
         });
@@ -179,7 +179,6 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private void reflectNewState() {
-        updateWheelView();
         reflectHVACOnState();
         reflectActualTemps();
         reflectDefrosterState();
@@ -191,7 +190,7 @@ public class HVACController extends BaseController {
         // you whether the AC is running - not the heat. Until I determine a better
         // way, I'm using the fan speed to indicate whether the HVAC is on and using
         // the temp vs. temp set point to determine whether it is heating or cooling.
-        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = appContext.lastKnownHVACState.get();
         boolean hvacOn = (hvac.fanStatus > 0);
         hvacOnButton.setSelected(hvacOn);
         hvacOffButton.setSelected(!hvacOn);
@@ -218,19 +217,19 @@ public class HVACController extends BaseController {
     }
     
     private void reflectDefrosterState() {
-        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = appContext.lastKnownHVACState.get();
         setOptionState(hvac.isFrontDefrosterOn != 0, frontDefOnImg, frontDefOffImg);
         setOptionState(hvac.isRearDefrosterOn, rearDefOnImg, rearDefOffImg);
     }
     
     private void reflectActualTemps() {
-        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = appContext.lastKnownHVACState.get();
         setTempLabel(insideTmpLabel, hvac.insideTemp);
         setTempLabel(outsideTempLabel, hvac.outsideTemp);
     }
     
     private void updateCoolHotImages() {
-        HVACState.State hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = appContext.lastKnownHVACState.get();
         climateColdImg.setVisible(false);
         climateHotImg.setVisible(false);
         
@@ -256,10 +255,43 @@ public class HVACController extends BaseController {
         double temp = adjustedTemp((useDegreesF) ? Utils.cToF(tempC) : tempC);
         label.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
     }
-
-    private void updateWheelView() {
-        updateImages(appContext.utils.computedWheelType(), wheelImages, wheelEquivs);
+    
+    private static final String ImagePrefix = "org/noroomattheinn/TeslaResources/";
+    private void getAppropriateBody() {
+        ClassLoader cl = getClass().getClassLoader();
+        Options.WheelType wt = appContext.utils.computedWheelType();
+        String image;
+        
+        switch (wt) {
+            case WT19:  // Silver 19" Wheels
+            case WT1P:
+            case WTX1:
+                image = "05_climate_car_19@2x.png";
+                break;
+            case WTAE:  // Aero Wheels
+            case WTAP:
+                image = "05_climate_car_aero@2x.png";
+                break;
+            case WTTB:  // Turbine 19" Silver
+            case WTTP:
+                image = "05_climate_car_turbine@2x.png";
+                break;
+            case WTTG:  // Turbine 19" Charcoal
+            case WTGP:
+                image = "05_climate_car_turbine_dark@2x.png";
+                break;
+            case WTSP:  // Charcoal 21"
+            case WTSE:
+            case WTSG:
+                image = "05_climate_car_21_dark@2x.png";
+                break;
+            case WT21:  // Silver 21"
+            case WT2E:
+            case WTSS:
+            default:
+                image = "05_climate_car_21@2x.png";
+                break;
+        }
+        bodyImg.setImage(new Image(cl.getResourceAsStream(ImagePrefix+image)));
     }
-
-
 }

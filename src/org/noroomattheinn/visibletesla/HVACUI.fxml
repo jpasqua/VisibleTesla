@@ -12,7 +12,7 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.HVACController">
   <children>
-    <ImageView fitHeight="0.0" fitWidth="0.0" layoutX="7.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true" visible="true">
+    <ImageView fx:id="bodyImg" fitHeight="0.0" fitWidth="0.0" layoutX="7.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true" visible="true">
       <image>
         <Image url="@../TeslaResources/05_climate_car@2x.png" />
       </image>
@@ -99,10 +99,10 @@
         </ImageView>
       </children>
     </Group>
-    <Slider fx:id="tempSlider" disable="false" layoutX="163.0" layoutY="303.0" majorTickUnit="2.0" max="90.0" min="62.0" minorTickCount="1" onMouseReleased="#tempChangeHandler" prefWidth="293.0" showTickLabels="true" showTickMarks="true" style="" value="19.5" />
+    <Slider fx:id="tempSlider" disable="false" layoutX="163.0" layoutY="303.0" majorTickUnit="2.0" max="90.0" min="62.0" minorTickCount="1" onMouseReleased="#tempChangeHandler" prefWidth="293.0" showTickLabels="true" showTickMarks="true" style="" value="70.0" />
     <HBox id="HBox" alignment="CENTER" layoutX="460.0" layoutY="304.0" prefWidth="70.0" spacing="5.0" style="    -fx-border-insets: 0;&#10;    -fx-border-width: 2px;&#10;    -fx-border-color: #111 lightgray lightgray #111;&#10;-fx-background-color: #eee&#10;">
       <children>
-        <Label id="driverTempLabel" fx:id="targetTempLabel" alignment="BASELINE_RIGHT" prefWidth="62.0" text="19.5 ºC" />
+        <Label id="driverTempLabel" fx:id="targetTempLabel" alignment="BASELINE_RIGHT" prefWidth="62.0" text="70.0 ºF" />
       </children>
     </HBox>
     <HBox id="HBox" alignment="CENTER" layoutX="266.0" layoutY="345.0" prefHeight="26.0" prefWidth="88.0" spacing="-1.0">
