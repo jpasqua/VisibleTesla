@@ -19,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.tesla.Vehicle;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
@@ -168,7 +169,7 @@ abstract class BaseController {
         appContext.issuer.issueCommand(c, progressIndicator);
     }
     
-    protected final void updateState(StateProducer.StateType whichState) {
+    protected final void updateState(Vehicle.StateType whichState) {
         appContext.stateProducer.produce(whichState, progressIndicator);
     }
 

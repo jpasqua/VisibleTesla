@@ -29,10 +29,10 @@ import jfxtras.labs.scene.control.gauge.Battery;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
+import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
 public class ChargeController extends BaseController {
-    
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums
@@ -45,11 +45,10 @@ public class ChargeController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
- * Internal Status
+ * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
-    private org.noroomattheinn.tesla.ChargeController chargeController;
     private boolean useMiles;
     
 /*------------------------------------------------------------------------------
@@ -98,12 +97,12 @@ public class ChargeController extends BaseController {
     private final GenericProperty actualCurrent = new GenericProperty("Current", "0.0", "Amps");
     private final GenericProperty chargerPower = new GenericProperty("Charger Power", "0.0", "kW");
     private final GenericProperty chargingState = new GenericProperty("State", "Disconnected", "");
-    private final GenericProperty batteryLevels = new GenericProperty("Battery Levels", "0/0", "%");
+    private final GenericProperty batteryLevel = new GenericProperty("Battery Level", "0", "%");
     
     final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
             actualCurrent, voltage, chargeRate, remaining, chargingState,
             pilotCurrent, batteryCurrent, fastCharger, chargerPower,
-            nRangeCharges, batteryLevels);
+            nRangeCharges, batteryLevel);
 
     
 /*------------------------------------------------------------------------------
@@ -118,7 +117,7 @@ public class ChargeController extends BaseController {
     
     @FXML void rangeLinkHandler(ActionEvent event) {
         Hyperlink h = (Hyperlink)event.getSource();
-        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = appContext.lastKnownChargeState.get();
         int percent = (h == stdLink) ? charge.chargeLimitSOCStd : charge.chargeLimitSOCMax;
         setChargePercent(percent);
     }
@@ -128,8 +127,8 @@ public class ChargeController extends BaseController {
         final Button b = (Button) event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = chargeController.setChargeState(b == startButton);
-                updateState(StateProducer.StateType.Charge);
+                Result r = appContext.vehicle.setChargeState(b == startButton);
+                updateState(Vehicle.StateType.Charge);
                 return r;
             } });
     }
@@ -139,8 +138,8 @@ public class ChargeController extends BaseController {
         chargeSetting.setText(percent + " %");
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = chargeController.setChargePercent(percent);
-                updateState(StateProducer.StateType.Charge);
+                Result r = appContext.vehicle.setChargePercent(percent);
+                updateState(Vehicle.StateType.Charge);
                 return r;
             } });
     }
@@ -172,14 +171,12 @@ public class ChargeController extends BaseController {
     }
 
     @Override protected void initializeState() {
-        chargeController = new org.noroomattheinn.tesla.ChargeController(
-                appContext.vehicle);
         chargeSlider.setDisable(Utils.compareVersions(
             appContext.lastKnownVehicleState.get().version, MinVersionForChargePct) < 0);
         reflectNewState();
-        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState.State>() {
-            @Override public void changed(ObservableValue<? extends ChargeState.State> ov,
-                ChargeState.State old, ChargeState.State cur) {
+        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
+            @Override public void changed(ObservableValue<? extends ChargeState> ov,
+                ChargeState old, ChargeState cur) {
                 if (active()) { reflectNewState(); }
             }
         });
@@ -192,16 +189,18 @@ public class ChargeController extends BaseController {
         idealOdometer.setUnit(units);
         ratedOdometer.setUnit(units);
         chargeRate.setUnits(useMiles ? "mph" : "km/h");
+        if (appContext.lastKnownChargeState.get() != null) { reflectNewState(); }
     }
 
-    @Override protected void refresh() { updateState(StateProducer.StateType.Charge); }
+    @Override protected void refresh() { updateState(Vehicle.StateType.Charge); }
     
-    public static int getPilotCurent(ChargeState cs) {
+    public static int getPilotCurent(Vehicle v, ChargeState cs) {
         for (int i = 0; i < 3; i++) {
-            int pilotCurrent = cs.state.chargerPilotCurrent;
-            if (pilotCurrent >= 0) return pilotCurrent;
-            Utils.sleep(1000);
-            cs.refresh();
+            if (!cs.valid || cs.chargerPilotCurrent < 0) {
+                Utils.sleep(1000);
+                cs = v.queryCharge();
+            }
+            return cs.chargerPilotCurrent;
         }
         return -1;
     }
@@ -224,7 +223,7 @@ public class ChargeController extends BaseController {
     }
 
     private void reflectProperties() {
-        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = appContext.lastKnownChargeState.get();
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         int pc = charge.chargerPilotCurrent;
         if (pc == -1) pilotCurrent.setValue("Unknown");
@@ -238,17 +237,18 @@ public class ChargeController extends BaseController {
         actualCurrent.setValue(String.valueOf(charge.chargerActualCurrent));
         chargerPower.setValue(String.valueOf(charge.chargerPower));
         chargingState.setValue(charge.chargingState.name());
-        if (charge.chargerPhases == 3)
-            actualCurrent.setName("Current \u2462");
-        else
-            actualCurrent.setName("Current");
-        batteryLevels.setValue(String.format(
-                "%d/%d", charge.batteryPercent,
-                charge.usableBatteryLevel));
+        actualCurrent.setName(charge.chargerPhases == 3 ? "Current \u2462" : "Current");
+        if (charge.batteryPercent != charge.usableBatteryLevel) {
+            batteryLevel.setValue(String.format(
+                    "%d/%d", charge.batteryPercent, charge.usableBatteryLevel));
+        } else {
+            batteryLevel.setValue(String.format("%d", charge.batteryPercent));
+        }
+               
     }
     
     private void reflectChargeStatus() {
-        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = appContext.lastKnownChargeState.get();
         int percent = charge.chargeLimitSOC;
         chargeSlider.setMin((charge.chargeLimitSOCMin/10)*10);
         chargeSlider.setMax(100);
@@ -271,7 +271,7 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectBatteryStats() {
-        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = appContext.lastKnownChargeState.get();
         double range = charge.range;
         int bl = charge.batteryPercent;
         int ubl = charge.usableBatteryLevel;
@@ -304,7 +304,7 @@ public class ChargeController extends BaseController {
     }
 
     private void reflectRange() {
-        ChargeState.State charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = appContext.lastKnownChargeState.get();
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         estOdometer.setValue(osd(charge.estimatedRange * conversionFactor));
         idealOdometer.setValue(osd(charge.idealRange * conversionFactor));

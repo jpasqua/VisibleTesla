@@ -30,12 +30,12 @@ import javafx.stage.Stage;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.noroomattheinn.tesla.APICall;
+import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.DrivingState;
+import org.noroomattheinn.tesla.DriveState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.HVACState;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
@@ -60,7 +60,7 @@ public class AppContext {
     public static final String WakeOnTCKey = "APP_WAKE_ON_TC";
     public static final String IdleThresholdKey = "APP_IDLE_THRESHOLD";
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.29.01";
+    public static final String ProductVersion = "0.30.00";
     public static final String ResourceDir = "/org/noroomattheinn/TeslaResources/";
     public static final String GoogleMapsAPIKey =
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
@@ -83,12 +83,12 @@ public class AppContext {
     public Inactivity inactivity;
     public Tesla tesla;
     public final BooleanProperty shuttingDown;
-    public ObjectProperty<ChargeState.State> lastKnownChargeState;
-    public ObjectProperty<DrivingState.State> lastKnownDrivingState;
-    public ObjectProperty<GUIState.State> lastKnownGUIState;
-    public ObjectProperty<HVACState.State> lastKnownHVACState;
-    public ObjectProperty<SnapshotState.State> lastKnownSnapshotState;
-    public ObjectProperty<VehicleState.State> lastKnownVehicleState;
+    public ObjectProperty<ChargeState> lastKnownChargeState;
+    public ObjectProperty<DriveState> lastKnownDriveState;
+    public ObjectProperty<GUIState> lastKnownGUIState;
+    public ObjectProperty<HVACState> lastKnownHVACState;
+    public ObjectProperty<StreamState> lastKnownStreamState;
+    public ObjectProperty<VehicleState> lastKnownVehicleState;
     public VTUtils.StateTracker<String> schedulerActivity;
     public LocationStore locationStore;
     public StatsStore statsStore;
@@ -128,10 +128,10 @@ public class AppContext {
         this.inactivity = new Inactivity(this);    
         
         this.lastKnownChargeState = new SimpleObjectProperty<>();
-        this.lastKnownDrivingState = new SimpleObjectProperty<>();
+        this.lastKnownDriveState = new SimpleObjectProperty<>();
         this.lastKnownGUIState = new SimpleObjectProperty<>();
         this.lastKnownHVACState = new SimpleObjectProperty<>();
-        this.lastKnownSnapshotState = new SimpleObjectProperty<>();
+        this.lastKnownStreamState = new SimpleObjectProperty<>();
         this.lastKnownVehicleState = new SimpleObjectProperty<>();
         this.schedulerActivity = new VTUtils.StateTracker<>("");
 
@@ -190,19 +190,19 @@ public class AppContext {
     }
 
 
-    public void noteUpdatedState(APICall state) {
+    public void noteUpdatedState(BaseState state) {
         if (state instanceof ChargeState) {
-            lastKnownChargeState.set(((ChargeState) state).state);
-        } else if (state instanceof DrivingState) {
-            lastKnownDrivingState.set(((DrivingState) state).state);
+            lastKnownChargeState.set(((ChargeState)state));
+        } else if (state instanceof DriveState) {
+            lastKnownDriveState.set(((DriveState)state));
         } else if (state instanceof GUIState) {
-            lastKnownGUIState.set(((GUIState) state).state);
+            lastKnownGUIState.set(((GUIState)state));
         } else if (state instanceof HVACState) {
-            lastKnownHVACState.set(((HVACState) state).state);
+            lastKnownHVACState.set(((HVACState)state));
         } else if (state instanceof VehicleState) {
-            lastKnownVehicleState.set(((VehicleState) state).state);
-        } else if (state instanceof SnapshotState) {
-            lastKnownSnapshotState.set(((SnapshotState) state).state);
+            lastKnownVehicleState.set(((VehicleState)state));
+        } else if (state instanceof StreamState) {
+            lastKnownStreamState.set(((StreamState)state));
         }
     }
 
