@@ -38,6 +38,7 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
+import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
 
@@ -97,6 +98,7 @@ public class MainController extends BaseController {
     
     @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem;
     @FXML private MenuItem vampireLossMenuItem;
+    @FXML private MenuItem remoteStartMenuItem;
     
     // The menu items that are handled in this controller directly
     @FXML private RadioMenuItem allowSleepMenuItem;
@@ -120,7 +122,7 @@ public class MainController extends BaseController {
         appContext.utils.logAppInfo();
         addSystemSpecificHandlers(ac);
 
-        setTitle();
+        refreshTitle();
         appContext.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
 
@@ -148,12 +150,12 @@ public class MainController extends BaseController {
         appContext.inactivity.addModeListener(new Inactivity.Listener() {
             @Override public void handle(Inactivity.Type nv) { setInactivityMenu(nv); } });
         appContext.inactivity.addStateListener(new Inactivity.Listener() {
-            @Override public void handle(Inactivity.Type nv) { setTitle(); } });
+            @Override public void handle(Inactivity.Type nv) { refreshTitle(); } });
 
         // Kick off the login process
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
         lc.loggedIn.addTracker(true, new LoginStateChange(lc.loggedIn, false));
-        lc.attemptAutoLogin();
+        lc.activate();
     }
     
     public void stop() { appContext.tm.shutDown(); }
@@ -181,9 +183,8 @@ public class MainController extends BaseController {
             @Override public Result call() {
                 Result r = appContext.utils.cacheBasics();
                 if (!r.success) {
-                    if (r.explanation.equals("mobile_access_disabled"))  showMobileAccessError();
-                    else showCachingError();
-                    Platform.exit();
+                    if (r.explanation.equals("mobile_access_disabled"))  exitWithMobileAccessError();
+                    else exitWithCachingError();
                     return Result.Failed;
                 }
                 Platform.runLater(finishAppStartup);
@@ -240,8 +241,12 @@ public class MainController extends BaseController {
     
     private Runnable finishAppStartup = new Runnable() {
         @Override public void run() {
+            boolean remoteStartEnabled = appContext.vehicle.remoteStartEnabled();
+            remoteStartMenuItem.setDisable(!remoteStartEnabled);
+            
             appContext.inactivity.trackInactivity(tabs);
             appContext.prepForVehicle(appContext.vehicle);
+            refreshTitle();
             
             // Start the Scheduler and the Notifier
             controllerFromTab(schedulerTab).activate();
@@ -344,6 +349,18 @@ public class MainController extends BaseController {
                     "Update Check Results", "Checking for Updates");
     }
     
+    @FXML private void remoteStart(ActionEvent e) {
+        String[] unp = PasswordDialog.getCredentials(
+                appContext.stage, "Authenticate", "Remote Start", false);
+        if (unp == null) return;    // User cancelled
+        if (unp[1] == null || unp[1].isEmpty()) {
+            Dialogs.showErrorDialog(appContext.stage, "You must enter a password");
+            return;
+        }
+        appContext.utils.remoteStart(unp[1]);
+    
+    }
+
     // Options->Action_>{Honk,Flsh,Wakeup}
     @FXML private void honk(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Honk); }
     @FXML private void flash(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Flash); }
@@ -368,8 +385,10 @@ public class MainController extends BaseController {
         }
     }
     
-    private void setTitle() {
+    private void refreshTitle() {
+        String carName = (appContext.vehicle != null) ? appContext.vehicle.getDisplayName() : null;
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
+        if (carName != null) title = title + " for " + carName;
         if (appContext.inactivity.getState() == Inactivity.Type.Sleep) {
             String time = String.format("%1$tH:%1$tM", new Date());
             title = title + " [sleeping at " + time + "]";
@@ -401,7 +420,7 @@ public class MainController extends BaseController {
     
     @FXML private void wakeButtonHandler(ActionEvent event) { forceWakeup.set(true); }
     
-    private void showMobileAccessError() {
+    private void exitWithMobileAccessError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
                 Dialogs.showErrorDialog(appContext.stage,
@@ -411,11 +430,12 @@ public class MainController extends BaseController {
                         "\n\nChange that setting in your car, then relaunch VisibleTesla.",
                         "Mobile access is not enabled", "Communication Problem");
                 Tesla.logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
+                Platform.exit();
             }
         });
     }
     
-    private void showCachingError() {
+    private void exitWithCachingError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
                 Dialogs.showErrorDialog(appContext.stage,
@@ -424,6 +444,7 @@ public class MainController extends BaseController {
                         "\nPlease try to wake your Tesla and then try VisibleTesla again.",
                         "Unable to communicate with your Tesla", "Communication Problem");
                 Tesla.logger.severe("Can't communicate with vehicle - exiting.");
+                Platform.exit();
             }
         });
     }

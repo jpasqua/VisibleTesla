@@ -8,9 +8,15 @@ package org.noroomattheinn.visibletesla;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -18,7 +24,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
@@ -28,6 +33,7 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
 import us.monoid.json.JSONObject;
 
 /**
@@ -35,7 +41,8 @@ import us.monoid.json.JSONObject;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VTUtils {
+public class VTUtils implements Stoppable {
+
     
 /*------------------------------------------------------------------------------
  *
@@ -45,6 +52,11 @@ public class VTUtils {
     
     public enum MiscAction {Honk, Flash, Wakeup};
     private static final String SimpleMapTemplate = "SimpleMap.html";
+    private static final String FirmwareVersionsFile = "FirmwareVersions.properties";
+        // This data is collected from:
+        // http://www.teslamotorsclub.com/showwiki.php?title=Model+S+software+firmware+changelog
+    private static final String FirmwareVersionsURL =
+        "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/FirmwareVersions.properties";
     private static final int SubjectLength = 30;
     private static final int MaxTriesToStart = 10;
 
@@ -55,7 +67,8 @@ public class VTUtils {
  *----------------------------------------------------------------------------*/
     
     private final AppContext ac;
-    private ActionController actions;
+    private final Map<String,String> firmwareVersions;
+    private final Timer timer = new Timer();
     
 /*==============================================================================
  * -------                                                               -------
@@ -65,7 +78,39 @@ public class VTUtils {
     
     public VTUtils(AppContext ac) {
         this.ac = ac;
-        this.actions = null;
+        firmwareVersions = new HashMap<>();
+        loadFirmwareVersion(getClass().getResourceAsStream(FirmwareVersionsFile));
+        ac.tm.addStoppable((Stoppable)this);
+    }
+    
+    @Override public void stop() {
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+    
+    public void addTimedTask(TimerTask task, long delay) {
+        timer.schedule(task, delay);
+    }
+    
+    public String getVersion(String firmwareVersion) {
+        String v = firmwareVersions.get(firmwareVersion);
+        if (v != null) return v;
+        
+        try {
+            InputStream is = new URL(FirmwareVersionsURL).openStream();
+            loadFirmwareVersion(is);
+            v = firmwareVersions.get(firmwareVersion);
+        } catch (IOException ex) {
+            Tesla.logger.warning("Couldn't download firmware versions property file: " + ex);
+        }
+        if (v == null) {
+            v = firmwareVersion;
+            // Avoid testing for new versions of the firmware mapping file every
+            // time around. We'll check again next time the app starts
+            firmwareVersions.put(firmwareVersion, v);
+        }
+        return v;
     }
     
     public void showSimpleMap(double lat, double lng, String title, int zoom) {
@@ -156,7 +201,7 @@ public class VTUtils {
         Utils.UnitType units = overrideUnits.get(ac.prefs.overideUnitsTo.get());
         if (ac.prefs.overideUnitsActive.get() && units != null) return units;
 
-        GUIState.State gs = ac.lastKnownGUIState.get();
+        GUIState gs = ac.lastKnownGUIState.get();
         if (gs != null) {
             return gs.distanceUnits.equalsIgnoreCase("mi/hr")
                     ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
@@ -184,7 +229,7 @@ public class VTUtils {
         if (ac.prefs.overideWheelsActive.get() && wt != null) return wt;
 
         wt = ac.vehicle.getOptions().wheelType();
-        VehicleState.State vs = ac.lastKnownVehicleState.get();
+        VehicleState vs = ac.lastKnownVehicleState.get();
         if (vs.wheelType != null) {
             // Check for known override wheel types, right now that's just Aero19
             switch (vs.wheelType) {
@@ -221,57 +266,67 @@ public class VTUtils {
     
     public Result cacheBasics() {
         Vehicle v = ac.vehicle;
-        GUIState     gs = new GUIState(v);
-        VehicleState vs = new VehicleState(v);
-        ChargeState  cs = new ChargeState(v);
-        ActionController action = new ActionController(v);
+        GUIState     gs;
+        VehicleState vs;
+        ChargeState  cs;
         
         int tries = 0;
-        if (gs.refresh()) {
-            JSONObject result = gs.getRawResult();
+        gs = v.queryGUI();
+        if (gs.valid) {
+            JSONObject result = gs.rawState;
             if (result.optString("reason").equals("mobile_access_disabled")) {
                 return new Result(false, "mobile_access_disabled");
             }
         }
-        vs.refresh();
-        cs.refresh();
-        while (gs.state == null ||  vs.state == null || cs.state == null) {
+        vs = v.queryVehicle();
+        cs = v.queryCharge();
+        while (!(gs.valid && vs.valid && cs.valid)) {
             if (tries++ > MaxTriesToStart) { return Result.Failed; }
             
-            action.wakeUp();
+            v.wakeUp();
             Utils.sleep(10000);
             if (ac.shuttingDown.get()) return Result.Failed;
             
-            if (gs.state == null) gs.refresh();
-            if (vs.state == null) vs.refresh();
-            if (cs.state == null) cs.refresh();
+            if (!gs.valid) gs = v.queryGUI();
+            if (!vs.valid) vs = v.queryVehicle();
+            if (!cs.valid) cs = v.queryCharge();
         }
         
-        ac.lastKnownGUIState.set(gs.state);
-        ac.lastKnownVehicleState.set(vs.state);
-        ac.lastKnownChargeState.set(cs.state);
+        ac.lastKnownGUIState.set(gs);
+        ac.lastKnownVehicleState.set(vs);
+        ac.lastKnownChargeState.set(cs);
         return Result.Succeeded;
     }    
     
     public void miscAction(MiscAction actionType) {
-        if (actions == null) actions = new ActionController(ac.vehicle);
+        final Vehicle v = ac.vehicle;
         Callable<Result> miscCommand = null;
         switch (actionType) {
             case Flash:
                 miscCommand = new Callable<Result>() {
-                    @Override public Result call() { return actions.flashLights(); } };
+                    @Override public Result call() { return v.flashLights(); } };
                 break;
             case Honk:
                 miscCommand = new Callable<Result>() {
-                    @Override public Result call() { return actions.honk(); } };
+                    @Override public Result call() { return v.honk(); } };
                 break;
             case Wakeup:
                 miscCommand = new Callable<Result>() {
-                    @Override public Result call() { return actions.wakeUp(); } };
+                    @Override public Result call() { return v.wakeUp(); } };
                 break;
         }
         if (miscCommand != null) ac.issuer.issueCommand(miscCommand, null);
     }
+    
+    public void remoteStart(final String password) {
+        ac.issuer.issueCommand(new Callable<Result>() {
+            @Override public Result call() { 
+                Result r = ac.vehicle.remoteStart(password); 
+                return r;
+            } },
+            null);
+    }
+
     
     public void waitForVehicleToWake(final Runnable r, final BooleanProperty forceWakeup) {
         final long TestSleepInterval = 5 * 60 * 1000;
@@ -330,4 +385,17 @@ public class VTUtils {
             trackers.add(new Tracker(r, runLater));
         }
     }
+    
+    private void loadFirmwareVersion(InputStream is) {
+        Properties p = new Properties();
+        try {
+            p.load(is);
+            for (String key : p.stringPropertyNames()) {
+                firmwareVersions.put(key, p.get(key).toString());
+            }
+        } catch (IOException ex) {
+            Tesla.logger.warning("Couldn't load firmware versions property file: " + ex);
+        }
+    }
+    
 }
