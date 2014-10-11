@@ -1,5 +1,5 @@
 /*
- * StatsStore.java -  - Copyright(c) 2013 Joe Pasqua
+ * StatsStore.java - Copyright(c) 2013 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 26, 2013
  */
@@ -16,7 +16,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.stats.Stat;
 
@@ -87,22 +87,22 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
     public StatsStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
         
-        appContext.tm.addStoppable(this);
+        appContext.tm.addStoppable((ThreadManager.Stoppable)this);
         this.timer = new Timer("00 VT - StatsFlusher", true);
         timer.schedule(flusher, 0L, 5 * 1000L);
         
-        appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
-                    ObservableValue<? extends SnapshotState.State> ov,
-                    SnapshotState.State old, SnapshotState.State state) {
+                    ObservableValue<? extends StreamState> ov,
+                    StreamState old, StreamState state) {
                 processSnapshot(state);
             }
         });
         
-        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState.State>() {
+        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(
-                    ObservableValue<? extends ChargeState.State> ov,
-                    ChargeState.State old, ChargeState.State cur) {
+                    ObservableValue<? extends ChargeState> ov,
+                    ChargeState old, ChargeState cur) {
                 processChargeState(cur);
             }
         });
@@ -138,7 +138,7 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
         keyToProp.get(key).set(new Stat(timestamp, key, val));
     }
     
-    private synchronized void processChargeState(ChargeState.State state) {
+    private synchronized void processChargeState(ChargeState state) {
         long timestamp = state.timestamp;
         
         if (deferredSnapshot != null) { recordSnapshot(deferredSnapshot); }
@@ -152,9 +152,9 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
         lastUpdate = timestamp;
     }
     
-    private SnapshotState.State lastState = null;    
-    private SnapshotState.State deferredSnapshot = null;    
-    private synchronized void processSnapshot(SnapshotState.State state) {
+    private StreamState lastState = null;    
+    private StreamState deferredSnapshot = null;    
+    private synchronized void processSnapshot(StreamState state) {
         // If it's the first time through, record the snapshot
         if (lastState == null) { recordSnapshot(state); return; }
         
@@ -169,7 +169,7 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
         }
     }
     
-    private  void recordSnapshot(SnapshotState.State state) {
+    private  void recordSnapshot(StreamState state) {
         store(PowerKey, state.timestamp, state.power);
         store(SpeedKey, state.timestamp, Math.round(state.speed * 10.0) / 10.0);
         lastState = state;

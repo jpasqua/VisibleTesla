@@ -74,7 +74,7 @@ public class Trigger<T extends Comparable<T>> {
              null, targetProperty, targetDefault, bounceInterval);
     }
     
-    public Trigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
+    private Trigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
             String name, String key, 
             Predicate.Type predicateType, ObjectProperty<Calendar> timeTarget,
             ObjectProperty<T> targetProperty, T targetDefault,

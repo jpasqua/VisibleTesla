@@ -8,7 +8,8 @@ package org.noroomattheinn.visibletesla;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
+import org.noroomattheinn.tesla.Streamer;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
@@ -29,17 +30,18 @@ public class SnapshotProducer implements Runnable, Stoppable {
     private static final long StreamingThreshold = 400;
     private long RetryDelay = 20 * 1000;
 
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
     private final AppContext appContext;
-    private SnapshotState snapshot;
+    private StreamState snapshot;
     private Thread producer = null;
     private ArrayBlockingQueue<ProduceRequest> queue = new ArrayBlockingQueue<>(20);
     private Timer timer = new Timer();
+    private Streamer streamer;
     
 /*==============================================================================
  * -------                                                               -------
@@ -49,7 +51,7 @@ public class SnapshotProducer implements Runnable, Stoppable {
     
     public SnapshotProducer(AppContext ac) {
         this.appContext = ac;
-        this.snapshot = new SnapshotState(appContext.vehicle);
+        this.streamer = appContext.vehicle.getStreamer();
         ensureProducer();
         ac.tm.addStoppable((Stoppable)this);
     }
@@ -116,32 +118,32 @@ public class SnapshotProducer implements Runnable, Stoppable {
                 if (r == null) break;   // The thread was interrupted.
                 if (r.timeOfRequest < lastSnapshot) { continue; }
 
-                if (!snapshot.refresh()) {
+                if ((snapshot = streamer.refresh()) == null) {
                     if (r.allowRetry()) {
-                        Tesla.logger.warning("Refresh failed, retrying after 20 secs");
+                        Tesla.logger.warning("Snapshot failed, retrying after 20 secs");
                         produceLater(r.stream, false);
                     }
                     continue;
                 }
                 
-                lastSnapshot = snapshot.state.timestamp;
-                appContext.lastKnownSnapshotState.set(snapshot.state);
+                lastSnapshot = snapshot.timestamp;
+                appContext.lastKnownStreamState.set(snapshot);
 
                 if (!r.stream) { continue; }
 
-                // System.err.print("STRM: ");
+                //System.err.print("STRM: ");
                 // Now, stream data as long as it comes...
-                while (snapshot.refreshFromStream()) {
+                while ((snapshot = streamer.refreshFromStream()) != null) {
                     //System.err.print("|RF");
                     if (appContext.shuttingDown.get()) return;
                     if (appContext.inactivity.isSleeping()) {
                         //System.err.print("|SL");
                         break;
                     }
-                    if (snapshot.state.timestamp - lastSnapshot > StreamingThreshold) {
+                    if (snapshot.timestamp - lastSnapshot > StreamingThreshold) {
                         //System.err.print("|GT");
-                        appContext.lastKnownSnapshotState.set(snapshot.state);
-                        lastSnapshot = snapshot.state.timestamp;
+                        appContext.lastKnownStreamState.set(snapshot);
+                        lastSnapshot = snapshot.timestamp;
                         pollForRequest();   // Consume a request if any - don't block
                     } else {
                         //System.err.print("|SK");

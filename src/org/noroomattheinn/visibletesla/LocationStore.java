@@ -12,7 +12,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.utils.GeoUtils;
 
 /**
@@ -42,17 +42,17 @@ public class LocationStore extends DataStore {
  * -------                                                               -------
  *============================================================================*/
     
-    public ObjectProperty<SnapshotState.State> lastStoredSnapshotState;
+    public ObjectProperty<StreamState> lastStoredStreamState;
 
 
     public LocationStore(AppContext appContext, File locationFile) throws IOException {
         super(appContext, locationFile, Keys);
-        this.lastStoredSnapshotState = new SimpleObjectProperty<>();
+        this.lastStoredStreamState = new SimpleObjectProperty<>();
 
-        appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
+        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
-                    ObservableValue<? extends SnapshotState.State> ov,
-                    SnapshotState.State old, SnapshotState.State cur) {
+                    ObservableValue<? extends StreamState> ov,
+                    StreamState old, StreamState cur) {
                 storeLocation(cur);
             }
         });
@@ -66,9 +66,9 @@ public class LocationStore extends DataStore {
  * 
  *----------------------------------------------------------------------------*/
     
-    private SnapshotState.State lastState = null;
+    private StreamState lastState = null;
     
-    private synchronized void storeLocation(SnapshotState.State state) {
+    private synchronized void storeLocation(StreamState state) {
         if (!appContext.prefs.collectLocationData.get() || state == null) return;
         double speed = Math.round(state.speed*10.0)/10.0;
         
@@ -83,10 +83,10 @@ public class LocationStore extends DataStore {
         repo.flushElements();
         
         lastState = state;
-        lastStoredSnapshotState.set(state);
+        lastStoredStreamState.set(state);
     }
     
-    private boolean tooClose(SnapshotState.State wp1, SnapshotState.State wp2) {
+    private boolean tooClose(StreamState wp1, StreamState wp2) {
         if (wp1 == null || wp2 == null) return false;
         
         double meters = GeoUtils.distance(wp1.estLat, wp1.estLng, wp2.estLat, wp2.estLng);

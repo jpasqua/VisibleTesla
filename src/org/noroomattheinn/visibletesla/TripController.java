@@ -46,7 +46,7 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.GeoUtils.ElevationData;
@@ -272,15 +272,38 @@ public class TripController extends BaseController {
         updateStartEndProps(
                 StatsStore.SOCKey, start.timestamp, end.timestamp,
                 socRow, 1.0);
+        
         updateStartEndProps(odoRow, start.odo, end.odo, cvt);
         
         double power = 0.0;
         for (Trip t:trips) {
-            power += t.estimatePower();
+            power += t.estimateEnergy();
         }
         updateStartEndProps(powerRow, 0.0, power, 1.0);
+//        updateStartEndProps(powerRow, 0.0, estimateEnergy(), 1.0);
     }
     
+//    private double estimateEnergy() {
+//        try {
+//            double startSOC = Double.valueOf(socRow.getValue());
+//            double endSOC = Double.valueOf(socRow.getUnits());
+//            return (startSOC - endSOC) * adjustedBatterySize();
+//        } catch (NumberFormatException e) {
+//            return 0.0;        
+//        }
+//    }
+//    
+//    private double adjustedBatterySize() {
+//        double size;
+//        switch (appContext.vehicle.getOptions().batteryType()) {
+//            case BT40:  size = 40; break;
+//            case BT60:  size = 60; break;
+//            case BT85:
+//            default:    size = 85; break;
+//        }
+//        return size * 0.95;
+//    }
+//    
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
@@ -414,13 +437,13 @@ public class TripController extends BaseController {
         }
         
         // Start listening for new WayPoints
-        appContext.locationStore.lastStoredSnapshotState.addListener(
-                new ChangeListener<SnapshotState.State>() {
+        appContext.locationStore.lastStoredStreamState.addListener(
+                new ChangeListener<StreamState>() {
             WayPoint last = new WayPoint(Long.MAX_VALUE, 0, 0, 0, 0, 0);
             
             @Override public void changed(
-                    ObservableValue<? extends SnapshotState.State> ov,
-                    SnapshotState.State old, SnapshotState.State cur) {
+                    ObservableValue<? extends StreamState> ov,
+                    StreamState old, StreamState cur) {
                 handleNewWayPoint(new WayPoint(cur));
             }
         });
@@ -572,7 +595,7 @@ public class TripController extends BaseController {
     
     public class Trip {
         private List<WayPoint> waypoints;
-        private double powerEstimate = Double.NaN;
+        private double energyEstimate = Double.NaN;
         
         public Trip() {
             waypoints = new ArrayList<>();
@@ -589,8 +612,8 @@ public class TripController extends BaseController {
             return (endLoc - startLoc);
         }
         
-        public double estimatePower() {
-            if (!Double.isNaN(powerEstimate)) return powerEstimate;
+        public double estimateEnergy() {
+            if (!Double.isNaN(energyEstimate)) return energyEstimate;
             double cumulative = 0.0;
             
             decorateWayPoints(this);
@@ -605,17 +628,18 @@ public class TripController extends BaseController {
                     lastPower = power;
                     lastTime = wp.timestamp;
                 } else {
+                    double thisEnergy;
                     long dT = wp.timestamp - lastTime;
-                    double minP = Math.min(power, lastPower);
                     double dP = Math.abs(power-lastPower);
-                    double thisPower = minP * dT + (dP*dT)/2.0;
-                    cumulative += thisPower;
+                    double minP = Math.min(power, lastPower);
+                    thisEnergy = minP * dT + (dP*dT)/2.0;
+                    cumulative += thisEnergy;
                     lastTime = wp.timestamp;
                     lastPower = power;
                 }
             }
-            powerEstimate = cumulative/(1000*60*60);
-            return powerEstimate;
+            energyEstimate = cumulative/(1000*60*60);
+            return energyEstimate;
         }
 
 
@@ -663,7 +687,7 @@ public class TripController extends BaseController {
             decoration = null;
         }
         
-        public WayPoint(SnapshotState.State state) {
+        public WayPoint(StreamState state) {
             this.timestamp = state.timestamp;
             this.lat = state.estLat;
             this.lng = state.estLng;

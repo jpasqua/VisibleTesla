@@ -98,6 +98,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Actions">
                   <items>
+                    <MenuItem mnemonicParsing="false" onAction="#remoteStart" text="Remote Start..." fx:id="remoteStartMenuItem" />
                     <MenuItem mnemonicParsing="false" onAction="#honk" text="Honk" />
                     <MenuItem mnemonicParsing="false" onAction="#flash" text="Flash" />
                     <MenuItem mnemonicParsing="false" onAction="#wakeup" text="Wakeup" />

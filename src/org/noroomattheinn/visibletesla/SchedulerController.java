@@ -19,7 +19,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
-import org.noroomattheinn.tesla.ActionController;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
@@ -48,9 +47,8 @@ public class SchedulerController extends BaseController
     @FXML private TextArea activityLog;
     
     private ChargeState charge;
-    private org.noroomattheinn.tesla.ChargeController chargeController;
-    private org.noroomattheinn.tesla.HVACController hvacController;
-
+    private Vehicle v;
+    
     private final List<ScheduleItem> schedulers = new ArrayList<>();
     
 /*------------------------------------------------------------------------------
@@ -71,7 +69,7 @@ public class SchedulerController extends BaseController
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override public String getExternalKey() { return appContext.vehicle.getVIN(); }
+    @Override public String getExternalKey() { return v.getVIN(); }
     @Override public Preferences getPreferences() { return appContext.persistentState; }
     @Override public AppContext getAppContext() { return appContext; }
     
@@ -101,26 +99,26 @@ public class SchedulerController extends BaseController
             case CHARGE_SET:
             case CHARGE_ON:
                 if (value > 0) {
-                    r = chargeController.setChargePercent((int)value);
+                    r = v.setChargePercent((int)value);
                     if (!(r.success || r.explanation.equals("already_set"))) {
                         logActivity("Unable to set charge target: " + r.explanation, true);
                     }
                 }
                 if (command == Command.CHARGE_ON)
-                    r = chargeController.startCharing();
+                    r = v.startCharing();
                 break;
-            case CHARGE_OFF: r = chargeController.stopCharing(); break;
+            case CHARGE_OFF: r = v.stopCharing(); break;
             case HVAC_ON:
                 if (value > 0) {    // Set the target temp first
                     if (appContext.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"))
-                        r = hvacController.setTempF(value, value);
+                        r = v.setTempF(value, value);
                     else
-                        r = hvacController.setTempC(value, value);
+                        r = v.setTempC(value, value);
                     if (!r.success) break;
                 }
-                r = hvacController.startAC();
+                r = v.startAC();
                 break;
-            case HVAC_OFF: r = hvacController.stopAC();break;
+            case HVAC_OFF: r = v.stopAC();break;
             case AWAKE: appContext.inactivity.setMode(Inactivity.Type.Awake); break;
             case SLEEP: appContext.inactivity.setMode(Inactivity.Type.Sleep); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
@@ -159,7 +157,7 @@ public class SchedulerController extends BaseController
         
         String name = ScheduleItem.commandToName(command);
         if (appContext.prefs.safeIncludesMinCharge.get()) {
-            if (charge.state.batteryPercent < Safe_Threshold) {
+            if (charge.batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
                 logActivity(entry, true);
@@ -170,7 +168,7 @@ public class SchedulerController extends BaseController
         if (appContext.prefs.safeIncludesPluggedIn.get()) {
             String msg;
 
-            switch (ChargeController.getPilotCurent(charge)) {
+            switch (ChargeController.getPilotCurent(v, charge)) {
                 case -1:
                     msg = String.format("%s: Can't tell if car is plugged in - aborted", name);
                     logActivity(msg, true);
@@ -189,12 +187,12 @@ public class SchedulerController extends BaseController
     
     private boolean wakeAndGetChargeState() {
         appContext.inactivity.setState(Inactivity.Type.Awake);
-        if (charge.refresh()) return true;
+        charge = v.queryCharge();
+        if (charge.valid) return true;
         
-        ActionController a = new ActionController(appContext.vehicle);
         for (int i = 0; i < 20; i++) {
-            a.wakeUp();
-            if (charge.refresh())
+            v.wakeUp();
+            if ((charge = v.queryCharge()).valid)
                 return true;
             Utils.sleep(5000);
         }
@@ -202,11 +200,11 @@ public class SchedulerController extends BaseController
     }
     
     private synchronized Result unpluggedTrigger() {
-        int pilotCurrent = ChargeController.getPilotCurent(charge);
+        int pilotCurrent = ChargeController.getPilotCurent(v, charge);
         if (pilotCurrent == 0) {
             appContext.utils.sendNotification(
                 appContext.prefs.notificationAddress.get(),
-                "Your car is not plugged in. Range = " + (int)charge.state.range);
+                "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (pilotCurrent == -1) {
             return new Result(true, "Can't tell if car is plugged in. No notification sent");
@@ -275,10 +273,7 @@ public class SchedulerController extends BaseController
     }
 
     @Override protected void initializeState() {
-        Vehicle v = appContext.vehicle;
-        charge = new ChargeState(v);
-        chargeController = new org.noroomattheinn.tesla.ChargeController(v);
-        hvacController = new org.noroomattheinn.tesla.HVACController(v);
+        v = appContext.vehicle;
         appContext.tm.addStoppable(this);
     }
     

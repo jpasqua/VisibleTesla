@@ -8,6 +8,7 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -66,19 +67,19 @@ public class StatsStreamer {
 
         private void produceStats() {
             appContext.snapshotProducer.produce(appContext.prefs.streamWhenPossible.get());
-            appContext.stateProducer.produce(StateProducer.StateType.Charge, null);
+            appContext.stateProducer.produce(Vehicle.StateType.Charge, null);
         }
 
         private boolean isCharging() {
-            ChargeState.State charge = appContext.lastKnownChargeState.get();
+            ChargeState charge = appContext.lastKnownChargeState.get();
             return(charge.chargingState == ChargeState.Status.Charging ||
                    charge.chargeRate > 0);
         }
 
         private int decay = 0;
         private boolean isInMotion() {
-            if (appContext.lastKnownSnapshotState.get() != null) {
-                if (appContext.lastKnownSnapshotState.get().speed > 0.0) {
+            if (appContext.lastKnownStreamState.get() != null) {
+                if (appContext.lastKnownStreamState.get().speed > 0.0) {
                     decay = 4;
                     return true;
                 }
@@ -130,7 +131,6 @@ public class StatsStreamer {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 Tesla.logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
             }
         }

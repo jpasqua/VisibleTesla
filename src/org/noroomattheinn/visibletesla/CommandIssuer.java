@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import javafx.scene.control.ProgressIndicator;
@@ -19,6 +20,13 @@ import org.noroomattheinn.utils.Utils;
  */
 public class CommandIssuer implements Runnable {
     
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    private long RetryDelay = 20 * 1000;
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -41,11 +49,7 @@ public class CommandIssuer implements Runnable {
     }
     
     public void issueCommand(Callable<Result> request, ProgressIndicator pi) {
-        try {
-            queue.put(new Request(request, pi));
-        } catch (InterruptedException ex) {
-            Tesla.logger.warning("Interrupted while adding request to queue: " + ex.getMessage());
-        }
+        queueCommand(request, true, pi);
     }
     
 /*------------------------------------------------------------------------------
@@ -54,6 +58,20 @@ public class CommandIssuer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
 
+    private void queueCommand(Callable<Result> request, boolean retry, ProgressIndicator pi) {
+        try {
+            queue.put(new Request(request, retry, pi));
+        } catch (InterruptedException ex) {
+            Tesla.logger.warning("Interrupted while adding request to queue: " + ex.getMessage());
+        }
+    }
+    
+    private void retryRequest(final Request r) {
+        appContext.utils.addTimedTask(new TimerTask() {
+            @Override public void run() { queueCommand(r.request, false, r.pi); } },
+            RetryDelay);
+    }
+    
     private void ensureIssuer() {
         if (issuer == null) {
             issuer = appContext.tm.launch(this, "CommandIssuer");
@@ -73,8 +91,13 @@ public class CommandIssuer implements Runnable {
                     appContext.showProgress(r.pi, true);
                     Result result = r.request.call();
                     appContext.showProgress(r.pi, false);
-                    if (!result.success)
+                    if (!result.success) {
                         Tesla.logger.warning("Failed command (" + r.request + "): " + result.explanation);
+                        if (r.retry) {
+                            Tesla.logger.warning("Retrying...");
+                            retryRequest(r);
+                        }
+                    }
                 } catch (InterruptedException e) {
                     Tesla.logger.info("CommandIssuer Interrupted: " + e.getMessage());
                     return;
@@ -90,10 +113,16 @@ public class CommandIssuer implements Runnable {
     private static class Request {
         public Callable<Result> request;
         public ProgressIndicator pi;
+        public boolean retry;
         
         Request(Callable<Result> request, ProgressIndicator pi) {
+            this(request, false, pi);
+        }
+        
+        Request(Callable<Result> request, boolean retry, ProgressIndicator pi) {
             this.request = request;
             this.pi = pi;
+            this.retry = retry;
         }
     }
 }
