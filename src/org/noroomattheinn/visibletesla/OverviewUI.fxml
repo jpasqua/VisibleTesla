@@ -271,6 +271,26 @@
         <Image url="@../TeslaResources/Emblems/60.png" />
       </image>
     </ImageView>
+    <ImageView id="darkRimFront" fx:id="darkCycloneRear" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_front_turbine_dark@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimRear" fx:id="darkCycloneFront" fitHeight="0.0" fitWidth="0.0" layoutX="422.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_rear_turbine_dark@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimRear" fx:id="silver21Rear" fitHeight="0.0" fitWidth="0.0" layoutX="422.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_rear_21@2x.png" />
+      </image>
+    </ImageView>
+    <ImageView id="darkRimFront" fx:id="silver21Front" fitHeight="0.0" fitWidth="0.0" layoutX="98.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <image>
+        <Image url="@../TeslaResources/wheel_front_21@2x.png" />
+      </image>
+    </ImageView>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />
