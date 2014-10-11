@@ -31,7 +31,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.util.Duration;
-import org.noroomattheinn.tesla.SnapshotState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
@@ -78,7 +78,7 @@ public class LocationController extends BaseController {
 
     @FXML void launchButtonHandler(ActionEvent event) {
         // TITLE, ZOOM, LAT, LNG
-        SnapshotState.State state = appContext.lastKnownSnapshotState.get();
+        StreamState state = appContext.lastKnownStreamState.get();
         if (state == null) return;
         appContext.utils.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
     }
@@ -111,16 +111,15 @@ public class LocationController extends BaseController {
     @Override protected void initializeState() {
         blipAnimation = animateBlip();
         appContext.snapshotProducer.produce(true);
-        appContext.lastKnownSnapshotState.addListener(new ChangeListener<SnapshotState.State>() {
-            @Override
-            public void changed(
-                    ObservableValue<? extends SnapshotState.State> ov,
-                    SnapshotState.State old, final SnapshotState.State cur) {
+        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+            @Override public void changed(
+                    ObservableValue<? extends StreamState> ov,
+                    StreamState old, final StreamState cur) {
                 doUpdateLater(cur);
             }
         });
 
-        SnapshotState.State ss = appContext.lastKnownSnapshotState.get();
+        StreamState ss = appContext.lastKnownStreamState.get();
         if (ss != null) { doUpdateLater(ss); }
 
         if (!useMiles) { multigauge.setRange(Side.LEFT, 0, 160); }
@@ -128,7 +127,7 @@ public class LocationController extends BaseController {
     
     @Override protected void activateTab() { }
     
-    private void doUpdateLater(final SnapshotState.State state) {
+    private void doUpdateLater(final StreamState state) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
                 reflectInternal(state);
@@ -142,7 +141,7 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void reflectInternal(SnapshotState.State ss) {
+    private void reflectInternal(StreamState ss) {
         String latitude = String.valueOf(ss.estLat);
         String longitude = String.valueOf(ss.estLng);
         String heading = String.valueOf(ss.estHeading);

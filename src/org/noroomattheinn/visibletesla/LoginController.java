@@ -43,7 +43,8 @@ public class LoginController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     public static final String RememberMePrefKey = "APP_REMEMBER_ME";
-    
+    public static final String AuthTokenKey = "APP_AUTH_TOKEN";
+    public static final String UsernameKey = "APP_USERNAME";
     
 /*------------------------------------------------------------------------------
  *
@@ -74,11 +75,8 @@ public class LoginController extends BaseController {
  * -------                                                               -------
  *============================================================================*/
     
-    void attemptAutoLogin() {
-        Boolean rememberPref = appContext.persistentState.getBoolean(RememberMePrefKey, false);
-        rememberMe.setSelected(rememberPref);
+    void start() {
 
-        attemptLogin(null, null);
     }
     
     boolean loggedIn() { return loggedIn.get(); }
@@ -108,8 +106,9 @@ public class LoginController extends BaseController {
     
     @FXML void rememberMeHandler(ActionEvent event) {
         appContext.persistentState.putBoolean(RememberMePrefKey, rememberMe.isSelected());
-        if (!rememberMe.isSelected())
-            appContext.tesla.clearCookies();
+        if (!rememberMe.isSelected()) {
+            appContext.persistentState.remove(AuthTokenKey);
+        }
     }
 
 /*------------------------------------------------------------------------------
@@ -119,14 +118,29 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     @Override protected void fxInitialize() {
-        showAutoLoginUI();
         loggedIn.addTracker(true, 
-                new Runnable() { @Override public void run() { reflectLoginState(); } });
+                new Runnable() { @Override public void run() { reflectLoginState(); } });        
     }
     
     @Override protected void refresh() { }
-    @Override protected void initializeState() { }
-    @Override protected void activateTab() { }
+    
+    @Override protected void initializeState() {
+        Boolean rememberPref = appContext.persistentState.getBoolean(RememberMePrefKey, false);
+        rememberMe.setSelected(rememberPref);
+
+        String username = rememberPref ? appContext.persistentState.get(UsernameKey, null) : null;
+        if (username != null) usernameField.setText(username);
+    }
+    
+    @Override protected void activateTab() {
+        if (loggedIn.get()) return;
+        String username = usernameField.getText().trim();
+        if (username.isEmpty()) { loggedIn.set(false); }
+        else {
+            showAutoLoginUI();
+            attemptLogin(username, null);
+        }
+    }
 
 /*------------------------------------------------------------------------------
  *
@@ -186,10 +200,12 @@ public class LoginController extends BaseController {
         @Override public Result call() {
             boolean succeeded;
             
-            if (username == null)   // Try auto login
-                succeeded = appContext.tesla.connect();
-            else {   // Login with the specified username and password
-                succeeded = appContext.tesla.connect(username, password, rememberMe.isSelected());
+            if (password == null) {  // Try auto login
+                String authToken = appContext.persistentState.get(AuthTokenKey, null);
+                succeeded = (authToken == null) ? false :
+                        appContext.tesla.connectWithToken(username, authToken);
+            } else {   // Login with the specified username and password
+                succeeded = appContext.tesla.connect(username, password);
                 if (!succeeded) {
                     Platform.runLater(new Runnable() {
                         @Override public void run() {
@@ -200,6 +216,12 @@ public class LoginController extends BaseController {
                                     "Problem logging in");
                         }
                     });
+                } else {
+                    String authToken = appContext.tesla.getToken();
+                    if (rememberMe.isSelected()) {
+                        appContext.persistentState.put(AuthTokenKey, authToken);
+                        appContext.persistentState.put(UsernameKey, username);
+                    }
                 }
             }
             
