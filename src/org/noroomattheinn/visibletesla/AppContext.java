@@ -93,7 +93,7 @@ public class AppContext {
     public LocationStore locationStore;
     public StatsStore statsStore;
     public VampireStats vampireStats;
-    public SnapshotProducer snapshotProducer;
+    public StreamProducer snapshotProducer;
     public StatsStreamer statsStreamer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
@@ -178,7 +178,7 @@ public class AppContext {
 
         uuidForVehicle = DigestUtils.sha256Hex(vehicle.getVIN());   
 
-        snapshotProducer = new SnapshotProducer(this);
+        snapshotProducer = new StreamProducer(this);
         stateProducer = new StateProducer(this);
 
         statsStreamer = new StatsStreamer(this);

@@ -256,7 +256,7 @@ public class OverviewController extends BaseController {
             }
         });
         storedOdometerReading = appContext.persistentState.getDouble(v.getVIN() + "_odometer", 0);
-        appContext.snapshotProducer.produce(false);
+        appContext.snapshotProducer.produce();
             // Make sure we update the odometer reading at some point...
 
         updateWheelView();  // Make sure we display the right wheels from the get-go

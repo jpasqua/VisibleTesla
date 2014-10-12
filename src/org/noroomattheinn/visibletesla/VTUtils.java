@@ -311,7 +311,7 @@ public class VTUtils implements Stoppable {
                     @Override public Result call() { return v.wakeUp(); } };
                 break;
         }
-        if (miscCommand != null) ac.issuer.issueCommand(miscCommand, null);
+        if (miscCommand != null) ac.issuer.issueCommand(miscCommand, true, null);
     }
     
     public void remoteStart(final String password) {
@@ -320,7 +320,7 @@ public class VTUtils implements Stoppable {
                 Result r = ac.vehicle.remoteStart(password); 
                 return r;
             } },
-            null);
+            true, null);
     }
 
     

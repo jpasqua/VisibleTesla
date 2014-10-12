@@ -166,11 +166,11 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/    
 
     protected final void issueCommand(Callable<Result> c) {
-        appContext.issuer.issueCommand(c, progressIndicator);
+        appContext.issuer.issueCommand(c, true, progressIndicator);
     }
     
     protected final void updateState(Vehicle.StateType whichState) {
-        appContext.stateProducer.produce(whichState, progressIndicator);
+        appContext.stateProducer.produce(whichState, true, progressIndicator);
     }
 
 /*------------------------------------------------------------------------------

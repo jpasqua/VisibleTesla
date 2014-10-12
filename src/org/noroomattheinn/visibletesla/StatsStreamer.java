@@ -66,8 +66,8 @@ public class StatsStreamer {
         private static final long AllowSleepInterval = 30 * 60 * 1000;   // 30 Minutes
 
         private void produceStats() {
-            appContext.snapshotProducer.produce(appContext.prefs.streamWhenPossible.get());
-            appContext.stateProducer.produce(Vehicle.StateType.Charge, null);
+            appContext.snapshotProducer.produce(appContext.prefs.streamWhenPossible.get(), true);
+            appContext.stateProducer.produce(Vehicle.StateType.Charge, true, null);
         }
 
         private boolean isCharging() {
