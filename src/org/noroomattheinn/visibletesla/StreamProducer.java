@@ -43,10 +43,8 @@ public class StreamProducer extends Executor<StreamProducer.Request> {
         this.streamer = appContext.vehicle.getStreamer();
     }
     
-    public void produce() { produce(false, true); }
-    
-    public void produce(boolean stream, boolean allowRetry) {
-        super.produce(new Request(stream, allowRetry, false));
+    public void produce(boolean stream) {
+        super.produce(new Request(stream, false));
     }
     
 /*------------------------------------------------------------------------------
@@ -54,10 +52,6 @@ public class StreamProducer extends Executor<StreamProducer.Request> {
  * Internal Methods - Some declared protected since they implement interfaces
  * 
  *----------------------------------------------------------------------------*/
-
-    @Override protected Request newRequest(Request basis, boolean allowRetry) {
-        return new Request(basis.stream, allowRetry, basis.continuation);
-    }
 
     @Override protected boolean execRequest(Request r) throws Exception {
         StreamState snapshot = r.continuation ? streamer.tryExistingStream() :
@@ -70,7 +64,7 @@ public class StreamProducer extends Executor<StreamProducer.Request> {
         }
         
         if (r.stream && !appContext.inactivity.isSleeping()) {  // Keep streaming
-            super.produce(new Request(r.stream, r.allowRetry, true));
+            super.produce(new Request(r.stream, true));
         }
         return true;
     }
@@ -79,10 +73,12 @@ public class StreamProducer extends Executor<StreamProducer.Request> {
         public final boolean stream;
         public final boolean continuation;
         
-        Request(boolean stream, boolean allowRetry, boolean continuation) {
-            super(allowRetry, 20 * 1000, null);
+        Request(boolean stream, boolean continuation) {
+            super(null);
             this.stream = stream;
             this.continuation = continuation;
         }
+        
+        @Override protected String getRequestName() { return "Stream"; }
     }
 }

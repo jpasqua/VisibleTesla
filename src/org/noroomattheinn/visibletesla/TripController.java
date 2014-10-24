@@ -135,25 +135,25 @@ public class TripController extends BaseController {
     }
     
     @FXML void exportItHandler(ActionEvent event) {
-        String initialDir = appContext.persistentState.get(
+        String initialDir = ac.persistentState.get(
                 DataStore.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Trip as KMZ");
         fileChooser.setInitialDirectory(new File(initialDir));
 
-        File file = fileChooser.showSaveDialog(appContext.stage);
+        File file = fileChooser.showSaveDialog(ac.stage);
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                appContext.persistentState.put(DataStore.LastExportDirKey, enclosingDirectory);
+                ac.persistentState.put(DataStore.LastExportDirKey, enclosingDirectory);
             KMLExporter ke = new KMLExporter();
             if (ke.export(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(
-                        appContext.stage, "Your data has been exported",
+                        ac.stage, "Your data has been exported",
                         "Data Export Process" , "Export Complete");
             } else {
                 Dialogs.showWarningDialog(
-                        appContext.stage, "There was a problem exporting your trip data to KMZ",
+                        ac.stage, "There was a problem exporting your trip data to KMZ",
                         "Data Export Process" , "Export Failed");
             }
         }
@@ -166,7 +166,7 @@ public class TripController extends BaseController {
         try {
             File tempFile = File.createTempFile("VTTrip", ".html");
             FileUtils.write(tempFile, map);
-            appContext.app.getHostServices().showDocument(tempFile.toURI().toString());
+            ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
         } catch (IOException ex) {
             Tesla.logger.warning("Unable to create temp file");
             // TO DO: Pop up a dialog!
@@ -219,13 +219,13 @@ public class TripController extends BaseController {
         
         includeGraph.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                appContext.persistentState.putBoolean(IncludeGraphKey, t1);
+                ac.persistentState.putBoolean(IncludeGraphKey, t1);
             }
         });
         
         snapToRoad.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                appContext.persistentState.putBoolean(SnapToRoadKey, t1);
+                ac.persistentState.putBoolean(SnapToRoadKey, t1);
             }
         });
         
@@ -238,16 +238,16 @@ public class TripController extends BaseController {
     }
 
     @Override protected void activateTab() {
-        String units = appContext.utils.unitType() == Utils.UnitType.Imperial ? " (mi)" : " (km)";
+        String units = ac.utils.unitType() == Utils.UnitType.Imperial ? " (mi)" : " (km)";
         rangeRow.setName(RangeRowName + units);
         odoRow.setName(OdoRowName + units);
     }
     
     @Override protected void initializeState() {
         includeGraph.setSelected(
-                appContext.persistentState.getBoolean(IncludeGraphKey, false));
+                ac.persistentState.getBoolean(IncludeGraphKey, false));
         snapToRoad.setSelected(
-                appContext.persistentState.getBoolean(SnapToRoadKey, false));
+                ac.persistentState.getBoolean(SnapToRoadKey, false));
         readTrips();
     }
 
@@ -280,34 +280,12 @@ public class TripController extends BaseController {
             power += t.estimateEnergy();
         }
         updateStartEndProps(powerRow, 0.0, power, 1.0);
-//        updateStartEndProps(powerRow, 0.0, estimateEnergy(), 1.0);
     }
     
-//    private double estimateEnergy() {
-//        try {
-//            double startSOC = Double.valueOf(socRow.getValue());
-//            double endSOC = Double.valueOf(socRow.getUnits());
-//            return (startSOC - endSOC) * adjustedBatterySize();
-//        } catch (NumberFormatException e) {
-//            return 0.0;        
-//        }
-//    }
-//    
-//    private double adjustedBatterySize() {
-//        double size;
-//        switch (appContext.vehicle.getOptions().batteryType()) {
-//            case BT40:  size = 40; break;
-//            case BT60:  size = 60; break;
-//            case BT85:
-//            default:    size = 85; break;
-//        }
-//        return size * 0.95;
-//    }
-//    
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        List<Stat.Sample> stats = appContext.valuesForRange(
+        List<Stat.Sample> stats = ac.valuesForRange(
                 statType, startTime, endTime);
         if (stats == null) {
             prop.setValue("--");
@@ -390,8 +368,8 @@ public class TripController extends BaseController {
                 "SP_UNITS", useMiles ? "mph" : "km/h",
                 "INCLUDE_GRAPH", includeGraph.isSelected() ? "true" : "false",
                 "SNAP", snapToRoad.isSelected() ? "true" : "false",
-                "GMAP_API_KEY", appContext.prefs.useCustomGoogleAPIKey.get() ?
-                    appContext.prefs.googleAPIKey.get() :
+                "GMAP_API_KEY", ac.prefs.useCustomGoogleAPIKey.get() ?
+                    ac.prefs.googleAPIKey.get() :
                     AppContext.GoogleMapsAPIKey);
     }
     
@@ -418,7 +396,7 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void readTrips() {
-        Map<Long,Map<String,Double>> rows = appContext.locationStore.getData();
+        Map<Long,Map<String,Double>> rows = ac.locationStore.getData();
         for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
             Map<String,Double> vals = row.getValue();
             WayPoint wp = new WayPoint(
@@ -437,7 +415,7 @@ public class TripController extends BaseController {
         }
         
         // Start listening for new WayPoints
-        appContext.locationStore.lastStoredStreamState.addListener(
+        ac.locationStore.lastStoredStreamState.addListener(
                 new ChangeListener<StreamState>() {
             WayPoint last = new WayPoint(Long.MAX_VALUE, 0, 0, 0, 0, 0);
             
@@ -546,9 +524,9 @@ public class TripController extends BaseController {
         long end   = t.lastWayPoint().timestamp;
 
         NavigableMap<Long,Double> socVals = mapFromSamples(
-                appContext.valuesForRange(StatsStore.SOCKey, start, end));
+                ac.valuesForRange(StatsStore.SOCKey, start, end));
         NavigableMap<Long,Double> pwrVals = mapFromSamples(
-                appContext.valuesForRange(StatsStore.PowerKey, start, end));
+                ac.valuesForRange(StatsStore.PowerKey, start, end));
         
         for (WayPoint wp : t.waypoints) {
             wp.decoration = new HashMap<>();

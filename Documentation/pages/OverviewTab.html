@@ -9,31 +9,48 @@
         <link rel="stylesheet" href="../default.css" type="text/css">
         <link rel="shortcut icon" href="../images/favicon.ico?v=1" type="image/x-icon">
         <link rel="icon" href="../images/favicon.ico?v=1" type="image/x-icon">
-        <script src="../scripts/gcse.js"></script>
+        <script src="../scripts/gcse.js" type="text/javascript">
+</script>
     </head>
     <body>
-        <SCRIPT LANGUAGE="JavaScript" type="text/javascript" src="../scripts/hsp.js"></SCRIPT> 
+        <script language="JavaScript" type="text/javascript" src="../scripts/hsp.js">
+</script>
         <div id="content">
             <h1>
                 The Overview Tab
             </h1>
             <p>
-                The Overview Tab shows displays the current state of your Tesla and lets you control basic functions such as locking/unlocking the doors and operating the panoramic roof (if you have one). A few other commands are available in the <span class="ui">Options&rarr;Actions</span> menu. You can invoke these actions from any tab. The available commands are <span class="ui">Honk</span>, <span class="ui">Flash</span> (flashes the headlights), and <span class="ui">Wakeup</span>.</p>
-                <p>VisibleTesla displays a relatively accurate representation of your car including the exterior color, the type of wheels, and the type of roof. It also reflects the interior color of the car (tan, black or gray only). You may not notice this when the doors are closed, but if one of the driver side doors is open or the panoramic roof is open, parts of the interior is exposed. You can override certain attributes of your car using the <span class="ui">Overrides</span> section of the <a href="PrefsTab.html">Prefs Tab</a>. So, if you want to see what your car would look like in a different color or with different wheels, this is your chance.
-                </p>
-                    <p>The screen shots below show the overview tab reflecting various states of the car. In the upper right hand area of the tab you'll see an emblem that indicates the type of car you have: 60, 85, P85, or P85+.</p>
+                The Overview Tab shows displays the current state of your Tesla and lets you control basic functions such as locking/unlocking the doors and operating the panoramic roof (if you have one). A few other commands are available in the <span class="ui">Options→Actions</span> menu. You can invoke these actions from any tab. The available commands are <span class="ui">Honk</span>, <span class="ui">Flash</span> (flashes the headlights), and <span class="ui">Wakeup</span>.
+            </p>
             <p>
-                <img class="screenshot" src="../images/02_Overview_Tab.png"> 
+                VisibleTesla displays a relatively accurate representation of your car including the exterior color, the type of wheels, and the type of roof. It also reflects the interior color of the car (tan, black or gray only). You may not notice this when the doors are closed, but if one of the driver side doors is open or the panoramic roof is open, parts of the interior is exposed. You can override certain attributes of your car using the <span class="ui">Overrides</span> section of the <a href="PrefsTab.html">Prefs Tab</a>. So, if you want to see what your car would look like in a different color or with different wheels, this is your chance.
             </p>
-            <p>You'll notice that the current "shift state" is displayed as either P (park), D (drive), N (neutral), or (R) reverse. There are circumstances under which the car does not report this information. In those rare cases, a "P" will be displayed. Right next to the drive state you'll see the odometer reading the range. You can select which range you'd like to see (Ideal, Rated, or Estimated) in the <span class="ui">General</span> section of the <a href="PrefsTab.html">Prefs Tab</a>.
+            <p>
+                VisibleTesla also displays the name of your car. You can name you car using <a href="https://www.teslamotors.com/mytesla">Tesla's web site</a>. The name is displayed as part of the window title bar so it is visible regardless of which tab is being displayed. If you don't name your car (or aren't yet on Tesla software version 6 or later), the name defaults to the last 6 characters of your VIN.
             </p>
-                <p>The next screen shot shows an information dialog that provides detailed information about your car. That dialog is displayed in response to pressing the <span class="ui">Details</span> button. If you scroll all the way to the bottom you will see a very long line of low level details. Unless you are technically curious or have been requested to provide debugging information, you can ignore this.
+            <p>
+                The screen shots below show the overview tab reflecting various states of the car. In the upper right hand area of the tab you'll see an emblem that indicates the type of car you have: 60, 85, P85, or P85+.
+            </p>
+            <p>
+                <img class="screenshot" src="../images/02_Overview_Tab.png">
+            </p>
+            <p>
+                You'll notice that the current "shift state" is displayed as either P (park), D (drive), N (neutral), or (R) reverse. There are circumstances under which the car does not report this information. In those rare cases, a "P" will be displayed. Right next to the drive state you'll see the odometer reading the range. You can select which range you'd like to see (Ideal, Rated, or Estimated) in the <span class="ui">General</span> section of the <a href="PrefsTab.html">Prefs Tab</a>.
+            </p>
+            <p>
+                At the upper left of the Overview Tab is a button that displays the last six characters of the car's VIN (Vehicle Identification Number). This is for informational purposes only. If you press the button, it will change what is displayed from the VIN to the car's software version. You can toggle this information back and forth at will. When you quit VisibleTesla it will remember what you were displaying and display that again when the app is launched again.
+            </p>
+            <p>
+                Note: Tesla has two numbering schemes for their software. They have the low level internal firmware version, and they have the "software version". When Tesla announces a new version (like 6.0), they're taling about the "software version". Under the covers there is a more detailed "firmware version". In fact, a single software version like 6.0 might (and often does) go through several firmware revisions. Even though Tesla talks publicly in terms of software versions, their systems speak only in terms of firmware versions. VisibleTesla keeps track of the correspondence between these and does the translation for you. If there is a new firmware release that VisibleTesla doesn't know about yet, it will display the firmware version rather than the software version. The full VIN and firmware version are also available in the Details dialog described below.
+            </p>
+            <p>
+                The next screen shot shows an information dialog that provides detailed information about your car. That dialog is displayed in response to pressing the <span class="ui">Details</span> button. If you scroll all the way to the bottom you will see a very long line of low level details. Unless you are technically curious or have been requested to provide debugging information, you can ignore this.
             </p>
             <p>
                 <img class="screenshot" src="../images/02a_Overview_Details.png">
             </p>
             <p>
-                The next screen shot shows the panoramic roof in the vented state. The user may vent, open, or close the panoramic roof using the buttons right above the roof. At the upper left of the Overview Tab is a button that displays the last six characters of the car's VIN (Vehicle Identification Number). This is for informational purposes only. If you press the button, it will change what is displayed from the VIN to the firmware version. You can toggle this information back and forth at will. When you quit VisibleTesla it will remember what you were displaying and display that again when the app is launched again. The full VIN and firmware version are also available in the Details dialog described above, but this makes them more readily available.  
+                The next screen shot shows the panoramic roof in the vented state. The user may vent, open, or close the panoramic roof using the buttons right above the roof.
             </p>
             <p>
                 <img class="screenshot" src="../images/03_Overview_Vented.png">

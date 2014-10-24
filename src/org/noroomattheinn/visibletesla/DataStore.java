@@ -7,15 +7,12 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Range;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,20 +43,6 @@ public abstract class DataStore implements StatsPublisher {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-    
-    public enum LoadPeriod {Last7, Last14, Last30, ThisWeek, ThisMonth, All, None};
-    
-    public static final BiMap<String,LoadPeriod> nameToLoadPeriod = HashBiMap.create();
-    static {
-        nameToLoadPeriod.put("Last 7 days", LoadPeriod.Last7);
-        nameToLoadPeriod.put("Last 14 days", LoadPeriod.Last14);
-        nameToLoadPeriod.put("Last 30 days", LoadPeriod.Last30);
-        nameToLoadPeriod.put("This week", LoadPeriod.ThisWeek);
-        nameToLoadPeriod.put("This month", LoadPeriod.ThisMonth);
-        nameToLoadPeriod.put("All", LoadPeriod.All);
-        nameToLoadPeriod.put("None", LoadPeriod.None);
-    }
-    
     public static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
     
 /*------------------------------------------------------------------------------
@@ -124,7 +107,7 @@ public abstract class DataStore implements StatsPublisher {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
                 appContext.persistentState.put(LastExportDirKey, enclosingDirectory);
-            Range<Long> exportPeriod = getExportPeriod();
+            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(appContext.stage);
             if (exportPeriod == null)
                 return;
             doExport(file, exportPeriod);
@@ -162,71 +145,6 @@ public abstract class DataStore implements StatsPublisher {
        return  Arrays.asList(publishedKeys);
     }
     
-/*------------------------------------------------------------------------------
- *
- * PROTECTED - Utility Methods for use by subclasses
- * 
- *----------------------------------------------------------------------------*/
-    
-    protected final Range<Long> getLoadPeriod() {
-        Range<Long> loadPeriod = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
-
-        long now = System.currentTimeMillis();
-        LoadPeriod period = nameToLoadPeriod.get(appContext.prefs.loadPeriod.get());
-        if (period == null) {
-            period = LoadPeriod.All;
-            appContext.prefs.loadPeriod.set(nameToLoadPeriod.inverse().get(period));
-        }
-        switch (period) {
-            case None:
-                loadPeriod = Range.closed(now + 1000, now + 1000L); // Empty Range
-                break;
-            case Last7:
-                loadPeriod = Range.closed(now - (7 * 24 * 60 * 60 * 1000L), now);
-                break;
-            case Last14:
-                loadPeriod = Range.closed(now - (14 * 24 * 60 * 60 * 1000L), now);
-                break;
-            case Last30:
-                loadPeriod = Range.closed(now - (30 * 24 * 60 * 60 * 1000L), now);
-                break;
-            case ThisWeek:
-                Range<Date> thisWeek = getThisWeek();
-                loadPeriod = Range.closed(
-                        thisWeek.lowerEndpoint().getTime(),
-                        thisWeek.upperEndpoint().getTime());
-                break;
-            case ThisMonth:
-                Range<Date> thisMonth = getThisMonth();
-                loadPeriod = Range.closed(
-                        thisMonth.lowerEndpoint().getTime(),
-                        thisMonth.upperEndpoint().getTime());
-                break;
-            case All:
-            default:
-                break;
-
-        }
-        return loadPeriod;
-    }
-    
-    protected final Range<Long> getExportPeriod() {
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-            getClass().getResource("dialogs/DateRangeDialog.fxml"),
-            "Date Range for Export", appContext.stage, null);
-        if (dc == null) return null;
-        DateRangeDialog drd = Utils.cast(dc);
-        if (drd.selectedAll()) {
-            return Range.closed(0L, Long.MAX_VALUE);
-        }
-        Calendar start = drd.getStartCalendar();
-        Calendar end = drd.getEndCalendar();
-        if (start == null) {
-            return null;
-        }
-        return Range.closed(start.getTimeInMillis(), end.getTimeInMillis());
-    }
-
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Methods related to loading existing samples
@@ -272,23 +190,6 @@ public abstract class DataStore implements StatsPublisher {
  * 
  *----------------------------------------------------------------------------*/
     
-    private Range<Date> getThisWeek() {
-        return getDateRange(Calendar.DAY_OF_WEEK);
-    }
-    
-    private Range<Date> getThisMonth() {
-        return getDateRange(Calendar.DATE);
-    }
-    
-    private Range<Date> getDateRange(int dateField) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(dateField, 1);
-        Date start = cal.getTime();
-        cal.set(dateField, cal.getActualMaximum(dateField));
-        Date end = cal.getTime();
-        return Range.closed(start, end);
-    }
-
     private void doExport(File file, Range<Long> exportPeriod) {
         NavigableMap<Long,Map<String,Double>> rowsForExport = loadForExport(exportPeriod);
         int columnNumberForExport = 0;

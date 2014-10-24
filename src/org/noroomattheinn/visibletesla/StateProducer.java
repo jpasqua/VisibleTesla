@@ -18,7 +18,7 @@ import org.noroomattheinn.utils.Utils;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class StateProducer extends Executor<StateProducer.Request> {
+public class StateProducer extends Executor<StateProducer.Request> {
     
 /*------------------------------------------------------------------------------
  *
@@ -42,8 +42,8 @@ class StateProducer extends Executor<StateProducer.Request> {
         super(ac, "StateProducer");
     }
     
-    public void produce(Vehicle.StateType whichState, boolean allowRetry, ProgressIndicator pi) {
-        super.produce(new Request(whichState, allowRetry, pi));
+    public void produce(Vehicle.StateType whichState, ProgressIndicator pi) {
+        super.produce(new Request(whichState, pi));
     }
         
 /*------------------------------------------------------------------------------
@@ -55,11 +55,7 @@ class StateProducer extends Executor<StateProducer.Request> {
     @Override  protected boolean requestSuperseded(Request r) {
         return r.timeOfRequest < lastProduced.get(r.stateType);
     }
-
-    @Override protected Request newRequest(Request basis, boolean allowRetry) {
-        return new Request(basis.stateType, allowRetry, basis.pi);
-    }
-
+    
     @Override protected boolean execRequest(Request r) {
         final BaseState state = appContext.vehicle.query(r.stateType);
         if (state.valid) {
@@ -75,10 +71,13 @@ class StateProducer extends Executor<StateProducer.Request> {
     public static class Request extends Executor.Request {
         public Vehicle.StateType stateType;
 
-        Request(Vehicle.StateType stateType, boolean allowRetry, ProgressIndicator pi) {
-            super(allowRetry, 20 * 1000, pi);
+        Request(Vehicle.StateType stateType, ProgressIndicator pi) {
+            super(pi);
             this.stateType = stateType;
         }
+        
+        @Override protected String getRequestName() { return stateType.name(); }
+        
     }
 }
 

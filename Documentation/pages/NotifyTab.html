@@ -103,10 +103,11 @@
 						<td>
 							Detect Charge Anomalies
 						</td>
-						<td>N/A
+						<td>
+							N/A
 						</td>
 						<td>
-							A notification will be sent if something odd happens during a charge cycle. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during the cycle. The drop must be sustained for a small number of minutes before a notification will be sent. The baseline from which the drop is detected is also established over a number of minutes. This notification will not be sent when using a supercharger since changes in current are normal. This feature is <strong>highly experimental</strong> since I have no way to safely recreate such a charge anomaly. 
+							A notification will be sent if something odd happens during a charge cycle. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during the cycle. The drop must be sustained for a small number of minutes before a notification will be sent. The baseline from which the drop is detected is also established over a number of minutes. This notification will not be sent when using a supercharger since changes in current are normal. This feature is <strong>highly experimental</strong> since I have no way to safely recreate such a charge anomaly.
 						</td>
 					</tr>
 					<tr>
@@ -155,7 +156,8 @@
 					</tr>
 				</tbody>
 			</table>
-			<p>Some readings can vary slightly over a short period of time which could, in theory, cause multiple notifications. For example, say that you asked to be notified whenever your SOC drops below 50%. If your SOC is hovering right around 50% and you fall below, you'll get a notification. If you go down a big hill and regeneration brings your SOC back up to 50%, you're likely to get another notification again very soon. VisibleTesla will avoid sending multiple redundant notifications in these cases.
+			<p>
+				Some readings can vary slightly over a short period of time which could, in theory, cause multiple notifications. For example, say that you asked to be notified whenever your SOC drops below 50%. If your SOC is hovering right around 50% and you fall below, you'll get a notification. If you go down a big hill and regeneration brings your SOC back up to 50%, you're likely to get another notification again very soon. VisibleTesla will avoid sending multiple redundant notifications in these cases.
 			</p>
 			<h2>
 				<a name="locs">Defining Locations</a>
@@ -194,7 +196,8 @@
 				VisibleTesla allows you to optionally specify the email address, subject and message body to use for each type of notification. The email address may be a comma-separated list of addresses if you'd like the message to go to more than one recipient.
 			</p>
 			<p>
-				Custom notifications can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for urgent notifications. For urgent notifications you could enter a text message address instead of your default email address. You could also use this feature if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.</p>
+				Custom notifications can be useful in a number of circumstances. For example, you may wish to use email notifications for most things, but use text messages for urgent notifications. For urgent notifications you could enter a text message address instead of your default email address. You could also use this feature if you wish to develop mail rules that kick off some activity based on a recipient email address and/or subject line.
+			</p>
 			<p>
 				To access these options, press the <span class="ui">+ button</span> at the far right of any notification definition. A dialog will pop up (see below) allowing you to specify an email address, subject, and message.
 			</p>
@@ -320,10 +323,10 @@
 				</tr>
 				<tr>
 					<td>
-						<code>{{LOC}}</code><BR>
+						<code>{{LOC}}</code><br>
 					</td>
 					<td>
-						The last known location of the vehicle. The location presented is derived by taking the last known latitude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitude and longitude will be presented. 
+						The last known location of the vehicle. The location presented is derived by taking the last known latitude and longitude and asking Google for the closest known address. If Google cannot produce a result, the raw latitude and longitude will be presented.
 					</td>
 				</tr>
 				<tr>
@@ -331,7 +334,7 @@
 						<code>{{I_MODE}}</code>
 					</td>
 					<td>
-						The app's inactivity mode, which could be <span class="ui">Stay Awake</span>, <span class="ui">Allow Daydreaming</span>, or <span class="ui">Allow Sleeping</span>. This corresponds to the setting of the <span class="ui">Options&rarr;Inactivity Mode</span> menu. 
+						The app's inactivity mode, which could be <span class="ui">Stay Awake</span>, <span class="ui">Allow Daydreaming</span>, or <span class="ui">Allow Sleeping</span>. This corresponds to the setting of the <span class="ui">Options→Inactivity Mode</span> menu.
 					</td>
 				</tr>
 				<tr>
@@ -398,7 +401,6 @@
 						Displays the last known odometer reading in the units set by the car (mi or km).
 					</td>
 				</tr>
-				</tr>
 				<tr>
 					<td></td>
 					<td>
@@ -410,22 +412,19 @@
 				Let's look at an example. Say we want to add a custom message to the <span class="ui">Charge State Becomes</span> notification. We want it to tell us the new charge state, the SOC, and the ideal and rated ranges. We could enter a message that looks like this:
 			</p>
 			<blockquote>
-				<code>
-					{{DATE}} {{TIME}}<br>
-					Charge State: {{CHARGE_STATE}}<br>
-					SOC: {{SOC}}%<br>
-					Range ({{D_UNITS}}): Rated={{RATED}}, Ideal={{IDEAL}}</code>
+				<code>{{DATE}} {{TIME}}<br>
+				Charge State: {{CHARGE_STATE}}<br>
+				SOC: {{SOC}}%<br>
+				Range ({{D_UNITS}}): Rated={{RATED}}, Ideal={{IDEAL}}</code>
 			</blockquote>
 			<p>
 				This might produce a message such as:
 			</p>
 			<blockquote>
-				<code>
-					2014-06-03 10:00:00<br />
-					Charge State: Complete<br />
-					SOC: 90%<br />
-					Range (mi): Rated=177, Ideal=184
-				</code>
+				<code>2014-06-03 10:00:00<br>
+				Charge State: Complete<br>
+				SOC: 90%<br>
+				Range (mi): Rated=177, Ideal=184</code>
 			</blockquote>
 			<p>
 				You can use as many or as few variables as you'd like and they don't have to be related to the particular type of notification. For example, you can include the estimated range and/or SOC in every notification that you send.
@@ -465,7 +464,8 @@
 			<h3>
 				Advanced Feature: Messages for use in custom html pages
 			</h3>
-			<p>Variables can also be used by custom pages generated by the built in <a href="OtherTopics.html#rest">web services</a>. These variables, listed and described in the table below, generate snippets of HTML rather than plain text. Of course the plain text variables listed above can also be used in html pages.
+			<p>
+				Variables can also be used by custom pages generated by the built in <a href="OtherTopics.html#rest">web services</a>. These variables, listed and described in the table below, generate snippets of HTML rather than plain text. Of course the plain text variables listed above can also be used in html pages.
 			</p>
 			<table class="grid_table">
 				<tr>
@@ -547,6 +547,48 @@
 			</p>
 			<p>
 				<strong>Security Note:</strong> Any information you enter in this field will be stored unencrypted on your computer's local disk. Be aware of that if you encode sensitive information into a URL.
+			</p>
+			<h2>
+				Executing a Command: Advanced Users Only
+			</h2>
+			<p>
+				When a notification occurs, VisibleTesla can exeute an arbitrary command rather than sending an email. This provides a very high degree of flexibility in what can be done as the result of a notification. The command executed by VisibleTesla could integrate with another service, log information, perform calculations - you name it.
+			</p>
+			<p>
+				You get to specify three things when setting up this type of notification:
+			</p>
+			<ol>
+				<li>The command name: [required] The command name is entered in the <span class="ui">EMail</span> field of the Notification Options dialog. It must be a fully qualified path to the command of interest. Make no assumptions about the working directory from which this command will be launched. The name of the command must be prefixed by <code>command:</code>. For example:
+					<blockquote>
+						<code>command:/usr/bin/curl</code>
+					</blockquote>
+				</li>
+				<li>Arguments: [optional] You may specify arguments to the command using the <span class="ui">Subject</span> field of the Notifications Options dialog. You may use VisibleTesla variables as described above. For example, you could enter:
+					<blockquote>
+						<code>power={{C_PWR}}</code>
+					</blockquote>
+				</li>
+				<li>Standard Input: [optional] If you'd like your command to receive input on stdin, you can specify it in the <span class="ui">Message</span> field of the Notifications Options dialog. You may use VisibleTesla variables as described above. For example, you could enter:
+					<blockquote>
+						<code>
+							{{DATE}} {{TIME}}<br>
+							Charge State: {{CHARGE_STATE}}<br>
+							SOC: {{SOC}}%<br>
+							Range ({{D_UNITS}}): Rated={{RATED}}, Ideal={{IDEAL}}
+						</code>
+					</blockquote>
+				</li>
+			</ol>
+			<p>
+				<strong>Notes</strong>: 
+				<ul>
+					<li>VisibleTesla will continue executing in parallel with your command. Your command will be launched in the background and VisibleTesla will immediately continue normal operation.</li>
+					<li>VisibleTesla will not check the result of your command or read any output it generates. If you wish to capture stdout or stderr, you should do that in your command. This may require that you wrap your command in a shell/bat script. In that case, specify the path to your script as the command name.
+					</li>
+					<li>VisibleTesla will give your command about a minute to execute. If it hasn't completed by then, the process will be killed.
+					</li>
+				</ul>
+				
 			</p>
 		</div>
 		<div id="footer"></div>

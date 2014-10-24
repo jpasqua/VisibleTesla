@@ -1,5 +1,5 @@
 /*
- * UnlockedTrigger.java - Copyright(c) 2014 Joe Pasqua
+ * StationaryTrigger.java - Copyright(c) 2014 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 2, 2014
  */
@@ -10,12 +10,12 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 
 /**
- * UnlockedTrigger: Determines whether the car has remained unlocked even after
- * it has been parked for a while.
+ * StationaryTrigger: Determines whether the car has remained stationary and
+ * in Park for a given period of time.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class UnlockedTrigger {
+public class StationaryTrigger {
     private long periodBegan;
     private final BooleanProperty isEnabled;
     private final ObjectProperty<BigDecimal> threshold;
@@ -24,17 +24,17 @@ public class UnlockedTrigger {
     /**
      * An object that monitors whether the doors have been forgotten unlocked
      * @param isEnabled A property that indicates whether this trigger is active
-     * @param threshold A period of time (in minutes) that the doors must have
-     *                  been unlocked before the trigger activates.
+     * @param threshold A period of time (in minutes) that the car must have
+     *                  been stationary before the trigger activates.
      */
-    public UnlockedTrigger(BooleanProperty isEnabled,
+    public StationaryTrigger(BooleanProperty isEnabled,
             ObjectProperty<BigDecimal> threshold) {
         this.threshold = threshold;
         this.isEnabled = isEnabled;
         this.periodBegan = -1;
     }
 
-    public boolean unlocked(double speed, String shiftState) {
+    public boolean evalPredicate(double speed, String shiftState) {
         if (!isEnabled.get()) return false;
         if (shiftState == null || shiftState.isEmpty()) shiftState = "P";
         if (speed > 0.0 || !shiftState.equals("P")) {
@@ -57,7 +57,6 @@ public class UnlockedTrigger {
     }
 
     private long thresholdInMillis() {
-        long millis = threshold.get().longValue() * (60 * 1000);
-        return millis;
+        return threshold.get().longValue() * (60 * 1000);
     }
 }

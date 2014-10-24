@@ -10,13 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -33,15 +30,16 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
+import static org.noroomattheinn.utils.Utils.sleep;
 import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
 import us.monoid.json.JSONObject;
 
 /**
- * VTUtils: Basic utilities for use by the app
+ * VTUtils: Basic utilities for use by the fxApp
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VTUtils implements Stoppable {
+public class VTUtils {
 
     
 /*------------------------------------------------------------------------------
@@ -68,7 +66,6 @@ public class VTUtils implements Stoppable {
     
     private final AppContext ac;
     private final Map<String,String> firmwareVersions;
-    private final Timer timer = new Timer();
     
 /*==============================================================================
  * -------                                                               -------
@@ -80,13 +77,6 @@ public class VTUtils implements Stoppable {
         this.ac = ac;
         firmwareVersions = new HashMap<>();
         loadFirmwareVersion(getClass().getResourceAsStream(FirmwareVersionsFile));
-        ac.tm.addStoppable((Stoppable)this);
-    }
-    
-    @Override public void stop() { timer.cancel(); }
-    
-    public void addTimedTask(TimerTask task, long delay) {
-        timer.schedule(task, delay);
     }
     
     public String getVersion(String firmwareVersion) {
@@ -103,7 +93,7 @@ public class VTUtils implements Stoppable {
         if (v == null) {
             v = firmwareVersion;
             // Avoid testing for new versions of the firmware mapping file every
-            // time around. We'll check again next time the app starts
+            // time around. We'll check again next time the fxApp starts
             firmwareVersions.put(firmwareVersion, v);
         }
         return v;
@@ -117,7 +107,7 @@ public class VTUtils implements Stoppable {
         try {
             File tempFile = File.createTempFile("VTTrip", ".html");
             FileUtils.write(tempFile, map);
-            ac.app.getHostServices().showDocument(tempFile.toURI().toString());
+            ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
         } catch (IOException ex) {
             Tesla.logger.warning("Unable to create temp file");
             // TO DO: Pop up a dialog!
@@ -136,7 +126,6 @@ public class VTUtils implements Stoppable {
         if (msg == null) {
             return true;
         }
-        Tesla.logger.fine("Notification: " + msg);
         if (addr == null || addr.length() == 0) {
             Tesla.logger.warning(
                     "Unable to send a notification because no address was specified: " + msg);
@@ -259,36 +248,53 @@ public class VTUtils implements Stoppable {
             }
         }
     }
-    
-    public Result cacheBasics() {
+    /**
+     * Make contact with the car for the first time. It may need to be woken up
+     * in the process. Since we need to do some command as part of this process,
+     * we grab the GUIState and store it away.
+     * @return 
+     */
+    private Result establishContact() {
         Vehicle v = ac.vehicle;
-        GUIState     gs;
-        VehicleState vs;
-        ChargeState  cs;
         
-        int tries = 0;
-        gs = v.queryGUI();
-        if (gs.valid) {
-            JSONObject result = gs.rawState;
-            if (result.optString("reason").equals("mobile_access_disabled")) {
-                return new Result(false, "mobile_access_disabled");
+        long MaxWaitTime = 70 * 1000;
+        long now = System.currentTimeMillis();
+        while (System.currentTimeMillis() - now < MaxWaitTime) {
+            if (ac.shuttingDown.get()) { return new Result(false, "shutting down"); }
+            GUIState gs = v.queryGUI();
+            if (gs.valid) {
+                if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
+                    return new Result(false, "mobile_access_disabled");
+                }
+                ac.lastKnownGUIState.set(gs);
+                return Result.Succeeded;
+            } else {
+                String error = gs.rawState.optString("error");
+                if (error.equals("vehicle unavailable")) { v.wakeUp(); sleep(10 * 1000); }
+                else { sleep(5 * 1000); } // It's a timeout or some other error
             }
         }
-        vs = v.queryVehicle();
-        cs = v.queryCharge();
-        while (!(gs.valid && vs.valid && cs.valid)) {
+        return Result.Failed;
+    }
+    
+    public Result cacheBasics() {
+        Result madeContact = establishContact();
+        if (!madeContact.success) return madeContact;
+        
+        // As part of establishing contact with the car we cached the GUIState
+        Vehicle         v = ac.vehicle;
+        VehicleState    vs = v.queryVehicle();
+        ChargeState     cs = v.queryCharge();
+        
+        int tries = 0;
+        while (!(vs.valid && cs.valid)) {
             if (tries++ > MaxTriesToStart) { return Result.Failed; }
-            
-            v.wakeUp();
-            Utils.sleep(10000);
+            sleep(5 * 1000);
             if (ac.shuttingDown.get()) return Result.Failed;
-            
-            if (!gs.valid) gs = v.queryGUI();
             if (!vs.valid) vs = v.queryVehicle();
             if (!cs.valid) cs = v.queryCharge();
         }
         
-        ac.lastKnownGUIState.set(gs);
         ac.lastKnownVehicleState.set(vs);
         ac.lastKnownChargeState.set(cs);
         return Result.Succeeded;
@@ -317,8 +323,7 @@ public class VTUtils implements Stoppable {
     public void remoteStart(final String password) {
         ac.issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { 
-                Result r = ac.vehicle.remoteStart(password); 
-                return r;
+                return ac.vehicle.remoteStart(password); 
             } },
             true, null);
     }
@@ -331,7 +336,7 @@ public class VTUtils implements Stoppable {
             @Override public void run() {
                 while (ac.vehicle.isAsleep()) {
                     if (ac.shuttingDown.get()) break;
-                    Utils.sleep(TestSleepInterval);
+                    sleep(TestSleepInterval);
                     if (ac.shuttingDown.get()) return;
                 }
                 forceWakeup.set(false);
@@ -343,45 +348,18 @@ public class VTUtils implements Stoppable {
         forceWakeup.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                if (t1) {
-                    pollThread.interrupt();
-                }
+                if (t1) { pollThread.interrupt(); }
             }
         });
+    }
+
+    public void sleep(long timeInMillis) {
+        Utils.sleep(timeInMillis,  new Utils.Predicate() {
+            @Override public boolean eval() { return ac.shuttingDown.get(); } });
     }
     
     public final String vinBased(String key) { return ac.vehicle.getVIN() + "_" + key; }
 
-    public static class StateTracker<T> {
-        private class Tracker {
-            boolean runLater;
-            Runnable r;
-            Tracker(Runnable r, boolean later) { this.r = r; this.runLater = later; }
-        }
-        private final List<Tracker> trackers;
-        private T val;
-        
-        private StateTracker() { this(null); }
-        
-        public StateTracker(T initialVal) {
-            trackers = new ArrayList<>(4);
-            val = initialVal;
-        }
-        
-        public T get() { return val; }
-        public void set(T newVal) {
-            this.val = newVal;
-            for (Tracker tracker : trackers) {
-                if (tracker.runLater) Platform.runLater(tracker.r);
-                else tracker.r.run();
-            }
-        }
-        
-        public void addTracker(boolean runLater, Runnable r) {
-            trackers.add(new Tracker(r, runLater));
-        }
-    }
-    
     private void loadFirmwareVersion(InputStream is) {
         Properties p = new Properties();
         try {
@@ -393,5 +371,4 @@ public class VTUtils implements Stoppable {
             Tesla.logger.warning("Couldn't load firmware versions property file: " + ex);
         }
     }
-    
 }

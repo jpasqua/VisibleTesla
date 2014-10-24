@@ -9,6 +9,7 @@ package org.noroomattheinn.visibletesla;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import javafx.event.ActionEvent;
@@ -56,7 +57,7 @@ abstract class BaseController {
     private static long lastRefreshTime;
     
     protected boolean       initialized = false;    // Has this controller been init'd?
-    protected AppContext    appContext;             // The overall app context
+    protected AppContext    ac;                     // The overall app context
     
 /*------------------------------------------------------------------------------
  *
@@ -83,17 +84,17 @@ abstract class BaseController {
     }
     
     /**
-     * This is called ONE TIME at startup to establish the appContext
+     * This is called ONE TIME at startup to establish the ac
      * in which we are running. In order to keep the lower level controller
-     * classes independent of the main application, we need to "inject" the app
+     * classes independent of the main application, we need to "inject" the fxApp
      * context into the controllers rather than have them know about the top
-     * level app class.
+     * level fxApp class.
      * 
      * Subclasses may override appInitialize if they want to do something
-     * once the appContext is set (not true at fxInitialize() time)
+     * once the ac is set (not true at fxInitialize() time)
      */
     public final void setAppContext(AppContext ctxt) {
-        this.appContext = ctxt;
+        this.ac = ctxt;
     }
     
     /**
@@ -103,9 +104,9 @@ abstract class BaseController {
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
-        if (appContext.inactivity.isSleeping()) {
-            if (appContext.prefs.wakeOnTabChange.get()) {
-                appContext.inactivity.wakeup();
+        if (ac.inactivity.isSleeping()) {
+            if (ac.prefs.wakeOnTabChange.get()) {
+                ac.inactivity.wakeup();
                 doRefresh();
             }
         } else {
@@ -166,13 +167,18 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/    
 
     protected final void issueCommand(Callable<Result> c) {
-        appContext.issuer.issueCommand(c, true, progressIndicator);
+        ac.issuer.issueCommand(c, true, progressIndicator);
     }
     
     protected final void updateState(Vehicle.StateType whichState) {
-        appContext.stateProducer.produce(whichState, true, progressIndicator);
+        ac.stateProducer.produce(whichState, progressIndicator);
     }
 
+    protected final void updateStateLater(final Vehicle.StateType whichState, long delay) {
+        ac.tm.addTimedTask(new TimerTask() {
+            @Override public void run() { updateState(whichState);  } }, delay);
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Utility Methods for use by subclasses
@@ -196,7 +202,7 @@ abstract class BaseController {
         for (ImageView image: images) { image.setVisible(true); }
     }
       
-    protected final String vinBased(String key) { return appContext.utils.vinBased(key); }
+    protected final String vinBased(String key) { return ac.utils.vinBased(key); }
     
     protected final boolean active() { return activeController == this; }
     

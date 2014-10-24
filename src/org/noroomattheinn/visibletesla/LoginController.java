@@ -18,13 +18,14 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import org.noroomattheinn.tesla.Result;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
  * This controller allows the user to login and logout. The "logged-in" state
  * can be monitored by observing the loginCompleteProperty.
  * 
  * After a successful login, this controller also fetches the GUIState and
- * VehicleState and caches them in the appContext. Other components may use
+ * VehicleState and caches them in the ac. Other components may use
  * these cached values but must understand that they are not updated - they
  * represent a snapshot of the values when the user logged in.
  * 
@@ -52,7 +53,7 @@ public class LoginController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    public VTUtils.StateTracker<Boolean> loggedIn = new VTUtils.StateTracker<>(false);
+    public TrackedObject<Boolean> loggedIn = new TrackedObject<>(false);
     
 /*------------------------------------------------------------------------------
  *
@@ -62,38 +63,18 @@ public class LoginController extends BaseController {
 
     @FXML private Label loggedInName;
     @FXML private Button loginButton;
-    @FXML private Button logoutButton;
     @FXML private PasswordField passwordField;
     @FXML private TextField usernameField;
     @FXML private ImageView loggedInImage;
     @FXML private Label loggedInStatus;
     @FXML private CheckBox rememberMe;
-    
-/*==============================================================================
- * -------                                                               -------
- * -------              Public Interface To This Class                   ------- 
- * -------                                                               -------
- *============================================================================*/
-    
-    void start() {
-
-    }
-    
-    boolean loggedIn() { return loggedIn.get(); }
-    
+        
 /*------------------------------------------------------------------------------
  *
  *  UI Action Handlers
  * 
  *----------------------------------------------------------------------------*/
     
-    @FXML void logoutAction(ActionEvent event) {
-        loggedIn.set(false);
-        usernameField.setText("");
-        passwordField.setText("");
-        reflectLoginState();
-    }
-
     @FXML void loginAction(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
@@ -105,10 +86,8 @@ public class LoginController extends BaseController {
     }
     
     @FXML void rememberMeHandler(ActionEvent event) {
-        appContext.persistentState.putBoolean(RememberMePrefKey, rememberMe.isSelected());
-        if (!rememberMe.isSelected()) {
-            appContext.persistentState.remove(AuthTokenKey);
-        }
+        ac.persistentState.putBoolean(RememberMePrefKey, rememberMe.isSelected());
+        if (!rememberMe.isSelected()) { ac.persistentState.remove(AuthTokenKey); }
     }
 
 /*------------------------------------------------------------------------------
@@ -125,10 +104,10 @@ public class LoginController extends BaseController {
     @Override protected void refresh() { }
     
     @Override protected void initializeState() {
-        Boolean rememberPref = appContext.persistentState.getBoolean(RememberMePrefKey, false);
+        Boolean rememberPref = ac.persistentState.getBoolean(RememberMePrefKey, false);
         rememberMe.setSelected(rememberPref);
 
-        String username = rememberPref ? appContext.persistentState.get(UsernameKey, null) : null;
+        String username = rememberPref ? ac.persistentState.get(UsernameKey, null) : null;
         if (username != null) usernameField.setText(username);
     }
     
@@ -155,8 +134,6 @@ public class LoginController extends BaseController {
         
         loginButton.setDisable(loggedIn);
         loginButton.setDefaultButton(!loggedIn);
-        
-        logoutButton.setDisable(!loggedIn);
     }
     
     private void reflectLoginState() {
@@ -171,12 +148,11 @@ public class LoginController extends BaseController {
     }
     
     private void showLoginSucceeded() {
-        showLoginUI("Logged in as:", appContext.tesla.getUsername(), true);
+        showLoginUI("Logged in as:", ac.tesla.getUsername(), true);
     }
     
     private void showAutoLoginUI() {
         showLoginUI("Attempting Automatic Login", "", false);
-        logoutButton.setDisable(true);
     }
     
 /*------------------------------------------------------------------------------
@@ -186,7 +162,8 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void attemptLogin(String username, String password) {
-        issueCommand(new AttemptLogin(username, password));
+        ac.issuer.issueCommand(
+                new AttemptLogin(username, password), false, progressIndicator);
     }
 
     private class AttemptLogin implements Callable<Result> {
@@ -201,26 +178,26 @@ public class LoginController extends BaseController {
             boolean succeeded;
             
             if (password == null) {  // Try auto login
-                String authToken = appContext.persistentState.get(AuthTokenKey, null);
+                String authToken = ac.persistentState.get(AuthTokenKey, null);
                 succeeded = (authToken == null) ? false :
-                        appContext.tesla.connectWithToken(username, authToken);
+                        ac.tesla.connectWithToken(username, authToken);
             } else {   // Login with the specified username and password
-                succeeded = appContext.tesla.connect(username, password);
+                succeeded = ac.tesla.connect(username, password);
                 if (!succeeded) {
                     Platform.runLater(new Runnable() {
                         @Override public void run() {
                             Dialogs.showErrorDialog(
-                                    appContext.stage,
+                                    ac.stage,
                                     "Remember to use your email address as your username",
                                     "Login failed - Please check your credentials",
                                     "Problem logging in");
                         }
                     });
                 } else {
-                    String authToken = appContext.tesla.getToken();
+                    String authToken = ac.tesla.getToken();
                     if (rememberMe.isSelected()) {
-                        appContext.persistentState.put(AuthTokenKey, authToken);
-                        appContext.persistentState.put(UsernameKey, username);
+                        ac.persistentState.put(AuthTokenKey, authToken);
+                        ac.persistentState.put(UsernameKey, username);
                     }
                 }
             }

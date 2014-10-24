@@ -20,23 +20,22 @@
             <p>
                 When you launch the app you'll start out in the Login Tab. The other tabs will be disabled until you log in. The first time you use the app you'll need to enter the same username and password you use with the iPhone or Android app. If you'd like the app to remember you so you won't have to re-enter your details every time, check the "Remember Me" box before clicking the "Login" button. On subsequent runs of the app, you won't need to enter your credentials.
             </p>
-            <p>Once VisibleTesla successfully logs in, you'll see the Tesla logo goes from a grayed-out look to the normal appearance shown in the screen shot below. After the login process completes, VisibleTesla will automatically switch to the <a href="OverviewTab.html">Overview Tab</a>. This may not happen immediately because VisibleTesla first queries your car for some basic information that will be used throughout the application. For example, it determines what units are being used in the car (e.g. Miles or Kilometers).</p>
+            <p>Once VisibleTesla successfully logs in, you'll see that the Tesla logo goes from a grayed-out look to the normal appearance shown in the screen shot below. After the login process completes, VisibleTesla will automatically switch to the <a href="OverviewTab.html">Overview Tab</a>. This may not happen immediately because VisibleTesla first queries your car for some basic information that will be used throughout the application. For example, it determines what units are being used in the car (e.g. Miles or Kilometers).</p>
             <img class="screenshot" src="../images/01_Login_Tab.png" alt="Login Tab" />
             <p>
                 Notes:
             </p>
             <ul>
-                <li>Even if you use the "Remember Me" feature, your username and password will not be stored on your computer. Instead, the app will store "cookies" which contain encoded information from Tesla. The cookies are stored in a file called cookies.txt. You should not share that file with others. Even though it does not contain your password, it can be used by others to connect to your car.
+                <li>Even if you use the "Remember Me" feature, your password will not be stored on your computer. Instead, the app will store an authorization token sent by Tesla. This token is stored locally on your computer in one of VisibleTesla's data files. Even though it does not contain your password, you should not share it.
                 </li>
-                <li>If you don't want a cookies file to be created, don't check the "Remember Me" box. It is also perfectly fine to delete the <span tip="It's stored in the same folder as VisibleTesla.jar" class="tooltip">cookies.txt file</span>.
+                <li>If you don't want this token stored on your computer, don't check the "Remember Me" box.
                 </li>
                 <li>All communication between the app and Tesla are encrypted including the login process.
                 </li>
-                <li>If you logout of the application, you'll need to re-enter your credentials to use the app again.
-                </li>
+                <li>You don't need to log out of the application. Just quit by closing the main window or choosing <span class="ui">File&rarr;Close</span>.</li>
             </ul>
             <p>
-                If you are lucky enough to own more than one Tesla, you'll need to select which one you want to use. After VisibleTesla has successfully logged in it checks to see if you have more than one car. If you do, a dialog will pop up with a list of your vehicles. Choose the vehicle you're interested in and hit OK. At the moment you must quit the app and restart to use another vehicle.
+                After VisibleTesla has successfully logged in it checks to see if you have more than one car. If you are lucky enough to own more than one Tesla, you'll need to select which one you want to use from a pop up list of your vehicles. Choose the vehicle you're interested in and hit OK. To choose another car, you must quit and restart.
             </p>
         </div>
         <div id="footer"></div>

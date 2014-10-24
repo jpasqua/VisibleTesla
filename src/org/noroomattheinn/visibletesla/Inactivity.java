@@ -20,11 +20,10 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.utils.Utils;
 
 
 /**
- * Inactivity: All things related to the inactivity mode and state of the app
+ * Inactivity: All things related to the inactivity mode and state of the fxApp
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -159,7 +158,7 @@ public class Inactivity {
     class InactivityThread implements Runnable {
         @Override public void run() {
             while (true) {
-                Utils.sleep(60 * 1000);
+                appContext.utils.sleep(60 * 1000);
                 if (appContext.shuttingDown.get())
                     return;
                 long idleThreshold = appContext.prefs.idleThresholdInMinutes.get() * 60 * 1000;

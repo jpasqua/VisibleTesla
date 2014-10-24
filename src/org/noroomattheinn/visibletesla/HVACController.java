@@ -84,7 +84,7 @@ public class HVACController extends BaseController {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
                 Result r = v.setAC(hvacOnButton.isSelected());
-                updateState(Vehicle.StateType.HVAC);
+                updateStateLater(Vehicle.StateType.HVAC, 5 * 1000);
                 return r;
             } });
     }
@@ -104,7 +104,7 @@ public class HVACController extends BaseController {
             @Override public Result call() {
                 Result r = (setF) ? v.setTempF(temp, temp)
                                   : v.setTempC(temp, temp);
-                updateState(Vehicle.StateType.HVAC);
+                updateStateLater(Vehicle.StateType.HVAC, 5 * 1000);
                 return r;
             } });
     }
@@ -118,8 +118,8 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @Override protected void initializeState() {
-        v = appContext.vehicle;
-        appContext.lastKnownHVACState.addListener(new ChangeListener<HVACState>() {
+        v = ac.vehicle;
+        ac.lastKnownHVACState.addListener(new ChangeListener<HVACState>() {
             @Override public void changed(ObservableValue<? extends HVACState> ov,
                 HVACState old, HVACState cur) {
                 if (active()) { reflectNewState(); }
@@ -127,23 +127,23 @@ public class HVACController extends BaseController {
         });
         
         getAppropriateBody();   // Get the body image that matches the wheels
-        appContext.prefs.overideWheelsTo.addListener(new ChangeListener<String>() {
+        ac.prefs.overideWheelsTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        appContext.prefs.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
+        ac.prefs.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        useDegreesF = appContext.utils.useDegreesF();
+        useDegreesF = ac.utils.useDegreesF();
     }
     
     @Override protected void activateTab() {
-        useDegreesF = appContext.utils.useDegreesF();
+        useDegreesF = ac.utils.useDegreesF();
         if (useDegreesF) {
             tempSlider.setMin(62);
             tempSlider.setMax(90);
@@ -190,7 +190,7 @@ public class HVACController extends BaseController {
         // you whether the AC is running - not the heat. Until I determine a better
         // way, I'm using the fan speed to indicate whether the HVAC is on and using
         // the temp vs. temp set point to determine whether it is heating or cooling.
-        HVACState hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = ac.lastKnownHVACState.get();
         boolean hvacOn = (hvac.fanStatus > 0);
         hvacOnButton.setSelected(hvacOn);
         hvacOffButton.setSelected(!hvacOn);
@@ -208,7 +208,7 @@ public class HVACController extends BaseController {
         fan2.setVisible(false); fan3.setVisible(false); fan4.setVisible(false);
         
         // Now turn on the right one...
-        int fanSpeed = appContext.lastKnownHVACState.get().fanStatus;   // Range of 0-7
+        int fanSpeed = ac.lastKnownHVACState.get().fanStatus;   // Range of 0-7
         if (fanSpeed >= 6) fan4.setVisible(true);
         else if (fanSpeed >= 4) fan3.setVisible(true);
         else if (fanSpeed >= 2) fan2.setVisible(true);
@@ -217,19 +217,19 @@ public class HVACController extends BaseController {
     }
     
     private void reflectDefrosterState() {
-        HVACState hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = ac.lastKnownHVACState.get();
         setOptionState(hvac.isFrontDefrosterOn != 0, frontDefOnImg, frontDefOffImg);
         setOptionState(hvac.isRearDefrosterOn, rearDefOnImg, rearDefOffImg);
     }
     
     private void reflectActualTemps() {
-        HVACState hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = ac.lastKnownHVACState.get();
         setTempLabel(insideTmpLabel, hvac.insideTemp);
         setTempLabel(outsideTempLabel, hvac.outsideTemp);
     }
     
     private void updateCoolHotImages() {
-        HVACState hvac = appContext.lastKnownHVACState.get();
+        HVACState hvac = ac.lastKnownHVACState.get();
         climateColdImg.setVisible(false);
         climateHotImg.setVisible(false);
         
@@ -259,7 +259,7 @@ public class HVACController extends BaseController {
     private static final String ImagePrefix = "org/noroomattheinn/TeslaResources/";
     private void getAppropriateBody() {
         ClassLoader cl = getClass().getClassLoader();
-        Options.WheelType wt = appContext.utils.computedWheelType();
+        Options.WheelType wt = ac.utils.computedWheelType();
         String image;
         
         switch (wt) {

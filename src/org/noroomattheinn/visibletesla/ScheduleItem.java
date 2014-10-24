@@ -29,6 +29,7 @@ import javafx.scene.layout.HBox;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
+import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
 
 
 
@@ -483,56 +484,5 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     }
     
     
-}
-
-
-/*------------------------------------------------------------------------------
- *
- * Private Utility Classes
- * 
- *----------------------------------------------------------------------------*/
-
-class TimeSelector {
-    ComboBox<String> hour;
-    ComboBox<String> min;
-    ComboBox<String> amPM;
-
-    TimeSelector(ComboBox<String> hour, ComboBox<String> min, ComboBox<String> amPM) {
-        this.hour = hour; this.min = min; this.amPM = amPM;
-    }
-
-    void enable(boolean enable) {
-        hour.setDisable(!enable);
-        min.setDisable(!enable);
-        amPM.setDisable(!enable);
-    }
-    
-    int getHoursAndMinutes() {
-        int h = Integer.valueOf(hour.getValue());
-        int m = Integer.valueOf(min.getValue());
-        if (amPM.getValue().equals("PM")) {
-            if (h != 12)
-                h = (h + 12) % 24;
-        } else {    // It's AM
-            if (h == 12)
-                h = 0;
-        }
-        return h * 100 + m;
-    }
-
-    void setHoursAndMinutes(int hhmm) {
-        int hours = hhmm / 100;
-        int minutes = hhmm % 100;
-        minutes = (minutes/5) * 5;
-        boolean isPM = (hours >= 12);
-        if (hours == 0) {
-            hours = 12;
-        }
-        if (isPM && !(hours == 12))
-            hours -= 12;
-        hour.getSelectionModel().select(String.format("%02d", hours));
-        min.getSelectionModel().select(String.format("%02d", minutes));
-        amPM.getSelectionModel().select(isPM ? "PM" : "AM");
-    }
 }
 

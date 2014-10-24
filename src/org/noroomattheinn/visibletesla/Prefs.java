@@ -5,15 +5,23 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Range;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.PWUtils;
 
 /**
@@ -22,9 +30,39 @@ import org.noroomattheinn.utils.PWUtils;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class Prefs {
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    public enum LoadPeriod {Last7, Last14, Last30, ThisWeek, ThisMonth, All, None};
+    
+    public static final BiMap<String,LoadPeriod> nameToLoadPeriod = HashBiMap.create();
+    static {
+        nameToLoadPeriod.put("Last 7 days", LoadPeriod.Last7);
+        nameToLoadPeriod.put("Last 14 days", LoadPeriod.Last14);
+        nameToLoadPeriod.put("Last 30 days", LoadPeriod.Last30);
+        nameToLoadPeriod.put("This week", LoadPeriod.ThisWeek);
+        nameToLoadPeriod.put("This month", LoadPeriod.ThisMonth);
+        nameToLoadPeriod.put("All", LoadPeriod.All);
+        nameToLoadPeriod.put("None", LoadPeriod.None);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
     
     private final AppContext appContext;
     
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+
     public Prefs(AppContext ac) {
         appContext = ac;
         loadGeneralPrefs();
@@ -106,7 +144,7 @@ public class Prefs {
         integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
         booleanPref(WakeOnTCKey, wakeOnTabChange, true);
         stringPref(NotifyAddressKey, notificationAddress, "");
-        stringPref(GraphPeriodPrefKey, loadPeriod, StatsStore.LoadPeriod.All.name());
+        stringPref(GraphPeriodPrefKey, loadPeriod, LoadPeriod.All.name());
         stringPref(OverviewRangeKey, overviewRange, "Rated");
         // ----- Advanced Preferences
         booleanPref(OfferExpKey, offerExperimental, false);
@@ -139,21 +177,73 @@ public class Prefs {
         booleanPref(ORRoofActiveKey, overideRoofActive, false);
     }
     
+    
+    protected final Range<Long> getLoadPeriod() {
+        Range<Long> range = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
+
+        long now = System.currentTimeMillis();
+        LoadPeriod period = nameToLoadPeriod.get(loadPeriod.get());
+        if (period == null) {
+            period = LoadPeriod.All;
+            loadPeriod.set(nameToLoadPeriod.inverse().get(period));
+        }
+        switch (period) {
+            case None:
+                range = Range.closed(now + 1000, now + 1000L); // Empty Range
+                break;
+            case Last7:
+                range = Range.closed(now - (7 * 24 * 60 * 60 * 1000L), now);
+                break;
+            case Last14:
+                range = Range.closed(now - (14 * 24 * 60 * 60 * 1000L), now);
+                break;
+            case Last30:
+                range = Range.closed(now - (30 * 24 * 60 * 60 * 1000L), now);
+                break;
+            case ThisWeek:
+                Range<Date> thisWeek = getThisWeek();
+                range = Range.closed(
+                        thisWeek.lowerEndpoint().getTime(),
+                        thisWeek.upperEndpoint().getTime());
+                break;
+            case ThisMonth:
+                Range<Date> thisMonth = getThisMonth();
+                range = Range.closed(
+                        thisMonth.lowerEndpoint().getTime(),
+                        thisMonth.upperEndpoint().getTime());
+                break;
+            case All:
+            default:
+                break;
+
+        }
+        return range;
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Preferences related to the Graphs Tab
  * 
  *----------------------------------------------------------------------------*/
      
-    public BooleanProperty  ignoreGraphGaps         = new SimpleBooleanProperty();
-    public IntegerProperty  graphGapTime            = new SimpleIntegerProperty();
+    public BooleanProperty  ignoreGraphGaps = new SimpleBooleanProperty();
+    public IntegerProperty  graphGapTime    = new SimpleIntegerProperty();
+    public BooleanProperty  vsLimitEnabled  = new SimpleBooleanProperty();
+    public ObjectProperty<CalTime>   vsFrom = new SimpleObjectProperty<>();
+    public ObjectProperty<CalTime>   vsTo   = new SimpleObjectProperty<>();
     private static final String GraphIgnoreGapsKey  = "GRAPH_GAP_IGNORE";
     private static final String GraphGapTimeKey     = "GRAPH_GAP_TIME";
-
+    private static final String VSLimitEnabledKey   = "VS_LIMIT_ENABLED";
+    private static final String VSFromKey           = "VS_FROM";
+    private static final String VSToKey             = "VS_TO";
     
     private void loadGraphPrefs() {
         booleanPref(GraphIgnoreGapsKey, ignoreGraphGaps, false);
-        integerPref(GraphGapTimeKey, graphGapTime, 15); // 15 minutes        
+        integerPref(GraphGapTimeKey, graphGapTime, 15); // 15 minutes 
+        
+        booleanPref(VSLimitEnabledKey, vsLimitEnabled, false);
+        calTimePref(VSFromKey, vsFrom, new CalTime("10^00^PM"));
+        calTimePref(VSToKey,   vsTo,   new CalTime("06^00^AM"));
     }
     
 /*------------------------------------------------------------------------------
@@ -190,7 +280,7 @@ public class Prefs {
     
     private void loadLocationPrefs() {
         booleanPref(LocCollectData, collectLocationData, true);
-        booleanPref(LocStreamMore, streamWhenPossible, false);
+        booleanPref(LocStreamMore, streamWhenPossible, true);
         integerPref(LocMinTime, locMinTime, 5); // 5 Seconds
         integerPref(LocMinDist, locMinDist, 5); // 5 Meters
     }
@@ -232,5 +322,39 @@ public class Prefs {
         });
     }
     
-}
+    
+    private void calTimePref(final String key, ObjectProperty<CalTime> property, CalTime defaultValue) {
+        String initial = appContext.persistentState.get(key, defaultValue.toString());
+        property.set(new CalTime(initial));
+        property.addListener(new ChangeListener<CalTime>() {
+            @Override public void changed(
+                ObservableValue<? extends CalTime> ov, CalTime old, CalTime cur) {
+                    appContext.persistentState.put(key, cur.toString());
+            }
+        });
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private Range<Date> getThisWeek() {
+        return getDateRange(Calendar.DAY_OF_WEEK);
+    }
+    
+    private Range<Date> getThisMonth() {
+        return getDateRange(Calendar.DATE);
+    }
+    
+    private Range<Date> getDateRange(int dateField) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(dateField, 1);
+        Date start = cal.getTime();
+        cal.set(dateField, cal.getActualMaximum(dateField));
+        Date end = cal.getTime();
+        return Range.closed(start, end);
+    }
 
+}

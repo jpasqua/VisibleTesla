@@ -41,6 +41,7 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
  * AppContext - Stores application-wide state for use by all of the individual
@@ -73,34 +74,36 @@ public class AppContext {
  * 
  *----------------------------------------------------------------------------*/
     
-    public final Application app;
+    public final Application fxApp;
+    public final Tesla tesla;
     public final Stage stage;
     public final Preferences persistentState;
     public final Prefs prefs;
-    public Vehicle vehicle = null;
     public final VTUtils utils;
     public final ThreadManager tm;
-    public Inactivity inactivity;
-    public Tesla tesla;
+    public final Inactivity inactivity;
     public final BooleanProperty shuttingDown;
-    public ObjectProperty<ChargeState> lastKnownChargeState;
-    public ObjectProperty<DriveState> lastKnownDriveState;
-    public ObjectProperty<GUIState> lastKnownGUIState;
-    public ObjectProperty<HVACState> lastKnownHVACState;
-    public ObjectProperty<StreamState> lastKnownStreamState;
-    public ObjectProperty<VehicleState> lastKnownVehicleState;
-    public VTUtils.StateTracker<String> schedulerActivity;
+    public final ObjectProperty<ChargeState> lastKnownChargeState;
+    public final ObjectProperty<DriveState> lastKnownDriveState;
+    public final ObjectProperty<GUIState> lastKnownGUIState;
+    public final ObjectProperty<HVACState> lastKnownHVACState;
+    public final ObjectProperty<StreamState> lastKnownStreamState;
+    public final ObjectProperty<VehicleState> lastKnownVehicleState;
+    public final MailGun mailer;
+    public final TrackedObject<String> schedulerActivity;
+    public final VampireStats vampireStats;
+    public Vehicle vehicle = null;
     public LocationStore locationStore;
     public StatsStore statsStore;
-    public VampireStats vampireStats;
-    public StreamProducer snapshotProducer;
+    public ChargeStore chargeStore;
+    public StreamProducer streamProducer;
     public StatsStreamer statsStreamer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
     public byte[] restEncPW, restSalt;
-    public MailGun mailer = null;
     public String uuidForVehicle;
-    
+    public ObjectProperty<ChargeMonitor.Cycle> lastChargeCycle;
+     
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -118,7 +121,7 @@ public class AppContext {
  *============================================================================*/
     
     AppContext(Application app, Stage stage) {
-        this.app = app;
+        this.fxApp = app;
         this.stage = stage;
         this.persistentState = Preferences.userNodeForPackage(this.getClass());
         
@@ -133,7 +136,7 @@ public class AppContext {
         this.lastKnownHVACState = new SimpleObjectProperty<>();
         this.lastKnownStreamState = new SimpleObjectProperty<>();
         this.lastKnownVehicleState = new SimpleObjectProperty<>();
-        this.schedulerActivity = new VTUtils.StateTracker<>("");
+        this.schedulerActivity = new TrackedObject<>("");
 
         // Establish the prefs first, they are used be code below
         this.prefs = new Prefs(this);
@@ -147,7 +150,7 @@ public class AppContext {
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : MailGunKey);
         issuer = new CommandIssuer(this);
-
+        vampireStats = new VampireStats(this);
     }
 
     public boolean lockAppInstance() {
@@ -157,6 +160,7 @@ public class AppContext {
     public void prepForVehicle(Vehicle v) {
         vehicle = v;
 
+        lastChargeCycle = (new ChargeMonitor(this).lastChargeCycle);
         try {
             locationStore = new LocationStore(
                     this, new File(appFilesFolder, v.getVIN() + ".locs.log"));
@@ -164,6 +168,8 @@ public class AppContext {
             statsStore = new StatsStore(
                     this, new File(appFilesFolder, v.getVIN() + ".stats.log"));
             addStatPublisher(statsStore);
+            chargeStore = new ChargeStore(
+                    this, new File(appFilesFolder, v.getVIN() + ".charge.json"));
         } catch (IOException e) {
             Tesla.logger.severe("Unable to establish repository: " + e.getMessage());
             Dialogs.showErrorDialog(stage,
@@ -175,15 +181,12 @@ public class AppContext {
                     "Problem accessing data files", "Problem launching application");
             Platform.exit();
         }
-
+        
         uuidForVehicle = DigestUtils.sha256Hex(vehicle.getVIN());   
 
-        snapshotProducer = new StreamProducer(this);
+        streamProducer = new StreamProducer(this);
         stateProducer = new StateProducer(this);
-
         statsStreamer = new StatsStreamer(this);
-        
-        vampireStats = new VampireStats(this);
 
         (restServer = new RESTServer(this)).launch();
         tm.addStoppable(restServer);

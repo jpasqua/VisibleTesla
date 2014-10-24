@@ -44,7 +44,7 @@ public class DeviationTrigger {
      *                  false: The sample doesn't deviate significantly or the
      *                  baseline is still being formed.
      */
-    public boolean handleSample(double sample) {
+    public boolean evalPredicate(double sample) {
         if (sample <= 0) {
             resetBaseline();
             return false;

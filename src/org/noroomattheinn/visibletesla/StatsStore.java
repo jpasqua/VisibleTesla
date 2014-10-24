@@ -107,7 +107,7 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
             }
         });
         
-        load(getLoadPeriod());
+        load(appContext.prefs.getLoadPeriod());
     }
     
     @Override public void stop() { close(); }

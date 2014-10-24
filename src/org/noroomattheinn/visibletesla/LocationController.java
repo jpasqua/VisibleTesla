@@ -78,9 +78,9 @@ public class LocationController extends BaseController {
 
     @FXML void launchButtonHandler(ActionEvent event) {
         // TITLE, ZOOM, LAT, LNG
-        StreamState state = appContext.lastKnownStreamState.get();
+        StreamState state = ac.lastKnownStreamState.get();
         if (state == null) return;
-        appContext.utils.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
+        ac.utils.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
     }
     
 /*------------------------------------------------------------------------------
@@ -105,13 +105,14 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void refresh() {
-        appContext.snapshotProducer.produce();
+        ac.streamProducer.produce(false);
     }
 
     @Override protected void initializeState() {
+        useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
-        appContext.snapshotProducer.produce();
-        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+        ac.streamProducer.produce(false);
+        ac.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, final StreamState cur) {
@@ -119,7 +120,7 @@ public class LocationController extends BaseController {
             }
         });
 
-        StreamState ss = appContext.lastKnownStreamState.get();
+        StreamState ss = ac.lastKnownStreamState.get();
         if (ss != null) { doUpdateLater(ss); }
 
         if (!useMiles) { multigauge.setRange(Side.LEFT, 0, 160); }
@@ -188,8 +189,8 @@ public class LocationController extends BaseController {
         return template.fillIn(
                 "DIRECTION", heading, "LAT", lat, "LONG", lng,
                 "GMAP_API_KEY", 
-                appContext.prefs.useCustomGoogleAPIKey.get() ?
-                    appContext.prefs.googleAPIKey.get() :
+                ac.prefs.useCustomGoogleAPIKey.get() ?
+                    ac.prefs.googleAPIKey.get() :
                     AppContext.GoogleMapsAPIKey
                 );
     }

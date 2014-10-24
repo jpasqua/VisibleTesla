@@ -56,8 +56,6 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
     
     protected boolean requestSuperseded(R r) { return false; }
     
-    protected abstract R newRequest(R basis, boolean allowRetry);
-    
     protected abstract boolean execRequest(R r) throws Exception;
 
 /*------------------------------------------------------------------------------
@@ -67,9 +65,9 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     private void retry(final R r) {
-        appContext.utils.addTimedTask(new TimerTask() {
-            @Override public void run() { produce(newRequest(r, false)); } },
-            r.retryDelay);
+        appContext.tm.addTimedTask(new TimerTask() {
+            @Override public void run() { produce(r); } },
+            r.retryDelay());
     }
     
 
@@ -79,14 +77,21 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             R r = null;
             try {
                 r = queue.take();
-                if (!requestSuperseded(r)) {
-                    if (r.pi != null) { appContext.showProgress(r.pi, true); }
-                    boolean success = execRequest(r);
-                    if (r.pi != null) { appContext.showProgress(r.pi, false); }
-                    if (!success && r.allowRetry) {
-                        System.err.println("Request failed, retrying after 20 secs");
-                        retry(r);
+                if (requestSuperseded(r)) continue;
+                if (r.pi != null) { appContext.showProgress(r.pi, true); }
+                boolean success = execRequest(r);
+                if (r.pi != null) { appContext.showProgress(r.pi, false); }
+                if (!success) {
+                    if (r.moreRetries()) { retry(r); }
+                    else {
+                        Tesla.logger.warning(
+                                r.getRequestName() + ": Giving up after " +
+                                r.maxRetries() + " attempt(s)");
                     }
+                } else if (r.retriesperformed() > 0) {
+                    Tesla.logger.info(
+                            r.getRequestName() + ": Succeeded after " +
+                            r.retriesperformed()+ " attempt(s)");
                 }
             } catch (Exception e) {
                 if (r != null && r.pi != null) { appContext.showProgress(r.pi, false); }
@@ -97,16 +102,20 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
     }
     
     public static abstract class Request {
-        public final boolean    allowRetry;
-        public final long       retryDelay;
         public final long       timeOfRequest;
         public final ProgressIndicator pi;
+        private int             nRetries;
 
-        Request(boolean allowRetry, long retryDelay, ProgressIndicator pi) {
-            this.allowRetry = allowRetry;
-            this.retryDelay = retryDelay;
+        Request(ProgressIndicator pi) {
             this.timeOfRequest = System.currentTimeMillis();
             this.pi = pi;
+            this.nRetries = 0;
         }
+        
+        int retriesperformed() { return nRetries; }
+        protected boolean moreRetries() { return nRetries++ < maxRetries(); }
+        protected int maxRetries() { return 2; }
+        protected long retryDelay() { return 5 * 1000; }
+        protected String getRequestName() { return "Unknown"; }
     }
 }

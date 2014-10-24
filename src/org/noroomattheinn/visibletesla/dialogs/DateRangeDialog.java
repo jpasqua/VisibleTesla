@@ -1,5 +1,6 @@
 package org.noroomattheinn.visibletesla.dialogs;
 
+import com.google.common.collect.Range;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
@@ -16,10 +17,28 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
-import org.noroomattheinn.visibletesla.DataStore;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.Prefs;
 
 
 public class DateRangeDialog implements DialogUtils.DialogController {
+
+    public static Range<Long> getExportPeriod(Stage stage) {
+        DialogUtils.DialogController dc = DialogUtils.displayDialog(
+            DateRangeDialog.class.getResource("DateRangeDialog.fxml"),
+            "Date Range for Export", stage, null);
+        if (dc == null) return null;
+        DateRangeDialog drd = Utils.cast(dc);
+        if (drd.selectedAll()) {
+            return Range.closed(0L, Long.MAX_VALUE);
+        }
+        Calendar start = drd.getStartCalendar();
+        Calendar end = drd.getEndCalendar();
+        if (start == null) {
+            return null;
+        }
+        return Range.closed(start.getTimeInMillis(), end.getTimeInMillis());
+    }
 
     private Stage stage;
     private Calendar start = null;
@@ -94,7 +113,7 @@ public class DateRangeDialog implements DialogUtils.DialogController {
         @Override public void changed(
                 ObservableValue<? extends String> ov, String t, String t1) {
             Calendar now = Calendar.getInstance();
-            DataStore.LoadPeriod period = DataStore.nameToLoadPeriod.get(t1);
+            Prefs.LoadPeriod period = Prefs.nameToLoadPeriod.get(t1);
             start = null;
             end = null;
 

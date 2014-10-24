@@ -23,7 +23,6 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.ScheduleItem.Command;
 import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
 
@@ -70,8 +69,8 @@ public class SchedulerController extends BaseController
  *----------------------------------------------------------------------------*/
     
     @Override public String getExternalKey() { return v.getVIN(); }
-    @Override public Preferences getPreferences() { return appContext.persistentState; }
-    @Override public AppContext getAppContext() { return appContext; }
+    @Override public Preferences getPreferences() { return ac.persistentState; }
+    @Override public AppContext getAppContext() { return ac; }
     
     @Override public void runCommand(
             ScheduleItem.Command command, double value,
@@ -110,7 +109,7 @@ public class SchedulerController extends BaseController
             case CHARGE_OFF: r = v.stopCharing(); break;
             case HVAC_ON:
                 if (value > 0) {    // Set the target temp first
-                    if (appContext.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"))
+                    if (ac.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"))
                         r = v.setTempF(value, value);
                     else
                         r = v.setTempC(value, value);
@@ -119,8 +118,8 @@ public class SchedulerController extends BaseController
                 r = v.startAC();
                 break;
             case HVAC_OFF: r = v.stopAC();break;
-            case AWAKE: appContext.inactivity.setMode(Inactivity.Type.Awake); break;
-            case SLEEP: appContext.inactivity.setMode(Inactivity.Type.Sleep); break;
+            case AWAKE: ac.inactivity.setMode(Inactivity.Type.Awake); break;
+            case SLEEP: ac.inactivity.setMode(Inactivity.Type.Sleep); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
             case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }
@@ -133,15 +132,15 @@ public class SchedulerController extends BaseController
     
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
-            appContext.utils.sendNotification(
-                appContext.prefs.notificationAddress.get(),
+            ac.utils.sendNotification(
+                ac.prefs.notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
             return Result.Succeeded;
         }
-        MessageTemplate body = new MessageTemplate(appContext, messageTarget.getActiveMsg());
-        MessageTemplate subj = new MessageTemplate(appContext, messageTarget.getActiveSubj());
-        boolean sent = appContext.utils.sendNotification(
+        MessageTemplate body = new MessageTemplate(ac, messageTarget.getActiveMsg());
+        MessageTemplate subj = new MessageTemplate(ac, messageTarget.getActiveSubj());
+        boolean sent = ac.utils.sendNotification(
             messageTarget.getActiveEmail(),
             subj.getMessage(null),
             body.getMessage(null));
@@ -156,7 +155,7 @@ public class SchedulerController extends BaseController
         if (!requiresSafeMode(command)) return true;
         
         String name = ScheduleItem.commandToName(command);
-        if (appContext.prefs.safeIncludesMinCharge.get()) {
+        if (ac.prefs.safeIncludesMinCharge.get()) {
             if (charge.batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
@@ -165,15 +164,15 @@ public class SchedulerController extends BaseController
             }
         }
 
-        if (appContext.prefs.safeIncludesPluggedIn.get()) {
+        if (ac.prefs.safeIncludesPluggedIn.get()) {
             String msg;
 
-            switch (ChargeController.getPilotCurent(v, charge)) {
-                case -1:
+            switch (ac.lastKnownChargeState.get().chargingState) {
+                case Unknown:
                     msg = String.format("%s: Can't tell if car is plugged in - aborted", name);
                     logActivity(msg, true);
                     return false;
-                case 0:
+                case Disconnected:
                     msg = String.format("%s: Car is not plugged in - aborted", name);
                     logActivity(msg, true);
                     return false;
@@ -186,28 +185,30 @@ public class SchedulerController extends BaseController
     }
     
     private boolean wakeAndGetChargeState() {
-        appContext.inactivity.setState(Inactivity.Type.Awake);
-        charge = v.queryCharge();
-        if (charge.valid) return true;
-        
+        ac.inactivity.setState(Inactivity.Type.Awake);
         for (int i = 0; i < 20; i++) {
-            v.wakeUp();
-            if ((charge = v.queryCharge()).valid)
+            if ((charge = v.queryCharge()).valid) {
+                ac.noteUpdatedState(charge);
                 return true;
-            Utils.sleep(5000);
+            }
+            v.wakeUp();
+            ac.utils.sleep(5000);
         }
         return false;
     }
     
     private synchronized Result unpluggedTrigger() {
-        int pilotCurrent = ChargeController.getPilotCurent(v, charge);
-        if (pilotCurrent == 0) {
-            appContext.utils.sendNotification(
-                appContext.prefs.notificationAddress.get(),
+        ChargeState.Status status = ac.lastKnownChargeState.get().chargingState;
+        if (status == ChargeState.Status.Disconnected) {
+            ac.utils.sendNotification(
+                ac.prefs.notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
-        } else if (pilotCurrent == -1) {
-            return new Result(true, "Can't tell if car is plugged in. No notification sent");
+        } else if (status == ChargeState.Status.Unknown) {
+            ac.utils.sendNotification(
+                ac.prefs.notificationAddress.get(),
+                "Can't determine if your car is plugged in. Please check");
+            return new Result(true, "Can't tell if car is plugged in. Warning sent");
         }
         return new Result(true, "Vehicle is plugged-in. No notification sent");
     }
@@ -273,8 +274,8 @@ public class SchedulerController extends BaseController
     }
 
     @Override protected void initializeState() {
-        v = appContext.vehicle;
-        appContext.tm.addStoppable(this);
+        v = ac.vehicle;
+        ac.tm.addStoppable(this);
     }
     
     @Override protected void activateTab() {
@@ -297,7 +298,7 @@ public class SchedulerController extends BaseController
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
         Tesla.logger.log(Level.FINE, entry);
-        if (report) { appContext.schedulerActivity.set(entry); }
+        if (report) { ac.schedulerActivity.set(entry); }
     }
 
 }

@@ -118,7 +118,6 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         
         XYChart.Series<Number,Number> series = new XYChart.Series<>();
         series.setName("Vampire Loss");
-        int index = 0;
         ObservableList<XYChart.Data<Number, Number>> data = series.getData();
         for (VampireStats.Rest r : restPeriods) {
             final XYChart.Data<Number,Number> dataPoint =
@@ -160,6 +159,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
     
     private Node getMarker(double hrs) {
         double size = ((Math.log(hrs/3.0)/Math.log(2.0))+1)*3;
+        if (size < 3) size = 3;
 
         Circle c = new Circle(size);
         c.setFill(Color.web("#0000ff", 0.5));

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
@@ -40,9 +41,15 @@ public class VampireStats {
  * 
  *----------------------------------------------------------------------------*/
     
-    private AppContext appContext;
-    private Rest restInProgress = null;
-    private boolean useMiles;
+    private final AppContext ac;
+    
+    private Rest            restInProgress = null;
+    private boolean         useMiles;
+    
+    private Calendar        fromLimit, toLimit;
+    private boolean         stradles;
+    
+    private ValueTracker    tracker;
     
 /*==============================================================================
  * -------                                                               -------
@@ -51,63 +58,42 @@ public class VampireStats {
  *============================================================================*/
     
     public VampireStats(AppContext ac) {
-        this.appContext = ac;
+        this.ac = ac;
     }
-    
+        
     public void showStats() {
-        useMiles = appContext.utils.unitType() == Utils.UnitType.Imperial;
+        useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
         Range<Long> exportPeriod = getExportPeriod();
-        if (exportPeriod == null)
-            return;
+        if (exportPeriod == null) { return; }
         
         ArrayList<Rest> restPeriods = new ArrayList<>();
 
+        if (ac.prefs.vsLimitEnabled.get()) {
+            fromLimit = ac.prefs.vsFrom.get();
+            toLimit = ac.prefs.vsTo.get();
+            stradles = (toLimit.before(fromLimit));
+        }
+
         // Process stats for the selected time period
-        NavigableMap<Long, Map<String, Double>> allRows = appContext.statsStore.getData();
+        NavigableMap<Long, Map<String, Double>> allRows = ac.statsStore.getData();
         NavigableMap<Long, Map<String, Double>> subMap = allRows.subMap(
                 exportPeriod.lowerEndpoint(), true, exportPeriod.upperEndpoint(), true);
+        tracker = new ValueTracker();
+        restInProgress = null;
         for (Map.Entry<Long,Map<String,Double>> row : subMap.entrySet()) {
             handleStat(restPeriods, row.getKey(), row.getValue());
         }
-        if (restInProgress != null &&
-            restInProgress.endTime - restInProgress.startTime > MIN_REST_PERIOD) {
-            addPeriod(restPeriods, restInProgress);
-        }
-        restInProgress = null;
-        
-        
-        // Export results
-        long totalRestTime = 0;
-        double totalLoss = 0;
-        String units = useMiles ? "mi" : "km";
-        StringBuilder sb = new StringBuilder();
-        for (Rest r : restPeriods) {
-            sb.append("\t-------------------\n");
-            sb.append(String.format(
-                    "\tPeriod: [%1$tm/%1$td %1$tH:%1$tM, %2$tm/%2$td %2$tH:%2$tM]" +
-                    ", %3$3.2f hours\n",
-                    new Date(r.startTime), new Date(r.endTime), hours(r.endTime-r.startTime)));
-            sb.append(String.format("\tRange: [%3.2f, %3.2f], %3.2f %s\n",
-                    r.startRange, r.endRange, r.startRange - r.endRange, units));
-            sb.append(String.format("\tAverage loss per hour: %3.2f %s/hr\n", r.avgLoss(), units));
-            totalRestTime += r.endTime - r.startTime;
-            totalLoss += r.startRange - r.endRange;
-        }
-        sb.append("===================\n");
-        sb.append(String.format("Total Hours Resting: %3.2f\n", hours(totalRestTime)));
-        sb.append(String.format("Total Loss: %3.2f %s\n", totalLoss, units));
-        sb.append(String.format("Total Average Loss / Hour: %3.2f %s\n", totalLoss/hours(totalRestTime), units));
-        
-        displayResults(restPeriods, totalLoss/hours(totalRestTime), sb.toString());
+        completeRest(restPeriods);
+                
+        displayResults(restPeriods);
     }
+    
     
 /*------------------------------------------------------------------------------
  *
- * PRIVATE - Utility Methods
+ * PRIVATE - Methods to accumulate Rests
  * 
  *----------------------------------------------------------------------------*/
-    
-    private double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
     
     private void addPeriod(List<Rest> periods, Rest r) {
         Calendar c = Calendar.getInstance();
@@ -132,31 +118,14 @@ public class VampireStats {
         }
     }
     
-    private void setToEndOfDay(Calendar c, long timeDuringDay) {
-        c.setTimeInMillis(timeDuringDay);
-        c.set(Calendar.HOUR_OF_DAY, 23);
-        c.set(Calendar.MINUTE, 59);
-        c.set(Calendar.SECOND, 59);
-    }
-    
-    private Map<String,Stat.Sample> curVals = new HashMap<>();
-    private Double updateVal(String key, long timestamp, Map<String, Double> stat) {
-        Double val = stat.get(key);
-        if (val == null) {  // Return the last known value if there is one
-            Stat.Sample sample = curVals.get(key);
-            return sample == null ? null : sample.value;
-        } else {            // Update the stored value and return it
-            curVals.put(key, new Stat.Sample(timestamp, val));
-            return val;
-        }
-    }
-    
-    private void handleStat(List<Rest> restPeriods, long timestamp, Map<String, Double> stat) {      
-        Double speed = updateVal(StatsStore.SpeedKey, timestamp, stat);
-        Double range = updateVal(StatsStore.EstRangeKey, timestamp, stat);
-        Double voltage = updateVal(StatsStore.VoltageKey, timestamp, stat);
+    private void handleStat(List<Rest> restPeriods, long timestamp, Map<String, Double> stat) {
+        Double speed = tracker.updateVal(StatsStore.SpeedKey, timestamp, stat);
+        Double range = tracker.updateVal(StatsStore.EstRangeKey, timestamp, stat);
+        Double voltage = tracker.updateVal(StatsStore.VoltageKey, timestamp, stat);
         if (voltage == null) voltage = 0.0;
         if (speed == null || range == null) { return; }
+
+        if (outOfRange(timestamp)) { completeRest(restPeriods); return; }
 
         // Use 100V as a cutoff to ignore spurious spurious readings
         if (speed == 0 && voltage < 100) {   
@@ -167,58 +136,83 @@ public class VampireStats {
                 restInProgress.endTime = timestamp;
                 restInProgress.endRange = range;
             }
-        } else {    // End the current rest period if there is one
-            if (restInProgress != null) {   // Rest is over!
-                if (restInProgress.endTime - restInProgress.startTime > MIN_REST_PERIOD) {
-                    // OK, there's another odd situation to handle. If we start
-                    // a rest period and then stop getting data, we may miss a
-                    // charge. In that case the rest may look like we gained
-                    // power instead of losing power. In that case just toss
-                    // the rest period. It will skew the data.
-                    if (restInProgress.endRange <= restInProgress.startRange) {
-                        addPeriod(restPeriods, restInProgress);
-                    }
-                }
-                restInProgress = null;
-            }
-        }
+        } else { completeRest(restPeriods); }
     }
     
-    private void displayResults(List<Rest> restPeriods, double overallAvg, String rawResults) {
+    private boolean outOfRange(long ts) {
+        if (!ac.prefs.vsLimitEnabled.get()) return false;
+        CalTime c = new CalTime(ts);
+        if (stradles) { return (c.after(toLimit) && c.before(fromLimit)); }
+        else { return c.after(toLimit) || c.before(fromLimit); }
+    }
+    
+    private void completeRest(List<Rest> restPeriods) {
+        if (restInProgress == null) return;
+        if (restInProgress.endTime - restInProgress.startTime > MIN_REST_PERIOD) {
+            // OK, there's another odd situation to handle. If we start
+            // a rest period and then stop getting data, we may miss a
+            // charge. In that case the rest may look like we gained
+            // power instead of losing power. In that case just toss
+            // the rest period. It will skew the data.
+            if (restInProgress.endRange <= restInProgress.startRange) {
+                addPeriod(restPeriods, restInProgress);
+            }
+        }
+        restInProgress = null;
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - UI Related methods: Select the export period, display the results
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void displayResults(List<Rest> restPeriods) {
+        // Compute some stats and generate detail output
+        long totalRestTime = 0;
+        double totalLoss = 0;
+        String units = useMiles ? "mi" : "km";
+        StringBuilder sb = new StringBuilder();
+        for (Rest r : restPeriods) {
+            sb.append("\t-------------------\n");
+            sb.append(String.format(
+                    "\tPeriod: [%1$tm/%1$td %1$tH:%1$tM, %2$tm/%2$td %2$tH:%2$tM]" +
+                    ", %3$3.2f hours\n",
+                    new Date(r.startTime), new Date(r.endTime), hours(r.endTime-r.startTime)));
+            sb.append(String.format("\tRange: [%3.2f, %3.2f], %3.2f %s\n",
+                    r.startRange, r.endRange, r.startRange - r.endRange, units));
+            sb.append(String.format("\tAverage loss per hour: %3.2f %s/hr\n", r.avgLoss(), units));
+            totalRestTime += r.endTime - r.startTime;
+            totalLoss += r.startRange - r.endRange;
+        }
+        sb.append("===================\n");
+        sb.append(String.format("Total Hours Resting: %3.2f\n", hours(totalRestTime)));
+        sb.append(String.format("Total Loss: %3.2f %s\n", totalLoss, units));
+        sb.append(String.format("Total Average Loss / Hour: %3.2f %s\n", totalLoss/hours(totalRestTime), units));
+        
         Map<Object, Object> props = new HashMap<>();
         props.put("REST_PERIODS", restPeriods);
-        props.put("RAW_RESULTS", rawResults);
-        props.put("OVERALL_AVG", overallAvg);
+        props.put("RAW_RESULTS", sb.toString());
+        props.put("OVERALL_AVG", totalLoss/hours(totalRestTime));
         props.put("UNITS", useMiles ? "mi" : "km");
         
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
             getClass().getResource("dialogs/VampireLossResults.fxml"),
-            "Vampire Loss", appContext.stage, props);
+            "Vampire Loss", ac.stage, props);
         if (dc == null) {
             Tesla.logger.warning("Unable to display Vampire Loss Dialog");
         }
     }
     
-    private Map<String,Object> genProps() {
-        NavigableMap<Long,Map<String,Double>> rows = appContext.statsStore.getData();
-        Map<String,Object> props = new HashMap<>();
-        long timestamp = rows.firstKey(); 
-        Calendar start = Calendar.getInstance();
-        start.setTimeInMillis(timestamp);
-        props.put("HIGHLIGHT_START", start);
-        
-        timestamp = rows.lastKey(); 
-        Calendar end = Calendar.getInstance();
-        end.setTimeInMillis(timestamp);
-        props.put("HIGHLIGHT_END", end);
-        return props;
-    }
+    
+        // Export results
+    
     
     private Range<Long> getExportPeriod() {
         Map<String,Object> props = genProps();
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
             getClass().getResource("dialogs/DateRangeDialog.fxml"),
-            "Select a Date Range", appContext.stage, props);
+            "Select a Date Range", ac.stage, props);
         if (dc == null) return null;
         DateRangeDialog drd = Utils.cast(dc);
         if (drd.selectedAll()) {
@@ -232,6 +226,50 @@ public class VampireStats {
         return Range.closed(start.getTimeInMillis(), end.getTimeInMillis());
     }
     
+    private Map<String,Object> genProps() {
+        NavigableMap<Long,Map<String,Double>> rows = ac.statsStore.getData();
+        Map<String,Object> props = new HashMap<>();
+        long timestamp = rows.firstKey(); 
+        Calendar start = Calendar.getInstance();
+        start.setTimeInMillis(timestamp);
+        props.put("HIGHLIGHT_START", start);
+        
+        timestamp = rows.lastKey(); 
+        Calendar end = Calendar.getInstance();
+        end.setTimeInMillis(timestamp);
+        props.put("HIGHLIGHT_END", end);
+        return props;
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
+    
+    private void setToEndOfDay(Calendar c, long timeDuringDay) {
+        c.setTimeInMillis(timeDuringDay);
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+    }
+
+    private static class ValueTracker {
+        private Map<String,Stat.Sample> curVals = new HashMap<>();
+        
+        private Double updateVal(String key, long timestamp, Map<String, Double> stat) {
+            Double val = stat.get(key);
+            if (val == null) {  // Return the last known value if there is one
+                Stat.Sample sample = curVals.get(key);
+                return sample == null ? null : sample.value;
+            } else {            // Update the stored value and return it
+                curVals.put(key, new Stat.Sample(timestamp, val));
+                return val;
+            }
+        }
+    }
     
     public class Rest {
         public long startTime, endTime;

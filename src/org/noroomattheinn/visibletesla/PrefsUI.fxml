@@ -4,6 +4,7 @@
 <?import java.net.*?>
 <?import java.util.*?>
 <?import javafx.collections.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -249,7 +250,7 @@
             </AnchorPane>
           </content>
         </TitledPane>
-        <TitledPane id="x7" animated="false" text="Graphs">
+        <TitledPane id="x7" fx:id="x3" animated="false" text="Graphs">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
@@ -257,6 +258,113 @@
                 <Slider id="locMinTime" fx:id="gapTime" layoutX="178.0" layoutY="16.0" majorTickUnit="10.0" max="60.0" min="10.0" minorTickCount="1" prefWidth="214.0" showTickLabels="true" showTickMarks="true" value="10.0" />
                 <Label id="locMinTimeDisplay" fx:id="gapTimeDisplay" layoutX="402.0" layoutY="16.0" prefWidth="36.0" text="10" />
                 <Label layoutX="428.0" layoutY="16.0" text="(minutes constituting a gap)" />
+                <CheckBox fx:id="limitVS" layoutX="14.0" layoutY="83.0" mnemonicParsing="false" text="Limit Vampire Stats" />
+                <Group id="Group" layoutX="174.0" layoutY="73.0">
+                  <children>
+                    <Label layoutX="0.0" layoutY="10.0" text="From:" />
+                    <HBox id="HBox" alignment="CENTER" layoutX="32.0" layoutY="0.0" prefHeight="35.0" prefWidth="168.0" spacing="0.0" visible="true">
+                      <children>
+                        <ComboBox fx:id="vsFromHour" minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08" visibleRowCount="12">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="01" />
+                              <String fx:value="02" />
+                              <String fx:value="03" />
+                              <String fx:value="04" />
+                              <String fx:value="05" />
+                              <String fx:value="06" />
+                              <String fx:value="07" />
+                              <String fx:value="08" />
+                              <String fx:value="09" />
+                              <String fx:value="10" />
+                              <String fx:value="11" />
+                              <String fx:value="12" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                        <ComboBox fx:id="vsFromMin" minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00" visibleRowCount="12">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="00" />
+                              <String fx:value="05" />
+                              <String fx:value="10" />
+                              <String fx:value="15" />
+                              <String fx:value="20" />
+                              <String fx:value="25" />
+                              <String fx:value="30" />
+                              <String fx:value="35" />
+                              <String fx:value="40" />
+                              <String fx:value="45" />
+                              <String fx:value="50" />
+                              <String fx:value="55" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                        <ComboBox id="VSFromAMPM" fx:id="vsFromAMPM" minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="AM" />
+                              <String fx:value="PM" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                      </children>
+                    </HBox>
+                  </children>
+                </Group>
+                <Group id="Group" layoutX="387.0" layoutY="73.0">
+                  <children>
+                    <Label layoutX="0.0" layoutY="10.0" text="To:" />
+                    <HBox id="HBox" alignment="CENTER" layoutX="18.0" layoutY="0.0" prefHeight="35.0" prefWidth="168.0" spacing="0.0" visible="true">
+                      <children>
+                        <ComboBox fx:id="vsToHour" minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="08" visibleRowCount="12">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="01" />
+                              <String fx:value="02" />
+                              <String fx:value="03" />
+                              <String fx:value="04" />
+                              <String fx:value="05" />
+                              <String fx:value="06" />
+                              <String fx:value="07" />
+                              <String fx:value="08" />
+                              <String fx:value="09" />
+                              <String fx:value="10" />
+                              <String fx:value="11" />
+                              <String fx:value="12" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                        <ComboBox fx:id="vsToMin" minHeight="-1.0" prefHeight="-1.0" prefWidth="50.0" styleClass="squarecombo" value="00" visibleRowCount="12">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="00" />
+                              <String fx:value="05" />
+                              <String fx:value="10" />
+                              <String fx:value="15" />
+                              <String fx:value="20" />
+                              <String fx:value="25" />
+                              <String fx:value="30" />
+                              <String fx:value="35" />
+                              <String fx:value="40" />
+                              <String fx:value="45" />
+                              <String fx:value="50" />
+                              <String fx:value="55" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                        <ComboBox fx:id="vsToAMPM" minHeight="-1.0" prefHeight="-1.0" prefWidth="55.0" styleClass="squarecombo" value="AM">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="AM" />
+                              <String fx:value="PM" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                      </children>
+                    </HBox>
+                  </children>
+                </Group>
               </children>
             </AnchorPane>
           </content>

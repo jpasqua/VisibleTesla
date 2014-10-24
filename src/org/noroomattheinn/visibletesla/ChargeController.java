@@ -117,7 +117,7 @@ public class ChargeController extends BaseController {
     
     @FXML void rangeLinkHandler(ActionEvent event) {
         Hyperlink h = (Hyperlink)event.getSource();
-        ChargeState charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = ac.lastKnownChargeState.get();
         int percent = (h == stdLink) ? charge.chargeLimitSOCStd : charge.chargeLimitSOCMax;
         setChargePercent(percent);
     }
@@ -127,8 +127,8 @@ public class ChargeController extends BaseController {
         final Button b = (Button) event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = appContext.vehicle.setChargeState(b == startButton);
-                updateState(Vehicle.StateType.Charge);
+                Result r = ac.vehicle.setChargeState(b == startButton);
+                updateStateLater(Vehicle.StateType.Charge, 5 * 1000);
                 return r;
             } });
     }
@@ -138,8 +138,8 @@ public class ChargeController extends BaseController {
         chargeSetting.setText(percent + " %");
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = appContext.vehicle.setChargePercent(percent);
-                updateState(Vehicle.StateType.Charge);
+                Result r = ac.vehicle.setChargePercent(percent);
+                updateStateLater(Vehicle.StateType.Charge, 5 * 1000);
                 return r;
             } });
     }
@@ -172,9 +172,9 @@ public class ChargeController extends BaseController {
 
     @Override protected void initializeState() {
         chargeSlider.setDisable(Utils.compareVersions(
-            appContext.lastKnownVehicleState.get().version, MinVersionForChargePct) < 0);
+            ac.lastKnownVehicleState.get().version, MinVersionForChargePct) < 0);
         reflectNewState();
-        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
+        ac.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                 ChargeState old, ChargeState cur) {
                 if (active()) { reflectNewState(); }
@@ -183,28 +183,17 @@ public class ChargeController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        useMiles = appContext.utils.unitType() == Utils.UnitType.Imperial;
+        useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "Miles" : "Km";
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);
         ratedOdometer.setUnit(units);
         chargeRate.setUnits(useMiles ? "mph" : "km/h");
-        if (appContext.lastKnownChargeState.get() != null) { reflectNewState(); }
+        if (ac.lastKnownChargeState.get() != null) { reflectNewState(); }
     }
 
     @Override protected void refresh() { updateState(Vehicle.StateType.Charge); }
-    
-    public static int getPilotCurent(Vehicle v, ChargeState cs) {
-        for (int i = 0; i < 3; i++) {
-            if (!cs.valid || cs.chargerPilotCurrent < 0) {
-                Utils.sleep(1000);
-                cs = v.queryCharge();
-            }
-            return cs.chargerPilotCurrent;
-        }
-        return -1;
-    }
-    
+        
 /*------------------------------------------------------------------------------
  *
  * Methods to Reflect the Status of the Charge
@@ -217,13 +206,13 @@ public class ChargeController extends BaseController {
         reflectChargeStatus();
         reflectProperties();
         boolean isConnectedToPower =
-                appContext.lastKnownChargeState.get().chargerPilotCurrent > 0;
+                ac.lastKnownChargeState.get().chargerPilotCurrent > 0;
         startButton.setDisable(!isConnectedToPower);
         stopButton.setDisable(!isConnectedToPower);
     }
 
     private void reflectProperties() {
-        ChargeState charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = ac.lastKnownChargeState.get();
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         int pc = charge.chargerPilotCurrent;
         if (pc == -1) pilotCurrent.setValue("Unknown");
@@ -248,7 +237,7 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectChargeStatus() {
-        ChargeState charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = ac.lastKnownChargeState.get();
         int percent = charge.chargeLimitSOC;
         chargeSlider.setMin((charge.chargeLimitSOCMin/10)*10);
         chargeSlider.setMax(100);
@@ -271,7 +260,7 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectBatteryStats() {
-        ChargeState charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = ac.lastKnownChargeState.get();
         double range = charge.range;
         int bl = charge.batteryPercent;
         int ubl = charge.usableBatteryLevel;
@@ -304,7 +293,7 @@ public class ChargeController extends BaseController {
     }
 
     private void reflectRange() {
-        ChargeState charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = ac.lastKnownChargeState.get();
         double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
         estOdometer.setValue(osd(charge.estimatedRange * conversionFactor));
         idealOdometer.setValue(osd(charge.idealRange * conversionFactor));

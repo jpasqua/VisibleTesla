@@ -16,6 +16,8 @@ import static java.lang.Thread.State.WAITING;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.beans.property.BooleanProperty;
 import org.apache.commons.io.IOUtils;
 import org.noroomattheinn.tesla.Tesla;
@@ -39,6 +41,7 @@ public class ThreadManager {
     private final BooleanProperty   shuttingDown;
     private final ArrayList<Thread> threads = new ArrayList<>();
     private final List<Stoppable>   stopList;
+    private final Timer timer = new Timer();
     
     public ThreadManager(final BooleanProperty shuttingDown) {
         this.shuttingDown = shuttingDown;
@@ -74,10 +77,15 @@ public class ThreadManager {
 
         return t;
     }
-
+    
+    public void addTimedTask(TimerTask task, long delay) {
+        timer.schedule(task, delay);
+    }
+    
     public void addStoppable(Stoppable s) { stopList.add(s); }
     
     public synchronized void shutDown() {
+        timer.cancel();
         shuttingDown.set(true);
         for (Stoppable s : stopList) { s.stop(); }
 

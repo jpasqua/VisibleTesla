@@ -37,10 +37,6 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
  * 
  *----------------------------------------------------------------------------*/
 
-    @Override protected Request newRequest(Request basis, boolean allowRetry) {
-        return new Request(basis.command, allowRetry, basis.pi);
-    }
-
     @Override protected boolean execRequest(Request r) throws Exception {
         Result result = r.command.call();
         if (result.success) { return true; }
@@ -49,11 +45,16 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
     }
     
     public static class Request extends Executor.Request {
-        public final Callable<Result> command;
+        private final Callable<Result> command;
+        private final boolean retry;
         
         Request(Callable<Result> command, boolean retry, ProgressIndicator pi) {
-            super(retry, 20 * 2000, pi);
+            super(pi);
             this.command = command;
+            this.retry = retry;
         }
+        
+        @Override protected String getRequestName() { return "Command"; }
+        @Override protected int maxRetries() { return retry ? 2 : 0; }
     }
 }

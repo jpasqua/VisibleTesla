@@ -14,7 +14,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,8 +24,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import jfxtras.labs.scene.control.BigDecimalField;
 import org.apache.commons.lang3.StringUtils;
@@ -39,10 +39,8 @@ import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
-import org.noroomattheinn.visibletesla.trigger.Predicate;
-import org.noroomattheinn.visibletesla.trigger.Trigger;
-import org.noroomattheinn.visibletesla.trigger.RW;
-import org.noroomattheinn.visibletesla.trigger.UnlockedTrigger;
+import org.noroomattheinn.visibletesla.trigger.GenericTrigger;
+import org.noroomattheinn.visibletesla.trigger.StationaryTrigger;
 
 /**
  * NotifierController
@@ -54,10 +52,29 @@ public class NotifierController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
- * Constants and Enums
+ * Constants, Enums, and Types
  * 
  *----------------------------------------------------------------------------*/
-
+    
+    private static class GeoTrigger {
+        public GenericTrigger<Area> trigger;
+        public MessageTarget        messageTarget;
+        public ObjectProperty<Area> prop = new SimpleObjectProperty<>(new Area());
+        public Button               defineArea;
+        public Button               optionsButton;
+        public CheckBox             enabled;
+        GeoTrigger(Button options, Button defArea, CheckBox enabled) {
+            this.optionsButton = options;
+            this.defineArea = defArea;
+            this.enabled = enabled;
+        }
+    }
+    
+    private static class StringList extends ArrayList<String> {
+        public StringList(String s) { super(); add(s); }
+        public StringList() { super();  }
+    }
+    
     private static final long TypicalDebounce = 10 * 60 * 1000; // 10 Minutes
     private static final long SpeedDebounce = 30 * 60 * 1000;   // 30 Minutes
     private static final long GeoDebounce = 30 * 1000;          // 30 Seconds
@@ -73,15 +90,21 @@ public class NotifierController extends BaseController {
     private static final String NotifySOCFallsKey = "NOTIFY_SOC_FALLS";
     private static final String NotifyEnterKey = "NOTIFY_ENTER_AREA";
     private static final String NotifyLeftKey = "NOTIFY_LEFT_AREA";
+    private static final String NotifyOdoKey = "NOTIFY_ODO";
+    private static final String OdoCheckKey = "LAST_ODO_CHECK";
     
     private static final String UnlockedSubj = "Unlocked at {{TIME}}";
     private static final String UnlockedMsg = "Unlocked at {{TIME}} for {{CUR}} minutes";
+    private static final String OdoHitsSubj = "Odometer: {{CUR}}";
+    private static final String OdoHitsMsg =
+            "Odometer Past: {{TARGET}} {{D_UNITS}} ({{CUR}})";
     private static final String SOCHitSubj = "SOC: {{CUR}}%";
     private static final String SOCHitMsg = "SOC Hit or Exceeded: {{TARGET}}% ({{CUR}}%)";
     private static final String SOCFellSubj = "SOC: {{CUR}}%";
     private static final String SOCFellMsg = "SOC Fell Below: {{TARGET}}% ({{CUR}}%)";
     private static final String SpeedHitSubj = "Speed: {{SPEED}} {{S_UNITS}}";
-    private static final String SpeedHitMsg = "Speed Hit or Exceeded: {{TARGET}} {{S_UNITS}} ({{SPEED}})";
+    private static final String SpeedHitMsg = 
+            "Speed Hit or Exceeded: {{TARGET}} {{S_UNITS}} ({{SPEED}})";
     private static final String SchedEventSubj = "Scheduled Event: {{CUR}}";
     private static final String SchedEventMsg = "Scheduled Event: {{CUR}}";
     private static final String ChargeStateSubj = "Charge State: {{CHARGE_STATE}}";
@@ -108,31 +131,30 @@ public class NotifierController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private Trigger<BigDecimal> speedHitsTrigger;
+    private GenericTrigger<BigDecimal> speedHitsTrigger;
     private MessageTarget       shMessageTarget;
     
-    private Trigger<String>     seTrigger;
+    private GenericTrigger<BigDecimal> odoHitsTrigger;
+    private MessageTarget       ohMessageTarget;
+    private double              lastOdoCheck;
+    
+    private GenericTrigger<String>     seTrigger;
     private MessageTarget       seMessageTarget;
     
-    private Trigger<BigDecimal> socHitsTrigger;
+    private GenericTrigger<BigDecimal> socHitsTrigger;
     private MessageTarget       socHitsMessageTarget;
 
-    private Trigger<BigDecimal> socFallsTrigger;
+    private GenericTrigger<BigDecimal> socFallsTrigger;
     private MessageTarget       socFallsMessageTarget;
     
-    private Trigger<String>     csTrigger;
+    private GenericTrigger<StringList> csTrigger;
     private MessageTarget       csMessageTarget;
-
-    private List<Trigger>       allTriggers = new ArrayList<>();
+    private ObjectProperty<StringList>
+                                csSelectProp = new SimpleObjectProperty<>(new StringList());
+            
     private boolean             useMiles = true;
     
-    private Trigger<Area>       enteredTrigger;
-    private MessageTarget       enteredMessageTarget;
-    private ObjectProperty<Area> enterAreaProp = new SimpleObjectProperty<>(new Area());
-            
-    private Trigger<Area>       leftTrigger;
-    private MessageTarget       leftMessageTarget;
-    private ObjectProperty<Area> leftAreaProp = new SimpleObjectProperty<>(new Area());
+    private GeoTrigger[]        geoTriggers = new GeoTrigger[8];
     
     // Charge Anomoly Triggers
     private DeviationTrigger    ccTrigger;
@@ -140,9 +162,10 @@ public class NotifierController extends BaseController {
     private MessageTarget       caMessageTarget;
     
     // Unlocked Trigger
-    private UnlockedTrigger     unlockedTrigger;
+    private StationaryTrigger   unlockedTrigger;
     private MessageTarget       ulMessageTarget;
     private boolean             checkForUnlocked;
+    
     
 /*------------------------------------------------------------------------------
  *
@@ -151,8 +174,9 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
         
     @FXML private CheckBox chargeState;
-    @FXML private ComboBox<String> csOptions;
     @FXML private Button chargeBecomesOptions;
+    @FXML private RadioButton csbAny, csbCharging, csbComplete, csbDisconnected,
+                              csbNoPower, csbStarting, csbStopped, csbUnknown;
     
     @FXML private CheckBox schedulerEvent;
     @FXML private Button seOptions;
@@ -167,19 +191,24 @@ public class NotifierController extends BaseController {
     @FXML private Slider socHitsSlider;
     @FXML private Button socHitsOptions;
 
+    @FXML private CheckBox odoHits;
+    @FXML private BigDecimalField odoHitsField;
+    @FXML private Label odoHitsLabel;
+    @FXML private Button odoHitsOptions;
+
     @FXML private CheckBox speedHits;
     @FXML private BigDecimalField speedHitsField;
     @FXML private Slider speedHitsSlider;
     @FXML private Label speedUnitsLabel;
     @FXML private Button speedHitsOptions;
 
-    @FXML private CheckBox carEntered;
-    @FXML private Button defineEnterButton;
-    @FXML private Button carEnteredOptions;
+    @FXML private CheckBox carEntered1, carEntered2, carEntered3, carEntered4;
+    @FXML private Button defineEnterButton1, defineEnterButton2, defineEnterButton3, defineEnterButton4;
+    @FXML private Button carEnteredOptions1, carEnteredOptions2, carEnteredOptions3, carEnteredOptions4;
     
-    @FXML private CheckBox carLeft;
-    @FXML private Button defineLeftButton;
-    @FXML private Button carLeftOptions;
+    @FXML private CheckBox carLeft1, carLeft2, carLeft3, carLeft4;
+    @FXML private Button defineLeftButton1, defineLeftButton2, defineLeftButton3, defineLeftButton4;
+    @FXML private Button carLeftOptions1, carLeftOptions2, carLeftOptions3, carLeftOptions4;
     
     @FXML private CheckBox chargeAnomaly;
     @FXML private Button caOptions;
@@ -204,20 +233,19 @@ public class NotifierController extends BaseController {
     @FXML void defineArea(ActionEvent event) {
         Button b = (Button)event.getSource();
         
-        if (b == defineEnterButton) {
-            showAreaDialog(enterAreaProp);
-        } else if (b == defineLeftButton) {
-            showAreaDialog(leftAreaProp);
-        } else {
-            Tesla.logger.warning("Unexpected button: " + b.toString());
+        for (GeoTrigger g: geoTriggers) {
+            if (b == g.defineArea)  { showAreaDialog(g.prop); return; }
         }
+        Tesla.logger.warning("Unexpected button: " + b.toString());
     }
 
     @FXML void optionsButton(ActionEvent event) {
         Button b = (Button)event.getSource();
         // Show the options Dialog
         
-        if (b == chargeBecomesOptions) {
+        if (b == odoHitsOptions) {
+            showDialog(ohMessageTarget);
+        } else if (b == chargeBecomesOptions) {
             showDialog(csMessageTarget);
         } else if (b == seOptions) {
             showDialog(seMessageTarget);
@@ -227,37 +255,84 @@ public class NotifierController extends BaseController {
             showDialog(socHitsMessageTarget);
         } else if (b == speedHitsOptions) {
             showDialog(shMessageTarget);
-        } else if (b == carEnteredOptions) {
-            showDialog(enteredMessageTarget);
-        } else if (b == carLeftOptions) {
-            showDialog(leftMessageTarget);
         } else if (b == caOptions) {
             showDialog(caMessageTarget);
         } else if (b == unlockedOptions) {
             showDialog(ulMessageTarget);
         } else {
+            for (GeoTrigger g: geoTriggers) {
+                if (b == g.optionsButton)  { showDialog(g.messageTarget); return; }
+            }
             Tesla.logger.warning("Unexpected button: " + b.toString());
         }
     }
     
+    @FXML void csbItemClicked(ActionEvent event) {
+        RadioButton rb = (RadioButton)event.getSource();
+        StringList s = new StringList();
+        if (rb == csbAny && csbAny.isSelected()) {
+            s.add("Anything");
+            csbCharging.setSelected(false);
+            csbComplete.setSelected(false);
+            csbDisconnected.setSelected(false);
+            csbNoPower.setSelected(false);
+            csbStarting.setSelected(false);
+            csbStopped.setSelected(false);
+            csbUnknown.setSelected(false);
+        } else {
+            if (csbCharging.isSelected()) s.add("Charging");
+            if (csbComplete.isSelected()) s.add("Complete");
+            if (csbDisconnected.isSelected()) s.add("Disconnected");
+            if (csbNoPower.isSelected()) s.add("No Power");
+            if (csbStarting.isSelected()) s.add("Starting");
+            if (csbStopped.isSelected()) s.add("Stopped");
+            if (csbUnknown.isSelected()) s.add("Unknown");
+            csbAny.setSelected(false);
+        }
+        this.csSelectProp.set(s);
+    }
+    
+    private ChangeListener<StringList> csPropListener = new ChangeListener<StringList>() {
+        @Override public void changed(ObservableValue<? extends StringList> ov, StringList t, StringList t1) {
+            if (t1.contains("Anything")) {
+                csbAny.setSelected(true);
+                csbCharging.setSelected(false);
+                csbComplete.setSelected(false);
+                csbDisconnected.setSelected(false);
+                csbNoPower.setSelected(false);
+                csbStarting.setSelected(false);
+                csbStopped.setSelected(false);
+                csbUnknown.setSelected(false);
+            } else {
+                if (t1.contains("Charging")) csbCharging.setSelected(true);
+                if (t1.contains("Complete")) csbComplete.setSelected(true);
+                if (t1.contains("Disconnected")) csbDisconnected.setSelected(true);
+                if (t1.contains("No Power")) csbNoPower.setSelected(true);
+                if (t1.contains("Starting")) csbStarting.setSelected(true);
+                if (t1.contains("Stopped")) csbStopped.setSelected(true);
+                if (t1.contains("Unknown")) csbUnknown.setSelected(true);
+            }
+        }
+    };
+
     private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            appContext.persistentState.putBoolean(vinBased(NotifyCAKey), cur);
+            ac.persistentState.putBoolean(vinBased(NotifyCAKey), cur);
         }
     };
     
     private ChangeListener<Boolean> ulListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            appContext.persistentState.putBoolean(vinBased(NotifyULKey), cur);
+            ac.persistentState.putBoolean(vinBased(NotifyULKey), cur);
         }
     };
     
     private ChangeListener<BigDecimal> ulvListener = new ChangeListener<BigDecimal>() {
         @Override public void changed(
                 ObservableValue<? extends BigDecimal> ov, BigDecimal old, BigDecimal cur) {
-            appContext.persistentState.putLong(vinBased(NotifyULValKey), cur.longValue());
+            ac.persistentState.putLong(vinBased(NotifyULValKey), cur.longValue());
         }
     };
     
@@ -272,86 +347,116 @@ public class NotifierController extends BaseController {
         bindBidrectional(socHitsField, socHitsSlider);
         bindBidrectional(socFallsField, socFallsSlider);
         bindBidrectional(unlockedDoorsField, unlockedDoorsSlider);
+        
+        csSelectProp.addListener(csPropListener);
+        
         chargeAnomaly.selectedProperty().addListener(caListener);
         unlocked.selectedProperty().addListener(ulListener);
         unlockedDoorsField.numberProperty().addListener(ulvListener);
+        geoTriggers[0] = new GeoTrigger(carEnteredOptions1, defineEnterButton1, carEntered1);
+        geoTriggers[1] = new GeoTrigger(carEnteredOptions2, defineEnterButton2, carEntered2);
+        geoTriggers[2] = new GeoTrigger(carEnteredOptions3, defineEnterButton3, carEntered3);
+        geoTriggers[3] = new GeoTrigger(carEnteredOptions4, defineEnterButton4, carEntered4);
+        geoTriggers[4] = new GeoTrigger(carLeftOptions1, defineLeftButton1, carLeft1);
+        geoTriggers[5] = new GeoTrigger(carLeftOptions2, defineLeftButton2, carLeft2);
+        geoTriggers[6] = new GeoTrigger(carLeftOptions3, defineLeftButton3, carLeft3);
+        geoTriggers[7] = new GeoTrigger(carLeftOptions4, defineLeftButton4, carLeft4);
     }
 
     @Override protected void initializeState() {
-            socHitsTrigger = new Trigger<>(
-                appContext, socHits.selectedProperty(), RW.bdHelper,
-                "SOC", NotifySOCHitsKey,  Predicate.Type.HitsOrExceeds,
+            lastOdoCheck = ac.persistentState.getDouble(OdoCheckKey, 0);
+                    
+            socHitsTrigger = new GenericTrigger<>(
+                ac, socHits.selectedProperty(), bdHelper,
+                "SOC", NotifySOCHitsKey,  GenericTrigger.Predicate.HitsOrExceeds,
                 socHitsField.numberProperty(), new BigDecimal(88.0), TypicalDebounce);
             socHitsMessageTarget = new MessageTarget(
-                    appContext, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
+                    ac, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
             
-            socFallsTrigger = new Trigger<>(
-                appContext, socFalls.selectedProperty(), RW.bdHelper,
-                "SOC", NotifySOCFallsKey, Predicate.Type.FallsBelow,
+            socFallsTrigger = new GenericTrigger<>(
+                ac, socFalls.selectedProperty(), bdHelper,
+                "SOC", NotifySOCFallsKey, GenericTrigger.Predicate.FallsBelow,
                 socFallsField.numberProperty(), new BigDecimal(50.0), TypicalDebounce);
             socFallsMessageTarget = new MessageTarget(
-                    appContext, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
+                    ac, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
             
-            speedHitsTrigger = new Trigger<>(
-                appContext, speedHits.selectedProperty(), RW.bdHelper,
-                "Speed", NotifySpeedKey, Predicate.Type.HitsOrExceeds,
+            speedHitsTrigger = new GenericTrigger<>(
+                ac, speedHits.selectedProperty(), bdHelper,
+                "Speed", NotifySpeedKey, GenericTrigger.Predicate.HitsOrExceeds,
                 speedHitsField.numberProperty(), new BigDecimal(70.0), SpeedDebounce);
             shMessageTarget = new MessageTarget(
-                    appContext, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
+                    ac, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
             
-            seTrigger = new Trigger<>(
-                appContext, schedulerEvent.selectedProperty(), RW.stringHelper,
-                "Scheduler", NotifySEKey, Predicate.Type.AnyChange,
+            odoHitsTrigger = new GenericTrigger<>(
+                ac, odoHits.selectedProperty(), bdHelper,
+                "Odometer", NotifyOdoKey, GenericTrigger.Predicate.GT,
+                odoHitsField.numberProperty(), new BigDecimal(14325), TypicalDebounce);
+            ohMessageTarget = new MessageTarget(
+                    ac, NotifyOdoKey, OdoHitsSubj, OdoHitsMsg);
+            
+            seTrigger = new GenericTrigger<>(
+                ac, schedulerEvent.selectedProperty(), stringHelper,
+                "Scheduler", NotifySEKey, GenericTrigger.Predicate.AnyChange,
                 new SimpleObjectProperty<>("Anything"), "Anything", 0L);
             seMessageTarget = new MessageTarget(
-                    appContext, NotifySEKey, SchedEventSubj, SchedEventMsg);
-
-            csTrigger = new Trigger<>(
-                appContext, chargeState.selectedProperty(), RW.stringHelper,
-                "Charge State", NotifyCSKey, Predicate.Type.Becomes,
-                csOptions.valueProperty(), csOptions.itemsProperty().get().get(0), 0L);
+                    ac, NotifySEKey, SchedEventSubj, SchedEventMsg);
+            
+            csTrigger = new GenericTrigger<>(
+                ac, chargeState.selectedProperty(), stringListHelper,
+                "Charge State", NotifyCSKey, GenericTrigger.Predicate.Becomes,
+                csSelectProp, new StringList("Anything"), 0L);
             csMessageTarget = new MessageTarget(
-                    appContext, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
+                    ac, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
             
-            enteredTrigger = new Trigger<>(
-                appContext, carEntered.selectedProperty(), RW.areaHelper,
-                "Enter Area", NotifyEnterKey, Predicate.Type.HitsOrExceeds,
-                enterAreaProp, new Area(), GeoDebounce);
-            this.enteredMessageTarget = new MessageTarget(
-                    appContext, NotifyEnterKey, EnterAreaSubj, EnterAreaMsg);
+            for (int i = 0; i < 4; i++) {
+                GeoTrigger gt = geoTriggers[i];
+                gt.trigger = new GenericTrigger<>(
+                    ac, gt.enabled.selectedProperty(), areaHelper,
+                    "Enter Area", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
+                    gt.prop, new Area(), GeoDebounce);
+                gt.messageTarget = new MessageTarget(
+                        ac, NotifyEnterKey+i, EnterAreaSubj, EnterAreaMsg);
+            }
+            for (int i = 4; i < 8; i++) {
+                GeoTrigger gt = geoTriggers[i];
+                gt.trigger = new GenericTrigger<>(
+                    ac, gt.enabled.selectedProperty(), areaHelper,
+                    "Left Area", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
+                    gt.prop, new Area(), GeoDebounce);
+                gt.messageTarget = new MessageTarget(
+                        ac, NotifyLeftKey+i, LeftAreaSubj, LeftAreaMsg);
+            }
+            for (final GeoTrigger g : geoTriggers) {
+                String name = g.prop.get().name;
+                if (name != null && !name.isEmpty()) { g.enabled.setText(name); }
+                g.prop.addListener(new ChangeListener<Area>() {
+                    @Override public void changed(ObservableValue<? extends Area> ov, Area t, Area t1) {
+                        if (t1.name != null && !t1.name.isEmpty()) {
+                            g.enabled.setText(t1.name);
+                        }
+                    }
+                });
+            }
             
-            leftTrigger = new Trigger<>(
-                appContext, carLeft.selectedProperty(), RW.areaHelper,
-                "Left Area", NotifyLeftKey, Predicate.Type.FallsBelow,
-                leftAreaProp, new Area(), GeoDebounce);
-            this.leftMessageTarget = new MessageTarget(
-                    appContext, NotifyLeftKey, LeftAreaSubj, LeftAreaMsg);
-            
-            allTriggers.addAll(Arrays.asList(
-                    speedHitsTrigger, socHitsTrigger, socFallsTrigger,
-                    csTrigger, seTrigger, enteredTrigger, leftTrigger));
-            
-            for (Trigger t : allTriggers) { t.init(); }
-
             // Other types of trigger
             ccTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             pcTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             caMessageTarget = new MessageTarget(
-                    appContext, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
+                    ac, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
-                    appContext.persistentState.getBoolean(vinBased(NotifyCAKey),
+                    ac.persistentState.getBoolean(vinBased(NotifyCAKey),
                     false));
             
-            unlockedTrigger = new UnlockedTrigger(
+            unlockedTrigger = new StationaryTrigger(
                     unlocked.selectedProperty(),
                     unlockedDoorsField.numberProperty());
             ulMessageTarget = new MessageTarget(
-                    appContext, NotifyULKey, UnlockedSubj, UnlockedMsg);
+                    ac, NotifyULKey, UnlockedSubj, UnlockedMsg);
             unlocked.setSelected(
-                    appContext.persistentState.getBoolean(vinBased(NotifyULKey),
+                    ac.persistentState.getBoolean(vinBased(NotifyULKey),
                     false));
             unlockedDoorsField.numberProperty().set(
-                    new BigDecimal(appContext.persistentState.getLong(
+                    new BigDecimal(ac.persistentState.getLong(
                         vinBased(NotifyULValKey), UnlockedThreshold)));
             checkForUnlocked = false;
             
@@ -359,18 +464,20 @@ public class NotifierController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        if (appContext.utils.unitType() == Utils.UnitType.Imperial) {
+        if (ac.utils.unitType() == Utils.UnitType.Imperial) {
             speedUnitsLabel.setText("mph");
             speedHitsSlider.setMin(0);
             speedHitsSlider.setMax(100);
             speedHitsSlider.setMajorTickUnit(25);
             speedHitsSlider.setMinorTickCount(4);
+            odoHitsLabel.setText("miles");
         } else {
             speedUnitsLabel.setText("km/h");
             speedHitsSlider.setMin(0);
             speedHitsSlider.setMax(160);
             speedHitsSlider.setMajorTickUnit(30);
             speedHitsSlider.setMinorTickCount(2);
+            odoHitsLabel.setText("km");
         }
     }
 
@@ -386,13 +493,13 @@ public class NotifierController extends BaseController {
         Map<Object, Object> props = new HashMap<>();
         props.put(ChooseLocationDialog.AREA_KEY, areaProp.get());
         props.put(ChooseLocationDialog.API_KEY,
-                appContext.prefs.useCustomGoogleAPIKey.get() ?
-                    appContext.prefs.googleAPIKey.get() :
+                ac.prefs.useCustomGoogleAPIKey.get() ?
+                    ac.prefs.googleAPIKey.get() :
                     AppContext.GoogleMapsAPIKey);
 
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
                 getClass().getResource("dialogs/ChooseLocation.fxml"),
-                "Select an Area", appContext.stage, props);
+                "Select an Area", ac.stage, props);
 
         ChooseLocationDialog cld = Utils.cast(dc);
         if (!cld.cancelled()) {
@@ -408,7 +515,7 @@ public class NotifierController extends BaseController {
 
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
                 getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
-                "Message Options", appContext.stage, props);
+                "Message Options", ac.stage, props);
         if (dc == null) {
             Tesla.logger.warning("Can't display \"Message Options\" dialog");
             mt.setEmail(null); 
@@ -440,37 +547,36 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void startListening() {
-        appContext.lastKnownChargeState.addListener(csListener);
-        appContext.lastKnownStreamState.addListener(ssListener);
-        appContext.lastKnownVehicleState.addListener(vsListener);
-        appContext.schedulerActivity.addTracker(false, schedListener);
+        ac.lastKnownChargeState.addListener(csListener);
+        ac.lastKnownStreamState.addListener(ssListener);
+        ac.lastKnownVehicleState.addListener(vsListener);
+        ac.schedulerActivity.addTracker(false, schedListener);
     }
     
     private Runnable schedListener = new Runnable() {
         @Override public void run() {
-            Trigger.Result result = seTrigger.evalPredicate(appContext.schedulerActivity.get());
-            if (result != null) { notifyUser(result, seMessageTarget); }
+            if (seTrigger.evalPredicate(ac.schedulerActivity.get())) {
+                notifyUser(seTrigger, seMessageTarget); }
         }
     };
-
+    
     private ChangeListener<ChargeState> csListener = new ChangeListener<ChargeState>() {
         @Override public synchronized void  changed(
                 ObservableValue<? extends ChargeState> ov,
                 ChargeState old, ChargeState cur) {
-            Trigger.Result result = csTrigger.evalPredicate(cur.chargingState.name());
-            if (result != null) {
-                notifyUser(result, csMessageTarget);
+            if (csTrigger.evalPredicate(new StringList(cur.chargingState.name()))) {
+                notifyUser(csTrigger, csMessageTarget);
             }
             // Handle other triggers
             if (!cur.fastChargerPresent && chargeAnomaly.isSelected()) {
-                if (ccTrigger.handleSample(cur.chargerActualCurrent)) {
+                if (ccTrigger.evalPredicate(cur.chargerActualCurrent)) {
                     Map<String,String> contextSpecific = Utils.newHashMap(
                         "CUR", String.format("%d", cur.chargerActualCurrent),
                         "TARGET", String.format("%.0f", ccTrigger.getBaseline()),
                         "A_CT", "Charge");
                     notifyUser(contextSpecific, caMessageTarget);
                 }
-                if (pcTrigger.handleSample(cur.chargerPilotCurrent)) {
+                if (pcTrigger.evalPredicate(cur.chargerPilotCurrent)) {
                     Map<String,String> contextSpecific = Utils.newHashMap(
                         "CUR", String.format("%d", cur.chargerPilotCurrent),
                         "TARGET", String.format("%.0f", pcTrigger.getBaseline()),
@@ -487,24 +593,38 @@ public class NotifierController extends BaseController {
         @Override public void changed(
                 ObservableValue<? extends StreamState> ov,
                 StreamState old, StreamState cur) {
-            Trigger.Result result = socHitsTrigger.evalPredicate(new BigDecimal(cur.soc));
-            if (result != null) { notifyUser(result, socHitsMessageTarget); }
+            if (socHitsTrigger.evalPredicate(new BigDecimal(cur.soc))) {
+                notifyUser(socHitsTrigger, socHitsMessageTarget);
+            }
             
-            result = socFallsTrigger.evalPredicate(new BigDecimal(cur.soc));
-            if (result != null) { notifyUser(result, socFallsMessageTarget); }
+            if (socFallsTrigger.evalPredicate(new BigDecimal(cur.soc))) {
+                notifyUser(socFallsTrigger, socFallsMessageTarget);
+            }
             
             double speed = useMiles ? cur.speed : Utils.mToK(cur.speed);
-            result = speedHitsTrigger.evalPredicate(new BigDecimal(speed));
-            if (result != null) { notifyUser(result, shMessageTarget); }
+            if (speedHitsTrigger.evalPredicate(new BigDecimal(speed))) {
+                notifyUser(speedHitsTrigger, shMessageTarget);
+            }
+            
+            if (ac.utils.inProperUnits(lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
+                double odo = ac.utils.inProperUnits(cur.odometer);
+                if (odoHitsTrigger.evalPredicate(new BigDecimal(odo))) {
+                    notifyUser(odoHitsTrigger, ohMessageTarget);
+                    // Store in miles, but convert & test relative to the GUI setting
+                    ac.persistentState.putDouble(OdoCheckKey, cur.odometer);
+                    lastOdoCheck = cur.odometer;
+                }
+            }
             
             Area curLoc = new Area(cur.estLat, cur.estLng, 0, "Current Location");
-            result = enteredTrigger.evalPredicate(curLoc);
-            if (result != null) { notifyUser(result, enteredMessageTarget); }
-            result = leftTrigger.evalPredicate(curLoc);
-            if (result != null) { notifyUser(result, leftMessageTarget); }
+            for (GeoTrigger g : geoTriggers) {
+                if (g.trigger.evalPredicate(curLoc)) {
+                    notifyUser(g.trigger, g.messageTarget);
+                }
+            }
 
             // Handle other triggers
-            if (unlockedTrigger.unlocked(cur.speed, cur.shiftState)) {
+            if (unlockedTrigger.evalPredicate(cur.speed, cur.shiftState)) {
                 checkForUnlocked = true;
                 updateState(Vehicle.StateType.Vehicle);
             }
@@ -536,24 +656,24 @@ public class NotifierController extends BaseController {
         } if (lower.startsWith("command:")) {
             String command = StringUtils.remove(addr, "command:");
             String args = target.getSubject();
-            if (args != null) args = (new MessageTemplate(appContext, args)).getMessage(contextSpecific);
+            if (args != null) args = (new MessageTemplate(ac, args)).getMessage(contextSpecific);
             String stdin = target.getMessage();
-            if (stdin != null) stdin = (new MessageTemplate(appContext, stdin)).getMessage(contextSpecific);
-            appContext.tm.launchExternal(command, args, stdin, 60 * 1000);
+            if (stdin != null) stdin = (new MessageTemplate(ac, stdin)).getMessage(contextSpecific);
+            ac.tm.launchExternal(command, args, stdin, 60 * 1000);
             Tesla.logger.info("Executing external command for notification: " + command);
         } else {
-            MessageTemplate mt = new MessageTemplate(appContext, target.getActiveMsg());
-            MessageTemplate st = new MessageTemplate(appContext, target.getActiveSubj());
-            appContext.utils.sendNotification(
+            MessageTemplate mt = new MessageTemplate(ac, target.getActiveMsg());
+            MessageTemplate st = new MessageTemplate(ac, target.getActiveSubj());
+            ac.utils.sendNotification(
                 addr, st.getMessage(contextSpecific),
                 mt.getMessage(contextSpecific));
         }
     }
     
-    private void notifyUser(Trigger.Result r, MessageTarget target) {
+    private void notifyUser(GenericTrigger t, MessageTarget target) {
         Map<String,String> contextSpecific = Utils.newHashMap(
-            "CUR", r.getCurrentValue(),
-            "TARGET", r.getTarget());
+            "CUR", t.getCurrentVal(),
+            "TARGET", t.getTargetVal());
         notifyUser(contextSpecific, target);
     }
 
@@ -585,7 +705,6 @@ public class NotifierController extends BaseController {
         return Math.round(val * 10.0)/10.0;
     }
     
-    
     private class HTTPAsyncGet implements Runnable {
         private static final int timeout = 5 * 1000;
         
@@ -609,7 +728,7 @@ public class NotifierController extends BaseController {
         
         void exec() {
             Tesla.logger.info("HTTPAsyncGet exec with url: " + connection.getURL());
-            appContext.tm.launch(this, "HTTPAsyncGet");
+            ac.tm.launch(this, "HTTPAsyncGet");
         }
         
         @Override public void run() {
@@ -625,4 +744,128 @@ public class NotifierController extends BaseController {
             return javax.xml.bind.DatatypeConverter.printBase64Binary(bytes);
         }
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Methods for internalizing, externalizing, and comparing target values
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private GenericTrigger.RW<StringList> stringListHelper = new GenericTrigger.RW<StringList>() {
+        @Override public int compare(StringList value, StringList candidates) {
+            if (value == null || value.isEmpty()) return -1;
+            if (candidates == null || candidates.isEmpty()) return -1;
+            String curVal = value.get(0);
+            for (String candidate : candidates) {
+                if (candidate.equals(curVal)) return 0;
+            }
+            return -1;
+        }
+        
+        @Override public String toExternal(StringList list) {
+            StringBuilder sb = new StringBuilder();
+            int nItems = list.size();
+            for (int i = 0; i < nItems; i++) {
+                sb.append(list.get(i));
+                if (i < nItems-1) sb.append("^");
+            }
+            return sb.toString();
+        }
+
+        @Override public StringList fromExternal(String external) {
+            StringList l = new StringList();
+            if (external != null) {
+                String[] items = external.split("\\^");
+                l.addAll(Arrays.asList(items));
+            }
+            return l;
+        }
+
+        @Override public String formatted(StringList list) {
+            StringBuilder sb = new StringBuilder();
+            int nItems = list.size();
+            sb.append('(');
+            for (int i = 0; i < nItems; i++) {
+                sb.append(list.get(i));
+                if (i < nItems-1) sb.append(", ");
+            }
+            sb.append(')');
+            return sb.toString();
+        }
+
+        @Override public boolean isAny(StringList value) {
+            if (value == null || value.isEmpty()) return false;
+            return value.get(0).equals("Anything");
+        }
+    };
+    
+    private GenericTrigger.RW<BigDecimal> bdHelper = new GenericTrigger.RW<BigDecimal>() {
+        @Override public String toExternal(BigDecimal value) {
+            return String.format(Locale.US, "%3.1f", value.doubleValue());
+        }
+
+        @Override public BigDecimal fromExternal(String external) {
+            try {
+                return new BigDecimal(Double.valueOf(external));
+            } catch (NumberFormatException e) {
+                Tesla.logger.warning("Malformed externalized Trigger value: " + external);
+                return new BigDecimal(Double.valueOf(50));
+            }
+        }
+
+        @Override public String formatted(BigDecimal value) {
+            return String.format("%3.1f", value.doubleValue());
+        }
+
+        @Override public int compare(BigDecimal o1, BigDecimal o2) {
+            return o1.compareTo(o2);
+        }
+
+        @Override public boolean isAny(BigDecimal value) { return false; }
+    };
+    
+    private GenericTrigger.RW<String> stringHelper = new GenericTrigger.RW<String>() {
+        @Override public String toExternal(String value) { return value; }
+        @Override public String fromExternal(String external) { return external; }
+        @Override public String formatted(String value) { return value; }
+        @Override public int compare(String o1, String o2) {
+            return o1.compareTo(o2);
+        }
+        @Override public boolean isAny(String value) { return false; }
+    };
+    
+    private GenericTrigger.RW<Area> areaHelper = new GenericTrigger.RW<Area>() {
+        @Override public String toExternal(Area value) {
+            return String.format(Locale.US, "%3.5f^%3.5f^%2.1f^%s",
+                    value.lat, value.lng, value.radius, value.name);
+        }
+
+        @Override public Area fromExternal(String external) {
+            String[] elements = external.split("\\^");
+            if (elements.length != 4) {
+                Tesla.logger.severe("Malformed Area String: " + external);
+                return new Area();
+            }
+            double lat, lng, radius;
+            try {
+                lat = Double.valueOf(elements[0]);
+                lng = Double.valueOf(elements[1]);
+                radius = Double.valueOf(elements[2]);
+                return new Area(lat, lng, radius, elements[3]);
+            } catch (NumberFormatException e) {
+                Tesla.logger.severe("Malformed Area String: " + external);
+                return new Area();
+            }
+        }
+
+        @Override public String formatted(Area value) {
+            return String.format("[%s] within %2.1f meters", value.name, value.radius);
+        }
+
+        @Override public int compare(Area o1, Area o2) {
+            return o1.compareTo(o2);
+        }
+
+        @Override public boolean isAny(Area value) { return false; }
+    };
 }

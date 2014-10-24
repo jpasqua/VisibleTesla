@@ -22,7 +22,7 @@ import org.noroomattheinn.visibletesla.AppContext;
 
 
 /**
- * VersionUpdater: Check for, offer, and download new versions of the app
+ * VersionUpdater: Check for, offer, and download new versions of the fxApp
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -100,7 +100,7 @@ public class VersionUpdater {
                     platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
                     platformLink.setOnAction(new EventHandler<ActionEvent>() {
                         @Override public void handle(ActionEvent t) {
-                            appContext.app.getHostServices().showDocument(
+                            appContext.fxApp.getHostServices().showDocument(
                                     platformURL.toExternalForm());
 
                         }
@@ -109,7 +109,7 @@ public class VersionUpdater {
                 Hyperlink rnLink = new Hyperlink("Click to view the release notes");
                 rnLink.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent t) {
-                        appContext.app.getHostServices().showDocument(
+                        appContext.fxApp.getHostServices().showDocument(
                                 versions.getReleaseNotes().toExternalForm());
 
                     }

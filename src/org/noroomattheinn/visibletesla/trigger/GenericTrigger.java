@@ -1,206 +1,190 @@
 /*
- * Trigger.java - Copyright(c) 2013 Joe Pasqua
+ * GenericTrigger.java - Copyright(c) 2013 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Dec 14, 2013
  */
 
 package org.noroomattheinn.visibletesla.trigger;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Comparator;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.visibletesla.AppContext;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.AnyChange;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.Becomes;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.EQ;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.FallsBelow;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.GT;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.HitsOrExceeds;
-import static org.noroomattheinn.visibletesla.trigger.Predicate.Type.LT;
 
 /**
- * Trigger: Encapsulates a Subject, Predicate, and Target and triggers when
- * they have the desired relationship.
+ * GenericTrigger: A generic trigger mechanism that handles a number of different
+ * predicates on an input type.
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class Trigger<T extends Comparable<T>> {
-        
+public class GenericTrigger<T> {
+/*------------------------------------------------------------------------------
+ *
+ * Cosntants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public enum Predicate {FallsBelow, HitsOrExceeds, Becomes, AnyChange, GT, LT, EQ};
+    public interface RW<T> extends Comparator<T> {
+        public String toExternal(T value);
+        public T fromExternal(String external);
+        public String formatted(T value);
+        public boolean isAny(T value);
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext ac;
-    private final BooleanProperty isEnabled;
-    private final Subject<T> subject;
-    private final Predicate<T> predicate;
-    private final Target<T> target;
-    private final ObjectProperty<Calendar> timeTarget;
-    private final long bounceInterval;
-    private Calendar lastDaySatisfied;
-    private long lastTimeSatisfied;
+    private final AppContext        ac;
+    private final String            triggerName;
+    private final String            key;
+    private final BooleanProperty   isEnabled;
+    private final ObjectProperty<T> targetProperty;
+    private final T                 targetDefault;
+    private final Predicate         predicate;
+    private final long              bounceInterval;
+    private final RW<T>             th;
     
-    /*==============================================================================
+    private T                       curVal, lastVal;
+    private long                    lastTimeSatisfied;
+    
+/*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
     
-    public Trigger(AppContext ac, BooleanProperty isEnabled,
-            Subject<T> subject,
-            Predicate<T> predicate,
-            Target<T> target) {
+    public GenericTrigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
+            String name, String key, Predicate predicate,
+            ObjectProperty<T> targetProperty, T targetDefault,
+            long bounceInterval) {
         this.ac = ac;
+        this.triggerName = name;
+        this.key = key;
         this.isEnabled = isEnabled;
-        this.subject = subject;
+        this.targetProperty = targetProperty;
+        this.targetDefault = targetDefault;
         this.predicate = predicate;
-        this.target = target;
-        this.timeTarget = null;
-        this.bounceInterval = 0;
-    }
-    
-    public Trigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
-            String name, String key, 
-            Predicate.Type predicateType,
-            ObjectProperty<T> targetProperty, T targetDefault,
-            long bounceInterval) {
-        this(ac, isEnabled, th, name, key, predicateType,
-             null, targetProperty, targetDefault, bounceInterval);
-    }
-    
-    private Trigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
-            String name, String key, 
-            Predicate.Type predicateType, ObjectProperty<Calendar> timeTarget,
-            ObjectProperty<T> targetProperty, T targetDefault,
-            long bounceInterval) {
-        this.ac = ac;
-        this.isEnabled = isEnabled;
-        subject = new Subject<>(name, key, th);
-        target = new Target<>(targetProperty, targetDefault, th);
-        predicate = new Predicate<>(predicateType, target);
-        this.timeTarget = timeTarget;
         this.bounceInterval = bounceInterval;
-    }
-    
-    /**
-     * init must be called immediately after the constructor and before the 
-     * instance is used for any other purpose.
-     */
-    public void init() {
-        lastDaySatisfied = new GregorianCalendar();
-        lastDaySatisfied.add(Calendar.DAY_OF_YEAR, -1);
-        lastTimeSatisfied = 0L;
-        target.setListener(this);
-        isEnabled.addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(
-                    ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                externalize();
-            }
+        this.th = th;
+        
+        this.lastTimeSatisfied = 0;
+        this.curVal = this.lastVal = null;
+        
+        targetProperty.addListener(new ChangeListener<T>() {
+            @Override public void changed(ObservableValue<? extends T> ov, T t, T t1)
+            { externalize(); }
         });
-        if (timeTarget != null) {
-            timeTarget.addListener(new ChangeListener<Calendar>() {
-                @Override public void changed(
-                        ObservableValue<? extends Calendar> ov, Calendar t, Calendar t1) {
-                    externalize();
-                }
-            });
-        }
+        isEnabled.addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1)
+            { externalize(); }
+        });
         internalize();
     }
     
-    public Predicate getPredicate() { return predicate; }
-    public Subject getSubject() { return subject; }
-    public Target getTarget() { return target; }
+    public String getTriggerName() { return triggerName; }
+    public Predicate getPredicateType() { return predicate; }
+    public String getPredicateName() { 
+        switch (predicate) {
+            case FallsBelow: return "fell below";
+            case HitsOrExceeds: return "hit or exceeded";
+            case Becomes: return "became";
+            case AnyChange: return "occurred";
+            case GT: return "is greater than";
+            case LT: return "is less than";
+            case EQ: return "is equal to";
+        }
+        return predicate.name();
+    }
     
+    public String getCurrentVal() {
+        return curVal == null ? "" : th.formatted(curVal);
+    }
     
-    public Result evalPredicate(T newVal) {
-        subject.set(newVal);
-        if (isEnabled.get()) {
-            
-            if (!satisfiesTimeTrigger() || bouncing()) return null;
-            
-            if (predicate.satisfied(subject.get())) {
-                lastDaySatisfied = new GregorianCalendar();
-                lastTimeSatisfied = lastDaySatisfied.getTimeInMillis();
-                return new Result(this);
+    public String getTargetVal() {
+        T triggerVal = targetProperty.get();
+        return triggerVal == null ? "" : th.formatted(triggerVal);
+    }
+
+    public boolean evalPredicate(T newVal) {
+        curVal = newVal;
+        if (isEnabled.get() && !bouncing()) {
+            if (satisfied(newVal)) {
+                lastTimeSatisfied = System.currentTimeMillis();
+                return true;
             }
         }
-        return null;
+        return false;
     }
     
-    public void externalize() {
-        String tt = "HH:MM";
-        if (timeTarget != null) {
-            tt = String.format("%02d:%02d",
-                    timeTarget.get().get(Calendar.HOUR_OF_DAY),
-                    timeTarget.get().get(Calendar.MINUTE));
+    public String defaultMessage() {
+        String val = getCurrentVal();
+        String targetVal = getCurrentVal();
+        String pName = getPredicateName();
+        switch (predicate) {
+            case HitsOrExceeds:
+            case FallsBelow:
+                return String.format("%s %s %s (%s)",
+                    triggerName, pName, targetVal, val);
+            case Becomes:
+                return String.format("%s became: %s", triggerName, val);
+            case AnyChange:
+                return String.format("%s Activity: %s", triggerName, val);
+            case EQ:
+            case LT:
+            case GT:
+                return String.format("%s %s %s", triggerName, pName, targetVal);
         }
-        String encoded = String.format(
-            "%s_%s_%s", onOff(isEnabled.get()), target.toExternal(), tt);
-        ac.persistentState.put(fullKey(), encoded);
+        // If we ever get here it is a bug in the code - I added a type
+        // and didn't account for it in the switch. Do something useful...
+        Tesla.logger.severe("Unexpected Predicate type: " + pName);
+        return String.format(
+                "%s %s %s (%s)", triggerName, pName, targetVal, curVal);
     }
-    
-    public void internalize() {
-        String dfltEncoded = target.dfltToExternal();
-        String encoded = ac.persistentState.get(fullKey(), "0_" + dfltEncoded);
-        String[] elements = encoded.split("_");
-        if (elements.length == 2) {
-            isEnabled.set(elements[0].equals("1"));
-            target.set(target.fromExternal(elements[1]));
-            if (timeTarget != null) setTimeTarget("22:00");
-        } else if (elements.length == 3) {
-            isEnabled.set(elements[0].equals("1"));
-            target.set(target.fromExternal(elements[1]));
-            setTimeTarget(elements[2]);
-        } else {
-            isEnabled.set(false);
-            target.set(target.fromExternal(dfltEncoded));
-            if (timeTarget != null) setTimeTarget("22:00");
-            Tesla.logger.warning("Malformed externalized trigger: " + encoded);
-        }
-    }
-    
-    public BooleanProperty getEnabled() { return this.isEnabled; }
     
 /*------------------------------------------------------------------------------
  *
- * Private Utility Methods
+ * Private Methods to evaluate the predicate
  * 
  *----------------------------------------------------------------------------*/
     
-    private String fullKey() { return ac.vehicle.getVIN()+"_"+subject.getKey(); }
-    private String onOff(boolean b) { return b ? "1" : "0"; }
-    
-    /**
-     * Determines whether the time constraint for this predicate has been satisfied 
-     * @return true if and only if:
-     * 1. There is a timeTarget
-     * 2. It hasn't already been triggered today
-     * 3. The current time is after the time target [Don't worry about equal]
-     */
-    private boolean satisfiesTimeTrigger() {
-        if (timeTarget == null) return true;
-        
-        Calendar now = new GregorianCalendar();
-        
-        // Has it already been triggered today? If so, then don't trigger again
-        if (lastDaySatisfied.get(Calendar.DAY_OF_YEAR) == 
-                now.get(Calendar.DAY_OF_YEAR)) return false;
-        
-        // Note that the day or even the year may have changed since the time
-        // target was established. Update it to be sure we're on the right day.
-        timeTarget.get().set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR));
-        timeTarget.get().set(Calendar.YEAR, now.get(Calendar.YEAR));
-        if (now.after(timeTarget.get())) {
-            return (now.getTimeInMillis() - timeTarget.get().getTimeInMillis() < 10 * 60 * 1000);
+    private boolean satisfied(T current) {
+        boolean satisfied = false;
+        T targetVal = targetProperty.get();
+
+        if (predicate == Predicate.AnyChange) {
+            satisfied = true;
+        } else if (predicate == Predicate.GT) {
+            satisfied = th.compare(current, targetVal) > 0;
+        } else if (predicate == Predicate.LT) {
+            satisfied = th.compare(current, targetVal) < 0;
+        } else if (predicate == Predicate.EQ) {
+            satisfied = th.compare(current, targetVal) == 0;
+        } else if (lastVal != null) {
+            if (predicate == Predicate.FallsBelow) {
+                satisfied = th.compare(lastVal, targetVal) >= 0 &&
+                            th.compare(current, targetVal) <  0;
+            } else if (predicate == Predicate.HitsOrExceeds) {
+                satisfied = th.compare(lastVal, targetVal) <  0 &&
+                            th.compare(current, targetVal) >= 0;
+            } else if (predicate == Predicate.Becomes) {
+                if (th.isAny(targetVal)) {
+                    satisfied = (th.compare(lastVal, current) != 0);
+                } else {
+                    satisfied = th.compare(lastVal, current) != 0 &&
+                                th.compare(current, targetVal) == 0;
+                }
+            }
         }
-        return false;
+        lastVal = current;
+
+        return satisfied;
     }
     
     private boolean bouncing() {
@@ -208,62 +192,32 @@ public class Trigger<T extends Comparable<T>> {
         return (System.currentTimeMillis() - lastTimeSatisfied < bounceInterval);
     }
     
-    private void setTimeTarget(String encoded) {
-        if (!encoded.equals("HH:MM")) {
-            try {
-                int hour = Integer.valueOf(encoded.substring(0, 2));
-                int minute = Integer.valueOf(encoded.substring(3, 5));
-                GregorianCalendar tt = new GregorianCalendar();
-                tt.set(Calendar.HOUR_OF_DAY, hour);
-                tt.set(Calendar.MINUTE, minute);
-                timeTarget.set(tt);
-            } catch (Exception e) {
-                Tesla.logger.warning("Malformed externalized trigger time target: " + encoded);
-            }
-        }
+/*------------------------------------------------------------------------------
+ *
+ * Private Methods for internalizing and externalizing a Trigger
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private String fullKey() { return ac.vehicle.getVIN()+"_"+key; }
+    private String onOff(boolean b) { return b ? "1" : "0"; }
+    
+    
+    private void externalize() {
+        String encoded = String.format("%s_%s", onOff(isEnabled.get()), th.toExternal(targetProperty.get()));
+        ac.persistentState.put(fullKey(), encoded);
     }
     
-    public static class Result {
-        private Trigger trigger;
-
-        Result(Trigger t) {
-            this.trigger = t;
-        }
-
-        public String getSubject() { return trigger.getSubject().getName(); }
-        public String getPredicate() { return trigger.getPredicate().toString(); }
-        public String getTarget() { return trigger.getTarget().formatted(); }
-        public String getCurrentValue() { return trigger.getSubject().formatted(); }
-
-        public String defaultMessage() {
-                Predicate predicate = trigger.getPredicate();
-                Subject subject = trigger.getSubject();
-                Target target = trigger.getTarget();
-                switch (predicate.getType()) {
-                    case HitsOrExceeds:
-                    case FallsBelow:
-                        return String.format("%s %s %s (%s)",
-                            subject.getName(), predicate.toString(),
-                            target.formatted(), subject.formatted());
-                    case Becomes:
-                        return String.format("%s became: %s",
-                            subject.getName(), subject.formatted());
-                    case AnyChange:
-                        return String.format("%s Activity: %s",
-                            subject.getName(), subject.formatted());
-                    case EQ:
-                    case LT:
-                    case GT:
-                        return String.format("%s %s %s",
-                            subject.getName(), predicate.toString(), target.formatted());
-                }
-                // If we ever get here it is a bug in the code - I added a type
-                // and didn't account for it in the switch. Do something useful...
-                Tesla.logger.severe("Unexpected Predicate type: " + predicate.getType());
-                return String.format(
-                        "%s %s %s (%s)",
-                        subject.getName(), predicate.toString(),
-                        target.formatted(), subject.formatted());
+    private void internalize() {
+        String dfltEncoded = th.toExternal(targetDefault);
+        String encoded = ac.persistentState.get(fullKey(), "0_" + dfltEncoded);
+        String[] elements = encoded.split("_");
+        if (elements.length >= 2) {
+            isEnabled.set(elements[0].equals("1"));
+            targetProperty.set(th.fromExternal(elements[1]));
+        } else {
+            isEnabled.set(false);
+            targetProperty.set(th.fromExternal(dfltEncoded));
+            Tesla.logger.warning("Malformed externalized trigger: " + encoded);
         }
     }
 }

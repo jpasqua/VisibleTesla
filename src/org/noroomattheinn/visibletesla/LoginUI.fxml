@@ -14,7 +14,6 @@
     <TextField fx:id="usernameField" layoutX="261.0" layoutY="167.0" prefWidth="200.0" promptText="E-mail" />
     <PasswordField fx:id="passwordField" layoutX="261.0" layoutY="189.0" prefWidth="200.0" promptText="********" />
     <Button fx:id="loginButton" defaultButton="true" layoutX="400.0" layoutY="218.0" mnemonicParsing="false" onAction="#loginAction" text="Log In" />
-    <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutAction" text="Log Out" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
     <Label labelFor="$usernameField" layoutX="187.0" layoutY="170.0" text="User Name" />
     <Label labelFor="$passwordField" layoutX="196.0" layoutY="192.0" text="Password" />
     <Label id="failedLoginLabel" fx:id="loggedInStatus" layoutX="271.0" layoutY="93.0" prefWidth="200.0" text="Not Logged In" textFill="BLACK" visible="true" />

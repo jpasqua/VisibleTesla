@@ -15,106 +15,220 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.NotifierController">
   <children>
-    <VBox id="VBox" alignment="CENTER" spacing="8.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="50.0">
-      <children>
-        <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
-          <children>
-            <CheckBox fx:id="socHits" mnemonicParsing="false" prefWidth="164.0" text="SOC Hits or Exceeds" />
-            <Slider fx:id="socHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
-            <BigDecimalField fx:id="socHitsField" prefWidth="80.0" />
-            <Label text="\%" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button fx:id="socHitsOptions" alignment="CENTER" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
-          <children>
-            <CheckBox fx:id="socFalls" mnemonicParsing="false" prefWidth="164.0" text="SOC Falls Below" />
-            <Slider fx:id="socFallsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
-            <BigDecimalField fx:id="socFallsField" prefWidth="80.0" />
-            <Label text="\%" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button fx:id="socFallsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
-          <children>
-            <CheckBox fx:id="speedHits" mnemonicParsing="false" prefWidth="164.0" text="Speed Hits or Exceeds" />
-            <Slider fx:id="speedHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
-            <BigDecimalField fx:id="speedHitsField" prefWidth="80.0" />
-            <Label fx:id="speedUnitsLabel" text="mph" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button fx:id="speedHitsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
-          <children>
-            <CheckBox id="chargeAnomaly" fx:id="unlocked" mnemonicParsing="false" prefWidth="164.0" text="Unlocked Doors" />
-            <Slider id="speedHitsSlider" fx:id="unlockedDoorsSlider" majorTickUnit="10.0" max="55.0" min="5.0" minorTickCount="1" prefWidth="187.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" style="&#10;" value="10.0" />
-            <BigDecimalField id="speedHitsField" fx:id="unlockedDoorsField" prefWidth="80.0" />
-            <Label id="speedUnitsLabel" text="minutes" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button id="socFallsOptions" fx:id="unlockedOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="15.0">
-          <children>
-            <CheckBox fx:id="chargeState" mnemonicParsing="false" prefWidth="164.0" text="Charge State Becomes" />
-            <ComboBox fx:id="csOptions" value="Complete">
-              <items>
-                <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="Charging" />
-                  <String fx:value="Complete" />
-                  <String fx:value="Disconnected" />
-                  <String fx:value="Stopped" />
-                  <String fx:value="Starting" />
-                  <String fx:value="NoPower" />
-                  <String fx:value="Unknown" />
-                  <String fx:value="Anything" />
-                </FXCollections>
-              </items>
-            </ComboBox>
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button fx:id="chargeBecomesOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="15.0">
-          <children>
-            <CheckBox id="schedulerEvent" fx:id="carEntered" mnemonicParsing="false" prefWidth="164.0" text="Car entered area" />
-            <Button id="defineEnterArea" fx:id="defineEnterButton" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button id="seOptions" fx:id="carEnteredOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="15.0">
-          <children>
-            <CheckBox id="schedulerEvent" fx:id="carLeft" mnemonicParsing="false" prefWidth="164.0" text="Car left area" />
-            <Button id="defineExitArea" fx:id="defineLeftButton" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button id="seOptions" fx:id="carLeftOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
-          <children>
-            <CheckBox fx:id="schedulerEvent" mnemonicParsing="false" text="Report Scheduler Events" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button fx:id="seOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-        <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
-          <children>
-            <CheckBox fx:id="chargeAnomaly" mnemonicParsing="false" prefWidth="-1.0" text="Detect Charge Anomalies" />
-            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-            <Button id="socFallsOptions" fx:id="caOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
-          </children>
-        </HBox>
-      </children>
-    </VBox>
-    <Label text="Notifications" textAlignment="CENTER" AnchorPane.leftAnchor="241.0" AnchorPane.topAnchor="14.0">
-      <font>
-        <Font name="System Bold" size="24.0" />
-      </font>
-    </Label>
+    <Accordion prefHeight="400.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <expandedPane>
+        <TitledPane fx:id="x1" animated="false" text="Charging">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <VBox id="VBox" alignment="TOP_LEFT" spacing="20.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                  <children>
+                    <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
+                      <children>
+                        <CheckBox fx:id="socHits" mnemonicParsing="false" prefWidth="164.0" text="SOC Hits or Exceeds" />
+                        <Slider fx:id="socHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+                        <BigDecimalField fx:id="socHitsField" prefWidth="80.0" />
+                        <Label text="\%" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="socHitsOptions" alignment="CENTER" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                    <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
+                      <children>
+                        <CheckBox fx:id="socFalls" mnemonicParsing="false" prefWidth="164.0" text="SOC Falls Below" />
+                        <Slider fx:id="socFallsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+                        <BigDecimalField fx:id="socFallsField" prefWidth="80.0" />
+                        <Label text="\%" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="socFallsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                    <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="15.0">
+                      <children>
+                        <CheckBox fx:id="chargeState" mnemonicParsing="false" prefWidth="164.0" text="Charge State Becomes" />
+                        <GridPane prefWidth="368.0">
+                          <children>
+                            <RadioButton fx:id="csbCharging" mnemonicParsing="false" onAction="#csbItemClicked" text="Charging" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <RadioButton fx:id="csbComplete" mnemonicParsing="false" onAction="#csbItemClicked" text="Complete" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                            <RadioButton fx:id="csbStarting" mnemonicParsing="false" onAction="#csbItemClicked" text="Starting" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <RadioButton fx:id="csbNoPower" mnemonicParsing="false" onAction="#csbItemClicked" text="No Power" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            <RadioButton fx:id="csbDisconnected" mnemonicParsing="false" onAction="#csbItemClicked" text="Disconnected" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                            <RadioButton fx:id="csbUnknown" mnemonicParsing="false" onAction="#csbItemClicked" text="Unknown" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                            <RadioButton fx:id="csbStopped" mnemonicParsing="false" onAction="#csbItemClicked" text="Stopped" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                            <RadioButton fx:id="csbAny" mnemonicParsing="false" onAction="#csbItemClicked" prefHeight="23.0" prefWidth="86.0" text="Anything" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                          </children>
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="99.0" minWidth="10.0" prefWidth="82.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="87.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="128.0" minWidth="10.0" prefWidth="110.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="144.0" minWidth="10.0" prefWidth="89.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                        </GridPane>
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="chargeBecomesOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                    <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
+                      <children>
+                        <CheckBox fx:id="chargeAnomaly" mnemonicParsing="false" prefWidth="-1.0" text="Detect Charge Anomalies" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button id="socFallsOptions" fx:id="caOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                  </children>
+                </VBox>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </expandedPane>
+      <panes>
+        <fx:reference source="x1" />
+        <TitledPane animated="false" text="Geofencing">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <HBox id="HBox" alignment="CENTER" layoutY="10.0" spacing="15.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+                  <children>
+                    <VBox id="VBox" alignment="CENTER" spacing="10.0">
+                      <children>
+                        <Label text="Car Entered Area">
+                          <font>
+                            <Font name="System Bold" size="13.0" fx:id="x2" />
+                          </font>
+                        </Label>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carEntered1" mnemonicParsing="false" prefWidth="120.0" text="Area 1" />
+                            <Button id="defineEnterArea" fx:id="defineEnterButton1" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carEnteredOptions1" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carEntered2" mnemonicParsing="false" prefWidth="120.0" text="Area 2" />
+                            <Button id="defineEnterArea" fx:id="defineEnterButton2" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carEnteredOptions2" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carEntered3" mnemonicParsing="false" prefWidth="120.0" text="Area 3" />
+                            <Button id="defineEnterArea" fx:id="defineEnterButton3" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carEnteredOptions3" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carLeft3" mnemonicParsing="false" prefWidth="120.0" text="Area 3" />
+                            <Button id="defineExitArea" fx:id="defineLeftButton3" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carLeftOptions3" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                      </children>
+                    </VBox>
+                    <Separator orientation="VERTICAL" prefHeight="200.0" />
+                    <VBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                      <children>
+                        <Label font="$x2" text="Car Left Area" />
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carLeft1" mnemonicParsing="false" prefWidth="120.0" text="Area 1" />
+                            <Button id="defineExitArea" fx:id="defineLeftButton1" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carLeftOptions1" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carLeft2" mnemonicParsing="false" prefWidth="120.0" text="Area 2" />
+                            <Button id="defineExitArea" fx:id="defineLeftButton2" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carLeftOptions2" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carEntered4" mnemonicParsing="false" prefWidth="120.0" text="Area 4" />
+                            <Button id="defineEnterArea" fx:id="defineEnterButton4" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carEnteredOptions4" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                          <children>
+                            <CheckBox id="schedulerEvent" fx:id="carLeft4" mnemonicParsing="false" prefWidth="120.0" text="Area 4" />
+                            <Button id="defineExitArea" fx:id="defineLeftButton4" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                            <Button id="seOptions" fx:id="carLeftOptions4" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                          </children>
+                        </HBox>
+                      </children>
+                    </VBox>
+                  </children>
+                </HBox>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+        <TitledPane animated="false" expanded="false" text="Other">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <VBox id="VBox" alignment="CENTER" prefWidth="591.0" spacing="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                  <children>
+                    <HBox id="HBox" alignment="BASELINE_LEFT" spacing="15.0">
+                      <children>
+                        <CheckBox fx:id="speedHits" mnemonicParsing="false" prefWidth="164.0" text="Speed Hits or Exceeds" />
+                        <Slider fx:id="speedHitsSlider" prefWidth="187.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+                        <BigDecimalField fx:id="speedHitsField" prefWidth="80.0" />
+                        <Label fx:id="speedUnitsLabel" text="mph" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="speedHitsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                    <HBox id="HBox" alignment="BASELINE_LEFT" prefHeight="-1.0" prefWidth="511.0" spacing="15.0">
+                      <children>
+                        <CheckBox id="chargeAnomaly" fx:id="unlocked" mnemonicParsing="false" prefWidth="164.0" text="Unlocked Doors" />
+                        <Slider id="speedHitsSlider" fx:id="unlockedDoorsSlider" majorTickUnit="10.0" max="55.0" min="5.0" minorTickCount="1" prefWidth="187.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" style="&#10;" value="10.0" />
+                        <BigDecimalField id="speedHitsField" fx:id="unlockedDoorsField" prefWidth="80.0" />
+                        <Label id="speedUnitsLabel" text="minutes" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button id="socFallsOptions" fx:id="unlockedOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                    <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
+                      <children>
+                        <CheckBox id="schedulerEvent" fx:id="odoHits" mnemonicParsing="false" prefWidth="164.0" text="Odometer Passes" />
+                        <BigDecimalField id="speedHitsField" fx:id="odoHitsField" prefWidth="93.0" text="10000" />
+                        <Label id="speedUnitsLabel" fx:id="odoHitsLabel" text="miles" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button id="seOptions" fx:id="odoHitsOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                    <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="579.0" spacing="20.0">
+                      <children>
+                        <CheckBox fx:id="schedulerEvent" mnemonicParsing="false" text="Report Scheduler Events" />
+                        <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="seOptions" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                      </children>
+                    </HBox>
+                  </children>
+                </VBox>
+              </children>
+            </AnchorPane>
+          </content>
+        </TitledPane>
+      </panes>
+    </Accordion>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />

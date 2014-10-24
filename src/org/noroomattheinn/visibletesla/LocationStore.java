@@ -57,7 +57,7 @@ public class LocationStore extends DataStore {
             }
         });
 
-        load(getLoadPeriod());
+        load(appContext.prefs.getLoadPeriod());
     }
     
 /*------------------------------------------------------------------------------

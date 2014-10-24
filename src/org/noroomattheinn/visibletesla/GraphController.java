@@ -26,9 +26,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.chart.VTLineChart;
-import org.noroomattheinn.visibletesla.chart.TimeBasedChart;
-import org.noroomattheinn.visibletesla.chart.VTSeries;
+import org.noroomattheinn.visibletesla.fxextensions.VTLineChart;
+import org.noroomattheinn.visibletesla.fxextensions.TimeBasedChart;
+import org.noroomattheinn.visibletesla.fxextensions.VTSeries;
 import org.noroomattheinn.visibletesla.stats.Stat;
 
 /**
@@ -115,7 +115,7 @@ public class GraphController extends BaseController {
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
-        appContext.persistentState.putBoolean(vinBased(series.getName()), visible);
+        ac.persistentState.putBoolean(vinBased(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ public class GraphController extends BaseController {
     
     private void prepSeries() {
         VTSeries.Transform<Number> distTransform = 
-                appContext.utils.unitType() == Utils.UnitType.Imperial 
+                ac.utils.unitType() == Utils.UnitType.Imperial 
                 ? VTSeries.idTransform : VTSeries.mToKTransform;
         lineChart.clearSeries();
 
@@ -164,14 +164,14 @@ public class GraphController extends BaseController {
         // Restore the last settings of the checkboxes
         for (CheckBox cb : cbToSeries.keySet()) {
             VTSeries s = cbToSeries.get(cb);
-            boolean selected = appContext.persistentState.getBoolean(vinBased(s.getName()), true);
+            boolean selected = ac.persistentState.getBoolean(vinBased(s.getName()), true);
             cb.setSelected(selected);
             lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
-        displayLines = appContext.persistentState.getBoolean(vinBased("DISPLAY_LINES"), true);
-        displayMarkers = appContext.persistentState.getBoolean(vinBased("DISPLAY_MARKERS"), true);
+        displayLines = ac.persistentState.getBoolean(vinBased("DISPLAY_LINES"), true);
+        displayMarkers = ac.persistentState.getBoolean(vinBased("DISPLAY_MARKERS"), true);
 
         reflectDisplayOptions();
     }
@@ -188,27 +188,27 @@ public class GraphController extends BaseController {
         // css class decalratively, but that doesn't work and no one seems to
         // know why. This is a workaround.
         URL url = getClass().getClassLoader().getResource("org/noroomattheinn/styles/tooltip.css");
-        appContext.stage.getScene().getStylesheets().add(url.toExternalForm());
+        ac.stage.getScene().getStylesheets().add(url.toExternalForm());
         
         prepSeries();
         loadExistingData();
         // Register for additions to the data
-        appContext.statsStore.newestVoltage.addListener(statHandler);
-        appContext.statsStore.newestCurrent.addListener(statHandler);
-        appContext.statsStore.newestEstRange.addListener(statHandler);
-        appContext.statsStore.newestSOC.addListener(statHandler);
-        appContext.statsStore.newestROC.addListener(statHandler);
-        appContext.statsStore.newestBatteryAmps.addListener(statHandler);
-        appContext.statsStore.newestPower.addListener(statHandler);
-        appContext.statsStore.newestSpeed.addListener(statHandler);
+        ac.statsStore.newestVoltage.addListener(statHandler);
+        ac.statsStore.newestCurrent.addListener(statHandler);
+        ac.statsStore.newestEstRange.addListener(statHandler);
+        ac.statsStore.newestSOC.addListener(statHandler);
+        ac.statsStore.newestROC.addListener(statHandler);
+        ac.statsStore.newestBatteryAmps.addListener(statHandler);
+        ac.statsStore.newestPower.addListener(statHandler);
+        ac.statsStore.newestSpeed.addListener(statHandler);
 
         setGap();
-        appContext.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
+        ac.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 setGap(); lineChart.refreshChart();
             }
         });
-        appContext.prefs.graphGapTime.addListener(new ChangeListener<Number>() {
+        ac.prefs.graphGapTime.addListener(new ChangeListener<Number>() {
             @Override public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
                 setGap(); lineChart.refreshChart();
             }
@@ -281,8 +281,8 @@ public class GraphController extends BaseController {
 
             reflectDisplayOptions();
 
-            appContext.persistentState.putBoolean(vinBased("DISPLAY_LINES"), displayLines);
-            appContext.persistentState.putBoolean(vinBased("DISPLAY_MARKERS"), displayMarkers);
+            ac.persistentState.putBoolean(vinBased("DISPLAY_LINES"), displayLines);
+            ac.persistentState.putBoolean(vinBased("DISPLAY_MARKERS"), displayMarkers);
         }
     };
 
@@ -302,8 +302,8 @@ public class GraphController extends BaseController {
     }
 
     private void setGap() {
-        lineChart.setIgnoreGap(appContext.prefs.ignoreGraphGaps.get(),
-                               appContext.prefs.graphGapTime.get());
+        lineChart.setIgnoreGap(ac.prefs.ignoreGraphGaps.get(),
+                               ac.prefs.graphGapTime.get());
     }
     
 /*------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
         
     private void loadExistingData() {
-        Map<Long,Map<String,Double>> rows = appContext.statsStore.getData();
+        Map<Long,Map<String,Double>> rows = ac.statsStore.getData();
         Map<String,ObservableList<XYChart.Data<Number,Number>>> typeToList = new HashMap<>();
         
         for (String type : typeToSeries.keySet()) {

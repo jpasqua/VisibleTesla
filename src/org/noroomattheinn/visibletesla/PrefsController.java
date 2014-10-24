@@ -24,6 +24,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.utils.PWUtils;
+import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -88,42 +89,42 @@ public class PrefsController extends BaseController {
         byte[] salt = pwUtils.generateSalt();
         byte[] pw = pwUtils.getEncryptedPassword(code, salt);
         String externalForm = pwUtils.externalRep(salt, pw);
-        appContext.restEncPW = pw;
-        appContext.restSalt = salt;
-        appContext.prefs.authCode.set(externalForm);
+        ac.restEncPW = pw;
+        ac.restSalt = salt;
+        ac.prefs.authCode.set(externalForm);
     }
     
     @FXML void showAppFiles(ActionEvent event) {
-        appContext.openFileViewer(appContext.getAppFileFolder().getAbsolutePath());
+        ac.openFileViewer(ac.getAppFileFolder().getAbsolutePath());
     }
     
     @FXML void wakeOnTCHandler(ActionEvent event) {
     }
     
     @FXML void generalHandleAFF(ActionEvent event) {
-        Dialogs.showInformationDialog(appContext.stage, 
+        Dialogs.showInformationDialog(ac.stage, 
             "This change will take effect the next time the application is started.\n",
             "Please Note...", "General Preferences");
     }
     
     @FXML void testDelivery(ActionEvent event) {
         String msg = "Testing delivery from VisibleTesla on ";
-        String addr = appContext.prefs.notificationAddress.get();
+        String addr = ac.prefs.notificationAddress.get();
         if (addr == null || addr.length() == 0) {
-            Dialogs.showWarningDialog(appContext.stage,
+            Dialogs.showWarningDialog(ac.stage,
                     "You must supply an email address before testing delivery",
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!appContext.utils.sendNotification(addr, msg + date)) {
-            Dialogs.showWarningDialog(appContext.stage,
+        if (!ac.utils.sendNotification(addr, msg + date)) {
+            Dialogs.showWarningDialog(ac.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +
                     "If you have changed any advanced settings,\n" +
                     "please double check them  or revert to defaults",
                     "Test Problem");
         } else {
-            Dialogs.showInformationDialog(appContext.stage, 
+            Dialogs.showInformationDialog(ac.stage, 
                     "The test message has been sent to the specified\n" +
                     "address. If you do not receive it within 15 minutes,\n" +
                     "please check your email address and try again. After\n" +
@@ -138,38 +139,38 @@ public class PrefsController extends BaseController {
     //
     private void initGeneralPrefsUI() {
         // Basic
-        bindToCheckBox(wakeOnTabChange, appContext.prefs.wakeOnTabChange);
+        bindToCheckBox(wakeOnTabChange, ac.prefs.wakeOnTabChange);
         bindToIntegerProperty(idleThresholdSlider, idleThresholdLabel,
-                              appContext.prefs.idleThresholdInMinutes);
-        bindToComboBox(graphsTimePeriod, appContext.prefs.loadPeriod);
-        bindToTextField(emailForNotifications, appContext.prefs.notificationAddress);
-        bindToComboBox(overviewRange, appContext.prefs.overviewRange);
+                              ac.prefs.idleThresholdInMinutes);
+        bindToComboBox(graphsTimePeriod, ac.prefs.loadPeriod);
+        bindToTextField(emailForNotifications, ac.prefs.notificationAddress);
+        bindToComboBox(overviewRange, ac.prefs.overviewRange);
 
         // Advanced
-        bindToCheckBox(enableProxy, appContext.prefs.enableProxy);
-        bindToTextField(proxyHost, appContext.prefs.proxyHost);
-        bindToTextField(proxyPort, appContext.prefs.proxyPort);
-        bindToCheckBox(offerExperimental, appContext.prefs.offerExperimental);
-        bindToCheckBox(useCustomGoogleAPIKey, appContext.prefs.useCustomGoogleAPIKey);
-        bindToTextField(customGoogleAPIKey, appContext.prefs.googleAPIKey);
-        bindToCheckBox(useCustomMailGunKey, appContext.prefs.useCustomMailGunKey);
-        bindToTextField(customMailGunKey, appContext.prefs.mailGunKey);
-        bindToIntegerProperty(fontScaleSlider, fontScale, appContext.prefs.fontScale);
-        bindToCheckBox(enableRest, appContext.prefs.enableRest);
-        bindToTextField(restPort, appContext.prefs.restPort);
-        bindToTextField(customURLSrc, appContext.prefs.customURLSource);
+        bindToCheckBox(enableProxy, ac.prefs.enableProxy);
+        bindToTextField(proxyHost, ac.prefs.proxyHost);
+        bindToTextField(proxyPort, ac.prefs.proxyPort);
+        bindToCheckBox(offerExperimental, ac.prefs.offerExperimental);
+        bindToCheckBox(useCustomGoogleAPIKey, ac.prefs.useCustomGoogleAPIKey);
+        bindToTextField(customGoogleAPIKey, ac.prefs.googleAPIKey);
+        bindToCheckBox(useCustomMailGunKey, ac.prefs.useCustomMailGunKey);
+        bindToTextField(customMailGunKey, ac.prefs.mailGunKey);
+        bindToIntegerProperty(fontScaleSlider, fontScale, ac.prefs.fontScale);
+        bindToCheckBox(enableRest, ac.prefs.enableRest);
+        bindToTextField(restPort, ac.prefs.restPort);
+        bindToTextField(customURLSrc, ac.prefs.customURLSource);
         
         // Overrides
-        bindToComboBox(overrideWheelsCombo, appContext.prefs.overideWheelsTo);
-        bindToCheckBox(overrideWheelsActive, appContext.prefs.overideWheelsActive);
-        bindToComboBox(overrideColorCombo, appContext.prefs.overideColorTo);
-        bindToCheckBox(overrideColorActive, appContext.prefs.overideColorActive);
-        bindToComboBox(overrideUnitsCombo, appContext.prefs.overideUnitsTo);
-        bindToCheckBox(overrideUnitsActive, appContext.prefs.overideUnitsActive);
-        bindToComboBox(overrideModelCombo, appContext.prefs.overideModelTo);
-        bindToCheckBox(overrideModelActive, appContext.prefs.overideModelActive);
-        bindToComboBox(overrideRoofCombo, appContext.prefs.overideRoofTo);
-        bindToCheckBox(overrideRoofActive, appContext.prefs.overideRoofActive);
+        bindToComboBox(overrideWheelsCombo, ac.prefs.overideWheelsTo);
+        bindToCheckBox(overrideWheelsActive, ac.prefs.overideWheelsActive);
+        bindToComboBox(overrideColorCombo, ac.prefs.overideColorTo);
+        bindToCheckBox(overrideColorActive, ac.prefs.overideColorActive);
+        bindToComboBox(overrideUnitsCombo, ac.prefs.overideUnitsTo);
+        bindToCheckBox(overrideUnitsActive, ac.prefs.overideUnitsActive);
+        bindToComboBox(overrideModelCombo, ac.prefs.overideModelTo);
+        bindToCheckBox(overrideModelActive, ac.prefs.overideModelActive);
+        bindToComboBox(overrideRoofCombo, ac.prefs.overideRoofTo);
+        bindToCheckBox(overrideRoofActive, ac.prefs.overideRoofActive);
     }
     
 /*------------------------------------------------------------------------------
@@ -192,10 +193,10 @@ public class PrefsController extends BaseController {
     // Initialize the UI
     //
     private void initLocationPrefsUI() {
-        bindToCheckBox(collectLocationData, appContext.prefs.collectLocationData);
-        bindToCheckBox(streamWhenPossible, appContext.prefs.streamWhenPossible);
-        bindToIntegerProperty(locMinTime, locMinTimeDisplay, appContext.prefs.locMinTime);
-        bindToIntegerProperty(locMinDist, locMinDistDisplay, appContext.prefs.locMinDist);
+        bindToCheckBox(collectLocationData, ac.prefs.collectLocationData);
+        bindToCheckBox(streamWhenPossible, ac.prefs.streamWhenPossible);
+        bindToIntegerProperty(locMinTime, locMinTimeDisplay, ac.prefs.locMinTime);
+        bindToIntegerProperty(locMinDist, locMinDistDisplay, ac.prefs.locMinDist);
     }
 
 /*------------------------------------------------------------------------------
@@ -210,13 +211,34 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox ignoreGaps;
     @FXML private Slider gapTime;
     @FXML private Label gapTimeDisplay;
-
+    
+    @FXML private CheckBox limitVS;
+    @FXML private ComboBox<String> vsFromHour;
+    @FXML private ComboBox<String> vsFromMin;
+    @FXML private ComboBox<String> vsFromAMPM;
+    @FXML private ComboBox<String> vsToHour;
+    @FXML private ComboBox<String> vsToMin;
+    @FXML private ComboBox<String> vsToAMPM;
     //
     // Initialize the UI
     //
     private void initGraphsPrefsUI() {
-        bindToCheckBox(ignoreGaps, appContext.prefs.ignoreGraphGaps);
-        bindToIntegerProperty(gapTime, gapTimeDisplay, appContext.prefs.graphGapTime);
+        bindToCheckBox(ignoreGaps, ac.prefs.ignoreGraphGaps);
+        bindToIntegerProperty(gapTime, gapTimeDisplay, ac.prefs.graphGapTime);
+        
+        final TimeSelector vsFromTime = new TimeSelector(vsFromHour, vsFromMin, vsFromAMPM);
+        final TimeSelector vsToTime = new TimeSelector(vsToHour, vsToMin, vsToAMPM);
+        vsFromTime.bind(ac.prefs.vsFrom);
+        vsToTime.bind(ac.prefs.vsTo);
+        bindToCheckBox(limitVS, ac.prefs.vsLimitEnabled);
+        limitVS.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override public void changed(ObservableValue ov, Boolean t, Boolean t1) {
+                vsFromTime.enable(t1);
+                vsToTime.enable(t1);
+            }
+        });
+        vsFromTime.enable(limitVS.selectedProperty().get());
+        vsToTime.enable(limitVS.selectedProperty().get());
     }
 
 /*------------------------------------------------------------------------------
@@ -229,8 +251,8 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox safePlugged;
     
     private void initSchedulerPrefsUI() {
-        bindToCheckBox(safeMinCharge, appContext.prefs.safeIncludesMinCharge);
-        bindToCheckBox(safePlugged, appContext.prefs.safeIncludesPluggedIn);
+        bindToCheckBox(safeMinCharge, ac.prefs.safeIncludesMinCharge);
+        bindToCheckBox(safePlugged, ac.prefs.safeIncludesPluggedIn);
     }
     
 /*------------------------------------------------------------------------------
@@ -312,4 +334,5 @@ public class PrefsController extends BaseController {
             }
         });
     }
+    
 }

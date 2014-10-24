@@ -126,8 +126,8 @@ public class OverviewController extends BaseController {
         final Button source = (Button)event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = appContext.vehicle.setLockState(source == lockButton);
-                updateState(Vehicle.StateType.Vehicle);
+                Result r = ac.vehicle.setLockState(source == lockButton);
+                updateStateLater(Vehicle.StateType.Vehicle, 5 * 1000);
                 return r;
             } });
     }
@@ -139,23 +139,23 @@ public class OverviewController extends BaseController {
                 ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = appContext.vehicle.setPano(cmd);
-                updateState(Vehicle.StateType.Vehicle);
+                Result r = ac.vehicle.setPano(cmd);
+                updateStateLater(Vehicle.StateType.Vehicle, 5 * 1000);
                 return r;
             } });
     }
 
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
-        VehicleState car = appContext.lastKnownVehicleState.get();
-        String info = appContext.vehicle.toString() +
+        VehicleState car = ac.lastKnownVehicleState.get();
+        String info = ac.vehicle.toString() +
                 "\nFirmware Version: " + car.version +
                 "\nHas Spoiler: " + car.hasSpoiler +
-                "\nRemote Start Enabled: " + appContext.vehicle.remoteStartEnabled() +
-                "\nCalendar Enabled: " + appContext.vehicle.calendarEnabled() +
-                "\nNotifications Enabled: " + appContext.vehicle.notificationsEnabled() +
+                "\nRemote Start Enabled: " + ac.vehicle.remoteStartEnabled() +
+                "\nCalendar Enabled: " + ac.vehicle.calendarEnabled() +
+                "\nNotifications Enabled: " + ac.vehicle.notificationsEnabled() +
                 "\n--------------------------------------------" +
-                "\nLow level information: " + appContext.vehicle.getUnderlyingValues() +
+                "\nLow level information: " + ac.vehicle.getUnderlyingValues() +
                 "\nAPI Usage Rates:";
         for (Map.Entry<Integer,Integer> e: RestyWrapper.stats().entrySet()) {
             int seconds = e.getKey();
@@ -166,7 +166,7 @@ public class OverviewController extends BaseController {
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
-            appContext.stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
+            ac.stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
     }
     
 /*------------------------------------------------------------------------------
@@ -215,22 +215,22 @@ public class OverviewController extends BaseController {
     }
     
     @Override protected void initializeState() {
-        final Vehicle v = appContext.vehicle;
+        final Vehicle v = ac.vehicle;
         getAppropriateImages(v);
-        appContext.prefs.overideColorTo.addListener(new ChangeListener<String>() {
+        ac.prefs.overideColorTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateImages(v);
             }
         });
-        appContext.prefs.overideColorActive.addListener(new ChangeListener<Boolean>() {
+        ac.prefs.overideColorActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateImages(v);
             }
         });
 
-        appContext.lastKnownVehicleState.addListener(new ChangeListener<VehicleState>() {
+        ac.lastKnownVehicleState.addListener(new ChangeListener<VehicleState>() {
             @Override public void changed(ObservableValue<? extends VehicleState> ov,
                 VehicleState old, VehicleState cur) {
                 Platform.runLater(new Runnable() {
@@ -238,7 +238,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
+        ac.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                 ChargeState old, ChargeState cur) {
                 Platform.runLater(new Runnable() {
@@ -246,7 +246,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+        ac.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, final StreamState cur) {
@@ -255,8 +255,8 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        storedOdometerReading = appContext.persistentState.getDouble(v.getVIN() + "_odometer", 0);
-        appContext.snapshotProducer.produce();
+        storedOdometerReading = ac.persistentState.getDouble(v.getVIN() + "_odometer", 0);
+        ac.streamProducer.produce(false);
             // Make sure we update the odometer reading at some point...
 
         updateWheelView();  // Make sure we display the right wheels from the get-go
@@ -294,21 +294,21 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRange() {
-        ChargeState cs = appContext.lastKnownChargeState.get();
+        ChargeState cs = ac.lastKnownChargeState.get();
         double range = 0;
-        String rangeType = appContext.prefs.overviewRange.get();
+        String rangeType = ac.prefs.overviewRange.get();
         switch (rangeType) {
             case "Estimated": range = cs.estimatedRange; break;
             case "Ideal": range = cs.idealRange; break;
             case "Rated": range = cs.range; break;
         }
-        range = appContext.utils.inProperUnits(range);
-        String units = appContext.utils.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+        range = ac.utils.inProperUnits(range);
+        String units = ac.utils.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
         rangeLabel.setText(String.format("%s Range: %3.1f %s", rangeType, range, units));
     }
     
     private void updateShiftState() {
-        StreamState snapshot = appContext.lastKnownStreamState.get();
+        StreamState snapshot = ac.lastKnownStreamState.get();
         if (snapshot == null) return;
         String ss = snapshot.shiftState;
         if (ss == null || ss.isEmpty()) ss = "P";
@@ -316,7 +316,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateDoorView() {
-        VehicleState car = appContext.lastKnownVehicleState.get();
+        VehicleState car = ac.lastKnownVehicleState.get();
         boolean rtOpen = car.isRTOpen;
         
         // Show the open/closed state of the doors and trunks
@@ -329,13 +329,13 @@ public class OverviewController extends BaseController {
         setOptionState(car.locked, lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
-        if (appContext.lastKnownVehicleState.get().hasSpoiler) {
+        if (ac.lastKnownVehicleState.get().hasSpoiler) {
             setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         }        
     }
     
     private void updateRoofView() {
-        Options.RoofType type = appContext.utils.roofType();
+        Options.RoofType type = ac.utils.roofType();
         
         boolean hasPano = (type == Options.RoofType.RFPO);
         
@@ -358,7 +358,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updatePanoView() {
-        VehicleState car = appContext.lastKnownVehicleState.get();
+        VehicleState car = ac.lastKnownVehicleState.get();
         int pct = car.panoPercent;
         
         if (pct == 0) panoClosedImg.setVisible(true);
@@ -368,23 +368,23 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        updateImages(appContext.utils.computedWheelType(), wheelImages, wheelEquivs);
+        updateImages(ac.utils.computedWheelType(), wheelImages, wheelEquivs);
     }
     
     private void updateChargePort() {
-        ChargeState charge = appContext.lastKnownChargeState.get();
+        ChargeState charge = ac.lastKnownChargeState.get();
+        boolean connected = charge.connectedToCharger();
         
-        int pilotCurrent = charge.chargerPilotCurrent;
-        boolean chargePortDoorOpen = (charge.chargePortOpen || pilotCurrent > 0);
+        boolean chargePortDoorOpen = (charge.chargePortOpen || connected);
         setOptionState(chargePortDoorOpen, portOpenImg, portClosedImg);
-        chargeCableImg.setVisible(pilotCurrent > 0);
+        chargeCableImg.setVisible(connected);
         greenGlowImage.setVisible(charge.chargingState == ChargeState.Status.Charging);
     }
     
     private void updateSeats() {
         seatsGrayImg.setVisible(false);
         seatsTanImg.setVisible(false);
-        switch (appContext.vehicle.getOptions().seatType().getColor()) {
+        switch (ac.vehicle.getOptions().seatType().getColor()) {
             case Gray:
             case White:
                 seatsGrayImg.setVisible(true);
@@ -403,7 +403,7 @@ public class OverviewController extends BaseController {
         s85Img.setVisible(false);
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
-        Options o = appContext.vehicle.getOptions();
+        Options o = ac.vehicle.getOptions();
         if (o.isPerfPlus()) {
             p85pImg.setVisible(true);
         } else if (o.isPerformance()) {
@@ -416,34 +416,34 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading = (appContext.lastKnownStreamState.get() != null) ?
-                appContext.lastKnownStreamState.get().odometer : storedOdometerReading;
+        double odometerReading = (ac.lastKnownStreamState.get() != null) ?
+                ac.lastKnownStreamState.get().odometer : storedOdometerReading;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
         // Save off the odometer reading (in miles)
-        appContext.persistentState.putDouble(appContext.vehicle.getVIN()+"_odometer", odometerReading);
-        boolean useMiles = appContext.utils.unitType() == Utils.UnitType.Imperial;
+        ac.persistentState.putDouble(ac.vehicle.getVIN()+"_odometer", odometerReading);
+        boolean useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
     }
     
     private void reflectVINOrFirmware(Vehicle v) {
-        VehicleState car = appContext.lastKnownVehicleState.get();
+        VehicleState car = ac.lastKnownVehicleState.get();
         if (displayVIN(v))
             vinButton.setText("VIN " + StringUtils.right(v.getVIN(), 6));
         else {
-            vinButton.setText("v" + appContext.utils.getVersion(car.version));
+            vinButton.setText("v" + ac.utils.getVersion(car.version));
         }
     }
     
     private boolean displayVIN(Vehicle v) {
-        return appContext.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
+        return ac.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
     }
     
     private void toggleDisplayVIN(Vehicle v) {
-        boolean displayVIN = appContext.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
-        appContext.persistentState.putBoolean(v.getVIN()+"_DISP_VIN", !displayVIN);
+        boolean displayVIN = ac.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
+        ac.persistentState.putBoolean(v.getVIN()+"_DISP_VIN", !displayVIN);
     }
 
 /*------------------------------------------------------------------------------
@@ -476,7 +476,7 @@ public class OverviewController extends BaseController {
 
     // Replace the images that were selected by default with images for the actual color
     private void getAppropriateImages(Vehicle v) {
-        Options.PaintColor c = appContext.utils.paintColor();
+        Options.PaintColor c = ac.utils.paintColor();
 
         ClassLoader cl = getClass().getClassLoader();
         String colorDirectory = colorToDirectory.get(c);

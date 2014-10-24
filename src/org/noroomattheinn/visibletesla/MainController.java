@@ -41,6 +41,7 @@ import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -96,7 +97,7 @@ public class MainController extends BaseController {
     
     private List<Tab> tabs;
     
-    @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem;
+    @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem, exportChargeMenuItem;
     @FXML private MenuItem vampireLossMenuItem;
     @FXML private MenuItem remoteStartMenuItem;
     
@@ -111,19 +112,19 @@ public class MainController extends BaseController {
  *============================================================================*/
 
     /**
-     * Called by the main application to allow us to store away the app context
-     * and perform any other app startup tasks. In particular, we (1) distribute
-     * app context to all of the controllers, and (2) we set a listener for login
+     * Called by the main application to allow us to store away the fxApp context
+     * and perform any other fxApp startup tasks. In particular, we (1) distribute
+     * fxApp context to all of the controllers, and (2) we set a listener for login
      * completion and try and automatic login.
      * @param ac    The AppContext
      */
     public void start(AppContext ac) {
-        appContext = ac;
-        appContext.utils.logAppInfo();
+        this.ac = ac;
+        this.ac.utils.logAppInfo();
         addSystemSpecificHandlers(ac);
 
         refreshTitle();
-        appContext.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
+        this.ac.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
@@ -135,10 +136,10 @@ public class MainController extends BaseController {
 
         tabs = Arrays.asList(prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
                              hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
-        for (Tab t : tabs) { controllerFromTab(t).setAppContext(appContext); }
+        for (Tab t : tabs) { controllerFromTab(t).setAppContext(this.ac); }
         
         // Handle font scaling
-        int fontScale = appContext.prefs.fontScale.get();
+        int fontScale = this.ac.prefs.fontScale.get();
         if (fontScale != 100) {
             for (Tab t : tabs) { 
                 Node n = t.getContent();
@@ -147,9 +148,9 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        appContext.inactivity.addModeListener(new Inactivity.Listener() {
+        this.ac.inactivity.addModeListener(new Inactivity.Listener() {
             @Override public void handle(Inactivity.Type nv) { setInactivityMenu(nv); } });
-        appContext.inactivity.addStateListener(new Inactivity.Listener() {
+        this.ac.inactivity.addStateListener(new Inactivity.Listener() {
             @Override public void handle(Inactivity.Type nv) { refreshTitle(); } });
 
         // Kick off the login process
@@ -158,7 +159,7 @@ public class MainController extends BaseController {
         lc.activate();
     }
     
-    public void stop() { appContext.tm.shutDown(); }
+    public void stop() { ac.tm.shutDown(); }
     
 /*------------------------------------------------------------------------------
  *
@@ -181,7 +182,7 @@ public class MainController extends BaseController {
     private void fetchInitialCarState() {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = appContext.utils.cacheBasics();
+                Result r = ac.utils.cacheBasics();
                 if (!r.success) {
                     if (r.explanation.equals("mobile_access_disabled"))  exitWithMobileAccessError();
                     else exitWithCachingError();
@@ -194,17 +195,17 @@ public class MainController extends BaseController {
 
     
     private class LoginStateChange implements Runnable {
-        private final VTUtils.StateTracker<Boolean> loggedIn;
+        private final TrackedObject<Boolean> loggedIn;
         private final boolean assumeAwake;
         
-        LoginStateChange(VTUtils.StateTracker<Boolean> loggedIn, boolean assumeAwake) {
+        LoginStateChange(TrackedObject<Boolean> loggedIn, boolean assumeAwake) {
             this.loggedIn = loggedIn;
             this.assumeAwake = assumeAwake;
         }
         
         @Override public void run() {
             if (!loggedIn.get()) {
-                appContext.vehicle = null;
+                ac.vehicle = null;
                 setTabsEnabled(false);
                 return;
             }
@@ -212,18 +213,18 @@ public class MainController extends BaseController {
             if (assumeAwake) {
                 wakePane.setVisible(false);
             } else {
-                appContext.vehicle = SelectVehicleDialog.select(appContext);
-                if (!appContext.lockAppInstance()) {
+                ac.vehicle = SelectVehicleDialog.select(ac);
+                if (!ac.lockAppInstance()) {
                     showLockError();
                     Platform.exit();
                 }
-                Tesla.logger.info("Vehicle Info: " + appContext.vehicle.getUnderlyingValues());
+                Tesla.logger.info("Vehicle Info: " + ac.vehicle.getUnderlyingValues());
 
-                if (appContext.vehicle.status().equals("asleep")) {
+                if (ac.vehicle.status().equals("asleep")) {
                     if (letItSleep()) {
                         Tesla.logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        appContext.utils.waitForVehicleToWake(
+                        ac.utils.waitForVehicleToWake(
                                 new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
@@ -232,20 +233,20 @@ public class MainController extends BaseController {
                 }
             }
                 
-            DisclaimerDialog.show(appContext);
-            VersionUpdater.conditionalCheckVersion(appContext);
-            appContext.inactivity.restore();
+            DisclaimerDialog.show(ac);
+            VersionUpdater.conditionalCheckVersion(ac);
+            ac.inactivity.restore();
             fetchInitialCarState();
         }
     }
     
     private Runnable finishAppStartup = new Runnable() {
         @Override public void run() {
-            boolean remoteStartEnabled = appContext.vehicle.remoteStartEnabled();
+            boolean remoteStartEnabled = ac.vehicle.remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
-            appContext.inactivity.trackInactivity(tabs);
-            appContext.prepForVehicle(appContext.vehicle);
+            ac.inactivity.trackInactivity(tabs);
+            ac.prepForVehicle(ac.vehicle);
             refreshTitle();
             
             // Start the Scheduler and the Notifier
@@ -302,11 +303,13 @@ public class MainController extends BaseController {
     @FXML void exportHandler(ActionEvent event) {
         MenuItem mi = (MenuItem)event.getSource();
         if (mi == exportStatsMenuItem)
-            appContext.statsStore.exportCSV();
+            ac.statsStore.exportCSV();
         if (mi == exportLocMenuItem)
-            appContext.locationStore.exportCSV();
+            ac.locationStore.exportCSV();
+        if (mi == exportChargeMenuItem)
+            ac.chargeStore.exportCSV();
         if (mi == this.vampireLossMenuItem) {
-            appContext.vampireStats.showStats();
+            ac.vampireStats.showStats();
         }
     }
     
@@ -314,23 +317,23 @@ public class MainController extends BaseController {
     @FXML void inactivityOptionsHandler(ActionEvent event) {
         Inactivity.Type mode = Inactivity.Type.Awake;
         if (event.getTarget() == allowSleepMenuItem) mode = Inactivity.Type.Sleep;
-        appContext.inactivity.setMode(mode);
+        ac.inactivity.setMode(mode);
     }
     
     // Help->Documentation
     @FXML private void helpHandler(ActionEvent event) {
-        appContext.app.getHostServices().showDocument(DocumentationURL);
+        ac.fxApp.getHostServices().showDocument(DocumentationURL);
     }
     
     // Help->What's New
     @FXML private void whatsNewHandler(ActionEvent event) {
-        appContext.app.getHostServices().showDocument(ReleaseNotesURL);
+        ac.fxApp.getHostServices().showDocument(ReleaseNotesURL);
     }
     
     // Help->About
     @FXML private void aboutHandler(ActionEvent event) {
         Dialogs.showInformationDialog(
-                appContext.stage,
+                ac.stage,
                 "Copyright (c) 2013, Joe Pasqua\n" +
                 "Free for personal and non-commercial use.\n" +
                 "Based on the great API detective work of many members\n" +
@@ -342,29 +345,29 @@ public class MainController extends BaseController {
 
     // Help->Check for Updates
     @FXML private void updatesHandler(ActionEvent event) {
-        if (!VersionUpdater.checkForNewerVersion(appContext)) 
+        if (!VersionUpdater.checkForNewerVersion(ac)) 
             Dialogs.showInformationDialog(
-                    appContext.stage,
+                    ac.stage,
                     "There is no newer version available.",
                     "Update Check Results", "Checking for Updates");
     }
     
     @FXML private void remoteStart(ActionEvent e) {
         String[] unp = PasswordDialog.getCredentials(
-                appContext.stage, "Authenticate", "Remote Start", false);
+                ac.stage, "Authenticate", "Remote Start", false);
         if (unp == null) return;    // User cancelled
         if (unp[1] == null || unp[1].isEmpty()) {
-            Dialogs.showErrorDialog(appContext.stage, "You must enter a password");
+            Dialogs.showErrorDialog(ac.stage, "You must enter a password");
             return;
         }
-        appContext.utils.remoteStart(unp[1]);
+        ac.utils.remoteStart(unp[1]);
     
     }
 
     // Options->Action_>{Honk,Flsh,Wakeup}
-    @FXML private void honk(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Honk); }
-    @FXML private void flash(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Flash); }
-    @FXML private void wakeup(ActionEvent e) { appContext.utils.miscAction(VTUtils.MiscAction.Wakeup); }
+    @FXML private void honk(ActionEvent e) { ac.utils.miscAction(VTUtils.MiscAction.Honk); }
+    @FXML private void flash(ActionEvent e) { ac.utils.miscAction(VTUtils.MiscAction.Flash); }
+    @FXML private void wakeup(ActionEvent e) { ac.utils.miscAction(VTUtils.MiscAction.Wakeup); }
     
 /*------------------------------------------------------------------------------
  *
@@ -386,14 +389,14 @@ public class MainController extends BaseController {
     }
     
     private void refreshTitle() {
-        String carName = (appContext.vehicle != null) ? appContext.vehicle.getDisplayName() : null;
+        String carName = (ac.vehicle != null) ? ac.vehicle.getDisplayName() : null;
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
         if (carName != null) title = title + " for " + carName;
-        if (appContext.inactivity.getState() == Inactivity.Type.Sleep) {
+        if (ac.inactivity.getState() == Inactivity.Type.Sleep) {
             String time = String.format("%1$tH:%1$tM", new Date());
             title = title + " [sleeping at " + time + "]";
         }
-        appContext.stage.setTitle(title);
+        ac.stage.setTitle(title);
     }
 
     private void setInactivityMenu(Inactivity.Type mode) {
@@ -412,7 +415,7 @@ public class MainController extends BaseController {
     private boolean letItSleep() {
         DialogUtils.DialogController dc = DialogUtils.displayDialog(
                 getClass().getResource("dialogs/WakeSleepDialog.fxml"),
-                "Wake up your car?", appContext.stage, null);
+                "Wake up your car?", ac.stage, null);
         if (dc == null) return true;
         WakeSleepDialog wsd = Utils.cast(dc);
         return wsd.letItSleep();
@@ -423,7 +426,7 @@ public class MainController extends BaseController {
     private void exitWithMobileAccessError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                Dialogs.showErrorDialog(appContext.stage,
+                Dialogs.showErrorDialog(ac.stage,
                         "Your Tesla has not been configured to allow mobile " +
                         "access. You have to enable this on your car's touch"  +
                         "screen using Controls / Settings / Vehicle." +
@@ -438,7 +441,7 @@ public class MainController extends BaseController {
     private void exitWithCachingError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                Dialogs.showErrorDialog(appContext.stage,
+                Dialogs.showErrorDialog(ac.stage,
                         "Failed to connect to your vehicle even after a successful " +
                         "login. It may be in a deep sleep and can't be woken up.\n"  +
                         "\nPlease try to wake your Tesla and then try VisibleTesla again.",
@@ -450,7 +453,7 @@ public class MainController extends BaseController {
     }
     
     private void showLockError() {
-        Dialogs.showErrorDialog(appContext.stage,
+        Dialogs.showErrorDialog(ac.stage,
             "There appears to be another copy of VisibleTesla\n" +
             "running on this computer and trying to talk\n" +
             "to the same car. That can cause problems and\n" +
