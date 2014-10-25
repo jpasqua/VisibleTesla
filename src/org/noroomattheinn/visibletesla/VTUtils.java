@@ -31,8 +31,6 @@ import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.sleep;
-import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
-import us.monoid.json.JSONObject;
 
 /**
  * VTUtils: Basic utilities for use by the fxApp
