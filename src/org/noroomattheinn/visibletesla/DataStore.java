@@ -5,7 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import com.google.common.collect.Range;
 import java.io.File;
@@ -27,7 +26,6 @@ import jxl.Workbook;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.stats.Stat;
 import org.noroomattheinn.visibletesla.stats.StatsPublisher;
 import org.noroomattheinn.visibletesla.stats.StatsRepository;
@@ -154,6 +152,7 @@ public abstract class DataStore implements StatsPublisher {
     private final Set<String> keysEncountered = new TreeSet<>();   // Keep them sorted
     
     private void addToLiveData(long time, String type, double val) {
+        if (rows == null) return;   // We're still starting up or we're shutting down!
         Map<String,Double> row = rows.get(time);
         if (row == null) {
             row = new HashMap<>();
