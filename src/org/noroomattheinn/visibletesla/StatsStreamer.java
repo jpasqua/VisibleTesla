@@ -113,6 +113,7 @@ public class StatsStreamer {
                     } else {
                         for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
                             Utils.sleep(TestSleepInterval, becameAwake);
+                            if (ac.shuttingDown.get()) break;
                             if (ac.inactivity.isAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
                             if (carWasAsleep && isCarAwake()) {
                                 ac.inactivity.setState(Inactivity.Type.Awake);
