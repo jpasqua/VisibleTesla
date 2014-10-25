@@ -88,7 +88,14 @@ public class Prefs {
     private static final String GraphPeriodPrefKey  = "GRAPH_PERIOD";
     private static final String OverviewRangeKey    = "OVERVIEW_RANGE";
     private static final String NotifyAddressKey    = "NOTIFICATION_ADDR";
-
+    
+    public BooleanProperty  submitAnonData          = new SimpleBooleanProperty();
+    public BooleanProperty  includeLocData          = new SimpleBooleanProperty();
+    public IntegerProperty  ditherLocAmt     = new SimpleIntegerProperty();
+    private static final String SubmitAnonData      = "APP_SUBMIT_ANON";
+    private static final String IncludeLocData      = "APP_INCLUDE_LOC";
+    private static final String DitherLocation      = "APP_DITHER_LOC";
+    
     // Advanced
     public BooleanProperty  offerExperimental       = new SimpleBooleanProperty();
     public BooleanProperty  enableProxy             = new SimpleBooleanProperty();
@@ -146,6 +153,12 @@ public class Prefs {
         stringPref(NotifyAddressKey, notificationAddress, "");
         stringPref(GraphPeriodPrefKey, loadPeriod, LoadPeriod.All.name());
         stringPref(OverviewRangeKey, overviewRange, "Rated");
+        
+        booleanPref(SubmitAnonData, submitAnonData, false);
+        booleanPref(IncludeLocData, includeLocData, false);
+        integerPref(DitherLocation, ditherLocAmt, 5);
+
+        
         // ----- Advanced Preferences
         booleanPref(OfferExpKey, offerExperimental, false);
         booleanPref(EnableProxyKey, enableProxy, false);

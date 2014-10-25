@@ -34,6 +34,7 @@
                             <Slider fx:id="idleThresholdSlider" layoutX="350.0" layoutY="10.0" max="90.0" min="1.0" value="15.0" />
                             <Label fx:id="idleThresholdLabel" layoutX="501.0" layoutY="10.0" text="15" />
                             <Label layoutX="521.0" layoutY="10.0" text="Minute(s)" />
+                            <Line endX="499.0" endY="0.0" layoutX="100.0" layoutY="34.0" startX="-100.0" />
                             <ComboBox fx:id="graphsTimePeriod" layoutX="108.0" layoutY="42.0" value="Last 7 days">
                               <items>
                                 <FXCollections fx:factory="observableArrayList">
@@ -48,16 +49,16 @@
                               </items>
                             </ComboBox>
                             <Label layoutX="14.0" layoutY="44.0" text="Load data for:" />
+                            <Line endX="499.0" endY="0.0" layoutX="101.0" layoutY="71.0" startX="-100.0" />
                             <Label layoutX="14.0" layoutY="81.0" text="Email for notifications:" />
                             <TextField fx:id="emailForNotifications" layoutX="163.0" layoutY="78.0" prefWidth="300.0" />
-                            <Line endX="499.0" endY="0.0" layoutX="100.0" layoutY="34.0" startX="-100.0" />
-                            <Line endX="499.0" endY="0.0" layoutX="101.0" layoutY="71.0" startX="-100.0" />
                             <Button layoutX="469.0" layoutY="79.0" mnemonicParsing="false" onAction="#testDelivery" text="Test Delivery" />
                             <Label layoutX="169.0" layoutY="104.0" text="Normal charges may apply for text messages" textAlignment="CENTER">
                               <font>
                                 <Font name="Arial Bold Italic" size="13.0" />
                               </font>
                             </Label>
+                            <Line endX="499.0" endY="0.0" layoutX="95.0" layoutY="124.0" startX="-100.0" />
                             <ComboBox fx:id="overviewRange" layoutX="157.0" layoutY="131.0" value="Rated">
                               <items>
                                 <FXCollections fx:factory="observableArrayList">
@@ -68,7 +69,17 @@
                               </items>
                             </ComboBox>
                             <Label layoutX="14.0" layoutY="134.0" text="Overview Range Type:" />
-                            <Line endX="499.0" endY="0.0" layoutX="95.0" layoutY="124.0" startX="-100.0" />
+                            <Line endX="499.0" endY="0.0" layoutX="98.0" layoutY="160.0" startX="-100.0" />
+                            <HBox id="HBox" alignment="CENTER" layoutX="14.0" layoutY="171.0" spacing="10.0">
+                              <children>
+                                <CheckBox fx:id="submitAnon" mnemonicParsing="false" text="Submit Anonymous Data" />
+                                <CheckBox fx:id="includeLoc" mnemonicParsing="false" text="Include Loc" />
+                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefWidth="62.0" text="Dither:" />
+                                <Slider id="idleThresholdSlider" fx:id="ditherAmt" max="100.0" min="1.0" prefWidth="122.0" value="5.0" />
+                                <Label id="idleThresholdLabel" fx:id="ditherAmtLabel" text="15" />
+                                <Label text="Miles" />
+                              </children>
+                            </HBox>
                           </children>
                         </AnchorPane>
                       </content>

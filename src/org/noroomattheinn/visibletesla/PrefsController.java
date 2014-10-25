@@ -65,6 +65,11 @@ public class PrefsController extends BaseController {
     @FXML private Button        setAuthCodeButton;
     @FXML private TextField     customURLSrc;
     @FXML private ComboBox<String> overviewRange;
+    
+    @FXML private CheckBox      submitAnon;
+    @FXML private CheckBox      includeLoc;
+    @FXML private Slider        ditherAmt;
+    @FXML private Label         ditherAmtLabel;
 
     // Overrides
     @FXML private ComboBox<String>  overrideWheelsCombo;
@@ -145,7 +150,11 @@ public class PrefsController extends BaseController {
         bindToComboBox(graphsTimePeriod, ac.prefs.loadPeriod);
         bindToTextField(emailForNotifications, ac.prefs.notificationAddress);
         bindToComboBox(overviewRange, ac.prefs.overviewRange);
-
+        
+        bindToCheckBox(submitAnon, ac.prefs.submitAnonData);
+        bindToCheckBox(includeLoc, ac.prefs.includeLocData);
+        bindToIntegerProperty(ditherAmt, ditherAmtLabel, ac.prefs.ditherLocAmt);
+        
         // Advanced
         bindToCheckBox(enableProxy, ac.prefs.enableProxy);
         bindToTextField(proxyHost, ac.prefs.proxyHost);

@@ -26,6 +26,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.visibletesla.DataStore.LastExportDirKey;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import us.monoid.json.JSONException;
@@ -64,6 +65,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
                     ObservableValue<? extends ChargeMonitor.Cycle> ov,
                     ChargeMonitor.Cycle t, ChargeMonitor.Cycle cycle) {
                 chargeWriter.println(cycle.toJSON());
+                submitData(cycle);
             }
         });
         
@@ -119,10 +121,56 @@ public class ChargeStore implements ThreadManager.Stoppable {
     
 /*------------------------------------------------------------------------------
  *
- * PRIVATE Methods for writing to an excel file
+ * PRIVATE Methods for submitting anonymous data
  * 
  *----------------------------------------------------------------------------*/
     
+    private static final String VTDataAddress = "data@visibletesla.com";
+    private static final String VTChargeDataSubj = "Charge Data Submission";
+    
+    private void submitData(ChargeMonitor.Cycle cycle) {
+        if (!ac.prefs.submitAnonData.get()) return;
+        if (ac.prefs.includeLocData.get()) {
+            ditherLocation(cycle);
+        } else {
+            cycle.lat = cycle.lng = 0;
+        }
+        String body = String.format("{'uuid' : '%s', 'cycle' : %s }", 
+                ac.uuidForVehicle, cycle.toJSON());
+        ac.utils.sendNotification(VTDataAddress, VTChargeDataSubj, body);
+    }
+    
+    private void ditherLocation(ChargeMonitor.Cycle cycle) {
+        if (!cycle.superCharger) {
+            double ditherAmt = Utils.mToK(ac.prefs.ditherLocAmt.get()) * 1000;
+            double angle = Math.random() * Math.PI * 2;
+            double[] point = {cycle.lat, cycle.lng};
+            point = translateCoordinates(point, ditherAmt, angle);
+            ditherAmt *= (0.5 * Math.random());
+            angle = Math.random() * Math.PI * 2;
+            point = translateCoordinates(point, ditherAmt, angle);
+            cycle.lat = point[0]; cycle.lng = point[1];
+        }
+    }
+    
+    private double[] translateCoordinates(double[] origpoint, double distance, double angle) {
+        final double distanceNorth = Math.sin(angle) * distance;
+        final double distanceEast = Math.cos(angle) * distance;
+ 
+        final double earthRadius = 6371000;
+ 
+        double[] result = new double[2];
+        result[0] = origpoint[0] + (distanceNorth / earthRadius) * 180 / Math.PI;
+        result[1] = origpoint[1] + (distanceEast / (earthRadius * Math.cos(result[0] * 180 / Math.PI))) * 180 / Math.PI;
+ 
+        return result;
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE Methods for writing to an excel file
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void export(File file, Range<Long> exportPeriod) {
         List<ChargeMonitor.Cycle> charges = loadCharges(exportPeriod);
