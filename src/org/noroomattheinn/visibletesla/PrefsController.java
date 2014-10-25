@@ -8,6 +8,7 @@ package org.noroomattheinn.visibletesla;
 import java.util.Date;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -69,7 +70,6 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox      submitAnon;
     @FXML private CheckBox      includeLoc;
     @FXML private Slider        ditherAmt;
-    @FXML private Label         ditherAmtLabel;
 
     // Overrides
     @FXML private ComboBox<String>  overrideWheelsCombo;
@@ -153,7 +153,7 @@ public class PrefsController extends BaseController {
         
         bindToCheckBox(submitAnon, ac.prefs.submitAnonData);
         bindToCheckBox(includeLoc, ac.prefs.includeLocData);
-        bindToIntegerProperty(ditherAmt, ditherAmtLabel, ac.prefs.ditherLocAmt);
+        bindToDoubleProperty(ditherAmt, null, ac.prefs.ditherLocAmt);
         
         // Advanced
         bindToCheckBox(enableProxy, ac.prefs.enableProxy);
@@ -344,4 +344,26 @@ public class PrefsController extends BaseController {
         });
     }
     
+    private void bindToDoubleProperty(
+            final Slider slider, final Label label, final DoubleProperty property) {
+        
+        // Watch for any changes to the property and update the UI appropriately
+        property.addListener(new ChangeListener<Number>() {
+            @Override public void changed(
+                ObservableValue<? extends Number> ov, Number old, Number cur) {
+                    slider.setValue(cur.doubleValue());
+                    if (label != null) label.setText(String.valueOf(cur.doubleValue()));
+            }
+        });        
+        slider.setValue(property.get());
+        if (label != null) label.setText(String.valueOf(property.get()));
+        
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(
+                ObservableValue<? extends Number> ov, Number old, Number cur) {
+                    property.set(cur.doubleValue());
+                    if (label != null) label.setText(String.valueOf(cur.doubleValue()));
+            }
+        });
+    }
 }

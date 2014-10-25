@@ -73,11 +73,10 @@
                             <HBox id="HBox" alignment="CENTER" layoutX="14.0" layoutY="171.0" spacing="10.0">
                               <children>
                                 <CheckBox fx:id="submitAnon" mnemonicParsing="false" text="Submit Anonymous Data" />
-                                <CheckBox fx:id="includeLoc" mnemonicParsing="false" text="Include Loc" />
-                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefWidth="62.0" text="Dither:" />
-                                <Slider id="idleThresholdSlider" fx:id="ditherAmt" max="100.0" min="1.0" prefWidth="122.0" value="5.0" />
-                                <Label id="idleThresholdLabel" fx:id="ditherAmtLabel" text="15" />
-                                <Label text="Miles" />
+                                <CheckBox fx:id="includeLoc" mnemonicParsing="false" prefWidth="-1.0" text="Include Location" />
+                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefWidth="62.0" text="Coarse" />
+                                <Slider id="idleThresholdSlider" fx:id="ditherAmt" blockIncrement="0.5" majorTickUnit="0.5" max="3.0" min="0.0" minorTickCount="0" prefWidth="122.0" showTickLabels="true" showTickMarks="true" value="1.5" />
+                                <Label id="idleThresholdLabel" text="Fine" />
                               </children>
                             </HBox>
                           </children>

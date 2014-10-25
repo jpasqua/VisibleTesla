@@ -12,9 +12,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -91,10 +93,10 @@ public class Prefs {
     
     public BooleanProperty  submitAnonData          = new SimpleBooleanProperty();
     public BooleanProperty  includeLocData          = new SimpleBooleanProperty();
-    public IntegerProperty  ditherLocAmt     = new SimpleIntegerProperty();
+    public DoubleProperty   ditherLocAmt            = new SimpleDoubleProperty();
     private static final String SubmitAnonData      = "APP_SUBMIT_ANON";
     private static final String IncludeLocData      = "APP_INCLUDE_LOC";
-    private static final String DitherLocation      = "APP_DITHER_LOC";
+    private static final String DitherAmtKey        = "APP_DITHER_AMT";
     
     // Advanced
     public BooleanProperty  offerExperimental       = new SimpleBooleanProperty();
@@ -156,7 +158,7 @@ public class Prefs {
         
         booleanPref(SubmitAnonData, submitAnonData, false);
         booleanPref(IncludeLocData, includeLocData, false);
-        integerPref(DitherLocation, ditherLocAmt, 5);
+        doublePref(DitherAmtKey, ditherLocAmt, 1.5);
 
         
         // ----- Advanced Preferences
@@ -311,6 +313,16 @@ public class Prefs {
             @Override public void changed(
                 ObservableValue<? extends Number> ov, Number old, Number cur) {
                     appContext.persistentState.putInt(key, cur.intValue());
+            }
+        });
+    }
+    
+    private void doublePref(final String key, DoubleProperty property, double defaultValue) {
+        property.set(appContext.persistentState.getDouble(key, defaultValue));
+        property.addListener(new ChangeListener<Number>() {
+            @Override public void changed(
+                ObservableValue<? extends Number> ov, Number old, Number cur) {
+                    appContext.persistentState.putDouble(key, cur.doubleValue());
             }
         });
     }
