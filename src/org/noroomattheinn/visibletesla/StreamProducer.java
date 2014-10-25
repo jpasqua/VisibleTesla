@@ -13,7 +13,8 @@ import org.noroomattheinn.tesla.Streamer;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StreamProducer extends Executor<StreamProducer.Request> {
+public class StreamProducer extends Executor<StreamProducer.Request>
+                            implements ThreadManager.Stoppable {
     
 /*------------------------------------------------------------------------------
  *
@@ -39,13 +40,16 @@ public class StreamProducer extends Executor<StreamProducer.Request> {
  *============================================================================*/
     
     public StreamProducer(AppContext ac) {
-        super(ac, "SnapshotProducer");
+        super(ac, "StreamProducer");
         this.streamer = appContext.vehicle.getStreamer();
+        ac.tm.addStoppable((ThreadManager.Stoppable)this);
     }
     
     public void produce(boolean stream) {
         super.produce(new Request(stream, false));
     }
+    
+    @Override public void stop() { if (streamer != null) { streamer.forceClose(); } }
     
 /*------------------------------------------------------------------------------
  *
@@ -68,7 +72,7 @@ public class StreamProducer extends Executor<StreamProducer.Request> {
         }
         return true;
     }
-    
+
     public static class Request extends Executor.Request {
         public final boolean stream;
         public final boolean continuation;
