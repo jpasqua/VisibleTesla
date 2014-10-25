@@ -4,7 +4,7 @@
  * Created: Apr 19, 2014
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.fxextensions;
 //package multigauge;
 
 import javafx.geometry.Side;
@@ -46,11 +46,11 @@ public class MultiGauge {
     private Gauge left, right;
     private int radius, thickness;
     
-    MultiGauge(int radius) {
+    public MultiGauge(int radius) {
         this(radius, 10, 0, 100, 0, 100);
     }
 
-    MultiGauge(int radius, int thickness,
+    public MultiGauge(int radius, int thickness,
                double leftMin, double leftMax,
                double rightMin, double rightMax) {
         if (thickness > radius) {
@@ -98,23 +98,23 @@ public class MultiGauge {
         gaugePane.getChildren().addAll(fullCircle, left.getNode(), right.getNode(), centerArea);
     }
 
-    Node getContainer() { return gaugePane; }
+    public Node getContainer() { return gaugePane; }
 
-    void setVal(Side s, double val) {
+    public void setVal(Side s, double val) {
         getGauge(s).setVal(val);
         if (readoutSide == s) {
             readout.setText(String.valueOf((int) val));
         }
     }
 
-    void setRange(Side s, double min, double max) { }
-    void setPaint(Side s, Paint paint, Paint altPaint) {
+    public void setRange(Side s, double min, double max) { }
+    public void setPaint(Side s, Paint paint, Paint altPaint) {
         getGauge(s).setPaint(paint, altPaint);
     }
-    void setLogScale(Side s, boolean logScale) {
+    public void setLogScale(Side s, boolean logScale) {
         getGauge(s).setLogScale(logScale);
     }
-    void useGradient(Side s, Color baseColor, Color altBaseColor) {
+    public void useGradient(Side s, Color baseColor, Color altBaseColor) {
         getGauge(s).setPaint(gradientFromBase(baseColor), gradientFromBase(altBaseColor));
     }
     
