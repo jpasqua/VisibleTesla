@@ -205,10 +205,9 @@ public class ChargeController extends BaseController {
         reflectBatteryStats();
         reflectChargeStatus();
         reflectProperties();
-        boolean isConnectedToPower =
-                ac.lastKnownChargeState.get().chargerPilotCurrent > 0;
-        startButton.setDisable(!isConnectedToPower);
-        stopButton.setDisable(!isConnectedToPower);
+        boolean connected = ac.lastKnownChargeState.get().connectedToCharger();
+        startButton.setDisable(!connected);
+        stopButton.setDisable(!connected);
     }
 
     private void reflectProperties() {

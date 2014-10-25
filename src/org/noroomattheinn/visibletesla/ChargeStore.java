@@ -21,15 +21,19 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialogs;
 import javafx.stage.FileChooser;
 import jxl.Workbook;
+import jxl.write.DateFormat;
 import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.visibletesla.DataStore.LastExportDirKey;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import us.monoid.json.JSONException;
+import us.monoid.json.JSONObject;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.
@@ -64,7 +68,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
             @Override  public void changed(
                     ObservableValue<? extends ChargeMonitor.Cycle> ov,
                     ChargeMonitor.Cycle t, ChargeMonitor.Cycle cycle) {
-                chargeWriter.println(cycle.toJSON());
+                chargeWriter.println(cycle.toJSONString());
                 submitData(cycle);
             }
         });
@@ -80,13 +84,9 @@ public class ChargeStore implements ThreadManager.Stoppable {
             try {
                 String entry;
                 while ((entry = r.readLine()) != null) {
-                    try {
-                        ChargeMonitor.Cycle cycle = new ChargeMonitor.Cycle(entry);
-                        if (period == null || period.contains(cycle.startTime)) {
-                            charges.add(cycle);
-                        }
-                    } catch (JSONException ex) {
-                        Tesla.logger.warning("Malformed Charge Cycle data: " + ex);
+                    ChargeMonitor.Cycle cycle = ChargeMonitor.Cycle.fromJSON(entry);
+                    if (period == null || period.contains(cycle.startTime)) {
+                        charges.add(cycle);
                     }
                 }
             } catch (IOException ex) {
@@ -130,40 +130,33 @@ public class ChargeStore implements ThreadManager.Stoppable {
     
     private void submitData(ChargeMonitor.Cycle cycle) {
         if (!ac.prefs.submitAnonData.get()) return;
-        if (ac.prefs.includeLocData.get()) {
-            ditherLocation(cycle);
-        } else {
-            cycle.lat = cycle.lng = 0;
-        }
-        String body = String.format("{'uuid' : '%s', 'cycle' : %s }", 
-                ac.uuidForVehicle, cycle.toJSON());
-        ac.utils.sendNotification(VTDataAddress, VTChargeDataSubj, body);
+        ditherLocation(cycle);
+        JSONObject jo = cycle.toJSON();
+        RestyWrapper.put(jo, "uuid", ac.uuidForVehicle);
+        ac.utils.sendNotification(VTDataAddress, VTChargeDataSubj, jo.toString());
     }
     
     private void ditherLocation(ChargeMonitor.Cycle cycle) {
-        if (!cycle.superCharger) {
-            double ditherAmt = Utils.mToK(ac.prefs.ditherLocAmt.get()) * 1000;
-            double angle = Math.random() * Math.PI * 2;
-            double[] point = {cycle.lat, cycle.lng};
-            point = translateCoordinates(point, ditherAmt, angle);
-            ditherAmt *= (0.5 * Math.random());
-            angle = Math.random() * Math.PI * 2;
-            point = translateCoordinates(point, ditherAmt, angle);
-            cycle.lat = point[0]; cycle.lng = point[1];
-        }
+        if (!ac.prefs.includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
+        if (cycle.superCharger) return;
+        
+        double random, offset;
+        double ditherAmt = ac.prefs.ditherLocAmt.get();
+        double pow = Math.pow(10, ditherAmt);       // 10^ditherAmt
+        
+        random = 0.5 + (Math.random()/2);           // value in [0.5, 1]
+        offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
+        cycle.lat += sig(offset, 6);
+
+        random = 0.5 + (Math.random()/2);           // value in [0.5, 1]
+        offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
+        cycle.lng += sig(offset, 6);
     }
-    
-    private double[] translateCoordinates(double[] origpoint, double distance, double angle) {
-        final double distanceNorth = Math.sin(angle) * distance;
-        final double distanceEast = Math.cos(angle) * distance;
- 
-        final double earthRadius = 6371000;
- 
-        double[] result = new double[2];
-        result[0] = origpoint[0] + (distanceNorth / earthRadius) * 180 / Math.PI;
-        result[1] = origpoint[1] + (distanceEast / (earthRadius * Math.cos(result[0] * 180 / Math.PI))) * 180 / Math.PI;
- 
-        return result;
+        
+    private double sig(double val, int n) {
+        double pow = Math.pow(10, n);
+        val = Math.floor(val * pow)/pow;
+        return val;
     }
     
 /*------------------------------------------------------------------------------
@@ -179,7 +172,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
             WritableWorkbook workbook = Workbook.createWorkbook(file);
             WritableSheet sheet = workbook.createSheet("Sheet1", 0);
             
-            int row = 1;
+            int row = 0;
             addTableHeader(sheet, row++);
             for (ChargeMonitor.Cycle cycle : charges) {
                 emitRow(sheet, row++, cycle);
@@ -198,49 +191,46 @@ public class ChargeStore implements ThreadManager.Stoppable {
         
     }
     
-    private static final WritableCellFormat dateFormat =
-            new jxl.write.WritableCellFormat(new jxl.write.DateFormat("M/d/yy H:mm:ss"));
-
+    private static final WritableFont StdFont = new WritableFont(WritableFont.ARIAL, 12); 	
+    private static final WritableFont HdrFont = new WritableFont(WritableFont.ARIAL, 12, WritableFont.BOLD); 	
+    private static final WritableCellFormat StdFmt = new WritableCellFormat(StdFont);
+    private static final WritableCellFormat HdrFmt = new WritableCellFormat(HdrFont);
+    private static final DateFormat df = new jxl.write.DateFormat("M/d/yy H:mm:ss");
+    private static final WritableCellFormat dateFormat = new jxl.write.WritableCellFormat(df);
+    static { dateFormat.setFont(StdFont); }
+    
     private void emitRow(WritableSheet sheet, int row, ChargeMonitor.Cycle cycle)
             throws WriteException {
         int column = 0;
         sheet.addCell(new jxl.write.DateTime(column++, row, new Date(cycle.startTime), dateFormat));
         sheet.addCell(new jxl.write.DateTime(column++, row, new Date(cycle.endTime), dateFormat));
-        sheet.addCell(new jxl.write.Boolean(column++, row, cycle.superCharger));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.phases));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.startRange));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.endRange));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.startSOC));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.endSOC));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.lat));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.lng));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.odo));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.peakVoltage));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.avgVoltage));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.peakCurrent));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.avgCurrent));
-        sheet.addCell(new jxl.write.Number(column++, row, cycle.energyAdded));
+        sheet.addCell(new jxl.write.Boolean(column++, row, cycle.superCharger, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.phases, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.startRange, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.endRange, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.startSOC, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.endSOC, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.lat, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.lng, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.odometer, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.peakVoltage, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.avgVoltage, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.peakCurrent, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.avgCurrent, StdFmt));
+        sheet.addCell(new jxl.write.Number(column++, row, cycle.energyAdded, StdFmt));
     }
     
     private void addTableHeader(WritableSheet sheet, int row) throws WriteException {
-        int column = 0;
-        sheet.addCell(new jxl.write.Label(column++, row, "Start Time"));
-        sheet.addCell(new jxl.write.Label(column++, row, "End Time"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Supercharger?"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Phases"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Start Range"));
-        sheet.addCell(new jxl.write.Label(column++, row, "End Range"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Start SOC"));
-        sheet.addCell(new jxl.write.Label(column++, row, "End SOC"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Lat"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Lng"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Odometer"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Peak V"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Avg V"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Peak I"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Avg I"));
-        sheet.addCell(new jxl.write.Label(column++, row, "Energy"));
-        //sheet.setColumnView(0, 12); // Big enough for a timestamp;
+        final String[] labels = {
+            "Start Date/Time", "Ending Date/Time", "Supercharger?", "Phases", "Start Range",
+            "End Range", "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Odometer",
+            "Peak V", "Avg V", "Peak I", "Avg I", "Energy"};
+        
+        for (int column = 0; column < labels.length; column++) {
+            String label = labels[column];
+            sheet.setColumnView(column, label.length()+3);
+            sheet.addCell(new jxl.write.Label(column, row, label, HdrFmt));
+        }
         
         // Make the header row stationary
         sheet.getSettings().setVerticalFreeze(1);
