@@ -11,8 +11,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
+import org.noroomattheinn.tesla.StreamState;
 import us.monoid.json.JSONObject;
 import org.noroomattheinn.utils.RestyWrapper;
+import org.noroomattheinn.utils.Utils;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.
@@ -22,7 +24,7 @@ import org.noroomattheinn.utils.RestyWrapper;
 public class ChargeMonitor {
     private final AppContext ac;
     private Cycle cycleInProgress = null;
-    
+
     public ObjectProperty<Cycle> lastChargeCycle = new SimpleObjectProperty<>();
 
     ChargeMonitor(AppContext appContext) {
@@ -54,41 +56,50 @@ public class ChargeMonitor {
         cycleInProgress.superCharger = chargeState.fastChargerPresent;
         cycleInProgress.phases = chargeState.chargerPhases;
         cycleInProgress.startTime = chargeState.timestamp;
-        cycleInProgress.startRange = sig(chargeState.range, 1);
-        cycleInProgress.startSOC = sig(chargeState.batteryPercent, 1);
-        cycleInProgress.lat = sig(ac.lastKnownStreamState.get().estLat,6);
-        cycleInProgress.lng = sig(ac.lastKnownStreamState.get().estLng,6);
-        cycleInProgress.odometer = sig(ac.lastKnownStreamState.get().odometer, 1);
+        cycleInProgress.startRange = Utils.round(chargeState.range, 1);
+        cycleInProgress.startSOC = Utils.round(chargeState.batteryPercent, 1);
+        cycleInProgress.odometer = Utils.round(ac.lastKnownStreamState.get().odometer, 1);
         cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
         cycleInProgress.newCurrentReading(chargeState.chargerActualCurrent);
+
+        // It's possible that a charge began before we got any location information
+        StreamState ss = ac.lastKnownStreamState.get();
+        if (ss != null) {
+            cycleInProgress.lat = Utils.round(ss.estLat, 6);
+            cycleInProgress.lng = Utils.round(ss.estLng, 6);
+        } else {
+            cycleInProgress.lat = cycleInProgress.lng = 0.0;
+        }
     }
-    
+
     private void updateCycle(ChargeState chargeState) {
         cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
         cycleInProgress.newCurrentReading(chargeState.chargerActualCurrent);
     }
-    
+
     private void completeCycle(ChargeState chargeState) {
         cycleInProgress.endTime = chargeState.timestamp;
-        cycleInProgress.endRange = sig(chargeState.range, 1);
-        cycleInProgress.endSOC = sig(chargeState.batteryPercent, 1);
-        cycleInProgress.energyAdded = sig(chargeState.energyAdded, 1);
-        
-        cycleInProgress.peakVoltage = sig(cycleInProgress.peakVoltage, 1);
-        cycleInProgress.avgVoltage = sig(cycleInProgress.avgVoltage, 1);
-        cycleInProgress.peakCurrent = sig(cycleInProgress.peakCurrent, 1);
-        cycleInProgress.avgCurrent = sig(cycleInProgress.avgCurrent, 1);
-        
+        cycleInProgress.endRange = Utils.round(chargeState.range, 1);
+        cycleInProgress.endSOC = Utils.round(chargeState.batteryPercent, 1);
+        cycleInProgress.energyAdded = Utils.round(chargeState.energyAdded, 1);
+
+        // If we didn't have location information at startup, see if we've got it now
+        if (cycleInProgress.lat == 0 && cycleInProgress.lng == 0) {
+            StreamState ss = ac.lastKnownStreamState.get();
+            if (ss != null) {
+                cycleInProgress.lat = Utils.round(ss.estLat, 6);
+                cycleInProgress.lng = Utils.round(ss.estLng, 6);
+            }
+        }
+
+        cycleInProgress.peakVoltage = Utils.round(cycleInProgress.peakVoltage, 1);
+        cycleInProgress.avgVoltage = Utils.round(cycleInProgress.avgVoltage, 1);
+        cycleInProgress.peakCurrent = Utils.round(cycleInProgress.peakCurrent, 1);
+        cycleInProgress.avgCurrent = Utils.round(cycleInProgress.avgCurrent, 1);
+
         lastChargeCycle.set(cycleInProgress);
         cycleInProgress = null;        
     }
-    
-    private double sig(double val, int n) {
-        double pow = Math.pow(10, n);
-        val = Math.floor(val * pow)/pow;
-        return val;
-    }
-    
     
     public static class Cycle {
         private static Gson gson = new Gson();
@@ -99,6 +110,9 @@ public class ChargeMonitor {
         public double startRange, endRange;
         public double startSOC, endSOC;
         public double lat, lng;
+            // We use 0,0 to mean that the lat,lng has not been set
+            // 0,0 is a vlid location, but it's in the middle of the
+            // of the ocean, so not a useful location for this purpose
         public double odometer;
         public double peakVoltage, avgVoltage;
         public double peakCurrent, avgCurrent;
