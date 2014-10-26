@@ -150,7 +150,32 @@
                             Let's you select which range you'd like to be displayed in the <a href="OverviewTab.html">Overview Tab</a>. The choices are <span class="ui">Rated</span>, <span class="ui">Ideal</span>, and <span class="ui">Estimated</span>.
                         </td>
                     </tr>
-
+                    <tr>
+                        <td>
+                            <span class="ui">Submit Anonymous Data</span>
+                        </td>
+                        <td>
+                            This is an opt-in program that allows you to submit anonymized charge statistics back to VisibleTesla.com so that they can be shared with the community. No information will be shared unless you explicitly enable this option. Please refer to the documentation on <a href="OtherTopics.html#chargeMonitoring">Charge Monitoring</a> and <a href="OtherTopics.html#exportingData">Exporting Data</a>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Include Location</span>
+                        </td>
+                        <td>
+                            If you have chosen to share anonymous charge data, you have additional control over what is shared. In particular, you can choose whether or not you want to share where the charge took place. If you choose to include location information using the <span class="ui">Include Location</span> check box, then a modified version of your charge location is sent along with your submission. Since most people frequently charge at home, this modified location will prevent your home address from showing up repeatedly in the public information. If it did, the relationship between UUID and owner might be determined.
+                            Instead, each time you submit data, your location is randomized. Your actual home location will never be one of these randomized locations. Just how much the location is altered is determined by the <span class="ui">Coarse/Fine</span> slider.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Coarse/Fine</span>
+                        </td>
+                        <td>
+                            This slider determines how much your location is randomized before it is submitted to VisibleTesla.com (assuming you opted in). If you think of a latitude (or longitude) as a number with some number of decimal places, the slider determines how much information after the decimal point will be preserved. For example, if you choose 3, then the third decimal place and beyond will be modified. If you choose 1, then the first decimal place and beyond will be modified. There are normally 6 digits after the decimal place, so there is no option to submit unmodified data.
+                            <p>Note: If you charge at a supercharger this randomization doesn't really help since supercharger locations are public and the fact that you used a supercharger is noted in your submission. In this case, the actual supercharger location is submitted.</p>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <p>

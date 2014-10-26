@@ -21,16 +21,18 @@
                 <a name="exportingData">Exporting Your Data</a>
             </h2>
             <p>
-                You can export the data collected by VisibleTesla to an Excel file for your own analysis. There are two sets of data you can export:
+                You can export the data collected by VisibleTesla to an Excel file for your own analysis. There are three sets of data you can export:
             </p>
             <ol>
                 <li>Statistics: The data that was gathered for the <a href="GraphsTab.html">Graphs Tab</a>. You can export this data using <span class="ui">File→Export Stats Data...</span> menu item.
                 </li>
                 <li>Locations: The data that was gathered for the <a href="LocationTab.html">Location Tab</a>. You can export this data using <span class="ui">File→Export Location Data...</span> menu item.
                 </li>
+                <li>Charge Information: The data that was gathered by the charge tracking system. You can export this data using <span class="ui">File→Export Charge Data...</span> menu item.
+                </li>
             </ol>
             <p>
-                In either case you'll be prompted to choose a location and name for the exported file. Be sure to use the extension ".xls"; for example, MyStats.xls. The screen shot below shows the Export menu items.
+                In all cases you'll be prompted to choose a location and name for the exported file. Be sure to use the extension ".xls"; for example, MyStats.xls. The screen shot below shows the Export menu items.
             </p><img class="screenshot" src="../images/16_Export.png" alt="Export Stats">
             <p>
                 After you choose a file and location, you'll be asked how much of your data you want to export. You can select a range of days on the calendar by selecting the starting day then holding down the shift key and selecting the <span class="tooltip" tip="Actually, you can select the days in any order">ending day</span>. You can use the <span class="ui">Quick Select</span> dropdown list to easily select some common ranges. Once you've selected your range, press the <span class="ui">Selected</span> button. If you want to export all of your data, you don't need to bother with the calendar, just press the <span class="ui">All</span> button. To abort the export process, hit the <span class="ui">Cancel</span> button. This screen shot shows the dialog box that allows you to select a date range.
@@ -38,8 +40,9 @@
             <p>
                 <img class="screenshot" src="../images/16a_Export_DateRange.png" alt="Export Date Range">
             </p>
+            <h3>Statistics and Location Data</h3>
             <p>
-                When you open an exported file in Excel, you'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains a long, unintelligible number which is an accurate, though obscure, way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like the one below (a sample of the stats data):
+                After exporting Statistics or Location, you can open the resulting file in Excel (or equivalent). You'll see a column corresponding to the time at which each reading was taken and a column for each type of data collected. The time column contains a long, unintelligible number which is an accurate, though obscure, way to keep track of time down to the millisecond. You'll notice that the last column has a version of the timestamp represented as a human-readable date. The table will look something like the one below (a sample of the stats data):
             </p>
             <table class="grid_table code">
                 <tbody>
@@ -138,6 +141,124 @@
             <p>
                 You may notice that some entries are blank. This is normal and can happen for a number of reasons. For example, the car may not have provided readings for that statistic at that time.
             </p>
+            <h3>Charge Data</h3>
+            <p>When you open the Excel file created by <span class="ui">File→Export Charge Data...</span>, you'll see that each row represents a separate charge cycle. The columns are: </p>
+            <table class="grid_table">
+                <tbody>
+                    <tr>
+                        <th>
+                            Columns
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>
+                            Start Date/Time
+                        </td>
+                        <td>
+                            The date and time at which this charge cycle began.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Ending Date/Time
+                        </td>
+                        <td>
+                            The date and time at which this charge cycle ended.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Supercharger?
+                        </td>
+                        <td>
+                            Did this charge cycle use a supercharger?
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Phases
+                        </td>
+                        <td>
+                            This column will contain a 3 if the charge cycle used a 3-phase charger. It will be 0 otherwise. 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Start Range
+                        </td>
+                        <td>
+                            The range remaining when the charge began. Note, this is always in miles regardless of the GUI setting.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            End Range
+                        </td>
+                        <td>
+                            The range remaining when the charge eneded. Note, this is always in miles regardless of the GUI setting.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Start SOC
+                        </td>
+                        <td>
+                            The SOC when the charge began. This is a percentage.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            End SOC
+                        </td>
+                        <td>
+                            The SOC when the charge ended. This is a percentage.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Latitude, Longitude (2 columns)
+                        </td>
+                        <td>
+                            The latitude and longitude during the charge. 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Odometer
+                        </td>
+                        <td>
+                            The odometer reading during the charge. Note, this is always in miles regardless of the GUI setting.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Peak Voltage, Average Voltage (2 columns)
+                        </td>
+                        <td>
+                            The highest voltage reached during charging and the average voltage for the duration of the charge.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Peak Current, Average Current (2 columns)
+                        </td>
+                        <td>
+                            The highest current reached during charging and the average current for the duration of the charge.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Energy
+                        </td>
+                        <td>
+                            The energy added by the charge.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             <h2>
                 <a name="vampireLoss">Tracking Vampire Loss</a>
             </h2>
@@ -175,7 +296,40 @@
                 <img class="screenshot" src="../images/26e_Vampire_Time.png" alt="Vampire Time Chart">
             </p>
             <h2>
-                <a name="autorefresh">Data Collection and Auto-Refresh</a>
+                <a name="chargeMonitoring">Charge Monitoring</a>
+            </h2>
+            <p>VisibleTesla monitors charge cycles and records information about them. This information can be exported as described <a href="#exportingData">above</a>. You can use this information to keep track of your charging patterns and do other analysis. In the future, VisibleTesla may include graphs to visualize this information.
+            </p>
+            <p>
+                There is also an opt-in program to contribute anonymized information back to VisibleTesla.com so that it can be shared with the larger community. Note that this will never happen unless you explicitly turn on this feature in the <a href="PrefsTab.html">Preferences Tab</a>.
+                The goal is to allow the community to collect a wide variety of charging information that may contribute to future battery and charging studies. This information is submitted to VisibleTesla.com via anonymous email. An email is sent to VisibleTesla.com that does not include any identifying information from your computer or your car. For example, it does not include your VIN, your email address, or your IP address. The message body, in it's entirety, is stored in the log file on your computer so you can double check it's annonymity. Contact <script type="text/javascript"><!-- Created with http://hivelogic.com/enkoder/index.php -->
+//<![CDATA[
+<!--
+var x="function f(x){var i,o=\"\",l=x.length;for(i=0;i<l;i+=2) {if(i+1<l)o+=" +
+"x.charAt(i+1);try{o+=x.charAt(i);}catch(e){}}return o;}f(\"ufcnitnof x({)av" +
+" r,i=o\\\"\\\"o,=l.xelgnhtl,o=;lhwli(e.xhcraoCedtAl(1/)3=!84{)rt{y+xx=l;=+;" +
+"lc}tahce({)}}of(r=i-l;1>i0=i;--{)+ox=c.ahAr(t)i};erutnro s.buts(r,0lo;)f}\\" +
+"\"(6),4\\\"\\\\3?(9\\\"\\\\\\\\\\\\4@03\\\\\\\\GS10\\\\06\\\\02\\\\\\\\14\\" +
+"\\06\\\\02\\\\\\\\04\\\\01\\\\00\\\\\\\\07\\\\02\\\\03\\\\\\\\34\\\\00\\\\0" +
+"3\\\\\\\\35\\\\03\\\\01\\\\\\\\17\\\\0M\\\\\\\\r7\\\\00\\\\\\\\31\\\\04\\\\" +
+"01\\\\\\\\2<00\\\\\\\\\\\\n7\\\\00\\\\\\\\\\\\r0\\\\02\\\\\\\\13\\\\07\\\\:" +
+"@)6yb06\\\\05\\\\!989!10r.$m*88</\\\\9\\\\\\\"4\\\\+eb7#*RV6^03\\\\\\\\7g00" +
+"\\\\\\\\\\\\\\\\\\\\\\\\CTA_24\\\\01\\\\02\\\\\\\\]nYQ@AyI\\\\nH\\\\\\\\\\\\"+
+"\\\\\\\\bF05\\\\0P\\\\GPQTLzh 7x17\\\\\\\\zseby*q|q?}cXh7n08>+00\\\\05\\\\0" +
+"2\\\\\\\\5;8< j!:*%k'24\\\\0z\\\\  +6 b5|03\\\\\\\\26\\\\0S\\\\^PPN@J30\\\\" +
+"0A\\\\VZD_@S\\\\J(\\\"}fo;n uret}r);+)y+^(i)t(eAodrCha.c(xdeCoarChomfrg.int" +
+"r=So+7;12%=;y=iy+6)=4i=f({i+)i+l;i<0;i=r(foh;gten.l=x,l\\\"\\\\\\\"\\\\o=i," +
+"r va){,y(x fontincfu)\\\"\")"                                                ;
+while(x=eval(x));
+//-->
+//]]>
+</script>
+                 to request that submitted data be removed.
+            </p>
+            <p>We would like to be able to correlate all of the entries from the same car without using the car's VIN or any other personally identifiable information. To do that, VisibleTesla assigns each car a long random sequence of numbers and letters. This sequence is known by the car's owner, but not by anyone else including VisibleTesla.com. This sequence is refered to as a UUID - Universally Unique IDentifer. You can view your UUID via the <span class="ui">Details</span> button in the <a href="OverviewTab.html">Overview Tab</a> or the <span class="ui">Display UUID</span> button in the <a href="PrefsTab.html">Preferences Tab</a>.
+            </p>
+            <h2>
+                <a name="autorefresh">Data Collection</a>
             </h2>
             <p>
                 Many of the Tabs in VisibleTesla collect data of one type or another to do their job. The Location Tab collects location-related data, the Charge Tab collects charge-related data, and so on. They only collect this data when they are the selected tab. For example, while you are viewing the Charge Tab it is collecting charge data, but as soon as you switch to the Location Tab, the Charge Tab stops collecting data and the Location Tab starts. A number of tabs don't collect any data (e.g. Login, Prefs). Some tabs collect data only as needed (e.g. Scheduler).
@@ -184,7 +338,7 @@
                 The Graphs Tab is special - it collects data even when you aren't viewing it. It's also opportunistic. It watches the data being collected by other Tabs and looks for anything it can use. In normal circumstances the Graphs Tab collects data every two minutes. If it sees your car in motion, it starts collecting data every 30 seconds. If your car stops, it continues collecting data every 30 seconds for a couple of minutes in case you're at a stop light or something like that. Eventually it will revert to collecting data at 2 minute intervals.
             </p>
             <p>
-                When viewing any tab you may refresh the displayed data by pressing the <span class="ui">Refresh</span> button. If you don't press the button, the app will automatically refresh the information every 30 seconds. Switching tabs automatically refreshes the newly selected tab. The screen shot below shows the "spinner" that is displayed when the app is communicating with your car.
+                When viewing any tab you may refresh the displayed data by pressing the <span class="ui">Refresh</span> button. If you don't hit refresh, the information displayed may become stale. Switching tabs automatically refreshes the newly selected tab. The screen shot below shows the "spinner" that is displayed when the app is communicating with your car.
             </p>
             <p>
                 The Location Tab is a little different from the others. It auto-refreshes like other tabs, but when the car is in motion it uses a special feature called "Streaming" that allows it to collect data at a higher rate without overloading Tesla's servers.
@@ -193,7 +347,7 @@
                 <img class="screenshot" src="../images/12_Auto_Refresh.png">
             </p>
             <p>
-                Speaking of overloading Tesla's servers, VisibleTesla automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others. For example, the odometer reading on the <a href="OverviewTab.html">Overview Tab</a>. Since even at 60 mph the reading doesn't change much every minute, the app does not update it on every auto-refresh.
+                Speaking of overloading Tesla's servers, VisibleTesla automatically monitors the rate at which it makes requests. If you manually press refresh multiple times in rapid succession, you may find that the spinner rotates for a longer than usual. The app is automatically slowing down its requests to Tesla's servers in order to remain a good citizen. The app may also choose to refresh certain items less frequently than others.
             </p>
             <h2>
                 <a name="rest">Web Services</a>
