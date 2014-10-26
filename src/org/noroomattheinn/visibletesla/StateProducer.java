@@ -6,7 +6,6 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.Map;
-import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.Vehicle;
