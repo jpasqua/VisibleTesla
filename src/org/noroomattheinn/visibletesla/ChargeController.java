@@ -128,7 +128,7 @@ public class ChargeController extends BaseController {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
                 Result r = ac.vehicle.setChargeState(b == startButton);
-                updateStateLater(Vehicle.StateType.Charge, 3 * 1000);
+                updateStateLater(Vehicle.StateType.Charge, 5 * 1000);
                 return r;
             } });
     }
