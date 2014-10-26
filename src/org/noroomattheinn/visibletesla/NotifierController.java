@@ -740,9 +740,7 @@ public class NotifierController extends BaseController {
             }
         }
         
-        private String encode(byte[] bytes) {
-            return javax.xml.bind.DatatypeConverter.printBase64Binary(bytes);
-        }
+        private String encode(byte[] bytes) { return Utils.toB64(bytes); }
     }
     
 /*------------------------------------------------------------------------------
