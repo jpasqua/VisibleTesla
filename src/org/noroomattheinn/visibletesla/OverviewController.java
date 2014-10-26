@@ -127,7 +127,7 @@ public class OverviewController extends BaseController {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
                 Result r = ac.vehicle.setLockState(source == lockButton);
-                updateStateLater(Vehicle.StateType.Vehicle, 5 * 1000);
+                updateStateLater(Vehicle.StateType.Vehicle, 3 * 1000);
                 return r;
             } });
     }
@@ -150,7 +150,7 @@ public class OverviewController extends BaseController {
         VehicleState car = ac.lastKnownVehicleState.get();
         String info = ac.vehicle.toString() +
                 "\nFirmware Version: " + car.version +
-                "\nHas Spoiler: " + car.hasSpoiler +
+                "\nUUID: " + ac.uuidForVehicle +
                 "\nRemote Start Enabled: " + ac.vehicle.remoteStartEnabled() +
                 "\nCalendar Enabled: " + ac.vehicle.calendarEnabled() +
                 "\nNotifications Enabled: " + ac.vehicle.notificationsEnabled() +

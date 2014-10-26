@@ -84,7 +84,7 @@ public class HVACController extends BaseController {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
                 Result r = v.setAC(hvacOnButton.isSelected());
-                updateStateLater(Vehicle.StateType.HVAC, 5 * 1000);
+                updateStateLater(Vehicle.StateType.HVAC, 3 * 1000);
                 return r;
             } });
     }
@@ -104,7 +104,7 @@ public class HVACController extends BaseController {
             @Override public Result call() {
                 Result r = (setF) ? v.setTempF(temp, temp)
                                   : v.setTempC(temp, temp);
-                updateStateLater(Vehicle.StateType.HVAC, 5 * 1000);
+                updateStateLater(Vehicle.StateType.HVAC, 3 * 1000);
                 return r;
             } });
     }
