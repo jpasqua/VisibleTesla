@@ -193,7 +193,15 @@ public class AppContext {
     }
 
 
-    public void noteUpdatedState(BaseState state) {
+    public void noteUpdatedState(final BaseState state) {
+        if (Platform.isFxApplicationThread()) { noteUpdatedStateInternal(state); }
+        else {
+            Platform.runLater(new Runnable() {
+                @Override public void run() { noteUpdatedStateInternal(state); } });
+        }
+    }
+    
+    private void noteUpdatedStateInternal(BaseState state) {
         if (state instanceof ChargeState) {
             lastKnownChargeState.set(((ChargeState)state));
         } else if (state instanceof DriveState) {

@@ -60,9 +60,7 @@ public class StateProducer extends Executor<StateProducer.Request> {
         final BaseState state = appContext.vehicle.query(r.stateType);
         if (state.valid) {
             lastProduced.put(r.stateType, System.currentTimeMillis());
-            Platform.runLater(new Runnable() {
-                @Override public void run() { appContext.noteUpdatedState(state); }
-            });
+            appContext.noteUpdatedState(state);
             return true;
         }
         return false;
