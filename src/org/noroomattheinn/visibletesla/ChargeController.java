@@ -39,7 +39,6 @@ public class ChargeController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final double KilometersPerMile = 1.60934;
     private static final String MinVersionForChargePct = "1.33.38";
         // This value is taken from the wiki here: http://tinyurl.com/mzwxbps
     
@@ -212,7 +211,7 @@ public class ChargeController extends BaseController {
 
     private void reflectProperties() {
         ChargeState charge = ac.lastKnownChargeState.get();
-        double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
+        double conversionFactor = useMiles ? 1.0 : Utils.KilometersPerMile;
         int pc = charge.chargerPilotCurrent;
         if (pc == -1) pilotCurrent.setValue("Unknown");
         else pilotCurrent.setValue(String.valueOf(pc));
@@ -293,10 +292,10 @@ public class ChargeController extends BaseController {
 
     private void reflectRange() {
         ChargeState charge = ac.lastKnownChargeState.get();
-        double conversionFactor = useMiles ? 1.0 : KilometersPerMile;
-        estOdometer.setValue(osd(charge.estimatedRange * conversionFactor));
-        idealOdometer.setValue(osd(charge.idealRange * conversionFactor));
-        ratedOdometer.setValue(osd(charge.range * conversionFactor));
+        double conversionFactor = useMiles ? 1.0 : Utils.KilometersPerMile;
+        estOdometer.setValue(Utils.round(charge.estimatedRange * conversionFactor, 1));
+        idealOdometer.setValue(Utils.round(charge.idealRange * conversionFactor, 1));
+        ratedOdometer.setValue(Utils.round(charge.range * conversionFactor, 1));
         
     }
     
@@ -304,13 +303,6 @@ public class ChargeController extends BaseController {
         chargeScheduledLabel.setVisible(show);
         scheduledTimeLabel.setVisible(show);
     }
-    
-    /**
-     * Return the given value with just one significant decimal place
-     * @param value The value whose precision is to be altered
-     * @return      The value with just one significant decimal place
-     */
-    private double osd(double value) { return Math.round(value * 10.0) / 10.0; }
     
 /*------------------------------------------------------------------------------
  *

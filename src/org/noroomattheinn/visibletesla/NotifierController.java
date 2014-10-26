@@ -680,12 +680,12 @@ public class NotifierController extends BaseController {
     private void bindBidrectional(final BigDecimalField bdf, final Slider slider) {
         bdf.setFormat(new DecimalFormat("##0.0"));
         bdf.setStepwidth(BigDecimal.valueOf(0.5));
-        bdf.setNumber(new BigDecimal(osd(slider.getValue())));
+        bdf.setNumber(new BigDecimal(Utils.round(slider.getValue(), 1)));
 
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override public void changed(
                     ObservableValue<? extends Number> ov, Number t, Number t1) {
-                double val = osd(t1.doubleValue());
+                double val = Utils.round(t1.doubleValue(), 1);
                 slider.setValue(val);
                 bdf.setNumber(new BigDecimal(val));
             }
@@ -694,17 +694,13 @@ public class NotifierController extends BaseController {
         bdf.numberProperty().addListener(new ChangeListener<BigDecimal>() {
             @Override public void changed(
                     ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
-                double val = osd(t1.doubleValue());
+                double val = Utils.round(t1.doubleValue(), 1);
                 slider.setValue(val);
                 bdf.setNumber(new BigDecimal(val));
             }
         });
     }
 
-    private double osd(double val) {
-        return Math.round(val * 10.0)/10.0;
-    }
-    
     private class HTTPAsyncGet implements Runnable {
         private static final int timeout = 5 * 1000;
         

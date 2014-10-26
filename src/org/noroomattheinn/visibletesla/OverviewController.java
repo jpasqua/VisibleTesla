@@ -42,7 +42,6 @@ public class OverviewController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final double KilometersPerMile = 1.60934;
     public enum RoofState {Open, Closed, Vent, Solid};
 
 /*------------------------------------------------------------------------------
@@ -424,7 +423,7 @@ public class OverviewController extends BaseController {
         ac.persistentState.putDouble(ac.vehicle.getVIN()+"_odometer", odometerReading);
         boolean useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
-        odometerReading *= useMiles ? 1.0 : KilometersPerMile;
+        odometerReading *= useMiles ? 1.0 : Utils.KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
     }
     

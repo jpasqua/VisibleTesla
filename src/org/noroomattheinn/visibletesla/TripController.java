@@ -70,7 +70,6 @@ public class TripController extends BaseController {
     private static final String SnapToRoadKey = "TR_SNAP";
     private static final String PathTemplateFileName = "PathTemplate.html";
     private static final String CarIconResource = "org/noroomattheinn/TeslaResources/02_loc_arrow@2x.png";
-    private static final double KilometersPerMile = 1.60934;
     private static final long MaxTimeBetweenWayPoints = 15 * 60 * 1000;
     private static final String RangeRowName = "Range";
     private static final String OdoRowName = "Odometer";
@@ -265,7 +264,7 @@ public class TripController extends BaseController {
         WayPoint start = trips.get(0).firstWayPoint();
         WayPoint end   = trips.get(trips.size()-1).lastWayPoint();
         
-        double cvt = useMiles ? 1.0 : KilometersPerMile;
+        double cvt = useMiles ? 1.0 : Utils.KilometersPerMile;
         updateStartEndProps(
                 StatsStore.EstRangeKey, start.timestamp, end.timestamp, 
                 rangeRow, cvt);
@@ -320,7 +319,7 @@ public class TripController extends BaseController {
         if (calendarPicker.calendars().size() == 0) {
             return;
         }
-        double cvt = useMiles ? 1.0 : KilometersPerMile;
+        double cvt = useMiles ? 1.0 : Utils.KilometersPerMile;
         for (Calendar c : calendarPicker.calendars()) {
             String dateKey = keyFromDate(c.getTime());
             List<Trip> trips = dateToTrips.get(dateKey);
@@ -558,11 +557,10 @@ public class TripController extends BaseController {
         for (int i = edl.size()-1; i >= 0; i--) {
             double e = edl.get(i).elevation;
             if (useMiles) e = metersToFeet(e); // Always use meters for now
-            waypoints.get(i).decoration.put("L_ELV", osd(e));
+            waypoints.get(i).decoration.put("L_ELV", Utils.round(e, 1));
         }
     }
     
-    private double osd(double value) { return Math.round(value * 10.0) / 10.0; }
     private double metersToFeet(double meters) { return meters * 3.28084; }
     
 /*------------------------------------------------------------------------------
@@ -677,7 +675,7 @@ public class TripController extends BaseController {
         public String asJSON() { return asJSON(true); }
         
         public String asJSON(boolean useMiles) {
-            double speedUnits = useMiles ? speed: osd(Utils.mToK(speed));
+            double speedUnits = useMiles ? speed: Utils.round(Utils.mToK(speed), 1);
             StringBuilder sb = new StringBuilder();
             sb.append("{\n");
             sb.append("    timestamp: \"");
