@@ -22,7 +22,9 @@ import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
@@ -97,6 +99,18 @@ public class PrefsController extends BaseController {
         ac.restEncPW = pw;
         ac.restSalt = salt;
         ac.prefs.authCode.set(externalForm);
+    }
+    
+    @FXML void displayUUID(ActionEvent event) {
+        AnchorPane pane = new AnchorPane();
+        String body = "This value is only known to you and allows you to identify " +
+            "your information amongst anonymized data at VisibleTesla.com\n" +
+            "ID: " + ac.uuidForVehicle;
+
+        TextArea t = new TextArea(body);
+        pane.getChildren().add(t);
+        Dialogs.showCustomDialog(
+            ac.stage, pane, "Your Anonymous UUID", "General Preferences", Dialogs.DialogOptions.OK, null);
     }
     
     @FXML void showAppFiles(ActionEvent event) {

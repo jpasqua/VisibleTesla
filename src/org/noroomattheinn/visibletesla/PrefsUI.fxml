@@ -79,6 +79,7 @@
                                 <Label id="idleThresholdLabel" text="Fine" />
                               </children>
                             </HBox>
+                            <Button id="displayUUID" layoutX="14.0" layoutY="204.0" mnemonicParsing="false" onAction="#displayUUID" text="Display UUID" />
                           </children>
                         </AnchorPane>
                       </content>
