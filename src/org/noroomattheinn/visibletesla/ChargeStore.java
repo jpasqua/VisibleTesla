@@ -32,7 +32,6 @@ import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.visibletesla.DataStore.LastExportDirKey;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import us.monoid.json.JSONException;
 import us.monoid.json.JSONObject;
 
 /**
@@ -141,7 +140,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
     
     private void ditherLocation(ChargeMonitor.Cycle cycle) {
         if (!ac.prefs.includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
-        if (cycle.superCharger) return;
+        if (cycle.superCharger || (cycle.lat == 0 && cycle.lng == 0)) return;
         
         double random, offset;
         double ditherAmt = ac.prefs.ditherLocAmt.get();
@@ -149,19 +148,13 @@ public class ChargeStore implements ThreadManager.Stoppable {
         
         random = 0.5 + (Math.random()/2);           // value in [0.5, 1]
         offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
-        cycle.lat += sig(offset, 6);
+        cycle.lat += Utils.round(offset, 6);
 
         random = 0.5 + (Math.random()/2);           // value in [0.5, 1]
         offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
-        cycle.lng += sig(offset, 6);
+        cycle.lng += Utils.round(offset, 6);
     }
         
-    private double sig(double val, int n) {
-        double pow = Math.pow(10, n);
-        val = Math.floor(val * pow)/pow;
-        return val;
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE Methods for writing to an excel file
