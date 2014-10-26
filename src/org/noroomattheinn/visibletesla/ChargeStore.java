@@ -133,6 +133,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
         ditherLocation(cycle);
         JSONObject jo = cycle.toJSON();
         RestyWrapper.put(jo, "uuid", ac.uuidForVehicle);
+        RestyWrapper.put(jo, "battery", ac.vehicle.getOptions().batteryType());
         String body = jo.toString();
         ac.utils.sendNotification(VTDataAddress, VTChargeDataSubj, body);
         Tesla.logger.info("Charge data submitted: " + body);
