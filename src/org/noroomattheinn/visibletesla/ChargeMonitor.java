@@ -60,7 +60,8 @@ public class ChargeMonitor {
         cycleInProgress.startSOC = Utils.round(chargeState.batteryPercent, 1);
         cycleInProgress.odometer = Utils.round(ac.lastKnownStreamState.get().odometer, 1);
         cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
-        cycleInProgress.newCurrentReading(chargeState.chargerActualCurrent);
+        cycleInProgress.newCurrentReading(cycleInProgress.superCharger ?
+                chargeState.batteryCurrent : chargeState.chargerActualCurrent);
 
         // It's possible that a charge began before we got any location information
         StreamState ss = ac.lastKnownStreamState.get();
@@ -74,7 +75,8 @@ public class ChargeMonitor {
 
     private void updateCycle(ChargeState chargeState) {
         cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
-        cycleInProgress.newCurrentReading(chargeState.chargerActualCurrent);
+        cycleInProgress.newCurrentReading(cycleInProgress.superCharger ?
+                chargeState.batteryCurrent : chargeState.chargerActualCurrent);
     }
 
     private void completeCycle(ChargeState chargeState) {
