@@ -13,10 +13,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -82,6 +78,7 @@ public class AppContext {
     public final VTUtils utils;
     public final ThreadManager tm;
     public final Inactivity inactivity;
+    public final TrackedObject<Long> produceRequest;
     public final BooleanProperty shuttingDown;
     public final ObjectProperty<ChargeState> lastKnownChargeState;
     public final ObjectProperty<DriveState> lastKnownDriveState;
@@ -129,6 +126,7 @@ public class AppContext {
         this.tm = new ThreadManager(shuttingDown);
         this.utils = new VTUtils(this);
         this.inactivity = new Inactivity(this);    
+        this.produceRequest = new TrackedObject<>(0L);
         
         this.lastKnownChargeState = new SimpleObjectProperty<>();
         this.lastKnownDriveState = new SimpleObjectProperty<>();
@@ -142,7 +140,7 @@ public class AppContext {
         this.prefs = new Prefs(this);
 
         appFilesFolder = ensureAppFilesFolder();
-        setupLogger(appFilesFolder);
+        Utils.setupLogger(appFilesFolder, "visibletesla", Tesla.logger, prefs.getLogLevel());
         
         tesla = (prefs.enableProxy.get()) ?
             new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
@@ -310,33 +308,5 @@ public class AppContext {
         }
     }
 
-    private void setupLogger(File where) {
-        rotateLogs(where, 3);
-
-        Logger logger = Logger.getLogger("");
-        FileHandler fileHandler;
-        try {
-            fileHandler = new FileHandler((new File(where, "visibletesla-00.log")).getAbsolutePath());
-            fileHandler.setFormatter(new SimpleFormatter());
-            fileHandler.setLevel(Level.ALL);
-            logger.addHandler(fileHandler);
-        } catch (IOException | SecurityException ex) {
-            logger.log(Level.SEVERE, "Unable to establish log file");
-        }
-    }
-
-    private void rotateLogs(File where, int max) {
-        File logfile = new File(where, String.format("visibletesla-%02d.log", max));
-        if (logfile.exists()) {
-            logfile.delete();
-        }
-        if (max > 0) {
-            File previous = new File(where, String.format("visibletesla-%02d.log", max - 1));
-            if (previous.exists()) {
-                previous.renameTo(logfile);
-            }
-            rotateLogs(where, max - 1);
-        }
-    }
     
 }
