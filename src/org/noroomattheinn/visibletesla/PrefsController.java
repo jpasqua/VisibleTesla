@@ -65,9 +65,9 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox      enableRest;
     @FXML private TextField     restPort;
     @FXML private PasswordField authCode;
-    @FXML private Button        setAuthCodeButton;
     @FXML private TextField     customURLSrc;
     @FXML private ComboBox<String> overviewRange;
+    @FXML private ComboBox<String> logLevel;
     
     @FXML private CheckBox      submitAnon;
     @FXML private CheckBox      includeLoc;
@@ -182,7 +182,8 @@ public class PrefsController extends BaseController {
         bindToCheckBox(enableRest, ac.prefs.enableRest);
         bindToTextField(restPort, ac.prefs.restPort);
         bindToTextField(customURLSrc, ac.prefs.customURLSource);
-        
+        bindToComboBox(logLevel, ac.prefs.logLevel);
+
         // Overrides
         bindToComboBox(overrideWheelsCombo, ac.prefs.overideWheelsTo);
         bindToCheckBox(overrideWheelsActive, ac.prefs.overideWheelsActive);

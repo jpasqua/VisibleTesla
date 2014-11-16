@@ -10,7 +10,9 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Range;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -25,6 +27,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.PWUtils;
+import org.noroomattheinn.utils.Utils;
 
 /**
  * Prefs - Stores and Manages Preferences data for all of the tabs.
@@ -112,6 +115,7 @@ public class Prefs {
     public IntegerProperty  restPort                = new SimpleIntegerProperty();
     public StringProperty   authCode                = new SimpleStringProperty();
     public StringProperty   customURLSource         = new SimpleStringProperty();
+    public StringProperty   logLevel                = new SimpleStringProperty();
     private static final String OfferExpKey         = "APP_OFFER_EXP";
     private static final String EnableProxyKey      = "APP_ENABLE_PROXY";
     private static final String ProxyHostKey        = "APP_PROXY_HOST";
@@ -125,7 +129,14 @@ public class Prefs {
     private static final String EnableRestKey       = "APP_ENABLE_REST";
     private static final String AuthCodeKey         = "APP_AUTH_CODE";
     private static final String CustomURLKey        = "APP_CUSTOM_URL";
-
+    private static final String LogLevelKey         = "APP_LOG_LEVEL";
+    private static final HashMap<String,Level> levelMap = Utils.newHashMap(
+            "Severe", Level.SEVERE, "Warning", Level.WARNING,
+            "Info",   Level.INFO,   "Config",  Level.CONFIG,
+            "Fine",   Level.FINE,   "Finer",   Level.FINER,
+            "Finest", Level.FINEST
+            );
+    
     // Overrides
     public StringProperty   overideWheelsTo         = new SimpleStringProperty();
     public BooleanProperty  overideWheelsActive     = new SimpleBooleanProperty();
@@ -147,6 +158,8 @@ public class Prefs {
     private static final String ORModelActiveKey    = "APP_OMA";
     private static final String ORRoofToKey         = "APP_ORT";
     private static final String ORRoofActiveKey     = "APP_ORA";
+    
+    public Level getLogLevel() { return levelMap.get(logLevel.get()); }
     
     private void loadGeneralPrefs() {
         // ----- Basic Preferences
@@ -174,11 +187,14 @@ public class Prefs {
         booleanPref(EnableRestKey, enableRest, false);
         integerPref(RestPortKey, restPort, 9090);
         stringPref(CustomURLKey, customURLSource, "");
+        stringPref(LogLevelKey, logLevel, "Info");
+        
         stringPref(AuthCodeKey, authCode, "");
         // Break down the external representation into the salt and password
         List<byte[]> internalForm = (new PWUtils()).internalRep(authCode.get());
         appContext.restSalt = internalForm.get(0);
         appContext.restEncPW = internalForm.get(1);
+        
         // ----- Overrides
         stringPref(ORWheelToKey, overideWheelsTo, "From Car");
         booleanPref(ORWheelActiveKey, overideWheelsActive, false);

@@ -20,7 +20,7 @@
       <expandedPane>
         <TitledPane fx:id="x1" animated="false" prefHeight="400.0" prefWidth="640.0" text="General">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: gray">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="427.0" prefWidth="636.0" style="-fx-background-color: gray">
               <children>
                 <Accordion prefHeight="220.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                   <expandedPane>
@@ -87,7 +87,7 @@
                   </expandedPane>
                   <panes>
                     <fx:reference source="x4" />
-                    <TitledPane fx:id="x8" animated="false" text="Advanced">
+                    <TitledPane fx:id="x8" animated="false" minWidth="598.0" prefHeight="391.0" prefWidth="598.0" text="Advanced">
                       <content>
                         <ScrollPane prefHeight="355.0" prefWidth="594.0">
                           <content>
@@ -132,9 +132,23 @@
                                 <TextField fx:id="restPort" layoutX="218.0" layoutY="193.0" prefWidth="55.0" text="9090" />
                                 <Label layoutX="297.0" layoutY="196.0" text="Auth Code:" />
                                 <PasswordField fx:id="authCode" layoutX="369.0" layoutY="193.0" prefWidth="141.0" promptText="Reset Auth Code" text="" />
-                                <Button id="setAuthCode" fx:id="setAuthCodeButton" layoutX="511.0" layoutY="193.0" mnemonicParsing="false" onAction="#setAuthCode" text="Set" />
+                                <Button id="setAuthCode" layoutX="511.0" layoutY="193.0" mnemonicParsing="false" onAction="#setAuthCode" text="Set" />
                                 <TextField id="customURL" fx:id="customURLSrc" layoutX="153.0" layoutY="223.0" prefWidth="400.0" />
                                 <Label layoutX="14.0" layoutY="226.0" prefWidth="140.0" text="Custom Page Source" />
+                                <ComboBox fx:id="logLevel" value="Info" AnchorPane.bottomAnchor="69.0" AnchorPane.rightAnchor="219.0">
+                                  <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                      <String fx:value="Severe" />
+                                      <String fx:value="Warning" />
+                                      <String fx:value="Info" />
+                                      <String fx:value="Config" />
+                                      <String fx:value="Fine" />
+                                      <String fx:value="Finer" />
+                                      <String fx:value="Finest" />
+                                    </FXCollections>
+                                  </items>
+                                </ComboBox>
+                                <Label prefWidth="70.0" text="Log Level:" AnchorPane.bottomAnchor="71.0" AnchorPane.rightAnchor="304.0" />
                               </children>
                             </AnchorPane>
                           </content>
