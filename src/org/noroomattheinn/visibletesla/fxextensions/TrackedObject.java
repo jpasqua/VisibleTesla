@@ -25,7 +25,8 @@ public class TrackedObject<T> {
     }
     private final List<Tracker> trackers;
     private T val;
-
+    private long lastSet = 0;
+    
     private TrackedObject() { this(null); }
 
     public TrackedObject(T initialVal) {
@@ -36,6 +37,7 @@ public class TrackedObject<T> {
     public T get() { return val; }
     public void set(T newVal) {
         this.val = newVal;
+        this.lastSet = System.currentTimeMillis();
         for (Tracker tracker : trackers) {
             if (tracker.runLater) Platform.runLater(tracker.r);
             else tracker.r.run();
@@ -45,5 +47,7 @@ public class TrackedObject<T> {
     public void addTracker(boolean runLater, Runnable r) {
         trackers.add(new Tracker(r, runLater));
     }
+    
+    public long lastSet() { return lastSet; }
 }
     
