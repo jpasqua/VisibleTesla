@@ -42,9 +42,9 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final Map<String,Inactivity.Type> toInactivityType = 
-            Utils.newHashMap("sleep", Inactivity.Type.Sleep,
-                             "wakeup", Inactivity.Type.Awake);
+    private static final Map<String,Inactivity.Mode> toInactivityType = 
+            Utils.newHashMap("sleep", Inactivity.Mode.AllowSleeping,
+                             "wakeup", Inactivity.Mode.StayAwake);
 
 /*------------------------------------------------------------------------------
  *
@@ -52,7 +52,7 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext appContext;
+    private final AppContext ac;
     private HttpServer server;
     private PWUtils pwUtils = new PWUtils();
     
@@ -63,16 +63,16 @@ public class RESTServer implements ThreadManager.Stoppable {
  *============================================================================*/
     
     public RESTServer(AppContext ac) {
-        appContext = ac;
+        this.ac = ac;
         server = null;
     }
 
     public synchronized void launch() {
-        if (!appContext.prefs.enableRest.get()) {
+        if (!ac.prefs.enableRest.get()) {
             Tesla.logger.info("REST Services are disabled");
             return;
         }
-        int restPort = appContext.prefs.restPort.get();
+        int restPort = ac.prefs.restPort.get();
         try {
             server = HttpServer.create(new InetSocketAddress(restPort), 0);
             
@@ -80,6 +80,8 @@ public class RESTServer implements ThreadManager.Stoppable {
             cc = server.createContext("/v1/action/activity", activityRequest);
             cc.setAuthenticator(authenticator);
             cc = server.createContext("/v1/action/info", infoRequest);
+            cc.setAuthenticator(authenticator);
+            cc = server.createContext("/v1/action", actionRequest);
             cc.setAuthenticator(authenticator);
             cc = server.createContext("/", staticPageRequest);
             cc.setAuthenticator(authenticator);
@@ -116,15 +118,39 @@ public class RESTServer implements ThreadManager.Stoppable {
                 sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
-            Inactivity.Type requestedMode = toInactivityType.get(mode);
+            Inactivity.Mode requestedMode = toInactivityType.get(mode);
             if (requestedMode == null) {
                 Tesla.logger.warning("Unknown inactivity mode: " + mode + "\n");
                 sendResponse(exchange, 400, "Unknown activity mode");
                 return;
             }
             Tesla.logger.info("Requested inactivity mode: " + mode);
-            appContext.inactivity.setMode(requestedMode);
+            ac.inactivity.mode.set(requestedMode);
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
+        }
+    };
+
+    private HttpHandler actionRequest = new HttpHandler() {
+        @Override public void handle(HttpExchange exchange) throws IOException {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                sendResponse(exchange, 400, "GET only on action endpoint\n");
+                return;
+            }
+            String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
+            String command = StringUtils.substringAfterLast(path, "/");
+            switch (command) {
+                case "action":
+                    sendResponse(exchange, 403, "403 (Forbidden)\n");
+                    break;
+                case "produce":
+                    ac.produceRequest.set(ac.produceRequest.get()+1);
+                    Tesla.logger.info("Produce Request Received");
+                    sendResponse(exchange, 200,  "Produce Request Received\n");
+                    break;
+                default:
+                    Tesla.logger.warning("Unknown action request: " + command + "\n");
+                    sendResponse(exchange, 400, "Unknown action request: " + command + "\n");
+            }
         }
     };
 
@@ -144,18 +170,18 @@ public class RESTServer implements ThreadManager.Stoppable {
             String response;
             switch (infoType) {
                 case "car_state":
-                    response = CarInfo.carStateAsJSON(appContext);
+                    response = CarInfo.carStateAsJSON(ac);
                     break;
                 case "car_details":
-                    response = CarInfo.carDetailsAsJSON(appContext);
+                    response = CarInfo.carDetailsAsJSON(ac);
                     break;
                 case "inactivity_mode":
-                    response = String.format("{ \"mode\": \"%s\" }", appContext.inactivity.getMode());
+                    response = String.format("{ \"mode\": \"%s\" }", ac.inactivity.mode.get().name());
                     break;
                 case "dbg_sar":
                     Map<String,String> params = getParams(exchange.getRequestURI().getQuery());
                     response = params.get("p1");
-                    appContext.schedulerActivity.set(response == null ? "DBG_SAR" : response);
+                    ac.schedulerActivity.set(response == null ? "DBG_SAR" : response);
                     break;
                 default:
                     Tesla.logger.warning("Unknown info request: " + infoType + "\n");
@@ -194,7 +220,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     InputStream is;
                     if (path.startsWith("custom/")) {
                         String cPath = path.substring(7);
-                        is = new URL(appContext.prefs.customURLSource.get()+cPath).openStream();
+                        is = new URL(ac.prefs.customURLSource.get()+cPath).openStream();
                     } else if (path.startsWith("TeslaResources/")) {
                         path = "org/noroomattheinn/" + path;
                         is = getClass().getClassLoader().getResourceAsStream(path);
@@ -214,7 +240,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 
                 String type = getMimeType(StringUtils.substringAfterLast(path, "."));
                 if (type.equalsIgnoreCase("text/html")) {
-                    MessageTemplate mt = new MessageTemplate(appContext, new String(content, "UTF-8"));
+                    MessageTemplate mt = new MessageTemplate(ac, new String(content, "UTF-8"));
                     content = mt.getMessage(null).getBytes();
                 } else if (cacheOnClient(type)) {
                     exchange.getResponseHeaders().add("Cache-Control", "max-age=2592000");
@@ -243,8 +269,8 @@ public class RESTServer implements ThreadManager.Stoppable {
     private BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
-            if (appContext.restEncPW == null || appContext.restSalt == null) return false;
-            return pwUtils.authenticate(pwd, appContext.restEncPW, appContext.restSalt);
+            if (ac.restEncPW == null || ac.restSalt == null) return false;
+            return pwUtils.authenticate(pwd, ac.restEncPW, ac.restSalt);
         }
     };
     
