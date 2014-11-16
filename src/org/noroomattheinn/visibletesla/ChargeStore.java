@@ -27,12 +27,10 @@ import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.Tesla;
-import org.noroomattheinn.utils.RestyWrapper;
-import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.visibletesla.DataStore.LastExportDirKey;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import us.monoid.json.JSONObject;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.
@@ -64,7 +62,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
         chargeWriter = new PrintStream(fos);
         
         ac.lastChargeCycle.addListener(new ChangeListener<ChargeMonitor.Cycle>() {
-            @Override  public void changed(
+            @Override public void changed(
                     ObservableValue<? extends ChargeMonitor.Cycle> ov,
                     ChargeMonitor.Cycle t, ChargeMonitor.Cycle cycle) {
                 chargeWriter.println(cycle.toJSONString());
@@ -130,10 +128,16 @@ public class ChargeStore implements ThreadManager.Stoppable {
     private void submitData(ChargeMonitor.Cycle cycle) {
         if (!ac.prefs.submitAnonData.get()) return;
         ditherLocation(cycle);
-        JSONObject jo = cycle.toJSON();
-        RestyWrapper.put(jo, "uuid", ac.uuidForVehicle);
-        RestyWrapper.put(jo, "battery", ac.vehicle.getOptions().batteryType());
-        String body = jo.toString();
+        String jsonRep = cycle.toJSONString();
+        
+        // Get ready to tack on a few more fields by getting rid of closing curly
+        jsonRep = StringUtils.substringBefore(jsonRep, "}");
+        
+        // Concatenate the extra fields and put back the closing curly
+        String body = String.format("%s, \"battery\": \"%s\", \"uuid\": \"%s\" }", 
+                jsonRep, ac.vehicle.getOptions().batteryType(), ac.uuidForVehicle);
+        
+        // Send the notification and log the body
         ac.utils.sendNotification(VTDataAddress, VTChargeDataSubj, body);
         Tesla.logger.info("Charge data submitted: " + body);
     }
@@ -148,11 +152,11 @@ public class ChargeStore implements ThreadManager.Stoppable {
         
         random = 0.5 + (Math.random()/2);           // value in [0.5, 1]
         offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
-        cycle.lat += Utils.round(offset, 6);
+        cycle.lat += offset;
 
         random = 0.5 + (Math.random()/2);           // value in [0.5, 1]
         offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
-        cycle.lng += Utils.round(offset, 6);
+        cycle.lng += offset;
     }
         
 /*------------------------------------------------------------------------------

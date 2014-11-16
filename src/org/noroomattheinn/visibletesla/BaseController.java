@@ -104,9 +104,9 @@ abstract class BaseController {
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
-        if (ac.inactivity.isSleeping()) {
+        if (ac.inactivity.appIsIdle()) {
             if (ac.prefs.wakeOnTabChange.get()) {
-                ac.inactivity.wakeup();
+                ac.inactivity.wakeupApp();
                 doRefresh();
             }
         } else {
@@ -166,8 +166,8 @@ abstract class BaseController {
  * 
  *----------------------------------------------------------------------------*/    
 
-    protected final void issueCommand(Callable<Result> c) {
-        ac.issuer.issueCommand(c, true, progressIndicator);
+    protected final void issueCommand(Callable<Result> c, String commandName) {
+        ac.issuer.issueCommand(c, true, progressIndicator, commandName);
     }
     
     protected final void updateState(Vehicle.StateType whichState) {

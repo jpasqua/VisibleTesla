@@ -128,7 +128,7 @@ public class OverviewController extends BaseController {
                 Result r = ac.vehicle.setLockState(source == lockButton);
                 updateStateLater(Vehicle.StateType.Vehicle, 3 * 1000);
                 return r;
-            } });
+            } }, (source == lockButton) ? "Lock" : "Unlock");
     }
 
     @FXML void panoButtonHandler(ActionEvent event) {
@@ -141,7 +141,7 @@ public class OverviewController extends BaseController {
                 Result r = ac.vehicle.setPano(cmd);
                 updateStateLater(Vehicle.StateType.Vehicle, 5 * 1000);
                 return r;
-            } });
+            } }, "Move Pano");
     }
 
     @FXML void detailsButtonHandler(ActionEvent event) {

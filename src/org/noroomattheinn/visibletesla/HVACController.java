@@ -86,7 +86,7 @@ public class HVACController extends BaseController {
                 Result r = v.setAC(hvacOnButton.isSelected());
                 updateStateLater(Vehicle.StateType.HVAC, 3 * 1000);
                 return r;
-            } });
+            } }, "HVAC " + (hvacOnButton.isSelected() ? "On" : "Off"));
     }
     
     // Only called on MOUSE_RELEASED
@@ -106,7 +106,7 @@ public class HVACController extends BaseController {
                                   : v.setTempC(temp, temp);
                 updateStateLater(Vehicle.StateType.HVAC, 3 * 1000);
                 return r;
-            } });
+            } }, "Set Temp");
     }
     
     private double nearestHalf(double val) { return Math.floor(val*2.0)/2.0; }

@@ -6,13 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
-import java.util.ArrayList;
 import java.util.List;
-import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -20,6 +14,7 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 
 /**
@@ -35,20 +30,16 @@ public class Inactivity {
  * 
  *----------------------------------------------------------------------------*/
 
-    public enum Type { Sleep, Awake };
-    public interface Listener { public void handle(Inactivity.Type type); }
-    
+    public enum Mode { AllowSleeping, StayAwake };
+    public enum State { Idle, Active };
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
 
-    private final ObjectProperty<Type> state;
-    private final ObjectProperty<Type> mode;
     private final AppContext  appContext;
-    private final Notifier modeNotifier = new Notifier();
-    private final Notifier stateNotifier = new Notifier();
     private long  timeOfLastEvent = System.currentTimeMillis();
 
 /*==============================================================================
@@ -57,39 +48,31 @@ public class Inactivity {
  * -------                                                               -------
  *============================================================================*/
     
-    
-    public Inactivity(AppContext appContext) {
-        this.appContext = appContext;
-        this.state = new SimpleObjectProperty<>(Type.Awake);
-        this.mode = new SimpleObjectProperty<>(Type.Awake);
-        state.addListener(new ChangeListener<Type>() {
-            @Override public void changed(
-                    ObservableValue<? extends Type> o, Type ov, Type nv) {
-                if (nv == Type.Awake) {
+    public final TrackedObject<State> state;
+    public final TrackedObject<Mode> mode;
+        
+    public Inactivity(AppContext ac) {
+        this.appContext = ac;
+        this.state = new TrackedObject<>(State.Active);
+        this.mode = new TrackedObject<>(Mode.StayAwake);
+        
+        state.addTracker(false, new Runnable() {
+            @Override public void run() {
+                if (state.get() == State.Active) {
                     Tesla.logger.info("Resetting Idle start time to now");
                     timeOfLastEvent = System.currentTimeMillis();
                 }
             }
         });
-        state.addListener(stateNotifier);
-        mode.addListener(modeNotifier);
+        mode.addTracker(false, new Runnable() {
+            @Override public void run() {
+                appContext.persistentState.put(
+                    appContext.vehicle.getVIN()+"_InactivityMode", mode.get().name());
+                if (state.get() == State.Idle && mode.get() == Mode.AllowSleeping)
+                    state.set(State.Idle);
+            }
+        });
     }
-
-    public Type getState() { return state.get(); }
-    public void setState(Type newState) { state.set(newState); }
-    public void addStateListener(Listener l) { stateNotifier.addListener(l); }
-    public String stateAsString() { return asString(state.get(), "state"); }
-
-    public Type getMode() { return mode.get(); }
-    public void setMode(Type newMode) {
-        mode.set(newMode);      
-        appContext.persistentState.put(appContext.vehicle.getVIN()+"_InactivityMode", newMode.name());
-        
-        if (state.get() == Type.Awake) return;
-        state.set(newMode);
-    }
-    public String modeAsString() { return asString(mode.get(), "mode"); }
-    public void addModeListener(Listener l) {modeNotifier.addListener(l); }
     
     public void trackInactivity(List<Tab> tabs) {
         for (Tab t : tabs) {
@@ -101,30 +84,23 @@ public class Inactivity {
         appContext.tm.launch(new InactivityThread(), "Inactivity");
     }
     
-    public void wakeup() {
-        Type current = state.get();
-        if (current != Type.Awake) {
-            setMode(Type.Awake);
-            setMode(current);
-        }
-    }
-
-    public boolean isSleeping() { return state.get() == Type.Sleep; }
-    public boolean isAwake() { return state.get() == Type.Awake; }
+    public void wakeupApp() { state.set(State.Active); }
+    public boolean appIsIdle() { return state.get() == State.Idle; }
+    public boolean appIsActive() { return state.get() == State.Active; }
     
     public void restore() {
         String modeName = appContext.persistentState.get(
                 appContext.vehicle.getVIN()+"_InactivityMode",
-                Inactivity.Type.Awake.name());
+                Inactivity.Mode.StayAwake.name());
         // Handle obsolete values or changed names
         switch (modeName) {
-            case "AllowSleeping": modeName = "Sleep"; break;    // Name Changed
-            case "StayAwake": modeName = "Awake"; break;        // Name Changed
+            case "Sleep": modeName = "AllowSleeping"; break;    // Name Changed
+            case "Awake": modeName = "StayAwake"; break;        // Name Changed
             case "AllowDaydreaming": modeName = "Awake"; break; // Obsolete
             case "Daydream": modeName = "Awake"; break;         // Obsolete
         }
 
-        appContext.inactivity.setMode(Inactivity.Type.valueOf(modeName));
+        mode.set(Inactivity.Mode.valueOf(modeName));
     }
     
 /*------------------------------------------------------------------------------
@@ -133,27 +109,13 @@ public class Inactivity {
  * 
  *----------------------------------------------------------------------------*/
     
-    private class Notifier implements ChangeListener<Inactivity.Type> {
-        private List<Listener> listeners = new ArrayList<>(5);
-                
-        @Override public void changed(
-                final ObservableValue<? extends Inactivity.Type> o,
-                final Inactivity.Type ov, final Inactivity.Type nv) {
-            Platform.runLater(new Runnable() {
-                @Override public void run() { for (Listener l : listeners) { l.handle(nv); } }
-            });
-        }
-        
-        public void addListener(Listener l) { listeners.add(l); }
-    }
-
-    private String asString(Type t, String which) {
-        switch (t) {
-            case Sleep: return "Allow Sleeping";
-            case Awake: return "Stay Awake";
-        }
-        return "Unexpected " + which;
-    }
+//    private String asString(Mode t, String which) {
+//        switch (t) {
+//            case AllowSleeping: return "Allow Sleeping";
+//            case StayAwake: return "Stay Awake";
+//        }
+//        return "Unexpected " + which;
+//    }
     
     class InactivityThread implements Runnable {
         @Override public void run() {
@@ -162,8 +124,9 @@ public class Inactivity {
                 if (appContext.shuttingDown.get())
                     return;
                 long idleThreshold = appContext.prefs.idleThresholdInMinutes.get() * 60 * 1000;
-                if (System.currentTimeMillis() - timeOfLastEvent > idleThreshold) {
-                    state.set(mode.get());
+                if (System.currentTimeMillis() - timeOfLastEvent > idleThreshold &&
+                        mode.get() == Mode.AllowSleeping) {
+                    state.set(State.Idle);
                 }
             }
         }
@@ -172,7 +135,7 @@ public class Inactivity {
     class EventPassThrough implements EventHandler<InputEvent> {
         @Override public void handle(InputEvent ie) {
             timeOfLastEvent = System.currentTimeMillis();
-            state.set(Type.Awake);
+            if (state.get() != State.Active) { state.set(State.Active); }
         }
     }
 

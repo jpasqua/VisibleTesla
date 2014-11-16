@@ -27,8 +27,9 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
         super(ac, "CommandIssuer");
     }
     
-    public void issueCommand(Callable<Result> command, boolean retry, ProgressIndicator pi) {
-        super.produce(new Request(command, retry, pi));
+    public void issueCommand(Callable<Result> command, boolean retry,
+                             ProgressIndicator pi, String name) {
+        super.produce(new Request(command, retry, pi, name));
     }
     
 /*------------------------------------------------------------------------------
@@ -46,15 +47,17 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
     
     public static class Request extends Executor.Request {
         private final Callable<Result> command;
+        private final String name;
         private final boolean retry;
         
-        Request(Callable<Result> command, boolean retry, ProgressIndicator pi) {
+        Request(Callable<Result> command, boolean retry, ProgressIndicator pi, String name) {
             super(pi);
             this.command = command;
             this.retry = retry;
+            this.name = name;
         }
         
-        @Override protected String getRequestName() { return "Command"; }
+        @Override protected String getRequestName() { return name; }
         @Override protected int maxRetries() { return retry ? 2 : 0; }
     }
 }

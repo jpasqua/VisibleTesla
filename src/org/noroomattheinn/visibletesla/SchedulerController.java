@@ -118,8 +118,8 @@ public class SchedulerController extends BaseController
                 r = v.startAC();
                 break;
             case HVAC_OFF: r = v.stopAC();break;
-            case AWAKE: ac.inactivity.setMode(Inactivity.Type.Awake); break;
-            case SLEEP: ac.inactivity.setMode(Inactivity.Type.Sleep); break;
+            case AWAKE: ac.inactivity.mode.set(Inactivity.Mode.StayAwake); break;
+            case SLEEP: ac.inactivity.mode.set(Inactivity.Mode.AllowSleeping); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
             case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }
@@ -185,7 +185,7 @@ public class SchedulerController extends BaseController
     }
     
     private boolean wakeAndGetChargeState() {
-        ac.inactivity.setState(Inactivity.Type.Awake);
+        ac.inactivity.state.set(Inactivity.State.Active);
         for (int i = 0; i < 20; i++) {
             if ((charge = v.queryCharge()).valid) {
                 ac.noteUpdatedState(charge);

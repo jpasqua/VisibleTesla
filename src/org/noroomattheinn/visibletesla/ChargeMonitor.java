@@ -14,7 +14,6 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import us.monoid.json.JSONObject;
 import org.noroomattheinn.utils.RestyWrapper;
-import org.noroomattheinn.utils.Utils;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.
@@ -56,9 +55,9 @@ public class ChargeMonitor {
         cycleInProgress.superCharger = chargeState.fastChargerPresent;
         cycleInProgress.phases = chargeState.chargerPhases;
         cycleInProgress.startTime = chargeState.timestamp;
-        cycleInProgress.startRange = Utils.round(chargeState.range, 1);
-        cycleInProgress.startSOC = Utils.round(chargeState.batteryPercent, 1);
-        cycleInProgress.odometer = Utils.round(ac.lastKnownStreamState.get().odometer, 1);
+        cycleInProgress.startRange = chargeState.range;
+        cycleInProgress.startSOC = chargeState.batteryPercent;
+        cycleInProgress.odometer = ac.lastKnownStreamState.get().odometer;
         cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
         cycleInProgress.newCurrentReading(cycleInProgress.superCharger ?
                 chargeState.batteryCurrent : chargeState.chargerActualCurrent);
@@ -66,8 +65,8 @@ public class ChargeMonitor {
         // It's possible that a charge began before we got any location information
         StreamState ss = ac.lastKnownStreamState.get();
         if (ss != null) {
-            cycleInProgress.lat = Utils.round(ss.estLat, 6);
-            cycleInProgress.lng = Utils.round(ss.estLng, 6);
+            cycleInProgress.lat = ss.estLat;
+            cycleInProgress.lng = ss.estLng;
         } else {
             cycleInProgress.lat = cycleInProgress.lng = 0.0;
         }
@@ -81,23 +80,18 @@ public class ChargeMonitor {
 
     private void completeCycle(ChargeState chargeState) {
         cycleInProgress.endTime = chargeState.timestamp;
-        cycleInProgress.endRange = Utils.round(chargeState.range, 1);
-        cycleInProgress.endSOC = Utils.round(chargeState.batteryPercent, 1);
-        cycleInProgress.energyAdded = Utils.round(chargeState.energyAdded, 1);
+        cycleInProgress.endRange = chargeState.range;
+        cycleInProgress.endSOC = chargeState.batteryPercent;
+        cycleInProgress.energyAdded = chargeState.energyAdded;
 
         // If we didn't have location information at startup, see if we've got it now
         if (cycleInProgress.lat == 0 && cycleInProgress.lng == 0) {
             StreamState ss = ac.lastKnownStreamState.get();
             if (ss != null) {
-                cycleInProgress.lat = Utils.round(ss.estLat, 6);
-                cycleInProgress.lng = Utils.round(ss.estLng, 6);
+                cycleInProgress.lat = ss.estLat;
+                cycleInProgress.lng = ss.estLng;
             }
         }
-
-        cycleInProgress.peakVoltage = Utils.round(cycleInProgress.peakVoltage, 1);
-        cycleInProgress.avgVoltage = Utils.round(cycleInProgress.avgVoltage, 1);
-        cycleInProgress.peakCurrent = Utils.round(cycleInProgress.peakCurrent, 1);
-        cycleInProgress.avgCurrent = Utils.round(cycleInProgress.avgCurrent, 1);
 
         lastChargeCycle.set(cycleInProgress);
         cycleInProgress = null;        
@@ -133,16 +127,38 @@ public class ChargeMonitor {
         }
 
         public static Cycle fromJSON(String json) {
-            Cycle c = gson.fromJson(json, Cycle.class);
-            return c;
+            return gson.fromJson(json, Cycle.class);
         }
         
         public JSONObject toJSON() {
-            String json = gson.toJson(this);
-            return RestyWrapper.newJSONObject(json);
+            return RestyWrapper.newJSONObject(toJSONString());
         }
         
-        public String toJSONString() { return gson.toJson(this); }
+        public String toJSONString() {
+            return String.format(
+                    "{ " +
+                    "  \"superCharger\": %b, " +
+                    "  \"phases\": %d, " +
+                    "  \"startTime\": %d, " +
+                    "  \"endTime\": %d, " +
+                    "  \"startRange\": %.1f, " +
+                    "  \"endRange\": %.1f, " +
+                    "  \"startSOC\": %.1f, " +
+                    "  \"endSOC\": %.1f, " +
+                    "  \"lat\": %.6f, " +
+                    "  \"lng\": %.6f, " +
+                    "  \"odometer\": %.1f, " +
+                    "  \"peakVoltage\": %.1f, " +
+                    "  \"avgVoltage\": %.1f, " +
+                    "  \"peakCurrent\": %.1f, " +
+                    "  \"avgCurrent\": %.1f, " +
+                    "  \"energyAdded\": %.1f " +
+                    " }",
+                    superCharger, phases, startTime, endTime,
+                    startRange, endRange, startSOC, endSOC, lat, lng, odometer,
+                    peakVoltage, avgVoltage, peakCurrent, avgCurrent, energyAdded
+                    );
+        }
         
         @Override public String toString() { return toJSONString(); }
 

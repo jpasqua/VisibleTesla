@@ -163,7 +163,7 @@ public class LoginController extends BaseController {
     
     private void attemptLogin(String username, String password) {
         ac.issuer.issueCommand(
-                new AttemptLogin(username, password), false, progressIndicator);
+                new AttemptLogin(username, password), false, progressIndicator, "Attempt Login");
     }
 
     private class AttemptLogin implements Callable<Result> {

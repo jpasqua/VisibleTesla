@@ -67,12 +67,16 @@ public class StreamProducer extends Executor<StreamProducer.Request>
             appContext.lastKnownStreamState.set(snapshot);
         }
         
-        if (r.stream && !appContext.inactivity.isSleeping()) {  // Keep streaming
+        if (r.stream && !appContext.inactivity.appIsIdle()) {  // Keep streaming
             super.produce(new Request(r.stream, true));
         }
         return true;
     }
-
+    
+    @Override protected void addToHistogram(Executor.Request r) {
+        if (!((Request)r).continuation) super.addToHistogram(r);
+    }
+    
     public static class Request extends Executor.Request {
         public final boolean stream;
         public final boolean continuation;
@@ -84,5 +88,6 @@ public class StreamProducer extends Executor<StreamProducer.Request>
         }
         
         @Override protected String getRequestName() { return "Stream"; }
+        @Override protected int maxRetries() { return 2; }
     }
 }

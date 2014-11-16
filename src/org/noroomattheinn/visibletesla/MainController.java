@@ -118,7 +118,7 @@ public class MainController extends BaseController {
      * completion and try and automatic login.
      * @param ac    The AppContext
      */
-    public void start(AppContext ac) {
+    public void start(final AppContext ac) {
         this.ac = ac;
         this.ac.utils.logAppInfo();
         addSystemSpecificHandlers(ac);
@@ -148,10 +148,10 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        this.ac.inactivity.addModeListener(new Inactivity.Listener() {
-            @Override public void handle(Inactivity.Type nv) { setInactivityMenu(nv); } });
-        this.ac.inactivity.addStateListener(new Inactivity.Listener() {
-            @Override public void handle(Inactivity.Type nv) { refreshTitle(); } });
+        this.ac.inactivity.mode.addTracker(true, new Runnable() {
+            @Override public void run() { setInactivityMenu(ac.inactivity.mode.get()); } } );
+        this.ac.inactivity.state.addTracker(true, new Runnable() {
+            @Override public void run() { refreshTitle(); } });
 
         // Kick off the login process
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
@@ -190,7 +190,7 @@ public class MainController extends BaseController {
                 }
                 Platform.runLater(finishAppStartup);
                 return Result.Succeeded;
-            } });
+            } }, "Cache Basics");
     }
 
     
@@ -315,9 +315,9 @@ public class MainController extends BaseController {
     
     // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
-        Inactivity.Type mode = Inactivity.Type.Awake;
-        if (event.getTarget() == allowSleepMenuItem) mode = Inactivity.Type.Sleep;
-        ac.inactivity.setMode(mode);
+        Inactivity.Mode mode = Inactivity.Mode.StayAwake;
+        if (event.getTarget() == allowSleepMenuItem) mode = Inactivity.Mode.AllowSleeping;
+        ac.inactivity.mode.set(mode);
     }
     
     // Help->Documentation
@@ -392,17 +392,17 @@ public class MainController extends BaseController {
         String carName = (ac.vehicle != null) ? ac.vehicle.getDisplayName() : null;
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
         if (carName != null) title = title + " for " + carName;
-        if (ac.inactivity.getState() == Inactivity.Type.Sleep) {
+        if (ac.inactivity.appIsIdle()) {
             String time = String.format("%1$tH:%1$tM", new Date());
             title = title + " [sleeping at " + time + "]";
         }
         ac.stage.setTitle(title);
     }
 
-    private void setInactivityMenu(Inactivity.Type mode) {
+    private void setInactivityMenu(Inactivity.Mode mode) {
         switch (mode) {
-            case Awake: stayAwakeMenuItem.setSelected(true); break;
-            case Sleep: allowSleepMenuItem.setSelected(true); break;
+            case StayAwake: stayAwakeMenuItem.setSelected(true); break;
+            case AllowSleeping: allowSleepMenuItem.setSelected(true); break;
         }
     }
     

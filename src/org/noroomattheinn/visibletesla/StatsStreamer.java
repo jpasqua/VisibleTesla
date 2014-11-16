@@ -6,6 +6,8 @@
 
 package org.noroomattheinn.visibletesla;
 
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
@@ -25,7 +27,7 @@ public class StatsStreamer {
  *----------------------------------------------------------------------------*/
 
     private static final long TestSleepInterval = 5 * 60 * 1000;  //  5 Minutes
-    private static final long DefaultInterval =   2 * 60 * 1000;  //  2 Minutes
+    private static final long DefaultInterval =   5 * 60 * 1000;  //  5 Minutes
     private static final long MinInterval =           30 * 1000;  // 30 Seconds
 
 /*------------------------------------------------------------------------------
@@ -81,43 +83,44 @@ public class StatsStreamer {
         
         private boolean isCarAwake() {
             boolean awake = ac.vehicle.isAwake();
-            //Tesla.logger.info("ICA="+awake);
+            Tesla.logger.fine("ICA="+awake);
             return awake;
         }
         
         @Override public void run() {
             try {
                 long sleepInterval;
-
+                BecameAwakePredicate becameAwake = new BecameAwakePredicate(ac);
+                
                 while (!ac.shuttingDown.get()) {
                     boolean carWasAsleep = false;
-                    if (ac.inactivity.isAwake()) {
+                    if (ac.inactivity.appIsActive()) {
                         produceStats();
                         sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
-                        Tesla.logger.info("App Awake, interval = " + sleepInterval/1000L);
+                        Tesla.logger.fine("App Awake, interval = " + sleepInterval/1000L);
                     } else if (isCarAwake()) {
                         produceStats();
                         sleepInterval = isInMotion() ? MinInterval :
                                 (isCharging() ? DefaultInterval : AllowSleepInterval);
-                        Tesla.logger.info("App Asleep, Car Awake, interval = " + sleepInterval/1000L);
+                        Tesla.logger.fine("App Asleep, Car Awake, interval = " + sleepInterval/1000L);
                         if (sleepInterval < AllowSleepInterval)
-                            ac.inactivity.setState(Inactivity.Type.Awake);
+                            ac.inactivity.wakeupApp();
                     } else {
                         sleepInterval = AllowSleepInterval;
                         carWasAsleep = true;
-                        Tesla.logger.info("App Asleep, Car Asleep, interval = " + sleepInterval/1000L);
+                        Tesla.logger.fine("App Asleep, Car Asleep, interval = " + sleepInterval/1000L);
                     }
 
                     if (sleepInterval < AllowSleepInterval) {
-                        ac.utils.sleep(sleepInterval);
+                        Utils.sleep(sleepInterval, becameAwake);
                     } else {
                         for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
                             Utils.sleep(TestSleepInterval, becameAwake);
                             if (ac.shuttingDown.get()) break;
-                            if (ac.inactivity.isAwake()) { Tesla.logger.info("App is awake, start polling"); break; }
+                            if (ac.inactivity.appIsActive()) { Tesla.logger.fine("App is awake, start polling"); break; }
                             if (carWasAsleep && isCarAwake()) {
-                                ac.inactivity.setState(Inactivity.Type.Awake);
-                                Tesla.logger.info("Something woke the car, start polling");
+                                ac.inactivity.wakeupApp();
+                                Tesla.logger.fine("Something woke the car, start polling");
                                 break;
                             }
                         }
@@ -129,8 +132,24 @@ public class StatsStreamer {
         }
     }
     
-    Utils.Predicate becameAwake = new Utils.Predicate() {
+    private static class BecameAwakePredicate implements Utils.Predicate {
+        private final AppContext ac;
+        private long lastEval;
+        
+        BecameAwakePredicate(AppContext ac) {
+            this.ac = ac;
+            this.lastEval = System.currentTimeMillis();
+        }
+        
         @Override public boolean eval() {
-            return ac.shuttingDown.get() || ac.inactivity.isAwake(); }
-    };
+            try {
+                if (ac.inactivity.mode.lastSet() > lastEval ||
+                    ac.produceRequest.lastSet() > lastEval) { return true; }
+                return ac.shuttingDown.get();
+            } finally {
+                lastEval = System.currentTimeMillis();
+            }
+        }
+    }
+    
 }

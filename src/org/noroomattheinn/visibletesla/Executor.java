@@ -5,7 +5,9 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.Map;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Tesla;
@@ -23,10 +25,12 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final   ArrayBlockingQueue<R>   queue;
+    private   final ArrayBlockingQueue<R>   queue;
     protected final AppContext              appContext;
     protected final String                  name;
-                
+    protected final TreeMap<Integer,Integer> histogram;
+    protected       int                     nRequestsExecuted;
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -37,6 +41,8 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
         this.appContext = ac;
         this.queue = new ArrayBlockingQueue<>(20);
         this.name = name;
+        this.histogram = new TreeMap<>();
+        this.nRequestsExecuted = 0;
         appContext.tm.launch((Runnable)this, name);
     }
     
@@ -47,6 +53,8 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             Tesla.logger.warning(name + " interrupted adding  to queue: " + ex.getMessage());
         }
     }
+    
+    public Map<Integer,Integer> getHistogram() { return histogram; }
         
 /*------------------------------------------------------------------------------
  *
@@ -82,20 +90,25 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
                 boolean success = execRequest(r);
                 if (r.pi != null) { appContext.showProgress(r.pi, false); }
                 if (!success) {
-                    if (r.moreRetries()) { retry(r); }
+                    if (r.moreRetries()) {
+                        Tesla.logger.finer(r.getRequestName() + ": failed, retrying...");
+                        retry(r);
+                    }
                     else {
-                        Tesla.logger.warning(
-                                r.getRequestName() + ": Giving up after " +
+                        addToHistogram(r);
+                        Tesla.logger.finer(
+                                r.getRequestName() + ": failed, giving up after " +
                                 r.maxRetries() + " attempt(s)");
                     }
-                } else if (r.retriesperformed() > 0) {
-                    Tesla.logger.info(
+                } else {
+                    addToHistogram(r);
+                    Tesla.logger.finer(
                             r.getRequestName() + ": Succeeded after " +
-                            r.retriesperformed()+ " attempt(s)");
+                            r.retriesPerformed()+ " attempt(s)");
                 }
             } catch (Exception e) {
                 if (r != null && r.pi != null) { appContext.showProgress(r.pi, false); }
-                Tesla.logger.info("Exception in " + name + ": " + e.getMessage());
+                Tesla.logger.warning("Exception in " + name + ": " + e.getMessage());
                 if (e instanceof InterruptedException) { return; }
             }
         }
@@ -112,10 +125,31 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             this.nRetries = 0;
         }
         
-        int retriesperformed() { return nRetries; }
+        int retriesPerformed() { return nRetries; }
         protected boolean moreRetries() { return nRetries++ < maxRetries(); }
         protected int maxRetries() { return 2; }
         protected long retryDelay() { return 5 * 1000; }
         protected String getRequestName() { return "Unknown"; }
+    }
+    
+    protected void addToHistogram(Request r) {
+        nRequestsExecuted++;
+        int tries = r.retriesPerformed();
+        if (tries > r.maxRetries()) tries = -tries;
+        Integer count = histogram.get(tries);
+        if (count == null) count = new Integer(0);
+        histogram.put(tries, count+1);
+        if (nRequestsExecuted % 10 == 0) { dumpHistogram(r); }
+    }
+    
+    private void dumpHistogram(Request r) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(r.getRequestName()); sb.append(" stats: ");
+        for (Map.Entry<Integer,Integer> entry : histogram.entrySet()) {
+            int tries = entry.getKey();
+            int count = entry.getValue();
+            sb.append("("); sb.append(tries); sb.append(", "); sb.append(count); sb.append(") ");
+        }
+        Tesla.logger.info(sb.toString());
     }
 }

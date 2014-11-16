@@ -17,8 +17,6 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
@@ -315,7 +313,7 @@ public class VTUtils {
                     @Override public Result call() { return v.wakeUp(); } };
                 break;
         }
-        if (miscCommand != null) ac.issuer.issueCommand(miscCommand, true, null);
+        if (miscCommand != null) ac.issuer.issueCommand(miscCommand, true, null, actionType.name());
     }
     
     public void remoteStart(final String password) {
@@ -323,32 +321,29 @@ public class VTUtils {
             @Override public Result call() { 
                 return ac.vehicle.remoteStart(password); 
             } },
-            true, null);
+            true, null, "Remote Start");
     }
 
     
     public void waitForVehicleToWake(final Runnable r, final BooleanProperty forceWakeup) {
         final long TestSleepInterval = 5 * 60 * 1000;
-               
+        final Utils.Predicate p = new Utils.Predicate() {
+            @Override public boolean eval() { return ac.shuttingDown.get() || forceWakeup.get(); } };
+
         Runnable poller = new Runnable() {
             @Override public void run() {
                 while (ac.vehicle.isAsleep()) {
-                    if (ac.shuttingDown.get()) break;
-                    sleep(TestSleepInterval);
+                    Utils.sleep(TestSleepInterval, p);
                     if (ac.shuttingDown.get()) return;
+                    if (forceWakeup.get()) {
+                        forceWakeup.set(false);
+                        Platform.runLater(r);
+                    }
                 }
-                forceWakeup.set(false);
-                Platform.runLater(r);
             }
         };
-        final Thread pollThread = ac.tm.launch(poller, "Wait For Wakeup");
         
-        forceWakeup.addListener(new ChangeListener<Boolean>() {
-            @Override public void changed(
-                    ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                if (t1) { pollThread.interrupt(); }
-            }
-        });
+        ac.tm.launch(poller, "Wait For Wakeup");
     }
 
     public void sleep(long timeInMillis) {

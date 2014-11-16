@@ -16,11 +16,11 @@
   <children>
     <Group id="Group" layoutX="157.0" layoutY="47.0">
       <children>
-        <Battery id="BG" fx:id="batteryGauge" chargeCondition="PARTLY_CHARGED" chargeIndicator="PLUG" charging="false" chargingLevel="0.67" layoutX="0.0" layoutY="0.0" rotate="0.0" />
+        <Battery id="BG" fx:id="batteryGauge" chargeCondition="PARTLY_CHARGED" chargeIndicator="PLUG" charging="false" chargingLevel="0.05" layoutX="0.0" layoutY="0.0" rotate="0.0" />
         <Battery id="UBG" fx:id="usableGauge" chargeCondition="PARTLY_CHARGED" chargeIndicator="PLUG" charging="false" chargingLevel="0.5" layoutX="0.0" layoutY="0.0" rotate="0.0" visible="false" />
         <Group id="Group" layoutX="43.0" layoutY="122.0">
           <children>
-            <Label fx:id="batteryPercentLabel" layoutX="0.0" layoutY="0.0" text="100" textAlignment="RIGHT" />
+            <Label fx:id="batteryPercentLabel" layoutX="0.0" layoutY="0.0" text="67" textAlignment="RIGHT" />
             <Label layoutX="26.0" layoutY="0.0" text="\%" />
           </children>
         </Group>

@@ -129,7 +129,7 @@ public class ChargeController extends BaseController {
                 Result r = ac.vehicle.setChargeState(b == startButton);
                 updateStateLater(Vehicle.StateType.Charge, 5 * 1000);
                 return r;
-            } });
+            } }, "Start Charge");
     }
     
     private void setChargePercent(final int percent) {
@@ -140,7 +140,7 @@ public class ChargeController extends BaseController {
                 Result r = ac.vehicle.setChargePercent(percent);
                 updateStateLater(Vehicle.StateType.Charge, 3 * 1000);
                 return r;
-            } });
+            } }, "Set Charge %");
     }
     
     
