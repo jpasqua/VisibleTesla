@@ -6,30 +6,34 @@
 
 package org.noroomattheinn.visibletesla;
 
-import javafx.beans.property.LongProperty;
-import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
+import static org.noroomattheinn.utils.Utils.timeSince;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
- * StatsStreamer: Generate a stream of stats on demand.
+ * StatsStreamer: Generate a stream of statistics
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StatsStreamer {
+public class StatsStreamer implements Runnable {
 
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-
-    private static final long TestSleepInterval = 5 * 60 * 1000;  //  5 Minutes
-    private static final long DefaultInterval =   5 * 60 * 1000;  //  5 Minutes
-    private static final long MinInterval =           30 * 1000;  // 30 Seconds
-
+    
+    private static final long AllowSleepInterval = 30 * 60 * 1000;  // 30 Minutes
+    private static final long DefaultInterval =     4 * 60 * 1000;  //  4 Minutes
+    private enum CarState {Moving, Charging, Idle, Asleep};
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -37,6 +41,7 @@ public class StatsStreamer {
  *----------------------------------------------------------------------------*/
     
     private final AppContext    ac;
+    private TrackedObject<CarState> carState = new TrackedObject<>(CarState.Idle);
     
 /*==============================================================================
  * -------                                                               -------
@@ -46,110 +51,125 @@ public class StatsStreamer {
     
     public StatsStreamer(AppContext appContext) {
         this.ac = appContext;
-        appContext.tm.launch(new AutoCollect(), "CollectStats");
+        
+        // The following two changeListeners look similar, but the order of
+        // the if statements is different and significant. Always check the
+        // one that changed, then test the other (older) value.
+        ac.lastKnownChargeState.addListener(new ChangeListener<BaseState>() {
+            @Override public void changed(
+                    ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
+                if (isCharging()) carState.set(CarState.Charging);
+                else if (isInMotion()) carState.set(CarState.Moving);
+                else carState.set(CarState.Idle);
+                // Can't be asleep - we just got data from it
+            }
+        });
+
+        ac.lastKnownStreamState.addListener(new ChangeListener<BaseState>() {
+            @Override public void changed(
+                    ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
+                if (isInMotion()) carState.set(CarState.Moving);
+                else if (isCharging()) carState.set(CarState.Charging);
+                else carState.set(CarState.Idle);
+                // Can't be asleep - we just got data from it
+            }
+        });
+        
+        appContext.tm.launch((Runnable)this, "CollectStats");
+    }
+        
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - The main body of the production thread
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    @Override public void run() {
+        WakeEarlyPredicate wakeEarly = new WakeEarlyPredicate(ac);
+
+        try {
+            while (!ac.shuttingDown.get()) {
+                boolean produce = true;
+                if (ac.inactivity.appIsIdle()) {
+                    if (ac.inactivity.allowSleepingMode() &&  carIsInactive()) {  // Sleeping or Idle
+                        if (carState.get() == CarState.Idle) {
+                            if (timeSince(carState.lastSet()) < AllowSleepInterval) {
+                                produce = false;
+                                if (carIsAsleep()) { carState.set(CarState.Asleep); }
+                            }
+                        } else {    // carState == Sleeping
+                            if (carIsAwake()) { carState.set(CarState.Idle); }
+                            else { produce = false; }
+                        }
+                    }
+                }
+                if (produce) produce();
+                Utils.sleep(DefaultInterval, wakeEarly);
+            }
+        } catch (Exception e) {
+            Tesla.logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
+        }
+    }
+    
+    private void produce() {
+        if (carState.get() == CarState.Asleep) { wakeupVehicle(); }
+        ac.streamProducer.produce(ac.prefs.streamWhenPossible.get());
+        ac.stateProducer.produce(Vehicle.StateType.Charge, null);
     }
     
 /*------------------------------------------------------------------------------
  *
- * This section has the code pertaining to the background thread that
- * is responsible for collecting stats on a regular basis
+ * PRIVATE - Methods & classes that determine the state of the vehicle and app
  * 
  *----------------------------------------------------------------------------*/
     
-    private class AutoCollect implements Runnable {
-        private static final long AllowSleepInterval = 30 * 60 * 1000;   // 30 Minutes
+    private boolean isCharging() {
+        ChargeState charge = ac.lastKnownChargeState.get();
+        if (charge == null) return false;
+        if (charge.chargingState == ChargeState.Status.Charging) return true;   // Belt...
+        return (charge.chargeRate > 0);                                         // and suspenders
+    }
 
-        private void produceStats() {
-            ac.streamProducer.produce(ac.prefs.streamWhenPossible.get());
-            ac.stateProducer.produce(Vehicle.StateType.Charge, null);
-        }
+    private boolean isInMotion() {
+        StreamState ss = ac.lastKnownStreamState.get();
+        if (ss == null) return false;
+        if (ss.speed > 0.0) return true;        // Belt...
+        return (!ss.shiftState.equals("P"));    // and suspenders
+    }
 
-        private boolean isCharging() {
-            ChargeState charge = ac.lastKnownChargeState.get();
-            return(charge.chargingState == ChargeState.Status.Charging ||
-                   charge.chargeRate > 0);
-        }
+    private boolean carIsAsleep() { return !carIsAwake(); }
+    private boolean carIsAwake() {
+        boolean awake = ac.vehicle.isAwake();
+        Tesla.logger.fine("carIsAwake: "+awake);
+        return awake;
+    }
 
-        private int decay = 0;
-        private boolean isInMotion() {
-            if (ac.lastKnownStreamState.get() != null) {
-                if (ac.lastKnownStreamState.get().speed > 0.0) {
-                    decay = 4;
-                    return true;
-                }
-            }
-            return (Math.max(--decay, 0) > 0);
-        }
-        
-        private boolean isCarAwake() {
-            boolean awake = ac.vehicle.isAwake();
-            Tesla.logger.fine("ICA="+awake);
-            return awake;
-        }
-        
-        @Override public void run() {
-            try {
-                long sleepInterval;
-                BecameAwakePredicate becameAwake = new BecameAwakePredicate(ac);
-                
-                while (!ac.shuttingDown.get()) {
-                    boolean carWasAsleep = false;
-                    if (ac.inactivity.appIsActive()) {
-                        produceStats();
-                        sleepInterval = isInMotion() ? MinInterval : DefaultInterval;
-                        Tesla.logger.fine("App Awake, interval = " + sleepInterval/1000L);
-                    } else if (isCarAwake()) {
-                        produceStats();
-                        sleepInterval = isInMotion() ? MinInterval :
-                                (isCharging() ? DefaultInterval : AllowSleepInterval);
-                        Tesla.logger.fine("App Asleep, Car Awake, interval = " + sleepInterval/1000L);
-                        if (sleepInterval < AllowSleepInterval)
-                            ac.inactivity.wakeupApp();
-                    } else {
-                        sleepInterval = AllowSleepInterval;
-                        carWasAsleep = true;
-                        Tesla.logger.fine("App Asleep, Car Asleep, interval = " + sleepInterval/1000L);
-                    }
-
-                    if (sleepInterval < AllowSleepInterval) {
-                        Utils.sleep(sleepInterval, becameAwake);
-                    } else {
-                        for (; sleepInterval > 0; sleepInterval -= TestSleepInterval) {
-                            Utils.sleep(TestSleepInterval, becameAwake);
-                            if (ac.shuttingDown.get()) break;
-                            if (ac.inactivity.appIsActive()) { Tesla.logger.fine("App is awake, start polling"); break; }
-                            if (carWasAsleep && isCarAwake()) {
-                                ac.inactivity.wakeupApp();
-                                Tesla.logger.fine("Something woke the car, start polling");
-                                break;
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Tesla.logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
-            }
-        }
+    private boolean carIsInactive() { return !carIsActive(); }
+    private boolean carIsActive() {
+        return (carState.get() == CarState.Moving || carState.get() == CarState.Charging);
     }
     
-    private static class BecameAwakePredicate implements Utils.Predicate {
+    private static class WakeEarlyPredicate implements Utils.Predicate {
         private final AppContext ac;
         private long lastEval;
         
-        BecameAwakePredicate(AppContext ac) {
+        WakeEarlyPredicate(AppContext ac) {
             this.ac = ac;
             this.lastEval = System.currentTimeMillis();
         }
         
         @Override public boolean eval() {
             try {
-                if (ac.inactivity.mode.lastSet() > lastEval ||
-                    ac.produceRequest.lastSet() > lastEval) { return true; }
+                if (ac.inactivity.mode.lastSet() > lastEval && ac.inactivity.stayAwakeMode()) return true;
                 return ac.shuttingDown.get();
             } finally {
                 lastEval = System.currentTimeMillis();
             }
         }
     }
-    
+
+    private void wakeupVehicle() {
+        if (ac.utils.forceWakeup()) carState.set(CarState.Idle);
+    }
+
 }
