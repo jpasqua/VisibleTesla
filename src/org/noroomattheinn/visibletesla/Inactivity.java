@@ -68,8 +68,7 @@ public class Inactivity {
             @Override public void run() {
                 appContext.persistentState.put(
                     appContext.vehicle.getVIN()+"_InactivityMode", mode.get().name());
-                if (state.get() == State.Idle && mode.get() == Mode.AllowSleeping)
-                    state.set(State.Idle);
+                if (mode.get() == Mode.StayAwake) state.set(State.Active);
             }
         });
     }
@@ -88,6 +87,9 @@ public class Inactivity {
     public boolean appIsIdle() { return state.get() == State.Idle; }
     public boolean appIsActive() { return state.get() == State.Active; }
     
+    public boolean allowSleepingMode() { return mode.get() == Mode.AllowSleeping; }
+    public boolean stayAwakeMode() { return mode.get() == Mode.StayAwake; }
+
     public void restore() {
         String modeName = appContext.persistentState.get(
                 appContext.vehicle.getVIN()+"_InactivityMode",
