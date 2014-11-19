@@ -185,7 +185,7 @@ public class SchedulerController extends BaseController
     }
     
     private boolean wakeAndGetChargeState() {
-        ac.inactivity.state.set(Inactivity.State.Active);
+        ac.inactivity.wakeupApp();
         for (int i = 0; i < 20; i++) {
             if ((charge = v.queryCharge()).valid) {
                 ac.noteUpdatedState(charge);
