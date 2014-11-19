@@ -78,7 +78,6 @@ public class AppContext {
     public final VTUtils utils;
     public final ThreadManager tm;
     public final Inactivity inactivity;
-    public final TrackedObject<Long> produceRequest;
     public final BooleanProperty shuttingDown;
     public final ObjectProperty<ChargeState> lastKnownChargeState;
     public final ObjectProperty<DriveState> lastKnownDriveState;
@@ -126,7 +125,6 @@ public class AppContext {
         this.tm = new ThreadManager(shuttingDown);
         this.utils = new VTUtils(this);
         this.inactivity = new Inactivity(this);    
-        this.produceRequest = new TrackedObject<>(0L);
         
         this.lastKnownChargeState = new SimpleObjectProperty<>();
         this.lastKnownDriveState = new SimpleObjectProperty<>();

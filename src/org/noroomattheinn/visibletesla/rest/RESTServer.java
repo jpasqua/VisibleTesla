@@ -143,7 +143,8 @@ public class RESTServer implements ThreadManager.Stoppable {
                     sendResponse(exchange, 403, "403 (Forbidden)\n");
                     break;
                 case "produce":
-                    ac.produceRequest.set(ac.produceRequest.get()+1);
+                    ac.utils.waitForVehicleToWake(null, null);
+                    ac.inactivity.mode.set(Inactivity.Mode.StayAwake);
                     Tesla.logger.info("Produce Request Received");
                     sendResponse(exchange, 200,  "Produce Request Received\n");
                     break;
