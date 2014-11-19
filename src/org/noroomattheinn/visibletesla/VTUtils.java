@@ -37,7 +37,6 @@ import static org.noroomattheinn.utils.Utils.sleep;
  */
 public class VTUtils {
 
-    
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums
@@ -346,6 +345,19 @@ public class VTUtils {
         ac.tm.launch(poller, "Wait For Wakeup");
     }
 
+    public boolean forceWakeup() {
+        ChargeState charge;
+        for (int i = 0; i < 15; i++) {
+            if ((charge = ac.vehicle.queryCharge()).valid) {
+                ac.noteUpdatedState(charge);
+                return true;
+            }
+            ac.vehicle.wakeUp();
+            ac.utils.sleep(5 * 1000);
+        }
+        return false;
+    }
+    
     public void sleep(long timeInMillis) {
         Utils.sleep(timeInMillis,  new Utils.Predicate() {
             @Override public boolean eval() { return ac.shuttingDown.get(); } });
