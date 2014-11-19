@@ -92,20 +92,24 @@ public class ThreadManager {
         int nActive;
         do {
             nActive = 0;
+            Tesla.logger.finest("Iterating through terminate loop");
             for (Thread t : threads) {
                 Thread.State state = t.getState();
                 switch (state) {
                     case NEW:
                     case RUNNABLE:
                         nActive++;
+                        Tesla.logger.finest("Active thread: " + t.getName());
                         break;
 
                     case TERMINATED:
+                        Tesla.logger.finest("Terminated thread: " + t.getName());
                         break;
 
                     case BLOCKED:
                     case TIMED_WAITING:
                     case WAITING:
+                        Tesla.logger.finest("About to interrupt thread: " + t.getName());
                         nActive++;
                         t.interrupt();
                         Utils.yieldFor(100);
