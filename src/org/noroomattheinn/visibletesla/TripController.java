@@ -237,7 +237,7 @@ public class TripController extends BaseController {
     }
 
     @Override protected void activateTab() {
-        String units = ac.utils.unitType() == Utils.UnitType.Imperial ? " (mi)" : " (km)";
+        String units = VTExtras.unitType(ac) == Utils.UnitType.Imperial ? " (mi)" : " (km)";
         rangeRow.setName(RangeRowName + units);
         odoRow.setName(OdoRowName + units);
     }

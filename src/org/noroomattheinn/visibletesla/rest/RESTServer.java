@@ -28,6 +28,7 @@ import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.utils.LRUMap;
 import org.noroomattheinn.visibletesla.AppMode;
 import org.noroomattheinn.visibletesla.ThreadManager;
+import org.noroomattheinn.visibletesla.VTExtras;
 
 /**
  * RESTServer: Provide minimal external services.
@@ -145,7 +146,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     sendResponse(exchange, 403, "403 (Forbidden)\n");
                     break;
                 case "produce":
-                    ac.utils.waitForVehicleToWake(null, null);
+                    VTExtras.waitForVehicleToWake(ac, null, null);
                     ac.appMode.stayAwake();
                     Tesla.logger.info("Produce Request Received");
                     sendResponse(exchange, 200,  "Produce Request Received\n");

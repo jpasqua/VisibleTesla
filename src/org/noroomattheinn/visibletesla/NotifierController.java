@@ -464,7 +464,7 @@ public class NotifierController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        if (ac.utils.unitType() == Utils.UnitType.Imperial) {
+        if (VTExtras.unitType(ac) == Utils.UnitType.Imperial) {
             speedUnitsLabel.setText("mph");
             speedHitsSlider.setMin(0);
             speedHitsSlider.setMax(100);
@@ -606,8 +606,8 @@ public class NotifierController extends BaseController {
                 notifyUser(speedHitsTrigger, shMessageTarget);
             }
             
-            if (ac.utils.inProperUnits(lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
-                double odo = ac.utils.inProperUnits(cur.odometer);
+            if (VTExtras.inProperUnits(ac, lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
+                double odo = VTExtras.inProperUnits(ac, cur.odometer);
                 if (odoHitsTrigger.evalPredicate(new BigDecimal(odo))) {
                     notifyUser(odoHitsTrigger, ohMessageTarget);
                     // Store in miles, but convert & test relative to the GUI setting
@@ -664,7 +664,7 @@ public class NotifierController extends BaseController {
         } else {
             MessageTemplate mt = new MessageTemplate(ac, target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(ac, target.getActiveSubj());
-            ac.utils.sendNotification(
+            ac.sendNotification(
                 addr, st.getMessage(contextSpecific),
                 mt.getMessage(contextSpecific));
         }

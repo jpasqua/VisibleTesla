@@ -138,7 +138,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
                 jsonRep, ac.vehicle.getOptions().batteryType(), ac.uuidForVehicle);
         
         // Send the notification and log the body
-        ac.utils.sendNotification(VTDataAddress, VTChargeDataSubj, body);
+        ac.sendNotification(VTDataAddress, VTChargeDataSubj, body);
         Tesla.logger.info("Charge data submitted: " + body);
     }
     

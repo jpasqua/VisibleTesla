@@ -15,7 +15,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialogs;
@@ -135,7 +134,7 @@ public class PrefsController extends BaseController {
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!ac.utils.sendNotification(addr, msg + date)) {
+        if (!ac.sendNotification(addr, msg + date)) {
             Dialogs.showWarningDialog(ac.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +

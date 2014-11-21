@@ -25,6 +25,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
@@ -75,7 +76,6 @@ public class AppContext {
     public final Stage stage;
     public final Preferences persistentState;
     public final Prefs prefs;
-    public final VTUtils utils;
     public final ThreadManager tm;
     public final AppMode appMode;
     public final AppState appState;
@@ -124,7 +124,6 @@ public class AppContext {
         
         this.shuttingDown = new SimpleBooleanProperty(false);
         this.tm = new ThreadManager(shuttingDown);
-        this.utils = new VTUtils(this);
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
         
@@ -238,6 +237,30 @@ public class AppContext {
         });
     }
     
+    public boolean sendNotification(String addr, String msg) {
+        final int SubjectLength = 30;
+        String subject = StringUtils.left(msg, SubjectLength);
+        if (msg.length() > SubjectLength) {
+            subject = subject + "...";
+        }
+        return sendNotification(addr, subject, msg);
+    }
+
+    public boolean sendNotification(String addr, String subject, String msg) {
+        if (msg == null) {
+            return true;
+        }
+        if (addr == null || addr.length() == 0) {
+            Tesla.logger.warning(
+                    "Unable to send a notification because no address was specified: " + msg);
+            return false;
+        }
+        if (mailer.send(addr, subject, msg)) {
+            Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
+            return false;
+        }
+        return true;
+    }
 
 /*------------------------------------------------------------------------------
  *

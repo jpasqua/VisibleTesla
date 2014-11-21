@@ -76,10 +76,11 @@ public class SchedulerController extends BaseController
             ScheduleItem.Command command, double value,
             MessageTarget messageTarget) {
         if (command != ScheduleItem.Command.SLEEP) {
-            if (!wakeAndGetChargeState()) {
+            if (!VTExtras.forceWakeup(ac)) {
                 logActivity("Can't wake vehicle - aborting", true);
                 return;
             }
+            ac.appState.setActive();
         }
         if (!safeToRun(command)) return;
         
@@ -132,7 +133,7 @@ public class SchedulerController extends BaseController
     
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
-            ac.utils.sendNotification(
+            ac.sendNotification(
                 ac.prefs.notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
@@ -140,7 +141,7 @@ public class SchedulerController extends BaseController
         }
         MessageTemplate body = new MessageTemplate(ac, messageTarget.getActiveMsg());
         MessageTemplate subj = new MessageTemplate(ac, messageTarget.getActiveSubj());
-        boolean sent = ac.utils.sendNotification(
+        boolean sent = ac.sendNotification(
             messageTarget.getActiveEmail(),
             subj.getMessage(null),
             body.getMessage(null));
@@ -184,28 +185,15 @@ public class SchedulerController extends BaseController
         return true;
     }
     
-    private boolean wakeAndGetChargeState() {
-        ac.appState.setActive();
-        for (int i = 0; i < 20; i++) {
-            if ((charge = v.queryCharge()).valid) {
-                ac.noteUpdatedState(charge);
-                return true;
-            }
-            v.wakeUp();
-            ac.utils.sleep(5000);
-        }
-        return false;
-    }
-    
     private synchronized Result unpluggedTrigger() {
         ChargeState.Status status = ac.lastKnownChargeState.get().chargingState;
         if (status == ChargeState.Status.Disconnected) {
-            ac.utils.sendNotification(
+            ac.sendNotification(
                 ac.prefs.notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (status == ChargeState.Status.Unknown) {
-            ac.utils.sendNotification(
+            ac.sendNotification(
                 ac.prefs.notificationAddress.get(),
                 "Can't determine if your car is plugged in. Please check");
             return new Result(true, "Can't tell if car is plugged in. Warning sent");

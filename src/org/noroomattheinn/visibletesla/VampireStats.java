@@ -62,7 +62,7 @@ public class VampireStats {
     }
         
     public void showStats() {
-        useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
+        useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null) { return; }
         

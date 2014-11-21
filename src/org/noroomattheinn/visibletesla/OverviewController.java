@@ -301,8 +301,8 @@ public class OverviewController extends BaseController {
             case "Ideal": range = cs.idealRange; break;
             case "Rated": range = cs.range; break;
         }
-        range = ac.utils.inProperUnits(range);
-        String units = ac.utils.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+        range = VTExtras.inProperUnits(ac, range);
+        String units = VTExtras.unitType(ac) == Utils.UnitType.Imperial ? "mi" : "km";
         rangeLabel.setText(String.format("%s Range: %3.1f %s", rangeType, range, units));
     }
     
@@ -332,7 +332,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRoofView() {
-        Options.RoofType type = ac.utils.roofType();
+        Options.RoofType type = VTExtras.roofType(ac);
         
         boolean hasPano = (type == Options.RoofType.RFPO);
         
@@ -365,7 +365,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        updateImages(ac.utils.computedWheelType(), wheelImages, wheelEquivs);
+        updateImages(VTExtras.computedWheelType(ac), wheelImages, wheelEquivs);
     }
     
     private void updateChargePort() {
@@ -419,7 +419,7 @@ public class OverviewController extends BaseController {
         
         // Save off the odometer reading (in miles)
         ac.persistentState.putDouble(ac.vehicle.getVIN()+"_odometer", odometerReading);
-        boolean useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
+        boolean useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : Utils.KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
@@ -430,7 +430,7 @@ public class OverviewController extends BaseController {
         if (displayVIN(v))
             vinButton.setText("VIN " + StringUtils.right(v.getVIN(), 6));
         else {
-            vinButton.setText("v" + ac.utils.getVersion(car.version));
+            vinButton.setText("v" + Firmware.getSoftwareVersion(car.version));
         }
     }
     
@@ -473,7 +473,7 @@ public class OverviewController extends BaseController {
 
     // Replace the images that were selected by default with images for the actual color
     private void getAppropriateImages(Vehicle v) {
-        Options.PaintColor c = ac.utils.paintColor();
+        Options.PaintColor c = VTExtras.paintColor(ac);
 
         ClassLoader cl = getClass().getClassLoader();
         String colorDirectory = colorToDirectory.get(c);

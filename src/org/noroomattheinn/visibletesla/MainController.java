@@ -34,9 +34,14 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.SystemUtils;
+import org.noroomattheinn.tesla.ChargeState;
+import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
+import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
@@ -120,7 +125,7 @@ public class MainController extends BaseController {
      */
     public void start(final AppContext ac) {
         this.ac = ac;
-        this.ac.utils.logAppInfo();
+        logAppInfo();
         addSystemSpecificHandlers(ac);
 
         refreshTitle();
@@ -182,7 +187,7 @@ public class MainController extends BaseController {
     private void fetchInitialCarState() {
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = ac.utils.cacheBasics();
+                Result r = cacheBasics();
                 if (!r.success) {
                     if (r.explanation.equals("mobile_access_disabled"))  exitWithMobileAccessError();
                     else exitWithCachingError();
@@ -224,8 +229,8 @@ public class MainController extends BaseController {
                     if (letItSleep()) {
                         Tesla.logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        ac.utils.waitForVehicleToWake(
-                                new LoginStateChange(loggedIn, true), forceWakeup);
+                        VTExtras.waitForVehicleToWake(
+                                ac, new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
                         Tesla.logger.log(Level.INFO, "Waking up your vehicle");
@@ -257,6 +262,65 @@ public class MainController extends BaseController {
             jumpToTab(overviewTab);
         }
     };
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods waking the car and initiating contact
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    /**
+     * Make contact with the car for the first time. It may need to be woken up
+     * in the process. Since we need to do some command as part of this process,
+     * we grab the GUIState and store it away.
+     * @return 
+     */
+    private Result establishContact() {
+        Vehicle v = ac.vehicle;
+        
+        long MaxWaitTime = 70 * 1000;
+        long now = System.currentTimeMillis();
+        while (timeSince(now) < MaxWaitTime) {
+            if (ac.shuttingDown.get()) { return new Result(false, "shutting down"); }
+            GUIState gs = v.queryGUI();
+            if (gs.valid) {
+                if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
+                    return new Result(false, "mobile_access_disabled");
+                }
+                ac.lastKnownGUIState.set(gs);
+                return Result.Succeeded;
+            } else {
+                String error = gs.rawState.optString("error");
+                if (error.equals("vehicle unavailable")) v.wakeUp();
+                VTExtras.sleep(ac, 10 * 1000);
+            }
+        }
+        return Result.Failed;
+    }
+    
+    private Result cacheBasics() {
+        final int MaxTriesToStart = 10;
+        Result madeContact = establishContact();
+        if (!madeContact.success) return madeContact;
+        
+        // As part of establishing contact with the car we cached the GUIState
+        Vehicle         v = ac.vehicle;
+        VehicleState    vs = v.queryVehicle();
+        ChargeState     cs = v.queryCharge();
+        
+        int tries = 0;
+        while (!(vs.valid && cs.valid)) {
+            if (tries++ > MaxTriesToStart) { return Result.Failed; }
+            VTExtras.sleep(ac, 5 * 1000);
+            if (ac.shuttingDown.get()) return Result.Failed;
+            if (!vs.valid) vs = v.queryVehicle();
+            if (!cs.valid) cs = v.queryCharge();
+        }
+        
+        ac.lastKnownVehicleState.set(vs);
+        ac.lastKnownChargeState.set(cs);
+        return Result.Succeeded;
+    }
     
 /*------------------------------------------------------------------------------
  *
@@ -352,22 +416,38 @@ public class MainController extends BaseController {
     }
     
     @FXML private void remoteStart(ActionEvent e) {
-        String[] unp = PasswordDialog.getCredentials(
+        final String[] unp = PasswordDialog.getCredentials(
                 ac.stage, "Authenticate", "Remote Start", false);
         if (unp == null) return;    // User cancelled
         if (unp[1] == null || unp[1].isEmpty()) {
             Dialogs.showErrorDialog(ac.stage, "You must enter a password");
             return;
         }
-        ac.utils.remoteStart(unp[1]);
-    
+        ac.issuer.issueCommand(new Callable<Result>() {
+            @Override public Result call() { 
+                return ac.vehicle.remoteStart(unp[1]); 
+            } }, true, null, "Remote Start");
     }
 
     // Options->Action_>{Honk,Flsh,Wakeup}
-    @FXML private void honk(ActionEvent e) { ac.utils.miscAction(VTUtils.MiscAction.Honk); }
-    @FXML private void flash(ActionEvent e) { ac.utils.miscAction(VTUtils.MiscAction.Flash); }
-    @FXML private void wakeup(ActionEvent e) { ac.utils.miscAction(VTUtils.MiscAction.Wakeup); }
     
+    @FXML private void honk(ActionEvent e) {
+        ac.issuer.issueCommand(new Callable<Result>() {
+            @Override public Result call() { return ac.vehicle.honk(); }
+        }, true, null, "Honk");
+    }
+    @FXML private void flash(ActionEvent e) {
+        ac.issuer.issueCommand(new Callable<Result>() {
+            @Override public Result call() { return ac.vehicle.flashLights(); }
+        }, true, null, "Flash Lights");
+    }
+    @FXML private void wakeup(ActionEvent e) {
+        ac.issuer.issueCommand(new Callable<Result>() {
+            @Override public Result call() { return ac.vehicle.wakeUp(); }
+        }, true, null, "Wake up");
+    }
+    
+
 /*------------------------------------------------------------------------------
  *
  * Other UI Handlers and utilities
@@ -401,6 +481,20 @@ public class MainController extends BaseController {
     private void setAppModeMenu() {
         if (ac.appMode.allowingSleeping()) allowSleepMenuItem.setSelected(true);
         else stayAwakeMenuItem.setSelected(true);
+    }
+
+    private void logAppInfo() {
+        Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
+        
+        Tesla.logger.info(
+                String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
+        List<String> jvmArgs = Utils.getJVMArgs();
+        Tesla.logger.info("JVM Arguments");
+        if (jvmArgs != null) {
+            for (String arg : jvmArgs) {
+                Tesla.logger.info("Arg: " + arg);
+            }
+        }
     }
     
 /*------------------------------------------------------------------------------

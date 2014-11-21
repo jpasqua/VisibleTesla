@@ -139,11 +139,11 @@ public class HVACController extends BaseController {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        useDegreesF = ac.utils.useDegreesF();
+        useDegreesF = VTExtras.useDegreesF(ac);
     }
     
     @Override protected void activateTab() {
-        useDegreesF = ac.utils.useDegreesF();
+        useDegreesF = VTExtras.useDegreesF(ac);
         if (useDegreesF) {
             tempSlider.setMin(62);
             tempSlider.setMax(90);
@@ -259,7 +259,7 @@ public class HVACController extends BaseController {
     private static final String ImagePrefix = "org/noroomattheinn/TeslaResources/";
     private void getAppropriateBody() {
         ClassLoader cl = getClass().getClassLoader();
-        Options.WheelType wt = ac.utils.computedWheelType();
+        Options.WheelType wt = VTExtras.computedWheelType(ac);
         String image;
         
         switch (wt) {

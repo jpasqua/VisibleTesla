@@ -103,7 +103,7 @@ public class AppState {
     class InactivityThread implements Runnable {
         @Override public void run() {
             while (true) {
-                ac.utils.sleep(60 * 1000);
+                VTExtras.sleep(ac, 60 * 1000);
                 if (ac.shuttingDown.get())
                     return;
                 long idleThreshold = ac.prefs.idleThresholdInMinutes.get() * 60 * 1000;

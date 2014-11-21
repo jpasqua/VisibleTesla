@@ -153,6 +153,6 @@ public class StatsStreamer implements Runnable {
         }
     }
 
-    private void wakeupVehicle() { if (ac.utils.forceWakeup()) carState.set(CarState.Idle); }
+    private void wakeupVehicle() { if (VTExtras.forceWakeup(ac)) carState.set(CarState.Idle); }
     
 }

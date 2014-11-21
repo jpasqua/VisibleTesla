@@ -11,6 +11,7 @@ import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.VTExtras;
 
 /**
  * CarInfo
@@ -95,7 +96,7 @@ public class CarInfo {
         return String.format(DetailsFormat,
                 ColorMap.get(options.paintColor()),
                 SeatMap.get(options.seatType().getColor()),
-                WheelMap.get(ac.utils.computedWheelType()),
+                WheelMap.get(VTExtras.computedWheelType(ac)),
                 vs.hasSpoiler, vs.hasPano,
                 getModel(options));
 

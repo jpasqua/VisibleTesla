@@ -6,6 +6,8 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.File;
+import java.io.IOException;
 import org.noroomattheinn.visibletesla.fxextensions.MultiGauge;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -32,6 +34,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.util.Duration;
+import org.apache.commons.io.FileUtils;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.SimpleTemplate;
@@ -46,6 +49,7 @@ public class LocationController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static final String MapTemplateFileName = "MapTemplate.html";
+    private static final String SimpleMapTemplate = "SimpleMap.html";
     
 /*------------------------------------------------------------------------------
  *
@@ -81,7 +85,7 @@ public class LocationController extends BaseController {
         // TITLE, ZOOM, LAT, LNG
         StreamState state = ac.lastKnownStreamState.get();
         if (state == null) return;
-        ac.utils.showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
+        showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
     }
     
 /*------------------------------------------------------------------------------
@@ -110,7 +114,7 @@ public class LocationController extends BaseController {
     }
 
     @Override protected void initializeState() {
-        useMiles = ac.utils.unitType() == Utils.UnitType.Imperial;
+        useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
         ac.streamProducer.produce(false);
         ac.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
@@ -184,6 +188,20 @@ public class LocationController extends BaseController {
         multigauge.setVal(Side.RIGHT, ss.power);
     }
     
+    public void showSimpleMap(double lat, double lng, String title, int zoom) {
+        SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(SimpleMapTemplate));
+        String map = template.fillIn(
+                "LAT", String.valueOf(lat), "LONG", String.valueOf(lng),
+                "TITLE", title, "ZOOM", String.valueOf(zoom));
+        try {
+            File tempFile = File.createTempFile("VTTrip", ".html");
+            FileUtils.write(tempFile, map);
+            ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
+        } catch (IOException ex) {
+            Tesla.logger.warning("Unable to create temp file");
+            // TO DO: Pop up a dialog!
+        }
+    }
     
     private String getMapFromTemplate(String lat, String lng, String heading) {
         SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(MapTemplateFileName));
