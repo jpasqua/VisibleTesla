@@ -168,10 +168,10 @@ public class MessageTemplate {
                         }
                         break;
                     case "I_STATE":
-                        val = ac.inactivity.state.get().name();
+                        val = ac.appState.toString();
                         break;
                     case "I_MODE":
-                        val = ac.inactivity.mode.get().name();
+                        val = ac.appMode.toString();
                         break;
                     case "P_CURRENT":
                         val = String.valueOf(

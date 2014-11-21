@@ -148,9 +148,9 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        this.ac.inactivity.mode.addTracker(true, new Runnable() {
-            @Override public void run() { setInactivityMenu(ac.inactivity.mode.get()); } } );
-        this.ac.inactivity.state.addTracker(true, new Runnable() {
+        this.ac.appMode.addTracker(true, new Runnable() {
+            @Override public void run() { setAppModeMenu(); } } );
+        this.ac.appState.addTracker(true, new Runnable() {
             @Override public void run() { refreshTitle(); } });
 
         // Kick off the login process
@@ -235,7 +235,7 @@ public class MainController extends BaseController {
                 
             DisclaimerDialog.show(ac);
             VersionUpdater.conditionalCheckVersion(ac);
-            ac.inactivity.restore();
+            ac.appMode.restore();
             fetchInitialCarState();
         }
     }
@@ -245,7 +245,7 @@ public class MainController extends BaseController {
             boolean remoteStartEnabled = ac.vehicle.remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
-            ac.inactivity.trackInactivity(tabs);
+            ac.appState.trackInactivity(tabs);
             ac.prepForVehicle(ac.vehicle);
             refreshTitle();
             
@@ -315,9 +315,8 @@ public class MainController extends BaseController {
     
     // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
-        Inactivity.Mode mode = Inactivity.Mode.StayAwake;
-        if (event.getTarget() == allowSleepMenuItem) mode = Inactivity.Mode.AllowSleeping;
-        ac.inactivity.mode.set(mode);
+        if (event.getTarget() == allowSleepMenuItem) ac.appMode.allowSleeping();
+        else ac.appMode.stayAwake();
     }
     
     // Help->Documentation
@@ -392,18 +391,16 @@ public class MainController extends BaseController {
         String carName = (ac.vehicle != null) ? ac.vehicle.getDisplayName() : null;
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
         if (carName != null) title = title + " for " + carName;
-        if (ac.inactivity.appIsIdle()) {
+        if (ac.appState.isIdle()) {
             String time = String.format("%1$tH:%1$tM", new Date());
             title = title + " [sleeping at " + time + "]";
         }
         ac.stage.setTitle(title);
     }
 
-    private void setInactivityMenu(Inactivity.Mode mode) {
-        switch (mode) {
-            case StayAwake: stayAwakeMenuItem.setSelected(true); break;
-            case AllowSleeping: allowSleepMenuItem.setSelected(true); break;
-        }
+    private void setAppModeMenu() {
+        if (ac.appMode.allowingSleeping()) allowSleepMenuItem.setSelected(true);
+        else stayAwakeMenuItem.setSelected(true);
     }
     
 /*------------------------------------------------------------------------------

@@ -309,9 +309,7 @@ public class OverviewController extends BaseController {
     private void updateShiftState() {
         StreamState snapshot = ac.lastKnownStreamState.get();
         if (snapshot == null) return;
-        String ss = snapshot.shiftState;
-        if (ss == null || ss.isEmpty()) ss = "P";
-        shiftStateLabel.setText(ss);
+        shiftStateLabel.setText(snapshot.shiftState());
     }
     
     private void updateDoorView() {

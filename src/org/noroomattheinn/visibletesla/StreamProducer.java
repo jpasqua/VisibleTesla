@@ -60,19 +60,24 @@ public class StreamProducer extends Executor<StreamProducer.Request>
     @Override protected boolean execRequest(Request r) throws Exception {
         StreamState snapshot = r.continuation ? streamer.tryExistingStream() :
                                                 streamer.beginStreamIfNeeded();
-        if (snapshot == null) { return r.continuation; }    // Null is OK on continuation
+        if (snapshot == null) {
+            if (r.stream && r.continuation && isInMotion()) { produce(true); }
+            return r.continuation;  // Null is ok on a continuation, not otherwise
+        }
         
         if (!r.continuation || snapshot.timestamp - lastSnapshotTime > StreamingThreshold) {
             lastSnapshotTime = snapshot.timestamp;
             appContext.lastKnownStreamState.set(snapshot);
         }
         
-        if (r.stream && !appContext.inactivity.appIsIdle()) {  // Keep streaming
-            super.produce(new Request(r.stream, true));
-        }
+        if (r.stream) super.produce(new Request(r.stream, true));
         return true;
     }
     
+    private boolean isInMotion() {
+        return appContext.lastKnownStreamState.get().isInMotion();
+    }
+
     @Override protected void addToHistogram(Executor.Request r) {
         if (!((Request)r).continuation) super.addToHistogram(r);
     }

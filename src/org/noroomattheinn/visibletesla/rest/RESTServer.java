@@ -26,7 +26,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.utils.LRUMap;
-import org.noroomattheinn.visibletesla.Inactivity;
+import org.noroomattheinn.visibletesla.AppMode;
 import org.noroomattheinn.visibletesla.ThreadManager;
 
 /**
@@ -42,9 +42,9 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final Map<String,Inactivity.Mode> toInactivityType = 
-            Utils.newHashMap("sleep", Inactivity.Mode.AllowSleeping,
-                             "wakeup", Inactivity.Mode.StayAwake);
+    private static final Map<String,AppMode.Mode> toAppMode = 
+            Utils.newHashMap("sleep", AppMode.Mode.AllowSleeping,
+                             "wakeup", AppMode.Mode.StayAwake);
 
 /*------------------------------------------------------------------------------
  *
@@ -118,14 +118,16 @@ public class RESTServer implements ThreadManager.Stoppable {
                 sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
-            Inactivity.Mode requestedMode = toInactivityType.get(mode);
+            AppMode.Mode requestedMode = toAppMode.get(mode);
             if (requestedMode == null) {
-                Tesla.logger.warning("Unknown inactivity mode: " + mode + "\n");
-                sendResponse(exchange, 400, "Unknown activity mode");
+                Tesla.logger.warning("Unknown app mode: " + mode + "\n");
+                sendResponse(exchange, 400, "Unknown app mode");
                 return;
             }
-            Tesla.logger.info("Requested inactivity mode: " + mode);
-            ac.inactivity.mode.set(requestedMode);
+            Tesla.logger.info("Requested app mode: " + mode);
+            if (requestedMode == AppMode.Mode.AllowSleeping) ac.appMode.allowSleeping();
+            else ac.appMode.stayAwake();
+
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
         }
     };
@@ -144,7 +146,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     break;
                 case "produce":
                     ac.utils.waitForVehicleToWake(null, null);
-                    ac.inactivity.mode.set(Inactivity.Mode.StayAwake);
+                    ac.appMode.stayAwake();
                     Tesla.logger.info("Produce Request Received");
                     sendResponse(exchange, 200,  "Produce Request Received\n");
                     break;
@@ -177,7 +179,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     response = CarInfo.carDetailsAsJSON(ac);
                     break;
                 case "inactivity_mode":
-                    response = String.format("{ \"mode\": \"%s\" }", ac.inactivity.mode.get().name());
+                    response = String.format("{ \"mode\": \"%s\" }", ac.appMode);
                     break;
                 case "dbg_sar":
                     Map<String,String> params = getParams(exchange.getRequestURI().getQuery());

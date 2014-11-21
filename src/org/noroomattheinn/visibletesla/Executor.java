@@ -91,18 +91,18 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
                 if (r.pi != null) { appContext.showProgress(r.pi, false); }
                 if (!success) {
                     if (r.moreRetries()) {
-                        Tesla.logger.finer(r.getRequestName() + ": failed, retrying...");
+                        Tesla.logger.finest(r.getRequestName() + ": failed, retrying...");
                         retry(r);
                     }
                     else {
                         addToHistogram(r);
-                        Tesla.logger.finer(
+                        Tesla.logger.finest(
                                 r.getRequestName() + ": failed, giving up after " +
                                 r.maxRetries() + " attempt(s)");
                     }
                 } else {
                     addToHistogram(r);
-                    Tesla.logger.finer(
+                    Tesla.logger.finest(
                             r.getRequestName() + ": Succeeded after " +
                             r.retriesPerformed()+ " attempt(s)");
                 }

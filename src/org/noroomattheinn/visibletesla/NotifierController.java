@@ -624,7 +624,7 @@ public class NotifierController extends BaseController {
             }
 
             // Handle other triggers
-            if (unlockedTrigger.evalPredicate(cur.speed, cur.shiftState)) {
+            if (unlockedTrigger.evalPredicate(cur.speed, cur.shiftState())) {
                 checkForUnlocked = true;
                 updateState(Vehicle.StateType.Vehicle);
             }

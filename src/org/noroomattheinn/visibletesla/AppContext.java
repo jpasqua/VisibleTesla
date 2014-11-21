@@ -77,7 +77,8 @@ public class AppContext {
     public final Prefs prefs;
     public final VTUtils utils;
     public final ThreadManager tm;
-    public final Inactivity inactivity;
+    public final AppMode appMode;
+    public final AppState appState;
     public final BooleanProperty shuttingDown;
     public final ObjectProperty<ChargeState> lastKnownChargeState;
     public final ObjectProperty<DriveState> lastKnownDriveState;
@@ -124,13 +125,14 @@ public class AppContext {
         this.shuttingDown = new SimpleBooleanProperty(false);
         this.tm = new ThreadManager(shuttingDown);
         this.utils = new VTUtils(this);
-        this.inactivity = new Inactivity(this);    
+        this.appMode = new AppMode(this);    
+        this.appState = new AppState(this);    
         
-        this.lastKnownChargeState = new SimpleObjectProperty<>();
+        this.lastKnownChargeState = new SimpleObjectProperty<>(new ChargeState());
         this.lastKnownDriveState = new SimpleObjectProperty<>();
         this.lastKnownGUIState = new SimpleObjectProperty<>();
         this.lastKnownHVACState = new SimpleObjectProperty<>();
-        this.lastKnownStreamState = new SimpleObjectProperty<>();
+        this.lastKnownStreamState = new SimpleObjectProperty<>(new StreamState());
         this.lastKnownVehicleState = new SimpleObjectProperty<>();
         this.schedulerActivity = new TrackedObject<>("");
 

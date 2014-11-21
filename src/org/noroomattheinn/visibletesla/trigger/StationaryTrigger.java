@@ -36,7 +36,6 @@ public class StationaryTrigger {
 
     public boolean evalPredicate(double speed, String shiftState) {
         if (!isEnabled.get()) return false;
-        if (shiftState == null || shiftState.isEmpty()) shiftState = "P";
         if (speed > 0.0 || !shiftState.equals("P")) {
             alreadyTriggered = false;
             periodBegan = -1;
