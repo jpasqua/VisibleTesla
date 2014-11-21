@@ -1,7 +1,7 @@
 /*
- * InactivityHandler - Copyright(c) 2013, 2014 Joe Pasqua
+ * AppState - Copyright(c) 2014 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
- * Created: Aug 14, 2014
+ * Created: Nov 20, 2014
  */
 
 package org.noroomattheinn.visibletesla;
@@ -14,15 +14,16 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 
 /**
- * Inactivity: All things related to the inactivity mode and state of the fxApp
+ * AppState: Track the active/inactive state of the application
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class Inactivity {
+public class AppState {
 
 /*------------------------------------------------------------------------------
  *
@@ -30,7 +31,6 @@ public class Inactivity {
  * 
  *----------------------------------------------------------------------------*/
 
-    public enum Mode { AllowSleeping, StayAwake };
     public enum State { Idle, Active };
 
 /*------------------------------------------------------------------------------
@@ -39,8 +39,9 @@ public class Inactivity {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final AppContext  appContext;
-    private long  timeOfLastEvent = System.currentTimeMillis();
+    private final AppContext  ac;
+    private final TrackedObject<State> state;
+    private long  lastEventTime = System.currentTimeMillis();
 
 /*==============================================================================
  * -------                                                               -------
@@ -48,27 +49,18 @@ public class Inactivity {
  * -------                                                               -------
  *============================================================================*/
     
-    public final TrackedObject<State> state;
-    public final TrackedObject<Mode> mode;
         
-    public Inactivity(AppContext ac) {
-        this.appContext = ac;
+    public AppState(AppContext ac) {
+        this.ac = ac;
         this.state = new TrackedObject<>(State.Active);
-        this.mode = new TrackedObject<>(Mode.StayAwake);
         
         state.addTracker(false, new Runnable() {
             @Override public void run() {
+                Tesla.logger.finest("App State changed to " + state.get());
                 if (state.get() == State.Active) {
                     Tesla.logger.info("Resetting Idle start time to now");
-                    timeOfLastEvent = System.currentTimeMillis();
+                    lastEventTime = System.currentTimeMillis();
                 }
-            }
-        });
-        mode.addTracker(false, new Runnable() {
-            @Override public void run() {
-                appContext.persistentState.put(
-                    appContext.vehicle.getVIN()+"_InactivityMode", mode.get().name());
-                if (mode.get() == Mode.StayAwake) state.set(State.Active);
             }
         });
     }
@@ -80,31 +72,20 @@ public class Inactivity {
             n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
             n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
         }
-        appContext.tm.launch(new InactivityThread(), "Inactivity");
+        ac.tm.launch(new InactivityThread(), "Inactivity");
     }
     
-    public void wakeupApp() { state.set(State.Active); }
-    public boolean appIsIdle() { return state.get() == State.Idle; }
-    public boolean appIsActive() { return state.get() == State.Active; }
+    public void setActive() { state.set(State.Active); }
+    public boolean isActive() { return state.get() == State.Active; }
     
-    public boolean allowSleepingMode() { return mode.get() == Mode.AllowSleeping; }
-    public boolean stayAwakeMode() { return mode.get() == Mode.StayAwake; }
-
-    public void restore() {
-        String modeName = appContext.persistentState.get(
-                appContext.vehicle.getVIN()+"_InactivityMode",
-                Inactivity.Mode.StayAwake.name());
-        // Handle obsolete values or changed names
-        switch (modeName) {
-            case "Sleep": modeName = "AllowSleeping"; break;    // Name Changed
-            case "Awake": modeName = "StayAwake"; break;        // Name Changed
-            case "AllowDaydreaming": modeName = "Awake"; break; // Obsolete
-            case "Daydream": modeName = "Awake"; break;         // Obsolete
-        }
-
-        mode.set(Inactivity.Mode.valueOf(modeName));
-    }
+    public void setIdle() { state.set(State.Idle); }
+    public boolean isIdle() { return state.get() == State.Idle; }
     
+    public void addTracker(boolean later, Runnable r) { state.addTracker(later, r); }
+    public long lastSet() { return state.lastSet(); }
+    
+    @Override public String toString() { return state.get().name(); }
+
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Methods and classes to track activity
@@ -122,12 +103,11 @@ public class Inactivity {
     class InactivityThread implements Runnable {
         @Override public void run() {
             while (true) {
-                appContext.utils.sleep(60 * 1000);
-                if (appContext.shuttingDown.get())
+                ac.utils.sleep(60 * 1000);
+                if (ac.shuttingDown.get())
                     return;
-                long idleThreshold = appContext.prefs.idleThresholdInMinutes.get() * 60 * 1000;
-                if (System.currentTimeMillis() - timeOfLastEvent > idleThreshold &&
-                        mode.get() == Mode.AllowSleeping) {
+                long idleThreshold = ac.prefs.idleThresholdInMinutes.get() * 60 * 1000;
+                if (timeSince(lastEventTime) > idleThreshold && ac.appMode.allowingSleeping()) {
                     state.set(State.Idle);
                 }
             }
@@ -136,7 +116,7 @@ public class Inactivity {
     
     class EventPassThrough implements EventHandler<InputEvent> {
         @Override public void handle(InputEvent ie) {
-            timeOfLastEvent = System.currentTimeMillis();
+            lastEventTime = System.currentTimeMillis();
             if (state.get() != State.Active) { state.set(State.Active); }
         }
     }
