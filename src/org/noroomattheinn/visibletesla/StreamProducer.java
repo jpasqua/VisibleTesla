@@ -7,6 +7,7 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Streamer;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * StreamProducer: Generate a stream of locations on demand.
@@ -61,7 +62,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
         StreamState snapshot = r.continuation ? streamer.tryExistingStream() :
                                                 streamer.beginStreamIfNeeded();
         if (snapshot == null) {
-            if (r.stream && r.continuation && isInMotion()) { produce(true); }
+            if (r.continuation && isInMotion()) { produce(true); }
             return r.continuation;  // Null is ok on a continuation, not otherwise
         }
         
@@ -70,10 +71,23 @@ public class StreamProducer extends Executor<StreamProducer.Request>
             appContext.lastKnownStreamState.set(snapshot);
         }
         
-        if (r.stream) super.produce(new Request(r.stream, true));
+        if (r.stream) super.produce(new Request(true, true));
         return true;
     }
-    
+
+    // If there is a pending stream request in the queue, don't bother
+    // enqueueing this request. It's redundant and we could end up
+    // exploding the queue and leading to a blocked state.
+    @Override protected boolean requestSuperseded(Request r) {
+        Request  pending = queue.peek();
+        if (pending == null) return false;
+        if (pending.stream) {
+            logger.finest("Dropping a stream request");
+            return false;
+        }
+        return true;
+    }
+
     private boolean isInMotion() {
         return appContext.lastKnownStreamState.get().isInMotion();
     }

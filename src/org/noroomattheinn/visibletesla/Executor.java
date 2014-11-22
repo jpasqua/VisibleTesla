@@ -10,7 +10,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.scene.control.ProgressIndicator;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * StateProducer: Produce state updates on demand.
@@ -25,7 +25,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private   final ArrayBlockingQueue<R>   queue;
+    protected final ArrayBlockingQueue<R>   queue;
     protected final AppContext              appContext;
     protected final String                  name;
     protected final TreeMap<Integer,Integer> histogram;
@@ -50,7 +50,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
         try {
             queue.put(r);
         } catch (InterruptedException ex) {
-            Tesla.logger.warning(name + " interrupted adding  to queue: " + ex.getMessage());
+            logger.warning(name + " interrupted adding  to queue: " + ex.getMessage());
         }
     }
     
@@ -91,24 +91,24 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
                 if (r.pi != null) { appContext.showProgress(r.pi, false); }
                 if (!success) {
                     if (r.moreRetries()) {
-                        Tesla.logger.finest(r.getRequestName() + ": failed, retrying...");
+                        logger.finest(r.getRequestName() + ": failed, retrying...");
                         retry(r);
                     }
                     else {
                         addToHistogram(r);
-                        Tesla.logger.finest(
+                        logger.finest(
                                 r.getRequestName() + ": failed, giving up after " +
                                 r.maxRetries() + " attempt(s)");
                     }
                 } else {
                     addToHistogram(r);
-                    Tesla.logger.finest(
+                    logger.finest(
                             r.getRequestName() + ": Succeeded after " +
                             r.retriesPerformed()+ " attempt(s)");
                 }
             } catch (Exception e) {
                 if (r != null && r.pi != null) { appContext.showProgress(r.pi, false); }
-                Tesla.logger.warning("Exception in " + name + ": " + e.getMessage());
+                logger.warning("Exception in " + name + ": " + e.getMessage());
                 if (e instanceof InterruptedException) { return; }
             }
         }
@@ -150,6 +150,6 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             int count = entry.getValue();
             sb.append("("); sb.append(tries); sb.append(", "); sb.append(count); sb.append(") ");
         }
-        Tesla.logger.info(sb.toString());
+        logger.info(sb.toString());
     }
 }
