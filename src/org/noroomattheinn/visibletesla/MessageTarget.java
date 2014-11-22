@@ -6,7 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 
 public class MessageTarget {
@@ -62,7 +62,7 @@ public class MessageTarget {
 
         String[] elements = encoded.split("_");
         if (elements.length < 2 || elements.length > 3) {
-            Tesla.logger.warning("Malformed MessageTarget String: " + encoded);
+            logger.warning("Malformed MessageTarget String: " + encoded);
             return;
         }
         address = elements[0].equals("null") ? null : decodeUnderscore(elements[0]);

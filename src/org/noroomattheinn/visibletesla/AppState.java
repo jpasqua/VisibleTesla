@@ -13,7 +13,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
@@ -56,9 +56,9 @@ public class AppState {
         
         state.addTracker(false, new Runnable() {
             @Override public void run() {
-                Tesla.logger.finest("App State changed to " + state.get());
+                logger.finest("App State changed to " + state.get());
                 if (state.get() == State.Active) {
-                    Tesla.logger.info("Resetting Idle start time to now");
+                    logger.info("Resetting Idle start time to now");
                     lastEventTime = System.currentTimeMillis();
                 }
             }

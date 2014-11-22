@@ -11,7 +11,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.AppContext;
 
 /**
@@ -143,7 +143,7 @@ public class GenericTrigger<T> {
         }
         // If we ever get here it is a bug in the code - I added a type
         // and didn't account for it in the switch. Do something useful...
-        Tesla.logger.severe("Unexpected Predicate type: " + pName);
+        logger.severe("Unexpected Predicate type: " + pName);
         return String.format(
                 "%s %s %s (%s)", triggerName, pName, targetVal, curVal);
     }
@@ -217,7 +217,7 @@ public class GenericTrigger<T> {
         } else {
             isEnabled.set(false);
             targetProperty.set(th.fromExternal(dfltEncoded));
-            Tesla.logger.warning("Malformed externalized trigger: " + encoded);
+            logger.warning("Malformed externalized trigger: " + encoded);
         }
     }
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * StatsRepository
@@ -72,7 +72,7 @@ public class StatsRepository {
             String tokens[] = line.split("\\s");
             
             if ((tokens.length-1)%2 != 0) {   // Malformed line
-                Tesla.logger.log(
+                logger.log(
                     Level.INFO, "Malformed stats entry: Improper number of tokens: {0}", line);                
                 continue;
             }
@@ -87,7 +87,7 @@ public class StatsRepository {
                 }
                 lastEntries = merged;
             } catch (NumberFormatException ex) {
-                Tesla.logger.log(Level.INFO, "Malformed stats entry", ex);
+                logger.log(Level.INFO, "Malformed stats entry", ex);
             }
         }
     }
@@ -216,7 +216,7 @@ public class StatsRepository {
         try {
             fos = new FileOutputStream(statsFile, true);
         } catch (IOException e) {
-            Tesla.logger.warning("Unable to obtain lock on StatsRepository: " + e.toString());
+            logger.warning("Unable to obtain lock on StatsRepository: " + e.toString());
         }
         return fos;
     }
@@ -229,7 +229,7 @@ public class StatsRepository {
         try {
             return new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException ex) {
-            Tesla.logger.log(Level.INFO, "Could not open file", ex);
+            logger.log(Level.INFO, "Could not open file", ex);
         }
         return null;
     }
@@ -238,7 +238,7 @@ public class StatsRepository {
         try {
             return rdr.readLine();
         } catch (IOException ex) {
-            Tesla.logger.log(Level.INFO, "Failed reading line", ex);
+            logger.log(Level.INFO, "Failed reading line", ex);
         }
         return null;
     }

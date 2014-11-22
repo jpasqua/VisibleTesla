@@ -31,7 +31,7 @@ import jfxtras.labs.scene.control.BigDecimalField;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
@@ -236,7 +236,7 @@ public class NotifierController extends BaseController {
         for (GeoTrigger g: geoTriggers) {
             if (b == g.defineArea)  { showAreaDialog(g.prop); return; }
         }
-        Tesla.logger.warning("Unexpected button: " + b.toString());
+        logger.warning("Unexpected button: " + b.toString());
     }
 
     @FXML void optionsButton(ActionEvent event) {
@@ -263,7 +263,7 @@ public class NotifierController extends BaseController {
             for (GeoTrigger g: geoTriggers) {
                 if (b == g.optionsButton)  { showDialog(g.messageTarget); return; }
             }
-            Tesla.logger.warning("Unexpected button: " + b.toString());
+            logger.warning("Unexpected button: " + b.toString());
         }
     }
     
@@ -517,7 +517,7 @@ public class NotifierController extends BaseController {
                 getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
                 "Message Options", ac.stage, props);
         if (dc == null) {
-            Tesla.logger.warning("Can't display \"Message Options\" dialog");
+            logger.warning("Can't display \"Message Options\" dialog");
             mt.setEmail(null); 
             mt.setSubject(null);
             mt.setMessage(null);
@@ -660,7 +660,7 @@ public class NotifierController extends BaseController {
             String stdin = target.getMessage();
             if (stdin != null) stdin = (new MessageTemplate(ac, stdin)).getMessage(contextSpecific);
             ac.tm.launchExternal(command, args, stdin, 60 * 1000);
-            Tesla.logger.info("Executing external command for notification: " + command);
+            logger.info("Executing external command for notification: " + command);
         } else {
             MessageTemplate mt = new MessageTemplate(ac, target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(ac, target.getActiveSubj());
@@ -708,7 +708,7 @@ public class NotifierController extends BaseController {
         
         HTTPAsyncGet(String urlString) {
             try {
-                Tesla.logger.info("HTTPAsyncGet new with url: " + urlString);
+                logger.info("HTTPAsyncGet new with url: " + urlString);
                 URL url = new URL(urlString);
                 
                 connection = url.openConnection();
@@ -718,21 +718,21 @@ public class NotifierController extends BaseController {
                     connection.setRequestProperty("Authorization", basicAuth);
                 }
             } catch (IOException ex) {
-                Tesla.logger.warning("Problem with URL: " + ex);
+                logger.warning("Problem with URL: " + ex);
             }
         }
         
         void exec() {
-            Tesla.logger.info("HTTPAsyncGet exec with url: " + connection.getURL());
+            logger.info("HTTPAsyncGet exec with url: " + connection.getURL());
             ac.tm.launch(this, "HTTPAsyncGet");
         }
         
         @Override public void run() {
             try {
-                Tesla.logger.info("HTTPAsyncGet run with url: " + connection.getURL());
+                logger.info("HTTPAsyncGet run with url: " + connection.getURL());
                 connection.getInputStream();
             } catch (IOException ex) {
-                Tesla.logger.warning("Problem with HTTP Get: " + ex);
+                logger.warning("Problem with HTTP Get: " + ex);
             }
         }
         
@@ -802,7 +802,7 @@ public class NotifierController extends BaseController {
             try {
                 return new BigDecimal(Double.valueOf(external));
             } catch (NumberFormatException e) {
-                Tesla.logger.warning("Malformed externalized Trigger value: " + external);
+                logger.warning("Malformed externalized Trigger value: " + external);
                 return new BigDecimal(Double.valueOf(50));
             }
         }
@@ -837,7 +837,7 @@ public class NotifierController extends BaseController {
         @Override public Area fromExternal(String external) {
             String[] elements = external.split("\\^");
             if (elements.length != 4) {
-                Tesla.logger.severe("Malformed Area String: " + external);
+                logger.severe("Malformed Area String: " + external);
                 return new Area();
             }
             double lat, lng, radius;
@@ -847,7 +847,7 @@ public class NotifierController extends BaseController {
                 radius = Double.valueOf(elements[2]);
                 return new Area(lat, lng, radius, elements[3]);
             } catch (NumberFormatException e) {
-                Tesla.logger.severe("Malformed Area String: " + external);
+                logger.severe("Malformed Area String: " + external);
                 return new Area();
             }
         }

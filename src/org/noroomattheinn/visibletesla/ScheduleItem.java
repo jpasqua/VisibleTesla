@@ -26,7 +26,7 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
@@ -241,7 +241,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                     getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
                     "Message Options", owner.getAppContext().stage, props);
             if (dc == null) {
-                Tesla.logger.warning("Can't display \"Message Options\" dialog");
+                logger.warning("Can't display \"Message Options\" dialog");
                 messageTarget.setEmail(null); 
                 messageTarget.setSubject(null);
                 messageTarget.setMessage(null);
@@ -277,7 +277,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                     getClass().getResource("dialogs/SetChargeDialog.fxml"),
                     "Target Charge Level", owner.getAppContext().stage, props);
             if (dc == null) {
-                Tesla.logger.severe("Can't display \"Target Charge\" dialog");
+                logger.severe("Can't display \"Target Charge\" dialog");
                 targetValue = -1; 
                 return;
             }
@@ -305,7 +305,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                     getClass().getResource("dialogs/SetTempDialog.fxml"),
                     "Target Temperature", owner.getAppContext().stage, props);
             if (dc == null) {
-                Tesla.logger.severe("Can't display \"Target Temperature\" dialog");
+                logger.severe("Can't display \"Target Temperature\" dialog");
                 targetValue = -1; 
                 return;
             }
@@ -364,7 +364,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
             try {
                 targetValue = Double.valueOf(elements[11]);
             } catch (NumberFormatException e) {
-                Tesla.logger.severe("Bad value for command target: " + elements[11]);
+                logger.severe("Bad value for command target: " + elements[11]);
                 targetValue = -1;
             }
         }

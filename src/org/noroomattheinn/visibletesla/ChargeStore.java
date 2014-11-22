@@ -28,7 +28,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import static org.noroomattheinn.visibletesla.DataStore.LastExportDirKey;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 
@@ -87,10 +87,10 @@ public class ChargeStore implements ThreadManager.Stoppable {
                     }
                 }
             } catch (IOException ex) {
-                Tesla.logger.warning("Problem reading Charge Cycle data: " + ex);
+                logger.warning("Problem reading Charge Cycle data: " + ex);
             }
         } catch (FileNotFoundException ex) {
-            Tesla.logger.warning("Could not open Charge file: " + ex);
+            logger.warning("Could not open Charge file: " + ex);
         }
         return charges;
     }
@@ -139,7 +139,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
         
         // Send the notification and log the body
         ac.sendNotification(VTDataAddress, VTChargeDataSubj, body);
-        Tesla.logger.info("Charge data submitted: " + body);
+        logger.info("Charge data submitted: " + body);
     }
     
     private void ditherLocation(ChargeMonitor.Cycle cycle) {

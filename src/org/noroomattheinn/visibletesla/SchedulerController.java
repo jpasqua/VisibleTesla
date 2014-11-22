@@ -21,7 +21,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.visibletesla.ScheduleItem.Command;
 import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
@@ -285,7 +285,7 @@ public class SchedulerController extends BaseController
         String datedEntry = String.format(
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
-        Tesla.logger.log(Level.FINE, entry);
+        logger.log(Level.FINE, entry);
         if (report) { ac.schedulerActivity.set(entry); }
     }
 

@@ -34,6 +34,7 @@ import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.HVACState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
@@ -139,7 +140,7 @@ public class AppContext {
         this.prefs = new Prefs(this);
 
         appFilesFolder = ensureAppFilesFolder();
-        Utils.setupLogger(appFilesFolder, "visibletesla", Tesla.logger, prefs.getLogLevel());
+        Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
         
         tesla = (prefs.enableProxy.get()) ?
             new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
@@ -168,7 +169,7 @@ public class AppContext {
             chargeStore = new ChargeStore(
                     this, new File(appFilesFolder, v.getVIN() + ".charge.json"));
         } catch (IOException e) {
-            Tesla.logger.severe("Unable to establish repository: " + e.getMessage());
+            logger.severe("Unable to establish repository: " + e.getMessage());
             Dialogs.showErrorDialog(stage,
                     "VisibleTesla has encountered a severe error\n"
                     + "while trying to access its data files. Another\n"
@@ -251,12 +252,12 @@ public class AppContext {
             return true;
         }
         if (addr == null || addr.length() == 0) {
-            Tesla.logger.warning(
+            logger.warning(
                     "Unable to send a notification because no address was specified: " + msg);
             return false;
         }
-        if (mailer.send(addr, subject, msg)) {
-            Tesla.logger.warning("Failed sending message to: " + addr + ": " + msg);
+        if (!mailer.send(addr, subject, msg)) {
+            logger.warning("Failed sending message to: " + addr + ": " + msg);
             return false;
         }
         return true;
@@ -289,7 +290,7 @@ public class AppContext {
         File aff = getAppFileFolder();
         if (aff.exists()) { return aff; }
         if (aff.mkdir()) { return aff; }
-        Tesla.logger.warning("Could not create Application Files Folder: " + aff);
+        logger.warning("Could not create Application Files Folder: " + aff);
         return null;
     }
 
@@ -322,12 +323,12 @@ public class AppContext {
             Process p = (new ProcessBuilder(command, where)).start();
             p.waitFor();
             if (p.exitValue() != 0) {
-                Tesla.logger.warning(
+                logger.warning(
                         "Unable to open file viewer: "
                         + IOUtils.toString(p.getErrorStream()));
             }
         } catch (IOException | InterruptedException ex) {
-            Tesla.logger.warning("Unable able to open file viewer: " + ex);
+            logger.warning("Unable able to open file viewer: " + ex);
         }
     }
 

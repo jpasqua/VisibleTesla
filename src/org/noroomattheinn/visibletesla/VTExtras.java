@@ -11,7 +11,7 @@ import javafx.beans.property.BooleanProperty;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Options;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 
@@ -109,18 +109,10 @@ public class VTExtras {
         if (vs.wheelType != null) {
             // Check for known override wheel types, right now that's just Aero19
             switch (vs.wheelType) {
-                case "Aero19":
-                    wt = Options.WheelType.WTAE;
-                    break;
-                case "Base19":
-                    wt = Options.WheelType.WT19;
-                    break;
-                case "Super21Gray":
-                    wt = Options.WheelType.WTSG;
-                    break;
-                default:
-                    Tesla.logger.info("WheelType from VehicleState: " + vs.wheelType);
-                    break;
+                case "Aero19": wt = Options.WheelType.WTAE; break;
+                case "Base19": wt = Options.WheelType.WT19; break;
+                case "Super21Gray": wt = Options.WheelType.WTSG; break;
+                default: logger.info("Unknown WheelType: " + vs.wheelType); break;
             }
         }
         return wt;

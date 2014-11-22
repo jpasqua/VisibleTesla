@@ -15,7 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * DialogUtils
@@ -46,7 +46,7 @@ public class DialogUtils {
             return controller;
         } catch (IOException e) {
             // Exception gets thrown if the fxml file could not be loaded
-            Tesla.logger.log(Level.SEVERE, "Can't load dialog", e);
+            logger.log(Level.SEVERE, "Can't load dialog", e);
             return null;
         }
     }

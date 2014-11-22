@@ -47,7 +47,7 @@ import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
 import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.GeoUtils.ElevationData;
 import org.noroomattheinn.utils.SimpleTemplate;
@@ -167,7 +167,7 @@ public class TripController extends BaseController {
             FileUtils.write(tempFile, map);
             ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
         } catch (IOException ex) {
-            Tesla.logger.warning("Unable to create temp file");
+            logger.warning("Unable to create temp file");
             // TO DO: Pop up a dialog!
         }
     }
@@ -746,7 +746,7 @@ public class TripController extends BaseController {
                 pw.flush(); pw.close();
                 return zipEm(toFile, carIconFile, kmlFile);
             } catch (IOException ex) {
-                Tesla.logger.warning("Unable to create KML file or directory");
+                logger.warning("Unable to create KML file or directory");
                 return false;
             }
         }
@@ -860,7 +860,7 @@ public class TripController extends BaseController {
                 zos.close();
 
             } catch (IOException ioe) {
-                Tesla.logger.warning("Error creating zip file: " + ioe);
+                logger.warning("Error creating zip file: " + ioe);
                 return false;
             }
 

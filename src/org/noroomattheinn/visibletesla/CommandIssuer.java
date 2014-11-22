@@ -8,7 +8,7 @@ package org.noroomattheinn.visibletesla;
 import java.util.concurrent.Callable;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * CommandIssuer: Execute commands in the background.
@@ -41,7 +41,7 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
     @Override protected boolean execRequest(Request r) throws Exception {
         Result result = r.command.call();
         if (result.success) { return true; }
-        Tesla.logger.warning("Failed command (" + r.command + "): " + result.explanation);
+        logger.warning("Failed command (" + r.command + "): " + result.explanation);
         return false;
     }
     

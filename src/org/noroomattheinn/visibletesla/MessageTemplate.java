@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.rest.CarInfo;
@@ -163,7 +163,7 @@ public class MessageTemplate {
                                 "<a href='http://maps.google.com/maps?z=12&t=m&q=@%s,%s'>%s</a>",
                                 lat, lng, val);
                             } catch (Exception e) { // In case something goes wrong with the format
-                                Tesla.logger.severe(e.getMessage());
+                                logger.severe(e.getMessage());
                             }
                         }
                         break;

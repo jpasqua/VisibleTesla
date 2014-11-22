@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * Firmware: Determine software version from firmware version
@@ -50,7 +50,7 @@ public class Firmware {
             loadFirmwareVersion(is);
             v = firmwareVersions.getProperty(firmwareVersion);
         } catch (IOException ex) {
-            Tesla.logger.warning("Couldn't download firmware versions property file: " + ex);
+            logger.warning("Couldn't download firmware versions property file: " + ex);
         }
         if (v == null) {
             v = firmwareVersion;
@@ -66,7 +66,7 @@ public class Firmware {
         try {
             p.load(is);
         } catch (IOException ex) {
-            Tesla.logger.warning("Couldn't load firmware versions property file: " + ex);
+            logger.warning("Couldn't load firmware versions property file: " + ex);
         }
         return p;
     }

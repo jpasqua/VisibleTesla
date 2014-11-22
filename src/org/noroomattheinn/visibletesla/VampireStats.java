@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
@@ -200,7 +200,7 @@ public class VampireStats {
             getClass().getResource("dialogs/VampireLossResults.fxml"),
             "Vampire Loss", ac.stage, props);
         if (dc == null) {
-            Tesla.logger.warning("Unable to display Vampire Loss Dialog");
+            logger.warning("Unable to display Vampire Loss Dialog");
         }
     }
     

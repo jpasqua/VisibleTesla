@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
@@ -70,7 +70,7 @@ public class RESTServer implements ThreadManager.Stoppable {
 
     public synchronized void launch() {
         if (!ac.prefs.enableRest.get()) {
-            Tesla.logger.info("REST Services are disabled");
+            logger.info("REST Services are disabled");
             return;
         }
         int restPort = ac.prefs.restPort.get();
@@ -90,7 +90,7 @@ public class RESTServer implements ThreadManager.Stoppable {
             server.setExecutor(null); // creates a default executor
             server.start();
         } catch (IOException ex) {
-            Tesla.logger.severe("Unable to start RESTServer: " + ex.getMessage());
+            logger.severe("Unable to start RESTServer: " + ex.getMessage());
         }
     }
 
@@ -121,11 +121,11 @@ public class RESTServer implements ThreadManager.Stoppable {
             }
             AppMode.Mode requestedMode = toAppMode.get(mode);
             if (requestedMode == null) {
-                Tesla.logger.warning("Unknown app mode: " + mode + "\n");
+                logger.warning("Unknown app mode: " + mode + "\n");
                 sendResponse(exchange, 400, "Unknown app mode");
                 return;
             }
-            Tesla.logger.info("Requested app mode: " + mode);
+            logger.info("Requested app mode: " + mode);
             if (requestedMode == AppMode.Mode.AllowSleeping) ac.appMode.allowSleeping();
             else ac.appMode.stayAwake();
 
@@ -148,11 +148,11 @@ public class RESTServer implements ThreadManager.Stoppable {
                 case "produce":
                     VTExtras.waitForVehicleToWake(ac, null, null);
                     ac.appMode.stayAwake();
-                    Tesla.logger.info("Produce Request Received");
+                    logger.info("Produce Request Received");
                     sendResponse(exchange, 200,  "Produce Request Received\n");
                     break;
                 default:
-                    Tesla.logger.warning("Unknown action request: " + command + "\n");
+                    logger.warning("Unknown action request: " + command + "\n");
                     sendResponse(exchange, 400, "Unknown action request: " + command + "\n");
             }
         }
@@ -170,7 +170,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
-            Tesla.logger.info("Requested info type: " + infoType);
+            logger.info("Requested info type: " + infoType);
             String response;
             switch (infoType) {
                 case "car_state":
@@ -188,7 +188,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     ac.schedulerActivity.set(response == null ? "DBG_SAR" : response);
                     break;
                 default:
-                    Tesla.logger.warning("Unknown info request: " + infoType + "\n");
+                    logger.warning("Unknown info request: " + infoType + "\n");
                     sendResponse(exchange, 400, "Unknown info request " + infoType);
                     return;
             }
@@ -253,7 +253,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 exchange.getResponseHeaders().add("Content-Type", type);
                 sendResponse(exchange, 200, content);
             } catch (IOException ex) {
-                Tesla.logger.severe("Error reading requested file: " + ex.getMessage());
+                logger.severe("Error reading requested file: " + ex.getMessage());
                 sendResponse(exchange, 404, "404 (Not Found)\n");
             }
         }

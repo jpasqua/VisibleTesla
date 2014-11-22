@@ -19,7 +19,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 
 /**
@@ -122,7 +122,7 @@ abstract class BaseController {
     
     @FXML protected void refreshButtonHandler(ActionEvent event) {
         if (System.currentTimeMillis() - lastRefreshTime < MinRefreshInterval) {
-            Tesla.logger.log(Level.INFO, "Ignoring refresh button - we just refreshed!");
+            logger.log(Level.INFO, "Ignoring refresh button - we just refreshed!");
             return;
         }
         doRefresh();

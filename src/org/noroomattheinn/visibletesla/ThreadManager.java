@@ -20,7 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javafx.beans.property.BooleanProperty;
 import org.apache.commons.io.IOUtils;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -92,24 +92,24 @@ public class ThreadManager {
         int nActive;
         do {
             nActive = 0;
-            Tesla.logger.finest("Iterating through terminate loop");
+            logger.finest("Iterating through terminate loop");
             for (Thread t : threads) {
                 Thread.State state = t.getState();
                 switch (state) {
                     case NEW:
                     case RUNNABLE:
                         nActive++;
-                        Tesla.logger.finest("Active thread: " + t.getName());
+                        logger.finest("Active thread: " + t.getName());
                         break;
 
                     case TERMINATED:
-                        Tesla.logger.finest("Terminated thread: " + t.getName());
+                        logger.finest("Terminated thread: " + t.getName());
                         break;
 
                     case BLOCKED:
                     case TIMED_WAITING:
                     case WAITING:
-                        Tesla.logger.finest("About to interrupt thread: " + t.getName());
+                        logger.finest("About to interrupt thread: " + t.getName());
                         nActive++;
                         t.interrupt();
                         Utils.yieldFor(100);
@@ -135,7 +135,7 @@ public class ThreadManager {
             watch(command, p, timeout); // Launch a watchdog thread
             return p;
         } catch (IOException ex) {
-            Tesla.logger.warning("External command (" + fullCommand + ") failed to launch: " + ex);
+            logger.warning("External command (" + fullCommand + ") failed to launch: " + ex);
             return null;
         }
     }
@@ -148,14 +148,14 @@ public class ThreadManager {
                 while (System.currentTimeMillis() < targetTime) {
                     if (hasExited(p)) {
                         int exitVal = p.exitValue();
-                        Tesla.logger.info("External process completed: " + name + "(" + exitVal + ")");
+                        logger.info("External process completed: " + name + "(" + exitVal + ")");
                         return;
                     }
                     Utils.sleep(Math.min(5 * 1000, targetTime - System.currentTimeMillis()));
                 }
                 // p hasn't terminated yet! Kill it.
                 p.destroy();
-                Tesla.logger.warning("External process timed out - killing it: " + name);
+                logger.warning("External process timed out - killing it: " + name);
             }
         };
         

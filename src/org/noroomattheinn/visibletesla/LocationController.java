@@ -36,7 +36,7 @@ import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
 import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 
@@ -157,7 +157,7 @@ public class LocationController extends BaseController {
                 engine.executeScript(String.format(
                     "moveMarker(%s, %s, %s)", latitude, longitude, heading));
             } catch (Exception e) {
-                Tesla.logger.warning(e.toString());
+                logger.warning(e.toString());
             }
         } else {
             String mapHTML = getMapFromTemplate(latitude, longitude, heading);
@@ -179,7 +179,7 @@ public class LocationController extends BaseController {
 //            to this onStatusChanged handler.
 //            engine.setOnStatusChanged(new EventHandler<WebEvent<java.lang.String>>() {
 //                @Override public void handle(WebEvent<String> t) {
-//                    Tesla.logger.log(Level.INFO, "Status Change: " + t.getData());
+//                    logger.log(Level.INFO, "Status Change: " + t.getData());
 //                }
 //            });
 
@@ -198,7 +198,7 @@ public class LocationController extends BaseController {
             FileUtils.write(tempFile, map);
             ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
         } catch (IOException ex) {
-            Tesla.logger.warning("Unable to create temp file");
+            logger.warning("Unable to create temp file");
             // TO DO: Pop up a dialog!
         }
     }

@@ -17,7 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.visibletesla.Area;
 
@@ -108,7 +108,7 @@ public class ChooseLocationDialog implements DialogUtils.DialogController {
     @Override public void setProps(Map props) {
         apiKey = (String)props.get(API_KEY);
         if (apiKey == null) {
-            Tesla.logger.severe("API_KEY must be provided to ChooseLocationDialog!");
+            logger.severe("API_KEY must be provided to ChooseLocationDialog!");
             stage.close();
             return;
         }

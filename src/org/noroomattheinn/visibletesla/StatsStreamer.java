@@ -9,7 +9,7 @@ package org.noroomattheinn.visibletesla;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.BaseState;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
@@ -76,7 +76,7 @@ public class StatsStreamer implements Runnable {
         
         carState.addTracker(false, new Runnable() {
             @Override public void run() {
-                Tesla.logger.finest("Car State changed to: " + carState.get());
+                logger.finest("Car State changed to: " + carState.get());
             }
         });
         appContext.tm.launch((Runnable)this, "CollectStats");
@@ -96,7 +96,7 @@ public class StatsStreamer implements Runnable {
                 String theState = String.format(
                         "App State: %s, App Mode: %s, Car State: %s",
                         ac.appState, ac.appMode, carState.get());
-                Tesla.logger.finer(theState);
+                logger.finer(theState);
                 boolean produce = true;
                 if (ac.appState.isIdle() && ac.appMode.allowingSleeping()) {
                     if (carState.get() == CarState.Idle) {
@@ -113,7 +113,7 @@ public class StatsStreamer implements Runnable {
                 Utils.sleep(DefaultInterval, wakeEarly);
             }
         } catch (Exception e) {
-            Tesla.logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
+            logger.severe("Uncaught exception in StatsStreamer: " + e.getMessage());
         }
     }
     

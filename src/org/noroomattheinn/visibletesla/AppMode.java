@@ -6,7 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
@@ -45,7 +45,7 @@ public class AppMode {
         
         mode.addTracker(false, new Runnable() {
             @Override public void run() {
-                Tesla.logger.finest("App Mode changed to " + mode.get());
+                logger.finest("App Mode changed to " + mode.get());
                 ac.persistentState.put(
                     ac.vehicle.getVIN()+"_InactivityMode", mode.get().name());
                 if (mode.get() == Mode.StayAwake) ac.appState.setActive();

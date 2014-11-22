@@ -37,7 +37,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.tesla.Tesla;
+import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
@@ -223,17 +223,17 @@ public class MainController extends BaseController {
                     showLockError();
                     Platform.exit();
                 }
-                Tesla.logger.info("Vehicle Info: " + ac.vehicle.getUnderlyingValues());
+                logger.info("Vehicle Info: " + ac.vehicle.getUnderlyingValues());
 
                 if (ac.vehicle.status().equals("asleep")) {
                     if (letItSleep()) {
-                        Tesla.logger.info("Allowing vehicle to remain in sleep mode");
+                        logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
                         VTExtras.waitForVehicleToWake(
                                 ac, new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
-                        Tesla.logger.log(Level.INFO, "Waking up your vehicle");
+                        logger.log(Level.INFO, "Waking up your vehicle");
                     }
                 }
             }
@@ -484,15 +484,15 @@ public class MainController extends BaseController {
     }
 
     private void logAppInfo() {
-        Tesla.logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
+        logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
         
-        Tesla.logger.info(
+        logger.info(
                 String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
         List<String> jvmArgs = Utils.getJVMArgs();
-        Tesla.logger.info("JVM Arguments");
+        logger.info("JVM Arguments");
         if (jvmArgs != null) {
             for (String arg : jvmArgs) {
-                Tesla.logger.info("Arg: " + arg);
+                logger.info("Arg: " + arg);
             }
         }
     }
@@ -523,7 +523,7 @@ public class MainController extends BaseController {
                         "screen using Controls / Settings / Vehicle." +
                         "\n\nChange that setting in your car, then relaunch VisibleTesla.",
                         "Mobile access is not enabled", "Communication Problem");
-                Tesla.logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
+                logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
                 Platform.exit();
             }
         });
@@ -537,7 +537,7 @@ public class MainController extends BaseController {
                         "login. It may be in a deep sleep and can't be woken up.\n"  +
                         "\nPlease try to wake your Tesla and then try VisibleTesla again.",
                         "Unable to communicate with your Tesla", "Communication Problem");
-                Tesla.logger.severe("Can't communicate with vehicle - exiting.");
+                logger.severe("Can't communicate with vehicle - exiting.");
                 Platform.exit();
             }
         });
