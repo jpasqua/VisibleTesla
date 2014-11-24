@@ -89,7 +89,6 @@ public class AppContext {
     public final ObjectProperty<VehicleState> lastKnownVehicleState;
     public final MailGun mailer;
     public final TrackedObject<String> schedulerActivity;
-    public final VampireStats vampireStats;
     public Vehicle vehicle = null;
     public LocationStore locationStore;
     public StatsStore statsStore;
@@ -100,7 +99,7 @@ public class AppContext {
     public CommandIssuer issuer;
     public byte[] restEncPW, restSalt;
     public String uuidForVehicle;
-    public ObjectProperty<ChargeMonitor.Cycle> lastChargeCycle;
+    public TrackedObject<ChargeMonitor.Cycle> lastChargeCycle;
      
 /*------------------------------------------------------------------------------
  *
@@ -148,7 +147,6 @@ public class AppContext {
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : MailGunKey);
         issuer = new CommandIssuer(this);
-        vampireStats = new VampireStats(this);
     }
 
     public boolean lockAppInstance() {

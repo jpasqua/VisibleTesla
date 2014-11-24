@@ -46,9 +46,10 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
         appContext.tm.launch((Runnable)this, name);
     }
     
-    public void produce(R r) {
+    public synchronized void produce(R r) {
         try {
-            queue.put(r);
+            R filtered = filter(r);
+            if (filtered != null) queue.put(filtered);
         } catch (InterruptedException ex) {
             logger.warning(name + " interrupted adding  to queue: " + ex.getMessage());
         }
@@ -63,6 +64,8 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     protected boolean requestSuperseded(R r) { return false; }
+    
+    protected R filter(R r) { return r; }
     
     protected abstract boolean execRequest(R r) throws Exception;
 

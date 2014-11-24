@@ -76,7 +76,8 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private final BooleanProperty   forceWakeup = new SimpleBooleanProperty(false);
-    
+    private VampireStats vampireStats;
+
 /*------------------------------------------------------------------------------
  *
  * UI Elements
@@ -131,6 +132,8 @@ public class MainController extends BaseController {
         refreshTitle();
         this.ac.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
+        
+        vampireStats = new VampireStats(ac);
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
@@ -373,7 +376,7 @@ public class MainController extends BaseController {
         if (mi == exportChargeMenuItem)
             ac.chargeStore.exportCSV();
         if (mi == this.vampireLossMenuItem) {
-            ac.vampireStats.showStats();
+            vampireStats.showStats();
         }
     }
     

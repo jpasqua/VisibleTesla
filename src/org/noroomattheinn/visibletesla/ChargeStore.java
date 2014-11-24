@@ -16,8 +16,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialogs;
 import javafx.stage.FileChooser;
 import jxl.Workbook;
@@ -54,19 +52,17 @@ public class ChargeStore implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore(AppContext ac, File chargeFile) throws FileNotFoundException {
-        this.ac = ac;
+    public ChargeStore(AppContext appContext, File chargeFile) throws FileNotFoundException {
+        this.ac = appContext;
         this.chargeFile = chargeFile;
         
         FileOutputStream fos = new FileOutputStream(chargeFile, true);
         chargeWriter = new PrintStream(fos);
         
-        ac.lastChargeCycle.addListener(new ChangeListener<ChargeMonitor.Cycle>() {
-            @Override public void changed(
-                    ObservableValue<? extends ChargeMonitor.Cycle> ov,
-                    ChargeMonitor.Cycle t, ChargeMonitor.Cycle cycle) {
-                chargeWriter.println(cycle.toJSONString());
-                submitData(cycle);
+        ac.lastChargeCycle.addTracker(false, new Runnable() {
+            @Override public void run() {
+                chargeWriter.println(ac.lastChargeCycle.get().toJSONString());
+                submitData(ac.lastChargeCycle.get());
             }
         });
         

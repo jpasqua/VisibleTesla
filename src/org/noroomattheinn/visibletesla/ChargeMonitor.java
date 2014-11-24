@@ -6,14 +6,13 @@
 package org.noroomattheinn.visibletesla;
 
 import com.google.gson.Gson;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import us.monoid.json.JSONObject;
 import org.noroomattheinn.utils.RestyWrapper;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.
@@ -24,7 +23,7 @@ public class ChargeMonitor {
     private final AppContext ac;
     private Cycle cycleInProgress = null;
 
-    public ObjectProperty<Cycle> lastChargeCycle = new SimpleObjectProperty<>();
+    public TrackedObject<Cycle> lastChargeCycle = new TrackedObject<>(null);
 
     ChargeMonitor(AppContext appContext) {
         this.ac = appContext;

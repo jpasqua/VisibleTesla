@@ -75,19 +75,18 @@ public class StreamProducer extends Executor<StreamProducer.Request>
         return true;
     }
 
-    // If there is a pending stream request in the queue, don't bother
-    // enqueueing this request. It's redundant and we could end up
-    // exploding the queue and leading to a blocked state.
-    @Override protected boolean requestSuperseded(Request r) {
+    @Override protected Request filter(Request r) {
+        Request  filtered = r;
         Request  pending = queue.peek();
-        if (pending == null) return false;
-        if (pending.stream) {
-            logger.finest("Dropping a stream request");
-            return false;
+        
+        if (r.equals(pending) || queue.remainingCapacity() == 0) {
+            filtered = null;
+            logger.finest("Filtering (s: " + r.stream + ", " + r.continuation +"), rqs = " + queue.remainingCapacity());
         }
-        return true;
-    }
 
+        return filtered;
+    }
+            
     private boolean isInMotion() {
         return appContext.lastKnownStreamState.get().isInMotion();
     }
@@ -108,5 +107,17 @@ public class StreamProducer extends Executor<StreamProducer.Request>
         
         @Override protected String getRequestName() { return "Stream"; }
         @Override protected int maxRetries() { return 2; }
+        
+        @Override public boolean equals(Object o) {
+            if (o == null) return false;
+            if (!(o instanceof Request)) return false;
+            Request r2 = (Request)o;
+            return (stream == r2.stream && continuation == r2.continuation);
+        }
+
+        @Override public int hashCode() {
+            return (this.stream ? 2 : 0) + (this.continuation ? 1 : 0);
+        }
+        
     }
 }
