@@ -74,15 +74,14 @@ public class AppContext {
     public final ObjectProperty<HVACState> lastKnownHVACState;
     public final ObjectProperty<StreamState> lastKnownStreamState;
     public final ObjectProperty<VehicleState> lastKnownVehicleState;
+    public final TrackedObject<ChargeCycle> lastChargeCycle;
     public final TrackedObject<String> schedulerActivity;
-    public TrackedObject<ChargeMonitor.Cycle> lastChargeCycle;
     public final RESTServer restServer;
     public Vehicle vehicle = null;
     public LocationStore locationStore;
     public StatsStore statsStore;
     public ChargeStore chargeStore;
     public StreamProducer streamProducer;
-    public StatsStreamer statsStreamer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
 
@@ -94,7 +93,9 @@ public class AppContext {
     
     private final File appFilesFolder;
     private final MailGun mailer;
-    
+    private StatsStreamer statsStreamer;
+    private ChargeMonitor chargeMonitor;
+
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -118,7 +119,8 @@ public class AppContext {
         this.lastKnownStreamState = new SimpleObjectProperty<>(new StreamState());
         this.lastKnownVehicleState = new SimpleObjectProperty<>();
         this.schedulerActivity = new TrackedObject<>("");
-
+        this.lastChargeCycle = new TrackedObject<>(null);
+        
         restServer = new RESTServer(this);
 
         // Establish the prefs first, they are used be code below
@@ -142,7 +144,6 @@ public class AppContext {
     public void prepForVehicle(Vehicle v) {
         vehicle = v;
 
-        lastChargeCycle = (new ChargeMonitor(this).lastChargeCycle);
         try {
             locationStore = new LocationStore(
                     this, new File(appFilesFolder, v.getVIN() + ".locs.log"));
@@ -165,7 +166,8 @@ public class AppContext {
         streamProducer = new StreamProducer(this);
         stateProducer = new StateProducer(this);
         statsStreamer = new StatsStreamer(this);
-
+        chargeMonitor = new ChargeMonitor(this);
+        
         restServer.launch();
     }
 

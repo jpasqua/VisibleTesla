@@ -69,15 +69,15 @@ public class ChargeStore implements ThreadManager.Stoppable {
         ac.tm.addStoppable((ThreadManager.Stoppable)this);
     }
    
-    public List<ChargeMonitor.Cycle> loadCharges(Range<Long> period) {
-        List<ChargeMonitor.Cycle> charges = new ArrayList<>();
+    public List<ChargeCycle> loadCharges(Range<Long> period) {
+        List<ChargeCycle> charges = new ArrayList<>();
         try {
             BufferedReader r = new BufferedReader(new FileReader(chargeFile));
 
             try {
                 String entry;
                 while ((entry = r.readLine()) != null) {
-                    ChargeMonitor.Cycle cycle = ChargeMonitor.Cycle.fromJSON(entry);
+                    ChargeCycle cycle = ChargeCycle.fromJSON(entry);
                     if (period == null || period.contains(cycle.startTime)) {
                         charges.add(cycle);
                     }
@@ -121,7 +121,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
     private static final String VTDataAddress = "data@visibletesla.com";
     private static final String VTChargeDataSubj = "Charge Data Submission";
     
-    private void submitData(ChargeMonitor.Cycle cycle) {
+    private void submitData(ChargeCycle cycle) {
         if (!ac.prefs.submitAnonData.get()) return;
         ditherLocation(cycle);
         String jsonRep = cycle.toJSONString();
@@ -138,7 +138,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
         logger.info("Charge data submitted: " + body);
     }
     
-    private void ditherLocation(ChargeMonitor.Cycle cycle) {
+    private void ditherLocation(ChargeCycle cycle) {
         if (!ac.prefs.includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
         if (cycle.superCharger || (cycle.lat == 0 && cycle.lng == 0)) return;
         
@@ -162,7 +162,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
  *----------------------------------------------------------------------------*/
     
     private void export(File file, Range<Long> exportPeriod) {
-        List<ChargeMonitor.Cycle> charges = loadCharges(exportPeriod);
+        List<ChargeCycle> charges = loadCharges(exportPeriod);
 
         try {
             WritableWorkbook workbook = Workbook.createWorkbook(file);
@@ -170,7 +170,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
             
             int row = 0;
             addTableHeader(sheet, row++);
-            for (ChargeMonitor.Cycle cycle : charges) {
+            for (ChargeCycle cycle : charges) {
                 emitRow(sheet, row++, cycle);
             }
             workbook.write();
@@ -195,7 +195,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
     private static final WritableCellFormat dateFormat = new jxl.write.WritableCellFormat(df);
     static { dateFormat.setFont(StdFont); }
     
-    private void emitRow(WritableSheet sheet, int row, ChargeMonitor.Cycle cycle)
+    private void emitRow(WritableSheet sheet, int row, ChargeCycle cycle)
             throws WriteException {
         int column = 0;
         sheet.addCell(new jxl.write.DateTime(column++, row, new Date(cycle.startTime), dateFormat));
