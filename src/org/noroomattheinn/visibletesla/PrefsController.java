@@ -26,6 +26,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.utils.PWUtils;
+import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
 
 public class PrefsController extends BaseController {
@@ -97,7 +98,7 @@ public class PrefsController extends BaseController {
         AnchorPane pane = new AnchorPane();
         String body = "This value is only known to you and allows you to identify " +
             "your information amongst anonymized data at VisibleTesla.com\n" +
-            "ID: " + ac.uuidForVehicle;
+            "ID: " + ac.vehicle.getUUID();
 
         TextArea t = new TextArea(body);
         pane.getChildren().add(t);
@@ -106,7 +107,7 @@ public class PrefsController extends BaseController {
     }
     
     @FXML void showAppFiles(ActionEvent event) {
-        ac.openFileViewer(ac.getAppFileFolder().getAbsolutePath());
+        Utils.openFileViewer(ac.appFileFolder().getAbsolutePath());
     }
     
     @FXML void wakeOnTCHandler(ActionEvent event) {

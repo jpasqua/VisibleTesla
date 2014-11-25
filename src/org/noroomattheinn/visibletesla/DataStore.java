@@ -10,7 +10,6 @@ import com.google.common.collect.Range;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -27,14 +26,13 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.noroomattheinn.visibletesla.stats.Stat;
-import org.noroomattheinn.visibletesla.stats.StatsPublisher;
 import org.noroomattheinn.visibletesla.stats.StatsRepository;
 
 /**
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public abstract class DataStore implements StatsPublisher {
+public abstract class DataStore {
 
 /*------------------------------------------------------------------------------
  *
@@ -49,6 +47,7 @@ public abstract class DataStore implements StatsPublisher {
  * 
  *----------------------------------------------------------------------------*/
     
+    private static Map<String, DataStore> typeToDataStore = new HashMap<>();
     protected AppContext appContext;
     protected StatsRepository repo;
     protected NavigableMap<Long,Map<String,Double>> rows = new ConcurrentSkipListMap<>();
@@ -61,11 +60,18 @@ public abstract class DataStore implements StatsPublisher {
  * -------                                                               -------
  *============================================================================*/
     
+    @SuppressWarnings("LeakingThisInConstructor")
     public DataStore(AppContext appContext, File locationFile, String[] keys)
             throws IOException {
         this.appContext = appContext;
         this.repo = new StatsRepository(locationFile);
         this.publishedKeys = keys;
+        for (String type : keys) { typeToDataStore.put(type, this); }
+    }
+    
+    public static List<Stat.Sample> valuesForPeriod(String type, long startX, long endX) {
+        DataStore ds = typeToDataStore.get(type);
+        return (ds == null) ? null : ds.valuesForRange(type, startX, endX);
     }
     
     public void close() {
@@ -114,11 +120,11 @@ public abstract class DataStore implements StatsPublisher {
     
 /*------------------------------------------------------------------------------
  *
- * Implementation of the StatsPublisher interface
+ * Find values within a specified time range
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override public List<Stat.Sample> valuesForRange(String type, long start, long end) {
+    private List<Stat.Sample> valuesForRange(String type, long start, long end) {
         Long low = rows.floorKey(start);
         Long high = rows.ceilingKey(end);
         List<Stat.Sample> emptyList = new ArrayList<>(1);
@@ -139,10 +145,6 @@ public abstract class DataStore implements StatsPublisher {
         return (results.isEmpty())  ? emptyList : results;
     }
         
-    @Override public List<String> getStatTypes() {
-       return  Arrays.asList(publishedKeys);
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Methods related to loading existing samples

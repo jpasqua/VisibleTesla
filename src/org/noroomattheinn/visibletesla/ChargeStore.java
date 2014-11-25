@@ -131,7 +131,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
         
         // Concatenate the extra fields and put back the closing curly
         String body = String.format("%s, \"battery\": \"%s\", \"uuid\": \"%s\" }", 
-                jsonRep, ac.vehicle.getOptions().batteryType(), ac.uuidForVehicle);
+                jsonRep, ac.vehicle.getOptions().batteryType(), ac.vehicle.getUUID());
         
         // Send the notification and log the body
         ac.sendNotification(VTDataAddress, VTChargeDataSubj, body);

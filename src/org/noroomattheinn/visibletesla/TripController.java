@@ -284,7 +284,7 @@ public class TripController extends BaseController {
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        List<Stat.Sample> stats = ac.valuesForRange(
+        List<Stat.Sample> stats = DataStore.valuesForPeriod(
                 statType, startTime, endTime);
         if (stats == null) {
             prop.setValue("--");
@@ -523,9 +523,9 @@ public class TripController extends BaseController {
         long end   = t.lastWayPoint().timestamp;
 
         NavigableMap<Long,Double> socVals = mapFromSamples(
-                ac.valuesForRange(StatsStore.SOCKey, start, end));
+                DataStore.valuesForPeriod(StatsStore.SOCKey, start, end));
         NavigableMap<Long,Double> pwrVals = mapFromSamples(
-                ac.valuesForRange(StatsStore.PowerKey, start, end));
+                DataStore.valuesForPeriod(StatsStore.PowerKey, start, end));
         
         for (WayPoint wp : t.waypoints) {
             wp.decoration = new HashMap<>();

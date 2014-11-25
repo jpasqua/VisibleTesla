@@ -149,7 +149,7 @@ public class OverviewController extends BaseController {
         VehicleState car = ac.lastKnownVehicleState.get();
         String info = ac.vehicle.toString() +
                 "\nFirmware Version: " + car.version +
-                "\nUUID: " + ac.uuidForVehicle +
+                "\nUUID: " + ac.vehicle.getUUID() +
                 "\nRemote Start Enabled: " + ac.vehicle.remoteStartEnabled() +
                 "\nCalendar Enabled: " + ac.vehicle.calendarEnabled() +
                 "\nNotifications Enabled: " + ac.vehicle.notificationsEnabled() +
