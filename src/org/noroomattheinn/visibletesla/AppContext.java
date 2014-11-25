@@ -68,12 +68,12 @@ public class AppContext {
     public final AppMode appMode;
     public final AppState appState;
     public final BooleanProperty shuttingDown;
-    public final ObjectProperty<ChargeState> lastKnownChargeState;
-    public final ObjectProperty<DriveState> lastKnownDriveState;
-    public final ObjectProperty<GUIState> lastKnownGUIState;
-    public final ObjectProperty<HVACState> lastKnownHVACState;
-    public final ObjectProperty<StreamState> lastKnownStreamState;
-    public final ObjectProperty<VehicleState> lastKnownVehicleState;
+    public final ObjectProperty<ChargeState> lastChargeState;
+    public final ObjectProperty<DriveState> lastDriveState;
+    public final ObjectProperty<GUIState> lastGUIState;
+    public final ObjectProperty<HVACState> lastHVACState;
+    public final ObjectProperty<StreamState> lastStreamState;
+    public final ObjectProperty<VehicleState> lastVehicleState;
     public final TrackedObject<ChargeCycle> lastChargeCycle;
     public final TrackedObject<String> schedulerActivity;
     public final RESTServer restServer;
@@ -112,12 +112,12 @@ public class AppContext {
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
         
-        this.lastKnownChargeState = new SimpleObjectProperty<>(new ChargeState());
-        this.lastKnownDriveState = new SimpleObjectProperty<>();
-        this.lastKnownGUIState = new SimpleObjectProperty<>();
-        this.lastKnownHVACState = new SimpleObjectProperty<>();
-        this.lastKnownStreamState = new SimpleObjectProperty<>(new StreamState());
-        this.lastKnownVehicleState = new SimpleObjectProperty<>();
+        this.lastChargeState = new SimpleObjectProperty<>(new ChargeState());
+        this.lastDriveState = new SimpleObjectProperty<>();
+        this.lastGUIState = new SimpleObjectProperty<>();
+        this.lastHVACState = new SimpleObjectProperty<>();
+        this.lastStreamState = new SimpleObjectProperty<>(new StreamState());
+        this.lastVehicleState = new SimpleObjectProperty<>();
         this.schedulerActivity = new TrackedObject<>("");
         this.lastChargeCycle = new TrackedObject<>(null);
         
@@ -182,17 +182,17 @@ public class AppContext {
     
     private void noteUpdatedStateInternal(BaseState state) {
         if (state instanceof ChargeState) {
-            lastKnownChargeState.set(((ChargeState)state));
+            lastChargeState.set((ChargeState)state);
         } else if (state instanceof DriveState) {
-            lastKnownDriveState.set(((DriveState)state));
+            lastDriveState.set((DriveState)state);
         } else if (state instanceof GUIState) {
-            lastKnownGUIState.set(((GUIState)state));
+            lastGUIState.set((GUIState)state);
         } else if (state instanceof HVACState) {
-            lastKnownHVACState.set(((HVACState)state));
+            lastHVACState.set((HVACState)state);
         } else if (state instanceof VehicleState) {
-            lastKnownVehicleState.set(((VehicleState)state));
+            lastVehicleState.set((VehicleState)state);
         } else if (state instanceof StreamState) {
-            lastKnownStreamState.set(((StreamState)state));
+            lastStreamState.set((StreamState)state);
         }
     }
 
@@ -223,57 +223,4 @@ public class AppContext {
     
     public File appFileFolder() { return appFilesFolder; }
 
-/*------------------------------------------------------------------------------
- *
- * Managing where application files and logs are stored
- * 
- *----------------------------------------------------------------------------*/
-    
-//    private File ensureAppFilesFolder() {
-//        File aff = getAppFileFolder();
-//        if (aff.exists()) { return aff; }
-//        if (aff.mkdir()) { return aff; }
-//        logger.warning("Could not create Application Files Folder: " + aff);
-//        return null;
-//    }
-//
-//    public File getAppFileFolder() {
-//        String path = null;
-//        if (SystemUtils.IS_OS_MAC) {
-//            path = System.getProperty("user.home") + "/Library/Application Support/" + ProductName;
-//        } else if (SystemUtils.IS_OS_WINDOWS) {
-//            File base = javax.swing.filechooser.FileSystemView.getFileSystemView().getDefaultDirectory();
-//            path = base.getAbsolutePath() + File.separator + ProductName;
-//        } else if (SystemUtils.IS_OS_LINUX) {
-//            path = System.getProperty("user.home") + File.separator + "." + ProductName;
-//        }
-//        return (path == null) ? null : new File(path);
-//    }
-//
-//    public void openFileViewer(String where) {
-//        String command = "";
-//
-//        if (SystemUtils.IS_OS_MAC) {
-//            command = "open";
-//        } else if (SystemUtils.IS_OS_WINDOWS) {
-//            command = "Explorer.exe";
-//        } else if (SystemUtils.IS_OS_LINUX) {
-//            //command = "vi";
-//            command = "xdg-open";
-//        }
-//
-//        try {
-//            Process p = (new ProcessBuilder(command, where)).start();
-//            p.waitFor();
-//            if (p.exitValue() != 0) {
-//                logger.warning(
-//                        "Unable to open file viewer: "
-//                        + IOUtils.toString(p.getErrorStream()));
-//            }
-//        } catch (IOException | InterruptedException ex) {
-//            logger.warning("Unable able to open file viewer: " + ex);
-//        }
-//    }
-
-    
 }

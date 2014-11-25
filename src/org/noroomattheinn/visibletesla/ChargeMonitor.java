@@ -22,7 +22,7 @@ public class ChargeMonitor {
     ChargeMonitor(AppContext appContext) {
         this.ac = appContext;
         this.cycleInProgress = null;
-        ac.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
+        ac.lastChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState chargeState) {
                 boolean charging = charging(chargeState);
@@ -50,13 +50,13 @@ public class ChargeMonitor {
         cycleInProgress.startTime = chargeState.timestamp;
         cycleInProgress.startRange = chargeState.range;
         cycleInProgress.startSOC = chargeState.batteryPercent;
-        cycleInProgress.odometer = ac.lastKnownStreamState.get().odometer;
+        cycleInProgress.odometer = ac.lastStreamState.get().odometer;
         cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
         cycleInProgress.newCurrentReading(cycleInProgress.superCharger ?
                 chargeState.batteryCurrent : chargeState.chargerActualCurrent);
 
         // It's possible that a charge began before we got any location information
-        StreamState ss = ac.lastKnownStreamState.get();
+        StreamState ss = ac.lastStreamState.get();
         if (ss != null) {
             cycleInProgress.lat = ss.estLat;
             cycleInProgress.lng = ss.estLng;
@@ -79,7 +79,7 @@ public class ChargeMonitor {
 
         // If we didn't have location information at startup, see if we've got it now
         if (cycleInProgress.lat == 0 && cycleInProgress.lng == 0) {
-            StreamState ss = ac.lastKnownStreamState.get();
+            StreamState ss = ac.lastStreamState.get();
             if (ss != null) {
                 cycleInProgress.lat = ss.estLat;
                 cycleInProgress.lng = ss.estLng;

@@ -91,7 +91,7 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
         this.timer = new Timer("00 VT - StatsFlusher", true);
         timer.schedule(flusher, 0L, 5 * 1000L);
         
-        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+        appContext.lastStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, StreamState state) {
@@ -99,7 +99,7 @@ public class StatsStore extends DataStore implements ThreadManager.Stoppable {
             }
         });
         
-        appContext.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
+        appContext.lastChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(
                     ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState cur) {

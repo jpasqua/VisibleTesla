@@ -290,7 +290,7 @@ public class MainController extends BaseController {
                 if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
                     return new Result(false, "mobile_access_disabled");
                 }
-                ac.lastKnownGUIState.set(gs);
+                ac.lastGUIState.set(gs);
                 return Result.Succeeded;
             } else {
                 String error = gs.rawState.optString("error");
@@ -320,8 +320,8 @@ public class MainController extends BaseController {
             if (!cs.valid) cs = v.queryCharge();
         }
         
-        ac.lastKnownVehicleState.set(vs);
-        ac.lastKnownChargeState.set(cs);
+        ac.lastVehicleState.set(vs);
+        ac.lastChargeState.set(cs);
         return Result.Succeeded;
     }
     

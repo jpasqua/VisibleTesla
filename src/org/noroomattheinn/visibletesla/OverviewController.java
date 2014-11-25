@@ -146,7 +146,7 @@ public class OverviewController extends BaseController {
 
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
-        VehicleState car = ac.lastKnownVehicleState.get();
+        VehicleState car = ac.lastVehicleState.get();
         String info = ac.vehicle.toString() +
                 "\nFirmware Version: " + car.version +
                 "\nUUID: " + ac.vehicle.getUUID() +
@@ -229,7 +229,7 @@ public class OverviewController extends BaseController {
             }
         });
 
-        ac.lastKnownVehicleState.addListener(new ChangeListener<VehicleState>() {
+        ac.lastVehicleState.addListener(new ChangeListener<VehicleState>() {
             @Override public void changed(ObservableValue<? extends VehicleState> ov,
                 VehicleState old, VehicleState cur) {
                 Platform.runLater(new Runnable() {
@@ -237,7 +237,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        ac.lastKnownChargeState.addListener(new ChangeListener<ChargeState>() {
+        ac.lastChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                 ChargeState old, ChargeState cur) {
                 Platform.runLater(new Runnable() {
@@ -245,7 +245,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        ac.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+        ac.lastStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, final StreamState cur) {
@@ -293,7 +293,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRange() {
-        ChargeState cs = ac.lastKnownChargeState.get();
+        ChargeState cs = ac.lastChargeState.get();
         double range = 0;
         String rangeType = ac.prefs.overviewRange.get();
         switch (rangeType) {
@@ -307,13 +307,13 @@ public class OverviewController extends BaseController {
     }
     
     private void updateShiftState() {
-        StreamState snapshot = ac.lastKnownStreamState.get();
+        StreamState snapshot = ac.lastStreamState.get();
         if (snapshot == null) return;
         shiftStateLabel.setText(snapshot.shiftState());
     }
     
     private void updateDoorView() {
-        VehicleState car = ac.lastKnownVehicleState.get();
+        VehicleState car = ac.lastVehicleState.get();
         boolean rtOpen = car.isRTOpen;
         
         // Show the open/closed state of the doors and trunks
@@ -326,7 +326,7 @@ public class OverviewController extends BaseController {
         setOptionState(car.locked, lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
-        if (ac.lastKnownVehicleState.get().hasSpoiler) {
+        if (ac.lastVehicleState.get().hasSpoiler) {
             setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         }        
     }
@@ -355,7 +355,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updatePanoView() {
-        VehicleState car = ac.lastKnownVehicleState.get();
+        VehicleState car = ac.lastVehicleState.get();
         int pct = car.panoPercent;
         
         if (pct == 0) panoClosedImg.setVisible(true);
@@ -369,7 +369,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateChargePort() {
-        ChargeState charge = ac.lastKnownChargeState.get();
+        ChargeState charge = ac.lastChargeState.get();
         boolean connected = charge.connectedToCharger();
         
         boolean chargePortDoorOpen = (charge.chargePortOpen || connected);
@@ -413,8 +413,8 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading = (ac.lastKnownStreamState.get() != null) ?
-                ac.lastKnownStreamState.get().odometer : storedOdometerReading;
+        double odometerReading = (ac.lastStreamState.get() != null) ?
+                ac.lastStreamState.get().odometer : storedOdometerReading;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
         // Save off the odometer reading (in miles)
@@ -426,7 +426,7 @@ public class OverviewController extends BaseController {
     }
     
     private void reflectVINOrFirmware(Vehicle v) {
-        VehicleState car = ac.lastKnownVehicleState.get();
+        VehicleState car = ac.lastVehicleState.get();
         if (displayVIN(v))
             vinButton.setText("VIN " + StringUtils.right(v.getVIN(), 6));
         else {

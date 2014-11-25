@@ -110,7 +110,7 @@ public class SchedulerController extends BaseController
             case CHARGE_OFF: r = v.stopCharing(); break;
             case HVAC_ON:
                 if (value > 0) {    // Set the target temp first
-                    if (ac.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"))
+                    if (ac.lastGUIState.get().temperatureUnits.equalsIgnoreCase("F"))
                         r = v.setTempF(value, value);
                     else
                         r = v.setTempC(value, value);
@@ -168,7 +168,7 @@ public class SchedulerController extends BaseController
         if (ac.prefs.safeIncludesPluggedIn.get()) {
             String msg;
 
-            switch (ac.lastKnownChargeState.get().chargingState) {
+            switch (ac.lastChargeState.get().chargingState) {
                 case Unknown:
                     msg = String.format("%s: Can't tell if car is plugged in - aborted", name);
                     logActivity(msg, true);
@@ -186,7 +186,7 @@ public class SchedulerController extends BaseController
     }
     
     private synchronized Result unpluggedTrigger() {
-        ChargeState.Status status = ac.lastKnownChargeState.get().chargingState;
+        ChargeState.Status status = ac.lastChargeState.get().chargingState;
         if (status == ChargeState.Status.Disconnected) {
             ac.sendNotification(
                 ac.prefs.notificationAddress.get(),

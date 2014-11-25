@@ -83,7 +83,7 @@ public class LocationController extends BaseController {
 
     @FXML void launchButtonHandler(ActionEvent event) {
         // TITLE, ZOOM, LAT, LNG
-        StreamState state = ac.lastKnownStreamState.get();
+        StreamState state = ac.lastStreamState.get();
         if (state == null) return;
         showSimpleMap(state.estLat, state.estLng, "Tesla", 18);
     }
@@ -117,7 +117,7 @@ public class LocationController extends BaseController {
         useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
         ac.streamProducer.produce(false);
-        ac.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+        ac.lastStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, final StreamState cur) {
@@ -125,7 +125,7 @@ public class LocationController extends BaseController {
             }
         });
 
-        StreamState ss = ac.lastKnownStreamState.get();
+        StreamState ss = ac.lastStreamState.get();
         if (ss != null) { doUpdateLater(ss); }
 
         if (!useMiles) { multigauge.setRange(Side.LEFT, 0, 160); }

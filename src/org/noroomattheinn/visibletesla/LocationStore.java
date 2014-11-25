@@ -49,7 +49,7 @@ public class LocationStore extends DataStore {
         super(appContext, locationFile, Keys);
         this.lastStoredStreamState = new SimpleObjectProperty<>();
 
-        appContext.lastKnownStreamState.addListener(new ChangeListener<StreamState>() {
+        appContext.lastStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, StreamState cur) {

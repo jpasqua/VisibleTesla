@@ -268,7 +268,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     EventHandler<ActionEvent> getChargeOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
             Map<Object, Object> props = new HashMap<>();
-            boolean useDegreesF = owner.getAppContext().lastKnownGUIState.get().
+            boolean useDegreesF = owner.getAppContext().lastGUIState.get().
                                         temperatureUnits.equalsIgnoreCase("F");
             props.put("INIT_CHARGE", targetValue);
             props.put("USE_DEGREES_F", useDegreesF);
@@ -298,7 +298,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         @Override public void handle(ActionEvent e) {
             Map<Object, Object> props = new HashMap<>();
             props.put("USE_DEGREES_F",
-                    owner.getAppContext().lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F"));
+                    owner.getAppContext().lastGUIState.get().temperatureUnits.equalsIgnoreCase("F"));
             props.put("INIT_TEMP", targetValue);
 
             DialogUtils.DialogController dc = DialogUtils.displayDialog(

@@ -79,7 +79,7 @@ public class VTExtras {
         Utils.UnitType units = overrideUnits.get(ac.prefs.overideUnitsTo.get());
         if (ac.prefs.overideUnitsActive.get() && units != null)
             return units == Utils.UnitType.Imperial;
-        return ac.lastKnownGUIState.get().temperatureUnits.equalsIgnoreCase("F");
+        return ac.lastGUIState.get().temperatureUnits.equalsIgnoreCase("F");
 
     }
     
@@ -87,7 +87,7 @@ public class VTExtras {
         Utils.UnitType units = overrideUnits.get(ac.prefs.overideUnitsTo.get());
         if (ac.prefs.overideUnitsActive.get() && units != null) return units;
 
-        GUIState gs = ac.lastKnownGUIState.get();
+        GUIState gs = ac.lastGUIState.get();
         if (gs != null) {
             return gs.distanceUnits.equalsIgnoreCase("mi/hr")
                     ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
@@ -105,7 +105,7 @@ public class VTExtras {
         if (ac.prefs.overideWheelsActive.get() && wt != null) return wt;
 
         wt = ac.vehicle.getOptions().wheelType();
-        VehicleState vs = ac.lastKnownVehicleState.get();
+        VehicleState vs = ac.lastVehicleState.get();
         if (vs.wheelType != null) {
             // Check for known override wheel types, right now that's just Aero19
             switch (vs.wheelType) {

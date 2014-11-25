@@ -54,7 +54,7 @@ public class StatsStreamer implements Runnable {
         // The following two changeListeners look similar, but the order of
         // the if statements is different and significant. Always check the
         // one that changed, then test the other (older) value.
-        ac.lastKnownChargeState.addListener(new ChangeListener<BaseState>() {
+        ac.lastChargeState.addListener(new ChangeListener<BaseState>() {
             @Override public void changed(
                     ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
                 if (isCharging()) carState.update(CarState.Charging);
@@ -64,7 +64,7 @@ public class StatsStreamer implements Runnable {
             }
         });
 
-        ac.lastKnownStreamState.addListener(new ChangeListener<BaseState>() {
+        ac.lastStreamState.addListener(new ChangeListener<BaseState>() {
             @Override public void changed(
                     ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
                 if (isInMotion()) carState.update(CarState.Moving);
@@ -129,8 +129,8 @@ public class StatsStreamer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean isCharging() { return ac.lastKnownChargeState.get().isCharging(); }
-    private boolean isInMotion() { return  ac.lastKnownStreamState.get().isInMotion(); }
+    private boolean isCharging() { return ac.lastChargeState.get().isCharging(); }
+    private boolean isInMotion() { return  ac.lastStreamState.get().isInMotion(); }
     
     private boolean carIsAsleep() { return !carIsAwake(); }
     private boolean carIsAwake() { return  ac.vehicle.isAwake(); }

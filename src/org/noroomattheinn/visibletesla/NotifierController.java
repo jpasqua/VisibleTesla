@@ -547,9 +547,9 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void startListening() {
-        ac.lastKnownChargeState.addListener(csListener);
-        ac.lastKnownStreamState.addListener(ssListener);
-        ac.lastKnownVehicleState.addListener(vsListener);
+        ac.lastChargeState.addListener(csListener);
+        ac.lastStreamState.addListener(ssListener);
+        ac.lastVehicleState.addListener(vsListener);
         ac.schedulerActivity.addTracker(false, schedListener);
     }
     
