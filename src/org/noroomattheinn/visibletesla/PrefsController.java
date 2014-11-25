@@ -89,14 +89,7 @@ public class PrefsController extends BaseController {
     //
     @FXML void setAuthCode(ActionEvent event) {
         String code = authCode.getText();
-        if (code.isEmpty()) {
-            code = "visible";   // Force some value!
-        }
-        byte[] salt = pwUtils.generateSalt();
-        byte[] pw = pwUtils.getEncryptedPassword(code, salt);
-        String externalForm = pwUtils.externalRep(salt, pw);
-        ac.restEncPW = pw;
-        ac.restSalt = salt;
+	String externalForm = ac.restServer.setPW(code);
         ac.prefs.authCode.set(externalForm);
     }
     

@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,6 @@ import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.utils.LRUMap;
 import org.noroomattheinn.visibletesla.AppMode;
 import org.noroomattheinn.visibletesla.ThreadManager;
-import org.noroomattheinn.visibletesla.VTExtras;
 
 /**
  * RESTServer: Provide minimal external services.
@@ -45,7 +45,8 @@ public class RESTServer implements ThreadManager.Stoppable {
 
     private static final Map<String,AppMode.Mode> toAppMode = 
             Utils.newHashMap("sleep", AppMode.Mode.AllowSleeping,
-                             "wakeup", AppMode.Mode.StayAwake);
+                             "wakeup", AppMode.Mode.StayAwake,
+                             "produce", AppMode.Mode.StayAwake);
 
 /*------------------------------------------------------------------------------
  *
@@ -56,7 +57,8 @@ public class RESTServer implements ThreadManager.Stoppable {
     private final AppContext ac;
     private HttpServer server;
     private PWUtils pwUtils = new PWUtils();
-    
+    private byte[] encPW, salt;
+
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -66,6 +68,7 @@ public class RESTServer implements ThreadManager.Stoppable {
     public RESTServer(AppContext ac) {
         this.ac = ac;
         server = null;
+        ac.tm.addStoppable((ThreadManager.Stoppable)this);
     }
 
     public synchronized void launch() {
@@ -82,8 +85,6 @@ public class RESTServer implements ThreadManager.Stoppable {
             cc.setAuthenticator(authenticator);
             cc = server.createContext("/v1/action/info", infoRequest);
             cc.setAuthenticator(authenticator);
-            cc = server.createContext("/v1/action", actionRequest);
-            cc.setAuthenticator(authenticator);
             cc = server.createContext("/", staticPageRequest);
             cc.setAuthenticator(authenticator);
 
@@ -99,6 +100,36 @@ public class RESTServer implements ThreadManager.Stoppable {
             server.stop(0);
             server = null;
         }
+    }
+    
+    /**
+     * Set the password used by the RESTServer. If no password is supplied, 
+     * a random one will be chosen meaning there is effectively no access to
+     * the server.
+     * @param   pw  The new password
+     * @return  An external representation of the salted password that can be
+     *          stored safely in a data file.
+     */
+    public String setPW(String pw) {
+        if (pw == null || pw.isEmpty()) { // Choose a random value!
+            pw = String.valueOf(Math.floor(Math.random()*100000));   
+        }
+        salt = pwUtils.generateSalt();
+        encPW = pwUtils.getEncryptedPassword(pw, salt);
+        return pwUtils.externalRep(salt, encPW);
+    }
+
+    /**
+     * Initialize the password and salt from previously generated values.
+     * @param externalForm  An external representation of the password and
+     *                      salt that was previously returned by an invocation
+     *                      of setPW()
+     */
+    public void internalizePW(String externalForm) {
+        // Break down the external representation into the salt and password
+        List<byte[]> internalForm = (new PWUtils()).internalRep(externalForm);
+        salt = internalForm.get(0);
+        encPW = internalForm.get(1);
     }
 
 /*------------------------------------------------------------------------------
@@ -130,31 +161,6 @@ public class RESTServer implements ThreadManager.Stoppable {
             else ac.appMode.stayAwake();
 
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
-        }
-    };
-
-    private HttpHandler actionRequest = new HttpHandler() {
-        @Override public void handle(HttpExchange exchange) throws IOException {
-            if (!exchange.getRequestMethod().equals("GET")) {
-                sendResponse(exchange, 400, "GET only on action endpoint\n");
-                return;
-            }
-            String path = StringUtils.stripEnd(exchange.getRequestURI().getPath(), "/");
-            String command = StringUtils.substringAfterLast(path, "/");
-            switch (command) {
-                case "action":
-                    sendResponse(exchange, 403, "403 (Forbidden)\n");
-                    break;
-                case "produce":
-                    VTExtras.waitForVehicleToWake(ac, null, null);
-                    ac.appMode.stayAwake();
-                    logger.info("Produce Request Received");
-                    sendResponse(exchange, 200,  "Produce Request Received\n");
-                    break;
-                default:
-                    logger.warning("Unknown action request: " + command + "\n");
-                    sendResponse(exchange, 400, "Unknown action request: " + command + "\n");
-            }
         }
     };
 
@@ -273,8 +279,8 @@ public class RESTServer implements ThreadManager.Stoppable {
     private BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
-            if (ac.restEncPW == null || ac.restSalt == null) return false;
-            return pwUtils.authenticate(pwd, ac.restEncPW, ac.restSalt);
+            if (encPW == null || salt == null) return false;
+            return pwUtils.authenticate(pwd, encPW, salt);
         }
     };
     

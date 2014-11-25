@@ -89,6 +89,7 @@ public class AppContext {
     public final ObjectProperty<VehicleState> lastKnownVehicleState;
     public final MailGun mailer;
     public final TrackedObject<String> schedulerActivity;
+    public final RESTServer restServer;
     public Vehicle vehicle = null;
     public LocationStore locationStore;
     public StatsStore statsStore;
@@ -97,17 +98,15 @@ public class AppContext {
     public StatsStreamer statsStreamer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
-    public byte[] restEncPW, restSalt;
     public String uuidForVehicle;
     public TrackedObject<ChargeMonitor.Cycle> lastChargeCycle;
-     
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
-    private RESTServer restServer = null;
     private final Map<String, StatsPublisher> typeToPublisher = new HashMap<>();
     private final File appFilesFolder;
 
@@ -147,6 +146,7 @@ public class AppContext {
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : MailGunKey);
         issuer = new CommandIssuer(this);
+        restServer = new RESTServer(this);
     }
 
     public boolean lockAppInstance() {
@@ -184,8 +184,7 @@ public class AppContext {
         stateProducer = new StateProducer(this);
         statsStreamer = new StatsStreamer(this);
 
-        (restServer = new RESTServer(this)).launch();
-        tm.addStoppable(restServer);
+        restServer.launch();
     }
 
 
@@ -220,22 +219,7 @@ public class AppContext {
         }
         return sp.valuesForRange(type, startX, endX);
     }
-    
-    private Map<ProgressIndicator,Integer> refCount = new HashMap<>();
-    public void showProgress(final ProgressIndicator pi, final boolean spinning) {
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-                if (pi == null) return;
-                Integer count = refCount.get(pi);
-                if (count == null) count = 0;
-                count = count + (spinning ? 1 : -1);
-                refCount.put(pi, count);
-                pi.setVisible(count > 0);
-                pi.setProgress(count > 0 ? -1 : 0);
-            }
-        });
-    }
-    
+        
     public boolean sendNotification(String addr, String msg) {
         final int SubjectLength = 30;
         String subject = StringUtils.left(msg, SubjectLength);

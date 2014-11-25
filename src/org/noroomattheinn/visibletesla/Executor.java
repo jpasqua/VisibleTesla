@@ -5,10 +5,12 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
+import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
 import static org.noroomattheinn.tesla.Tesla.logger;
 
@@ -89,9 +91,9 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             try {
                 r = queue.take();
                 if (requestSuperseded(r)) continue;
-                if (r.pi != null) { appContext.showProgress(r.pi, true); }
+                if (r.pi != null) { showProgress(r.pi, true); }
                 boolean success = execRequest(r);
-                if (r.pi != null) { appContext.showProgress(r.pi, false); }
+                if (r.pi != null) { showProgress(r.pi, false); }
                 if (!success) {
                     if (r.moreRetries()) {
                         logger.finest(r.getRequestName() + ": failed, retrying...");
@@ -110,11 +112,26 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
                             r.retriesPerformed()+ " attempt(s)");
                 }
             } catch (Exception e) {
-                if (r != null && r.pi != null) { appContext.showProgress(r.pi, false); }
+                if (r != null && r.pi != null) { showProgress(r.pi, false); }
                 logger.warning("Exception in " + name + ": " + e.getMessage());
                 if (e instanceof InterruptedException) { return; }
             }
         }
+    }
+    
+    private Map<ProgressIndicator,Integer> refCount = new HashMap<>();
+    public void showProgress(final ProgressIndicator pi, final boolean spinning) {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                if (pi == null) return;
+                Integer count = refCount.get(pi);
+                if (count == null) count = 0;
+                count = count + (spinning ? 1 : -1);
+                refCount.put(pi, count);
+                pi.setVisible(count > 0);
+                pi.setProgress(count > 0 ? -1 : 0);
+            }
+        });
     }
     
     public static abstract class Request {

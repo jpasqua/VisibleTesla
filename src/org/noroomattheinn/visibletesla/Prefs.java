@@ -11,7 +11,6 @@ import com.google.common.collect.Range;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -26,7 +25,6 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.utils.CalTime;
-import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 
 /**
@@ -190,10 +188,7 @@ public class Prefs {
         stringPref(LogLevelKey, logLevel, "Info");
         
         stringPref(AuthCodeKey, authCode, "");
-        // Break down the external representation into the salt and password
-        List<byte[]> internalForm = (new PWUtils()).internalRep(authCode.get());
-        appContext.restSalt = internalForm.get(0);
-        appContext.restEncPW = internalForm.get(1);
+	appContext.restServer.internalizePW(authCode.get());
         
         // ----- Overrides
         stringPref(ORWheelToKey, overideWheelsTo, "From Car");
