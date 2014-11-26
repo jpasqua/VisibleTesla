@@ -141,27 +141,15 @@ public class AppContext {
         return (Utils.obtainLock(vehicle.getVIN() + ".lck", appFilesFolder));
     }
                         
-    public void prepForVehicle(Vehicle v) {
+    public void prepForVehicle(Vehicle v) throws IOException {
         vehicle = v;
 
-        try {
-            locationStore = new LocationStore(
-                    this, new File(appFilesFolder, v.getVIN() + ".locs.log"));
-            statsStore = new StatsStore(
-                    this, new File(appFilesFolder, v.getVIN() + ".stats.log"));
-            chargeStore = new ChargeStore(
-                    this, new File(appFilesFolder, v.getVIN() + ".charge.json"));
-        } catch (IOException e) {
-            logger.severe("Unable to establish repository: " + e.getMessage());
-            Dialogs.showErrorDialog(stage,
-                    "VisibleTesla has encountered a severe error\n"
-                    + "while trying to access its data files. Another\n"
-                    + "copy of VisibleTesla may already be writing to them\n"
-                    + "or they may be missing.\n\n"
-                    + "VisibleTesla will close when you close this window.",
-                    "Problem accessing data files", "Problem launching application");
-            Platform.exit();
-        }
+        locationStore = new LocationStore(
+                this, new File(appFilesFolder, v.getVIN() + ".locs.log"));
+        statsStore = new StatsStore(
+                this, new File(appFilesFolder, v.getVIN() + ".stats.log"));
+        chargeStore = new ChargeStore(
+                this, new File(appFilesFolder, v.getVIN() + ".charge.json"));
         
         streamProducer = new StreamProducer(this);
         stateProducer = new StateProducer(this);

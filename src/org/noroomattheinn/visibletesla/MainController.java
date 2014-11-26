@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.io.IOException;
 import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import java.util.Arrays;
@@ -254,7 +255,19 @@ public class MainController extends BaseController {
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
             ac.appState.trackInactivity(tabs);
-            ac.prepForVehicle(ac.vehicle);
+            try {
+                ac.prepForVehicle(ac.vehicle);
+            } catch (IOException e) {
+                logger.severe("Unable to establish repository: " + e.getMessage());
+                Dialogs.showErrorDialog(ac.stage,
+                        "VisibleTesla has encountered a severe error\n"
+                        + "while trying to access its data files. Another\n"
+                        + "copy of VisibleTesla may already be writing to them\n"
+                        + "or they may be missing.\n\n"
+                        + "VisibleTesla will close when you close this window.",
+                        "Problem accessing data files", "Problem launching application");
+                Platform.exit();
+            }
             refreshTitle();
             
             // Start the Scheduler and the Notifier
