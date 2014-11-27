@@ -11,13 +11,9 @@ import java.io.IOException;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.Dialogs;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DriveState;
@@ -67,7 +63,6 @@ public class AppContext {
     public final ThreadManager tm;
     public final AppMode appMode;
     public final AppState appState;
-    public final BooleanProperty shuttingDown;
     public final ObjectProperty<ChargeState> lastChargeState;
     public final ObjectProperty<DriveState> lastDriveState;
     public final ObjectProperty<GUIState> lastGUIState;
@@ -77,6 +72,8 @@ public class AppContext {
     public final TrackedObject<ChargeCycle> lastChargeCycle;
     public final TrackedObject<String> schedulerActivity;
     public final RESTServer restServer;
+    public final MailGun mailer;
+    public boolean shuttingDown;
     public Vehicle vehicle = null;
     public LocationStore locationStore;
     public StatsStore statsStore;
@@ -92,7 +89,6 @@ public class AppContext {
  *----------------------------------------------------------------------------*/
     
     private final File appFilesFolder;
-    private final MailGun mailer;
     private StatsStreamer statsStreamer;
     private ChargeMonitor chargeMonitor;
 
@@ -107,8 +103,8 @@ public class AppContext {
         this.stage = stage;
         this.persistentState = Preferences.userNodeForPackage(this.getClass());
         
-        this.shuttingDown = new SimpleBooleanProperty(false);
-        this.tm = new ThreadManager(shuttingDown);
+        this.shuttingDown = false;
+        this.tm = new ThreadManager(this);
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
         
@@ -184,31 +180,12 @@ public class AppContext {
         }
     }
 
-    public boolean sendNotification(String addr, String msg) {
-        final int SubjectLength = 30;
-        String subject = StringUtils.left(msg, SubjectLength);
-        if (msg.length() > SubjectLength) {
-            subject = subject + "...";
-        }
-        return sendNotification(addr, subject, msg);
-    }
-
-    public boolean sendNotification(String addr, String subject, String msg) {
-        if (msg == null) {
-            return true;
-        }
-        if (addr == null || addr.length() == 0) {
-            logger.warning(
-                    "Unable to send a notification because no address was specified: " + msg);
-            return false;
-        }
-        if (!mailer.send(addr, subject, msg)) {
-            logger.warning("Failed sending message to: " + addr + ": " + msg);
-            return false;
-        }
-        return true;
-    }
     
     public File appFileFolder() { return appFilesFolder; }
+    
+    public void sleep(long timeInMillis) { Utils.sleep(timeInMillis,  sdPredicate); }
+
+    private Utils.Predicate sdPredicate = new Utils.Predicate() {
+            @Override public boolean eval() { return shuttingDown; } };
 
 }

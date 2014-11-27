@@ -134,7 +134,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
                 jsonRep, ac.vehicle.getOptions().batteryType(), ac.vehicle.getUUID());
         
         // Send the notification and log the body
-        ac.sendNotification(VTDataAddress, VTChargeDataSubj, body);
+        ac.mailer.send(VTDataAddress, VTChargeDataSubj, body);
         logger.info("Charge data submitted: " + body);
     }
     

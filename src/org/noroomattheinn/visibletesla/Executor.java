@@ -86,7 +86,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
 
     
     @Override public void run() {
-        while (!appContext.shuttingDown.get()) {
+        while (!appContext.shuttingDown) {
             R r = null;
             try {
                 r = queue.take();
@@ -95,6 +95,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
                 boolean success = execRequest(r);
                 if (r.pi != null) { showProgress(r.pi, false); }
                 if (!success) {
+                    if (appContext.shuttingDown) return;
                     if (r.moreRetries()) {
                         logger.finest(r.getRequestName() + ": failed, retrying...");
                         retry(r);

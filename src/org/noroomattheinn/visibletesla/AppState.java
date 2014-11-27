@@ -103,12 +103,11 @@ public class AppState {
     class InactivityThread implements Runnable {
         @Override public void run() {
             while (true) {
-                VTExtras.sleep(ac, 60 * 1000);
-                if (ac.shuttingDown.get())
-                    return;
+                ac.sleep(60 * 1000);
+                if (ac.shuttingDown) return;
                 long idleThreshold = ac.prefs.idleThresholdInMinutes.get() * 60 * 1000;
                 if (timeSince(lastEventTime) > idleThreshold && ac.appMode.allowingSleeping()) {
-                    state.set(State.Idle);
+                    state.update(State.Idle);
                 }
             }
         }
@@ -117,7 +116,7 @@ public class AppState {
     class EventPassThrough implements EventHandler<InputEvent> {
         @Override public void handle(InputEvent ie) {
             lastEventTime = System.currentTimeMillis();
-            if (state.get() != State.Active) { state.set(State.Active); }
+            state.update(State.Active);
         }
     }
 

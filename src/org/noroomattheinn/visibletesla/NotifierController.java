@@ -664,9 +664,8 @@ public class NotifierController extends BaseController {
         } else {
             MessageTemplate mt = new MessageTemplate(ac, target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(ac, target.getActiveSubj());
-            ac.sendNotification(
-                addr, st.getMessage(contextSpecific),
-                mt.getMessage(contextSpecific));
+            ac.mailer.send(
+                addr, st.getMessage(contextSpecific), mt.getMessage(contextSpecific));
         }
     }
     

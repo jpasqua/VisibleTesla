@@ -233,7 +233,7 @@ public class MainController extends BaseController {
                     if (letItSleep()) {
                         logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        VTExtras.waitForVehicleToWake(
+                        VTExtras.waitForWakeup(
                                 ac, new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
@@ -297,7 +297,7 @@ public class MainController extends BaseController {
         long MaxWaitTime = 70 * 1000;
         long now = System.currentTimeMillis();
         while (timeSince(now) < MaxWaitTime) {
-            if (ac.shuttingDown.get()) { return new Result(false, "shutting down"); }
+            if (ac.shuttingDown) { return new Result(false, "shutting down"); }
             GUIState gs = v.queryGUI();
             if (gs.valid) {
                 if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
@@ -308,7 +308,7 @@ public class MainController extends BaseController {
             } else {
                 String error = gs.rawState.optString("error");
                 if (error.equals("vehicle unavailable")) v.wakeUp();
-                VTExtras.sleep(ac, 10 * 1000);
+                ac.sleep(10 * 1000);
             }
         }
         return Result.Failed;
@@ -327,8 +327,8 @@ public class MainController extends BaseController {
         int tries = 0;
         while (!(vs.valid && cs.valid)) {
             if (tries++ > MaxTriesToStart) { return Result.Failed; }
-            VTExtras.sleep(ac, 5 * 1000);
-            if (ac.shuttingDown.get()) return Result.Failed;
+            ac.sleep(5 * 1000);
+            if (ac.shuttingDown) return Result.Failed;
             if (!vs.valid) vs = v.queryVehicle();
             if (!cs.valid) cs = v.queryCharge();
         }

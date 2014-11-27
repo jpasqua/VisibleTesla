@@ -118,13 +118,13 @@ public class VTExtras {
         return wt;
     }
     
-    public static void waitForVehicleToWake(
+    public static void waitForWakeup(
             final AppContext ac, final Runnable r, final BooleanProperty forceWakeup) {
         final long TestSleepInterval = 5 * 60 * 1000;   // 5 Minutes
         
         final Utils.Predicate p = new Utils.Predicate() {
             @Override public boolean eval() {
-                return ac.shuttingDown.get() || (forceWakeup != null && forceWakeup.get());
+                return ac.shuttingDown || (forceWakeup != null && forceWakeup.get());
             }
         };
 
@@ -132,7 +132,7 @@ public class VTExtras {
             @Override public void run() {
                 while (ac.vehicle.isAsleep()) {
                     Utils.sleep(TestSleepInterval, p);
-                    if (ac.shuttingDown.get()) return;
+                    if (ac.shuttingDown) return;
                     if (forceWakeup != null && forceWakeup.get()) {
                         forceWakeup.set(false);
                         if (r != null) Platform.runLater(r);
@@ -152,13 +152,9 @@ public class VTExtras {
                 return true;
             }
             ac.vehicle.wakeUp();
-            sleep(ac, 5 * 1000);
+            ac.sleep(5 * 1000);
         }
         return false;
     }
     
-    public static void sleep(final AppContext ac, long timeInMillis) {
-        Utils.sleep(timeInMillis,  new Utils.Predicate() {
-            @Override public boolean eval() { return ac.shuttingDown.get(); } });
-    }
 }

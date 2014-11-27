@@ -128,7 +128,7 @@ public class PrefsController extends BaseController {
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!ac.sendNotification(addr, msg + date)) {
+        if (!ac.mailer.send(addr, msg + date)) {
             Dialogs.showWarningDialog(ac.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +

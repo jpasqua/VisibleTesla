@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import javafx.beans.property.BooleanProperty;
 import org.apache.commons.io.IOUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
@@ -38,13 +37,13 @@ public class ThreadManager {
     
     private int threadID = 0;
     
-    private final BooleanProperty   shuttingDown;
+    private final AppContext        ac;
     private final ArrayList<Thread> threads = new ArrayList<>();
     private final List<Stoppable>   stopList;
     private final Timer timer = new Timer();
     
-    public ThreadManager(final BooleanProperty shuttingDown) {
-        this.shuttingDown = shuttingDown;
+    public ThreadManager(final AppContext appContext) {
+        this.ac = appContext;
         this.stopList = new ArrayList<>();
     }
     
@@ -57,8 +56,8 @@ public class ThreadManager {
     public interface Stoppable { public void stop(); }
     
     public synchronized Thread launch(Runnable r, String name) {
-        if (shuttingDown.get())
-            return null;
+        if (ac.shuttingDown) return null;
+        
         Thread t = new Thread(r);
         if (name == null) name = String.valueOf(threadID++);
         t.setName("00 VT - " + name);
@@ -85,10 +84,10 @@ public class ThreadManager {
     public void addStoppable(Stoppable s) { stopList.add(s); }
     
     public synchronized void shutDown() {
+        ac.shuttingDown = true;
         timer.cancel();
-        shuttingDown.set(true);
         for (Stoppable s : stopList) { s.stop(); }
-
+        
         int nActive;
         do {
             nActive = 0;
