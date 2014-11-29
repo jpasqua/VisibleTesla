@@ -56,10 +56,10 @@ public class StateProducer extends Executor<StateProducer.Request> {
     }
     
     @Override protected boolean execRequest(Request r) {
-        final BaseState state = appContext.vehicle.query(r.stateType);
+        final BaseState state = ac.vehicle.query(r.stateType);
         if (state.valid) {
             lastProduced.put(r.stateType, System.currentTimeMillis());
-            appContext.noteUpdatedState(state);
+            ac.noteUpdatedState(state);
             return true;
         }
         return false;

@@ -13,6 +13,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
 import static org.noroomattheinn.tesla.Tesla.logger;
+import static org.noroomattheinn.utils.Utils.timeSince;
 
 /**
  * StateProducer: Produce state updates on demand.
@@ -28,10 +29,11 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     protected final ArrayBlockingQueue<R>   queue;
-    protected final AppContext              appContext;
+    protected final AppContext              ac;
     protected final String                  name;
     protected final TreeMap<Integer,Integer> histogram;
     protected       int                     nRequestsExecuted;
+    private         long                    lastReport;
     
 /*==============================================================================
  * -------                                                               -------
@@ -40,12 +42,13 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *============================================================================*/
     
     public Executor(AppContext ac, String name) {
-        this.appContext = ac;
+        this.ac = ac;
         this.queue = new ArrayBlockingQueue<>(20);
         this.name = name;
         this.histogram = new TreeMap<>();
         this.nRequestsExecuted = 0;
-        appContext.tm.launch((Runnable)this, name);
+        this.lastReport = System.currentTimeMillis();
+        this.ac.tm.launch((Runnable)this, name);
     }
     
     public synchronized void produce(R r) {
@@ -78,7 +81,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     private void retry(final R r) {
-        appContext.tm.addTimedTask(new TimerTask() {
+        ac.tm.addTimedTask(new TimerTask() {
             @Override public void run() { produce(r); } },
             r.retryDelay());
     }
@@ -86,7 +89,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
 
     
     @Override public void run() {
-        while (!appContext.shuttingDown) {
+        while (!ac.shuttingDown) {
             R r = null;
             try {
                 r = queue.take();
@@ -95,7 +98,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
                 boolean success = execRequest(r);
                 if (r.pi != null) { showProgress(r.pi, false); }
                 if (!success) {
-                    if (appContext.shuttingDown) return;
+                    if (ac.shuttingDown) return;
                     if (r.moreRetries()) {
                         logger.finest(r.getRequestName() + ": failed, retrying...");
                         retry(r);
@@ -164,6 +167,9 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
     }
     
     private void dumpHistogram(Request r) {
+        long ReportingInterval = 24 * 60 * 60 * 1000;
+        String ReportAddress = "data@visibletesla.com";
+
         StringBuilder sb = new StringBuilder();
         sb.append(r.getRequestName()); sb.append(" stats: ");
         for (Map.Entry<Integer,Integer> entry : histogram.entrySet()) {
@@ -172,5 +178,13 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             sb.append("("); sb.append(tries); sb.append(", "); sb.append(count); sb.append(") ");
         }
         logger.info(sb.toString());
+        if (ac.prefs.submitAnonData.get() && timeSince(lastReport) > ReportingInterval) {
+            logger.info("Sending api stats report: " + sb.toString());
+            ac.mailer.send(
+                ReportAddress,
+                "API Stats for " + ac.vehicle.getUUID(),
+                sb.toString());
+            lastReport = System.currentTimeMillis();
+        }
     }
 }
