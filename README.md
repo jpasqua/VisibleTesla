@@ -8,6 +8,8 @@ This software and documentation do not come from Tesla Motors Inc.
 
 *Be careful* not to send your login and password to anyone other than Tesla or you are giving away the authentication details required to control your car.
 
+**NOTE:** This version depends on the "owner" interface to Tesla's servers and as a consequence requires the "Post6" version of TeslaClient.
+
 #Disclaimer
 
 Use this application at your own risk. The author does not guarantee its proper functioning. This application attempts to use the same interfaces used by the official Tesla apps. However, it is possible that use of this application may cause unexpected damage for which nobody but you are responsible. Use of this application can change the settings on your car and may have negative consequences such as (but not limited to) unlocking the doors, opening the sun roof, or reducing the available charge in the battery.
