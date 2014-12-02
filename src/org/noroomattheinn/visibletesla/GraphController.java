@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -25,11 +24,14 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
+import org.noroomattheinn.tesla.ChargeState;
+import org.noroomattheinn.tesla.StreamState;
+import org.noroomattheinn.timeseries.Row;
+import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.fxextensions.VTLineChart;
 import org.noroomattheinn.visibletesla.fxextensions.TimeBasedChart;
 import org.noroomattheinn.visibletesla.fxextensions.VTSeries;
-import org.noroomattheinn.visibletesla.stats.Stat;
 
 /**
  * GraphController: Handles the capture and display of vehicle statistics
@@ -55,7 +57,6 @@ public class GraphController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private Map<String, Integer> valueMap = null;
     private boolean displayLines = true;
     private boolean displayMarkers = true;
     
@@ -115,7 +116,7 @@ public class GraphController extends BaseController {
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
-        ac.persistentState.putBoolean(vinBased(series.getName()), visible);
+        ac.persistentState.putBoolean(ac.vinKey(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
@@ -134,21 +135,21 @@ public class GraphController extends BaseController {
         lineChart.clearSeries();
 
         cbToSeries.put(voltageCheckbox, lineChart.register(
-                new VTSeries(StatsStore.VoltageKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(StatsCollector.VoltageKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(currentCheckbox, lineChart.register(
-                new VTSeries(StatsStore.CurrentKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(StatsCollector.CurrentKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(rangeCheckbox, lineChart.register(
-                new VTSeries(StatsStore.EstRangeKey, VTSeries.millisToSeconds, distTransform)));
+                new VTSeries(StatsCollector.EstRangeKey, VTSeries.millisToSeconds, distTransform)));
         cbToSeries.put(socCheckbox, lineChart.register(
-                new VTSeries(StatsStore.SOCKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(StatsCollector.SOCKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(rocCheckbox, lineChart.register(
-                new VTSeries(StatsStore.ROCKey, VTSeries.millisToSeconds, distTransform)));
+                new VTSeries(StatsCollector.ROCKey, VTSeries.millisToSeconds, distTransform)));
         cbToSeries.put(powerCheckbox, lineChart.register(
-                new VTSeries(StatsStore.PowerKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(StatsCollector.PowerKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(speedCheckbox, lineChart.register(
-                new VTSeries(StatsStore.SpeedKey, VTSeries.millisToSeconds, distTransform)));
+                new VTSeries(StatsCollector.SpeedKey, VTSeries.millisToSeconds, distTransform)));
         cbToSeries.put(batteryCurrentCheckbox, lineChart.register(
-                new VTSeries(StatsStore.BatteryAmpsKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(StatsCollector.BatteryAmpsKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         
         // Make the checkbox colors match the series colors
         int seriesNumber = 0;
@@ -164,14 +165,14 @@ public class GraphController extends BaseController {
         // Restore the last settings of the checkboxes
         for (CheckBox cb : cbToSeries.keySet()) {
             VTSeries s = cbToSeries.get(cb);
-            boolean selected = ac.persistentState.getBoolean(vinBased(s.getName()), true);
+            boolean selected = ac.persistentState.getBoolean(ac.vinKey(s.getName()), true);
             cb.setSelected(selected);
             lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
-        displayLines = ac.persistentState.getBoolean(vinBased("DISPLAY_LINES"), true);
-        displayMarkers = ac.persistentState.getBoolean(vinBased("DISPLAY_MARKERS"), true);
+        displayLines = ac.persistentState.getBoolean(ac.vinKey("DISPLAY_LINES"), true);
+        displayMarkers = ac.persistentState.getBoolean(ac.vinKey("DISPLAY_MARKERS"), true);
 
         reflectDisplayOptions();
     }
@@ -193,15 +194,9 @@ public class GraphController extends BaseController {
         prepSeries();
         loadExistingData();
         // Register for additions to the data
-        ac.statsStore.newestVoltage.addListener(statHandler);
-        ac.statsStore.newestCurrent.addListener(statHandler);
-        ac.statsStore.newestEstRange.addListener(statHandler);
-        ac.statsStore.newestSOC.addListener(statHandler);
-        ac.statsStore.newestROC.addListener(statHandler);
-        ac.statsStore.newestBatteryAmps.addListener(statHandler);
-        ac.statsStore.newestPower.addListener(statHandler);
-        ac.statsStore.newestSpeed.addListener(statHandler);
-
+        ac.statsCollector.lastStoredChargeState.addTracker(false, chargeHandler);
+        ac.statsCollector.lastStoredStreamState.addTracker(false, streamHandler);
+        
         setGap();
         ac.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
@@ -281,8 +276,8 @@ public class GraphController extends BaseController {
 
             reflectDisplayOptions();
 
-            ac.persistentState.putBoolean(vinBased("DISPLAY_LINES"), displayLines);
-            ac.persistentState.putBoolean(vinBased("DISPLAY_MARKERS"), displayMarkers);
+            ac.persistentState.putBoolean(ac.vinKey("DISPLAY_LINES"), displayLines);
+            ac.persistentState.putBoolean(ac.vinKey("DISPLAY_MARKERS"), displayMarkers);
         }
     };
 
@@ -313,7 +308,7 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
         
     private void loadExistingData() {
-        Map<Long,Map<String,Double>> rows = ac.statsStore.getData();
+        Map<Long,Row> rows = ac.statsCollector.getAll();
         Map<String,ObservableList<XYChart.Data<Number,Number>>> typeToList = new HashMap<>();
         
         for (String type : typeToSeries.keySet()) {
@@ -322,26 +317,27 @@ public class GraphController extends BaseController {
             typeToList.put(type, data);
         }
         
-        Map<String,Long> lastTimeForType = new HashMap<>();
+        Map<String,Long> lastTimeForType = new DefaultedHashMap<>(0L);
         
-        for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
-            long time = row.getKey();
-            Map<String,Double> pairs = row.getValue();
-            for (Map.Entry<String,Double> pair : pairs.entrySet()) {
-                String type = pair.getKey();
-                double value = pair.getValue();
-                ObservableList<XYChart.Data<Number,Number>> data = typeToList.get(type);
-                if (type != null) {
-                    Long lastTime = lastTimeForType.get(type);
-                    if (lastTime == null) lastTime = 0L;
-                    if (time - lastTime >= 5 * 1000) {
-                        VTSeries vts = typeToSeries.get(type);
-                        data.add(new XYChart.Data<>(
-                                vts.getXformX().transform(time), 
-                                vts.getXformY().transform(value)));
-                        lastTimeForType.put(type, time);
+        for (Row row : rows.values()) {
+            long time = row.timestamp;
+            long bit = 1;
+            for (int i = 0; i < row.values.length; i++) {
+                if (row.includes(bit)) {
+                    String type = StatsCollector.schema.columnNames[i];
+                    VTSeries vts = typeToSeries.get(type);
+                    if (vts != null) {  // It's a column that we're graphing
+                        double value = row.values[i];
+                        ObservableList<XYChart.Data<Number,Number>> data = typeToList.get(type);
+                        if (time - lastTimeForType.get(type) >= 5 * 1000) {
+                            data.add(new XYChart.Data<>(
+                                    vts.getXformX().transform(time), 
+                                    vts.getXformY().transform(value)));
+                            lastTimeForType.put(type, time);
+                        }
                     }
                 }
+                bit = bit << 1;
             }
         }
         
@@ -367,15 +363,28 @@ public class GraphController extends BaseController {
         series.addToSeries(time, rounded, false);
     }
     
+    private final Runnable chargeHandler = new Runnable() {
+        @Override public void run() {
+            ChargeState cs = ac.statsCollector.lastStoredChargeState.get();
+            addElement(typeToSeries.get(StatsCollector.VoltageKey), cs.timestamp, cs.chargerVoltage);
+            addElement(typeToSeries.get(StatsCollector.CurrentKey), cs.timestamp, cs.chargerActualCurrent);
+            addElement(typeToSeries.get(StatsCollector.EstRangeKey), cs.timestamp, cs.range);
+            addElement(typeToSeries.get(StatsCollector.SOCKey), cs.timestamp, cs.batteryPercent);
+            addElement(typeToSeries.get(StatsCollector.ROCKey), cs.timestamp, cs.chargeRate);
+            addElement(typeToSeries.get(StatsCollector.BatteryAmpsKey), cs.timestamp, cs.batteryCurrent);
+        }
+    };
     
-    private final ChangeListener<Stat> statHandler = new ChangeListener<Stat>() {
-        @Override public void changed(ObservableValue<? extends Stat> ov, Stat t, final Stat stat) {
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    addElement(typeToSeries.get(stat.type), stat.sample.timestamp, stat.sample.value);
-                }
-            });
-        };
+    private final Runnable streamHandler = new Runnable() {
+        @Override public void run() {
+            StreamState ss = ac.statsCollector.lastStoredStreamState.get();
+            addElement(typeToSeries.get(StatsCollector.LatitudeKey), ss.timestamp, ss.estLat);
+            addElement(typeToSeries.get(StatsCollector.LongitudeKey), ss.timestamp, ss.estLng);
+            addElement(typeToSeries.get(StatsCollector.HeadingKey), ss.timestamp, ss.estHeading);
+            addElement(typeToSeries.get(StatsCollector.SpeedKey), ss.timestamp, ss.speed);
+            addElement(typeToSeries.get(StatsCollector.OdometerKey), ss.timestamp, ss.odometer);
+            addElement(typeToSeries.get(StatsCollector.PowerKey), ss.timestamp, ss.power);
+        }
     };
 
 }

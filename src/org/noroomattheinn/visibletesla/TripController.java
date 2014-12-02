@@ -48,6 +48,7 @@ import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
 import org.noroomattheinn.tesla.StreamState;
 import static org.noroomattheinn.tesla.Tesla.logger;
+import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.GeoUtils.ElevationData;
 import org.noroomattheinn.utils.SimpleTemplate;
@@ -135,7 +136,7 @@ public class TripController extends BaseController {
     
     @FXML void exportItHandler(ActionEvent event) {
         String initialDir = ac.persistentState.get(
-                DataStore.LastExportDirKey, System.getProperty("user.home"));
+                StatsCollector.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Trip as KMZ");
         fileChooser.setInitialDirectory(new File(initialDir));
@@ -144,7 +145,7 @@ public class TripController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                ac.persistentState.put(DataStore.LastExportDirKey, enclosingDirectory);
+                ac.persistentState.put(StatsCollector.LastExportDirKey, enclosingDirectory);
             KMLExporter ke = new KMLExporter();
             if (ke.export(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(
@@ -266,10 +267,10 @@ public class TripController extends BaseController {
         
         double cvt = useMiles ? 1.0 : Utils.KilometersPerMile;
         updateStartEndProps(
-                StatsStore.EstRangeKey, start.timestamp, end.timestamp, 
+                StatsCollector.EstRangeKey, start.timestamp, end.timestamp, 
                 rangeRow, cvt);
         updateStartEndProps(
-                StatsStore.SOCKey, start.timestamp, end.timestamp,
+                StatsCollector.SOCKey, start.timestamp, end.timestamp,
                 socRow, 1.0);
         
         updateStartEndProps(odoRow, start.odo, end.odo, cvt);
@@ -284,15 +285,12 @@ public class TripController extends BaseController {
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        List<Stat.Sample> stats = DataStore.valuesForPeriod(
-                statType, startTime, endTime);
-        if (stats == null) {
-            prop.setValue("--");
-            prop.setUnits("--");
-        } else {
-            prop.setValue(String.format("%.1f", stats.get(0).value*conversionFactor));
-            prop.setUnits(String.format("%.1f", stats.get(stats.size()-1).value*conversionFactor));
-        }
+        NavigableMap<Long,Row> rows = ac.statsCollector.getRange(startTime, endTime);
+
+        double startValue = rows.firstEntry().getValue().get(StatsCollector.schema, statType);
+        double endValue = rows.lastEntry().getValue().get(StatsCollector.schema, statType);
+        prop.setValue(String.format("%.1f", startValue * conversionFactor));
+        prop.setUnits(String.format("%.1f", endValue * conversionFactor));
     }
 
     private void updateStartEndProps(
@@ -395,16 +393,15 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void readTrips() {
-        Map<Long,Map<String,Double>> rows = ac.locationStore.getData();
-        for (Map.Entry<Long,Map<String,Double>> row : rows.entrySet()) {
-            Map<String,Double> vals = row.getValue();
+        Map<Long,Row> rows = ac.statsCollector.getLoadedData().getIndex();
+        for (Row r : rows.values()) {
             WayPoint wp = new WayPoint(
-                row.getKey(), // timestamp
-                safeGet(vals, LocationStore.LatitudeKey),
-                safeGet(vals, LocationStore.LongitudeKey),
-           (int)safeGet(vals, LocationStore.HeadingKey),
-                safeGet(vals, LocationStore.SpeedKey),
-                safeGet(vals, LocationStore.OdometerKey));
+                r.timestamp,
+                r.get(StatsCollector.schema, StatsCollector.LatitudeKey),
+                r.get(StatsCollector.schema, StatsCollector.LongitudeKey),
+           (int)r.get(StatsCollector.schema, StatsCollector.HeadingKey),
+                r.get(StatsCollector.schema, StatsCollector.SpeedKey),
+                r.get(StatsCollector.schema, StatsCollector.OdometerKey));
             handleNewWayPoint(wp);
         }
         
@@ -414,14 +411,9 @@ public class TripController extends BaseController {
         }
         
         // Start listening for new WayPoints
-        ac.locationStore.lastStoredStreamState.addListener(
-                new ChangeListener<StreamState>() {
-            WayPoint last = new WayPoint(Long.MAX_VALUE, 0, 0, 0, 0, 0);
-            
-            @Override public void changed(
-                    ObservableValue<? extends StreamState> ov,
-                    StreamState old, StreamState cur) {
-                handleNewWayPoint(new WayPoint(cur));
+        ac.statsCollector.lastStoredStreamState.addTracker(false, new Runnable() {
+            @Override public void run() {
+                handleNewWayPoint(new WayPoint(ac.statsCollector.lastStoredStreamState.get()));
             }
         });
         
@@ -522,25 +514,26 @@ public class TripController extends BaseController {
         long start = t.firstWayPoint().timestamp;
         long end   = t.lastWayPoint().timestamp;
 
-        NavigableMap<Long,Double> socVals = mapFromSamples(
-                DataStore.valuesForPeriod(StatsStore.SOCKey, start, end));
-        NavigableMap<Long,Double> pwrVals = mapFromSamples(
-                DataStore.valuesForPeriod(StatsStore.PowerKey, start, end));
+        NavigableMap<Long,Row> rows = ac.statsCollector.getRange(start, end);
         
         for (WayPoint wp : t.waypoints) {
             wp.decoration = new HashMap<>();
             long wpTime = wp.timestamp;
 
-            Long socKey = socVals.floorKey(wpTime);
-            if (socKey == null) socKey = socVals.firstEntry().getKey();
-            wp.decoration.put(StatsStore.SOCKey, socVals.get(socKey));
-
-            Long pwrKey = pwrVals.floorKey(wpTime);
-            if (pwrKey == null) pwrKey = pwrVals.firstEntry().getKey();
-            wp.decoration.put(StatsStore.PowerKey, pwrVals.get(pwrKey));
+            Row row = rowForTime(wpTime, rows);
+            double soc = row.get(StatsCollector.schema, StatsCollector.SOCKey);
+            double power = row.get(StatsCollector.schema, StatsCollector.PowerKey);
+            wp.decoration.put(StatsCollector.SOCKey, soc);
+            wp.decoration.put(StatsCollector.PowerKey, power);
         }
     }
 
+    private Row rowForTime(long time, NavigableMap<Long,Row> rows) {
+            Long key = rows.floorKey(time);
+            if (key == null) return rows.firstEntry().getValue();
+            return rows.get(key);
+    }
+    
     private NavigableMap<Long,Double> mapFromSamples(List<Stat.Sample> samples) {
         NavigableMap<Long,Double> map = new TreeMap<>();
         if (samples != null) {
@@ -598,7 +591,7 @@ public class TripController extends BaseController {
             for (WayPoint wp: waypoints) {
                 Map<String,Double> decoration = wp.decoration;
                 if (decoration == null) continue;
-                Double power = decoration.get(StatsStore.PowerKey);
+                Double power = decoration.get(StatsCollector.PowerKey);
                 if (power == null) continue;
                 if (lastPower == null) {
                     lastPower = power;

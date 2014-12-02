@@ -47,7 +47,7 @@ public class AppMode {
             @Override public void run() {
                 logger.finest("App Mode changed to " + mode.get());
                 ac.persistentState.put(
-                    ac.vehicle.getVIN()+"_InactivityMode", mode.get().name());
+                    ac.vinKey("InactivityMode"), mode.get().name());
                 if (mode.get() == Mode.StayAwake) ac.appState.setActive();
             }
         });
@@ -64,7 +64,7 @@ public class AppMode {
     
     public void restore() {
         String modeName = ac.persistentState.get(
-                ac.vehicle.getVIN()+"_InactivityMode", Mode.StayAwake.name());
+                ac.vinKey("InactivityMode"), Mode.StayAwake.name());
         // Handle obsolete values or changed names
         switch (modeName) {
             case "Sleep": modeName = "AllowSleeping"; break;    // Name Changed

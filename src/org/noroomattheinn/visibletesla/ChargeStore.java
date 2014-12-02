@@ -27,7 +27,6 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import static org.noroomattheinn.visibletesla.DataStore.LastExportDirKey;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 
 /**
@@ -52,9 +51,10 @@ public class ChargeStore implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore(AppContext appContext, File chargeFile) throws FileNotFoundException {
+    public ChargeStore(AppContext appContext)
+            throws FileNotFoundException {
         this.ac = appContext;
-        this.chargeFile = chargeFile;
+        this.chargeFile = new File(ac.appFileFolder(), ac.vehicle.getVIN()+".charge.json");
         
         FileOutputStream fos = new FileOutputStream(chargeFile, true);
         chargeWriter = new PrintStream(fos);
@@ -93,7 +93,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
     
     public void exportCSV() {        
         String initialDir = ac.persistentState.get(
-                LastExportDirKey, System.getProperty("user.home"));
+                StatsCollector.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Charge Data");
         fileChooser.setInitialDirectory(new File(initialDir));
@@ -102,7 +102,7 @@ public class ChargeStore implements ThreadManager.Stoppable {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                ac.persistentState.put(LastExportDirKey, enclosingDirectory);
+                ac.persistentState.put(StatsCollector.LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage);
             if (exportPeriod == null)
                 return;

@@ -46,18 +46,16 @@ public class VersionUpdater {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void conditionalCheckVersion(final AppContext appContext) {
-        long lastVersionCheck = appContext.persistentState.getLong(
-                appContext.vehicle.getVIN() + "_LastVersionCheck", 0);
+    public static void conditionalCheckVersion(final AppContext ac) {
+        long lastVersionCheck = ac.persistentState.getLong(ac.vinKey("LastVersionCheck"), 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
-            checkForNewerVersion(appContext);
+            checkForNewerVersion(ac);
         }
     }
     
-    public static boolean checkForNewerVersion(final AppContext appContext) {
-        appContext.persistentState.putLong(
-                appContext.vehicle.getVIN() + "_LastVersionCheck", System.currentTimeMillis());
+    public static boolean checkForNewerVersion(final AppContext ac) {
+        ac.persistentState.putLong(ac.vinKey("LastVersionCheck"), System.currentTimeMillis());
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
         if (versions == null) return false; // Missing, empty, or corrupt versions file
@@ -68,7 +66,7 @@ public class VersionUpdater {
             Release lastRelease = null;
             for (Release cur : releases) {
                 if (cur.getInvisible()) continue;
-                if (cur.getExperimental() && !appContext.prefs.offerExperimental.get())
+                if (cur.getExperimental() && !ac.prefs.offerExperimental.get())
                     continue;
                 lastRelease = cur;
                 break;
@@ -100,7 +98,7 @@ public class VersionUpdater {
                     platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
                     platformLink.setOnAction(new EventHandler<ActionEvent>() {
                         @Override public void handle(ActionEvent t) {
-                            appContext.fxApp.getHostServices().showDocument(
+                            ac.fxApp.getHostServices().showDocument(
                                     platformURL.toExternalForm());
 
                         }
@@ -109,7 +107,7 @@ public class VersionUpdater {
                 Hyperlink rnLink = new Hyperlink("Click to view the release notes");
                 rnLink.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent t) {
-                        appContext.fxApp.getHostServices().showDocument(
+                        ac.fxApp.getHostServices().showDocument(
                                 versions.getReleaseNotes().toExternalForm());
 
                     }
@@ -117,7 +115,7 @@ public class VersionUpdater {
                 customPane.getChildren().addAll(msg, rnLink);
                 customPane.getChildren().add(platformLink);
                 Dialogs.showCustomDialog(
-                        appContext.stage, customPane,
+                        ac.stage, customPane,
                         "Newer Version Available",
                         "Checking for Updates", Dialogs.DialogOptions.OK, null);
                 return true;

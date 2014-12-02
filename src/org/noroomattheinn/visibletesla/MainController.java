@@ -380,15 +380,27 @@ public class MainController extends BaseController {
     }
     
     // File->Export * Data...
+    private static final String[] statsColumns = new String[] {
+        StatsCollector.VoltageKey, StatsCollector.CurrentKey,
+        StatsCollector.EstRangeKey, StatsCollector.SOCKey,
+        StatsCollector.ROCKey, StatsCollector.BatteryAmpsKey,
+        StatsCollector.SpeedKey, StatsCollector.PowerKey,
+    };
+    private static final String[] locColumns = new String[] {
+        StatsCollector.LatitudeKey, StatsCollector.LongitudeKey,
+        StatsCollector.HeadingKey, StatsCollector.SpeedKey,
+        StatsCollector.OdometerKey, StatsCollector.PowerKey
+    };
+    
     @FXML void exportHandler(ActionEvent event) {
         MenuItem mi = (MenuItem)event.getSource();
-        if (mi == exportStatsMenuItem)
-            ac.statsStore.exportCSV();
-        if (mi == exportLocMenuItem)
-            ac.locationStore.exportCSV();
-        if (mi == exportChargeMenuItem)
+        if (mi == exportStatsMenuItem) {
+            ac.statsCollector.export(statsColumns);
+        } else if (mi == exportLocMenuItem) {
+            ac.statsCollector.export(locColumns);
+        } else if (mi == exportChargeMenuItem)
             ac.chargeStore.exportCSV();
-        if (mi == this.vampireLossMenuItem) {
+        else if (mi == this.vampireLossMenuItem) {
             vampireStats.showStats();
         }
     }

@@ -318,21 +318,21 @@ public class NotifierController extends BaseController {
     private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            ac.persistentState.putBoolean(vinBased(NotifyCAKey), cur);
+            ac.persistentState.putBoolean(ac.vinKey(NotifyCAKey), cur);
         }
     };
     
     private ChangeListener<Boolean> ulListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            ac.persistentState.putBoolean(vinBased(NotifyULKey), cur);
+            ac.persistentState.putBoolean(ac.vinKey(NotifyULKey), cur);
         }
     };
     
     private ChangeListener<BigDecimal> ulvListener = new ChangeListener<BigDecimal>() {
         @Override public void changed(
                 ObservableValue<? extends BigDecimal> ov, BigDecimal old, BigDecimal cur) {
-            ac.persistentState.putLong(vinBased(NotifyULValKey), cur.longValue());
+            ac.persistentState.putLong(ac.vinKey(NotifyULValKey), cur.longValue());
         }
     };
     
@@ -444,7 +444,7 @@ public class NotifierController extends BaseController {
             caMessageTarget = new MessageTarget(
                     ac, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
-                    ac.persistentState.getBoolean(vinBased(NotifyCAKey),
+                    ac.persistentState.getBoolean(ac.vinKey(NotifyCAKey),
                     false));
             
             unlockedTrigger = new StationaryTrigger(
@@ -453,11 +453,11 @@ public class NotifierController extends BaseController {
             ulMessageTarget = new MessageTarget(
                     ac, NotifyULKey, UnlockedSubj, UnlockedMsg);
             unlocked.setSelected(
-                    ac.persistentState.getBoolean(vinBased(NotifyULKey),
+                    ac.persistentState.getBoolean(ac.vinKey(NotifyULKey),
                     false));
             unlockedDoorsField.numberProperty().set(
                     new BigDecimal(ac.persistentState.getLong(
-                        vinBased(NotifyULValKey), UnlockedThreshold)));
+                        ac.vinKey(NotifyULValKey), UnlockedThreshold)));
             checkForUnlocked = false;
             
             startListening();

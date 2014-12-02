@@ -254,7 +254,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        storedOdometerReading = ac.persistentState.getDouble(v.getVIN() + "_odometer", 0);
+        storedOdometerReading = ac.persistentState.getDouble(ac.vinKey("odometer"), 0);
         ac.streamProducer.produce(false);
             // Make sure we update the odometer reading at some point...
 
@@ -263,12 +263,12 @@ public class OverviewController extends BaseController {
         if (storedOdometerReading != 0) {
             updateOdometer();   // Show at least an old reading to start
         }
-        reflectVINOrFirmware(v);
+        reflectVINOrFirmware();
         vinButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                toggleDisplayVIN(v);
-                reflectVINOrFirmware(v);
+                toggleDisplayVIN();
+                reflectVINOrFirmware();
             }
         });
     }
@@ -418,29 +418,29 @@ public class OverviewController extends BaseController {
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
         // Save off the odometer reading (in miles)
-        ac.persistentState.putDouble(ac.vehicle.getVIN()+"_odometer", odometerReading);
+        ac.persistentState.putDouble(ac.vinKey("odometer"), odometerReading);
         boolean useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : Utils.KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
     }
     
-    private void reflectVINOrFirmware(Vehicle v) {
+    private void reflectVINOrFirmware() {
         VehicleState car = ac.lastVehicleState.get();
-        if (displayVIN(v))
-            vinButton.setText("VIN " + StringUtils.right(v.getVIN(), 6));
+        if (displayVIN())
+            vinButton.setText("VIN " + StringUtils.right(ac.vehicle.getVIN(), 6));
         else {
             vinButton.setText("v" + Firmware.getSoftwareVersion(car.version));
         }
     }
     
-    private boolean displayVIN(Vehicle v) {
-        return ac.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
+    private boolean displayVIN() {
+        return ac.persistentState.getBoolean(ac.vinKey("DISP_VIN"), true);
     }
     
-    private void toggleDisplayVIN(Vehicle v) {
-        boolean displayVIN = ac.persistentState.getBoolean(v.getVIN()+"_DISP_VIN", true);
-        ac.persistentState.putBoolean(v.getVIN()+"_DISP_VIN", !displayVIN);
+    private void toggleDisplayVIN() {
+        boolean displayVIN = ac.persistentState.getBoolean(ac.vinKey("DISP_VIN"), true);
+        ac.persistentState.putBoolean(ac.vinKey("DISP_VIN"), !displayVIN);
     }
 
 /*------------------------------------------------------------------------------

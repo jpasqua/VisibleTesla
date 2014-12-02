@@ -202,8 +202,6 @@ abstract class BaseController {
         for (ImageView image: images) { image.setVisible(true); }
     }
       
-    protected final String vinBased(String key) { return ac.vehicle.getVIN() + "_" + key; }
-    
     protected final boolean active() { return activeController == this; }
     
 

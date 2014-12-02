@@ -25,12 +25,12 @@ public class DisclaimerDialog {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void show(AppContext appContext) {
-        boolean disclaimer = appContext.persistentState.getBoolean(
-                appContext.vehicle.getVIN()+"_Disclaimer", false);
+    public static void show(AppContext ac) {
+        boolean disclaimer = ac.persistentState.getBoolean(
+                ac.vinKey("Disclaimer"), false);
         if (!disclaimer) {
             Dialogs.showInformationDialog(
-                    appContext.stage,
+                    ac.stage,
                     "Use this application at your own risk. The author\n" +
                     "does not guarantee its proper functioning.\n" +
                     "It is possible that use of this application may cause\n" +
@@ -42,7 +42,6 @@ public class DisclaimerDialog {
                     "reducing the available charge in the battery.",
                     "Please Read Carefully", "Disclaimer");
         }
-        appContext.persistentState.putBoolean(
-                appContext.vehicle.getVIN()+"_Disclaimer", true);                
+        ac.persistentState.putBoolean(ac.vinKey("Disclaimer"), true);                
     }
 }

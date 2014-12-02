@@ -14,11 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import static org.noroomattheinn.tesla.Tesla.logger;
+import org.noroomattheinn.timeseries.IndexedTimeSeries;
+import org.noroomattheinn.timeseries.Row;
+import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
-import org.noroomattheinn.visibletesla.stats.Stat;
 
 /**
  * VampireStats: Collect and display statistics about vampire loss.
@@ -49,8 +51,6 @@ public class VampireStats {
     private Calendar        fromLimit, toLimit;
     private boolean         stradles;
     
-    private ValueTracker    tracker;
-    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -66,7 +66,7 @@ public class VampireStats {
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null) { return; }
         
-        ArrayList<Rest> restPeriods = new ArrayList<>();
+        final ArrayList<Rest> restPeriods = new ArrayList<>();
 
         if (ac.prefs.vsLimitEnabled.get()) {
             fromLimit = ac.prefs.vsFrom.get();
@@ -75,14 +75,15 @@ public class VampireStats {
         }
 
         // Process stats for the selected time period
-        NavigableMap<Long, Map<String, Double>> allRows = ac.statsStore.getData();
-        NavigableMap<Long, Map<String, Double>> subMap = allRows.subMap(
-                exportPeriod.lowerEndpoint(), true, exportPeriod.upperEndpoint(), true);
-        tracker = new ValueTracker();
+        IndexedTimeSeries ts = ac.statsCollector.getLoadedData();
         restInProgress = null;
-        for (Map.Entry<Long,Map<String,Double>> row : subMap.entrySet()) {
-            handleStat(restPeriods, row.getKey(), row.getValue());
-        }
+
+        ts.streamRows(exportPeriod, new RowCollector() {
+            @Override public boolean collect(Row r) {
+                handleStat(restPeriods, r);
+                return true;
+            }
+        });
         completeRest(restPeriods);
                 
         displayResults(restPeriods);
@@ -118,12 +119,11 @@ public class VampireStats {
         }
     }
     
-    private void handleStat(List<Rest> restPeriods, long timestamp, Map<String, Double> stat) {
-        Double speed = tracker.updateVal(StatsStore.SpeedKey, timestamp, stat);
-        Double range = tracker.updateVal(StatsStore.EstRangeKey, timestamp, stat);
-        Double voltage = tracker.updateVal(StatsStore.VoltageKey, timestamp, stat);
-        if (voltage == null) voltage = 0.0;
-        if (speed == null || range == null) { return; }
+    private void handleStat(List<Rest> restPeriods, Row r) {
+        long timestamp = r.timestamp;
+        double speed = r.get(StatsCollector.schema, StatsCollector.SpeedKey);
+        double range = r.get(StatsCollector.schema, StatsCollector.EstRangeKey);
+        double voltage = r.get(StatsCollector.schema, StatsCollector.VoltageKey);
 
         if (outOfRange(timestamp)) { completeRest(restPeriods); return; }
 
@@ -138,6 +138,7 @@ public class VampireStats {
             }
         } else { completeRest(restPeriods); }
     }
+    
     
     private boolean outOfRange(long ts) {
         if (!ac.prefs.vsLimitEnabled.get()) return false;
@@ -227,7 +228,9 @@ public class VampireStats {
     }
     
     private Map<String,Object> genProps() {
-        NavigableMap<Long,Map<String,Double>> rows = ac.statsStore.getData();
+        NavigableMap<Long,Row> rows = ac.statsCollector.getAll();
+        
+        
         Map<String,Object> props = new HashMap<>();
         long timestamp = rows.firstKey(); 
         Calendar start = Calendar.getInstance();
@@ -256,21 +259,6 @@ public class VampireStats {
         c.set(Calendar.SECOND, 59);
     }
 
-    private static class ValueTracker {
-        private Map<String,Stat.Sample> curVals = new HashMap<>();
-        
-        private Double updateVal(String key, long timestamp, Map<String, Double> stat) {
-            Double val = stat.get(key);
-            if (val == null) {  // Return the last known value if there is one
-                Stat.Sample sample = curVals.get(key);
-                return sample == null ? null : sample.value;
-            } else {            // Update the stored value and return it
-                curVals.put(key, new Stat.Sample(timestamp, val));
-                return val;
-            }
-        }
-    }
-    
     public class Rest {
         public long startTime, endTime;
         public double startRange, endRange;

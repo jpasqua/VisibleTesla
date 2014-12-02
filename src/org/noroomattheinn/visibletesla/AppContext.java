@@ -43,7 +43,7 @@ public class AppContext {
  *----------------------------------------------------------------------------*/
         
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.30.00";
+    public static final String ProductVersion = "0.31.00";
     public static final String GoogleMapsAPIKey =
             "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
     public static final String MailGunKey =
@@ -75,8 +75,7 @@ public class AppContext {
     public final MailGun mailer;
     public boolean shuttingDown;
     public Vehicle vehicle = null;
-    public LocationStore locationStore;
-    public StatsStore statsStore;
+    public StatsCollector statsCollector;
     public ChargeStore chargeStore;
     public StreamProducer streamProducer;
     public StateProducer stateProducer;
@@ -140,12 +139,8 @@ public class AppContext {
     public void prepForVehicle(Vehicle v) throws IOException {
         vehicle = v;
 
-        locationStore = new LocationStore(
-                this, new File(appFilesFolder, v.getVIN() + ".locs.log"));
-        statsStore = new StatsStore(
-                this, new File(appFilesFolder, v.getVIN() + ".stats.log"));
-        chargeStore = new ChargeStore(
-                this, new File(appFilesFolder, v.getVIN() + ".charge.json"));
+        statsCollector = new StatsCollector(this);
+        chargeStore = new ChargeStore(this);
         
         streamProducer = new StreamProducer(this);
         stateProducer = new StateProducer(this);
@@ -180,6 +175,7 @@ public class AppContext {
         }
     }
 
+    public final String vinKey(String key) { return vehicle.getVIN() + "_" + key; }
     
     public File appFileFolder() { return appFilesFolder; }
     
