@@ -279,9 +279,9 @@
 
             for (i = 0; i < wayPoints.length; i++) {
                 data.setCell(wpIndex, 0, wpIndex);
-                data.setCell(wpIndex, 1, wayPoints[i].L_ELV);
+                data.setCell(wpIndex, 1, wayPoints[i].elevation);
                 data.setCell(wpIndex, 2, wayPoints[i].speed);
-                data.setCell(wpIndex, 3, wayPoints[i].S_PWR);
+                data.setCell(wpIndex, 3, wayPoints[i].power);
                 wpIndex++;
             }
         }
