@@ -35,6 +35,13 @@ public class Row {
     public Row(RowDescriptor schema) { this(0L, 0L, schema.nColumns); }
     
     /**
+     * Create an empty Row. The timestamp is set to 0 and no columns are set. 
+     * @param schema    A description of the Row 
+     * @param timestamp The timestamp for the row
+     */
+    public Row(RowDescriptor schema, long timestamp) { this(timestamp, 0L, schema.nColumns); }
+    
+    /**
      * Create a Row that's ready to have it's values set.
      * @param timestamp The Row's timestamp
      * @param bitVector The bit vector representing the columns that are to be set
@@ -85,16 +92,26 @@ public class Row {
     }
 
     /**
-     * SEt the value of the named column.
+     * Set the value of the named column. If the specified value isNaN or
+     * isInfinite, the value is not set.
      * @param schema    A description of the row        
      * @param column    The name of the column in question
      * @param value     The value to be set for the named column
      */
     public void set(RowDescriptor schema, String column, double value) {
+        if (Double.isInfinite(value) || Double.isNaN(value)) return;
         values[schema.indexOfColumn(column)] = value;
         bitVector |= schema.bitForColumn(column);
     }
     
+    /**
+     * Ensure that the column associated with the given bit is not marked as
+     * included in this row.
+     */
+    public void clear(long bitForColumn) {
+        bitVector = bitVector & ~bitForColumn;
+    }
+
     /**
      * Merge the values from a Row into this Row. The timestamp of this
      * row is not changed. This row's bit vector is updated.

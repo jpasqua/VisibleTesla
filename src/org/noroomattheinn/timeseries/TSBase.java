@@ -63,7 +63,10 @@ public abstract class TSBase implements TimeSeries {
     
     @Override public synchronized void loadInto(final TimeSeries ts, Range<Long> period) {
         streamRows(period, new RowCollector() {
-            @Override public boolean collect(Row r) { ts.storeRow(r); return true;}
+            @Override public boolean collect(Row r) {
+                ts.storeRow(r);
+                return true;
+            }
         });
     }
     

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.NavigableMap;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Dialogs;
 import javafx.stage.FileChooser;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
@@ -22,6 +23,7 @@ import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.Utils;
 
 /**
  * StatsCollector: Collect stats as they are generated, store them in
@@ -36,6 +38,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     public static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
+    private static final long TenMinutes = 10 * 60 * 1000;
     
     // Data that comes from the ChargeState
     public static final String VoltageKey =     "C_VLT";
@@ -73,9 +76,28 @@ public class StatsCollector implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
+    /** 
+     * The last StreamState that was persisted
+     */
     public final TrackedObject<StreamState> lastStoredStreamState;
+    
+    /** 
+     * The last ChargeState that was persisted
+     */
     public final TrackedObject<ChargeState> lastStoredChargeState;
 
+    /**
+     * Create a new StatsCollector that will monitor new states being generated
+     * by the StatsStreamer and persist them as appropriate. Not every state will
+     * be persisted and not every value from each state is persisted. A state may
+     * not be persisted if a previous state was persisted too "recently". This
+     * constructor might result in upgrading the underlying repository if its
+     * format has changed.
+     * 
+     * @param appContext    Describes where app files are to be stored and provides
+     *                      other contextual information.
+     * @throws IOException  If the underlying persistent store has a problem.
+     */
     public StatsCollector(AppContext appContext)
             throws IOException {
         upgradeIfNeeded(appContext.appFileFolder(), appContext.vehicle.getVIN());
@@ -85,14 +107,14 @@ public class StatsCollector implements ThreadManager.Stoppable {
                 ac.appFileFolder(), ac.vehicle.getVIN(),
                 schema, ac.prefs.getLoadPeriod());
 
-        this.lastStoredStreamState = new TrackedObject<>(null);
+        this.lastStoredStreamState = new TrackedObject<>(new StreamState());
         this.lastStoredChargeState = new TrackedObject<>(null);
         
         appContext.lastStreamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, StreamState cur) {
-                handStreamState(cur);
+                handleStreamState(cur);
             }
         });
         
@@ -105,16 +127,38 @@ public class StatsCollector implements ThreadManager.Stoppable {
         });
     }
     
-    public IndexedTimeSeries getLoadedData() { return ts.getCachedSeries(); }
+    /**
+     * Return an IndexedTimeSeries for only the data loaded into memory. The
+     * range of data loaded is controlled by a preference.
+     * @return 
+     */
+    public IndexedTimeSeries getLoadedTimeSeries() { return ts.getCachedSeries(); }
     
-    public NavigableMap<Long,Row> getRange(long startTime, long endTime) {
-        return getLoadedData().getIndex(Range.open(startTime, endTime));
+    /**
+     * Return an index on a set of rows covered by the period [startTime..endTime].
+     * 
+     * @param startTime Starting time for the period
+     * @param endTime   Ending time for the period
+     * @return A map from time -> Row for all rows in the time range
+     */
+    public NavigableMap<Long,Row> getRangeOfLoadedRows(long startTime, long endTime) {
+        return getLoadedTimeSeries().getIndex(Range.open(startTime, endTime));
     }
     
-    public NavigableMap<Long,Row> getAll() {
-        return getLoadedData().getIndex();
+    /**
+     * Return an index on the cached rows in the data store.
+     *
+     * @return A map from time -> Row for all rows in the store
+     */
+    public NavigableMap<Long,Row> getAllLoadedRows() {
+        return getLoadedTimeSeries().getIndex();
     }
-            
+    
+    /**
+     * Export selected columns to an Excel file
+     * @param columns   A list of the columns to export. The columns must 
+     *                  correspond to entries in StatsCollector.Columns
+     */
     public void export(String[] columns) {
         String initialDir = ac.persistentState.get(
                 LastExportDirKey, System.getProperty("user.home"));
@@ -130,10 +174,21 @@ public class StatsCollector implements ThreadManager.Stoppable {
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage);
             if (exportPeriod == null)
                 return;
-            ts.export(file, exportPeriod, Arrays.asList(columns), true);
+            if (ts.export(file, exportPeriod, Arrays.asList(columns), true)) {
+                Dialogs.showInformationDialog(
+                    ac.stage, "Your data has been exported",
+                    "Data Export Process" , "Export Complete");
+            } else {
+                Dialogs.showErrorDialog(
+                    ac.stage, "Unable to save to: " + file,
+                    "Data Export Process" , "Export Failed");
+            }
         }
     }
     
+    /**
+     * Shut down the StatsCollector.
+     */
     @Override public void stop() { ts.close(); }
 
 /*------------------------------------------------------------------------------
@@ -143,58 +198,76 @@ public class StatsCollector implements ThreadManager.Stoppable {
  *----------------------------------------------------------------------------*/
     
     private synchronized void handleChargeState(ChargeState state) {
-        long timestamp = state.timestamp;
+        Row r = new Row(state.timestamp, 0L, schema.nColumns);
         
-        ts.storeValue(timestamp, VoltageKey, state.chargerVoltage);
-        ts.storeValue(timestamp, CurrentKey, state.chargerActualCurrent);
-        ts.storeValue(timestamp, EstRangeKey, state.range);
-        ts.storeValue(timestamp, SOCKey, state.batteryPercent);
-        ts.storeValue(timestamp, ROCKey, state.chargeRate);
-        ts.storeValue(timestamp, BatteryAmpsKey, state.batteryCurrent);
+        r.set(schema, VoltageKey, state.chargerVoltage);
+        r.set(schema, CurrentKey, state.chargerActualCurrent);
+        r.set(schema, EstRangeKey, state.range);
+        r.set(schema, SOCKey, state.batteryPercent);
+        r.set(schema, ROCKey, state.chargeRate);
+        r.set(schema, BatteryAmpsKey, state.batteryCurrent);
+        ts.storeRow(r);
+        
         lastStoredChargeState.set(state);
     }
     
-    private synchronized void handStreamState(StreamState state) {
-        if (state == null || tooClose(state, lastStoredStreamState.get())) return;
+    private synchronized void handleStreamState(StreamState state) {
+        if (state == null || !worthRecording(state, lastStoredStreamState.get())) return;
         
-        double speed = Math.round(state.speed*10.0)/10.0;
-        long timestamp = state.timestamp;
-        ts.storeValue(timestamp, LatitudeKey, state.estLat);
-        ts.storeValue(timestamp, LongitudeKey, state.estLng);
-        ts.storeValue(timestamp, HeadingKey, state.heading);
-        ts.storeValue(timestamp, SpeedKey, speed);
-        ts.storeValue(timestamp, OdometerKey, state.odometer);
+        double speed = Utils.round(state.speed, 1);
+        Row r = new Row(state.timestamp, 0L, schema.nColumns);
         
+        r.set(schema, LatitudeKey, state.estLat);
+        r.set(schema, LongitudeKey, state.estLng);
+        r.set(schema, HeadingKey, state.heading);
+        r.set(schema, SpeedKey, speed);
+        r.set(schema, OdometerKey, state.odometer);
+        r.set(schema, PowerKey, state.power);
+        ts.storeRow(r);
+        
+        if (lastStoredStreamState.get().odometer < state.odometer) {
+            ac.persistentState.putDouble(ac.vinKey("odometer"), state.odometer);
+        }
         lastStoredStreamState.set(state);
     }
     
-    private boolean tooClose(StreamState wp1, StreamState wp2) {
-        if (wp1 == null || wp2 == null) return false;
+    private boolean worthRecording(StreamState cur, StreamState last) {
+        double meters = GeoUtils.distance(cur.estLat, cur.estLng, last.estLat, last.estLng);
+        boolean inMotion = cur.isInMotion();
         
-        double meters = GeoUtils.distance(wp1.estLat, wp1.estLng, wp2.estLat, wp2.estLng);
+        // A big turn makes it worth recording. Note that heading changes can be
+        // spurious. They can happen when the car is sitting still. Ignore those.
+        double turn =  180.0 - Math.abs((Math.abs(cur.heading - last.heading)%360.0) - 180.0);
+        if (turn > 10 && inMotion) return true; 
         
+        // A long time between readings makes it worth recording
+        long timeDelta = Math.abs(cur.timestamp - last.timestamp);
+        if (timeDelta > TenMinutes) { return true; }
         
-        // A big turn makes it "far". Note that heading changes can be spurious.
-        // Sometimes we see heading changes when the car is sitting still.
-        // Ignore those.
-        double turn =  180.0 - Math.abs((Math.abs(wp1.heading - wp2.heading)%360.0) - 180.0);
-        if (turn > 10 && meters > 0.05) return false; 
+        // A change in shift state makes it worth recording
+        if (!last.shiftState().equals(cur.shiftState())) { return true; }
         
-        // A long time between readings makes it "far"
-        long timeDelta = Math.abs(wp1.timestamp - wp2.timestamp);
-        if (timeDelta > 10 * 60 * 1000) return false;
+        // If you've moved more than a minimum amount, it's worth recording
+        if (meters >= ac.prefs.locMinDist.get()) return true;
         
-        // A short time between readings makes it "too close"
-        if (timeDelta < ac.prefs.locMinTime.get() * 1000)  return true; 
+        // If you're moving and it's been a while since a reading, it's worth recording
+        if (inMotion && (timeDelta >= ac.prefs.locMinTime.get() * 1000)) return true;
         
-        // A short distance between readings makes it "too close"
-        return (meters < ac.prefs.locMinDist.get());
+        return false;
     }
 
     private boolean upgradeIfNeeded(File container, String baseName) throws IOException {
         DBConverter converter = new DBConverter(container, baseName);
         if (!converter.conversionRequired()) return false;
+        Dialogs.showInformationDialog(
+            ac.stage,
+            "Your data files must be upgraded\nPress OK to begin the process.",
+            "Data Upgrade Process" , "Data File Upgrade");
         converter.convert();
+        Dialogs.showInformationDialog(
+            ac.stage,
+            "Your data files have been upgraded\nPress OK to continue.",
+            "Data Upgrade Process" , "Process Complete");
         return true;
     }
 }

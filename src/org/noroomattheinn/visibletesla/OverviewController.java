@@ -46,11 +46,9 @@ public class OverviewController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
- * Internal Status
+ * Internal State
  * 
  *----------------------------------------------------------------------------*/
-
-    private double              storedOdometerReading;
     
 /*------------------------------------------------------------------------------
  *
@@ -254,15 +252,12 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        storedOdometerReading = ac.persistentState.getDouble(ac.vinKey("odometer"), 0);
-        ac.streamProducer.produce(false);
-            // Make sure we update the odometer reading at some point...
+        
+        updateOdometer();   // Show at least an old reading to start
+        ac.streamProducer.produce(false);   // Update it at some point
 
         updateWheelView();  // Make sure we display the right wheels from the get-go
         updateRoofView();   // Make sure we display the right roof from the get-go
-        if (storedOdometerReading != 0) {
-            updateOdometer();   // Show at least an old reading to start
-        }
         reflectVINOrFirmware();
         vinButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -413,12 +408,9 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading = (ac.lastStreamState.get() != null) ?
-                ac.lastStreamState.get().odometer : storedOdometerReading;
+        double odometerReading =  ac.lastStreamState.get().odometer;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
-        // Save off the odometer reading (in miles)
-        ac.persistentState.putDouble(ac.vinKey("odometer"), odometerReading);
         boolean useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : Utils.KilometersPerMile;

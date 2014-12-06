@@ -147,6 +147,8 @@ public class AppContext {
         statsStreamer = new StatsStreamer(this);
         chargeMonitor = new ChargeMonitor(this);
         
+        lastStreamState.get().odometer = persistentState.getDouble(vinKey("odometer"), 0);
+
         restServer.launch();
     }
 

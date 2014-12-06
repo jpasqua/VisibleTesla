@@ -14,8 +14,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * PersistentTS: A persistent repository for time series data.
@@ -44,9 +42,14 @@ import java.util.Map;
  * 
  *      VAL+ is a tab separated list of values. There must be as
  *      many values in this list as 1 bits in the bit vector.
- *      A value may be either a double value represented as a
- *      String OR the literal "*" which indicates that this value 
- *      is the same as the last recorded value of this column.
+ *      A value may be:<ul>
+ *      <li>A double value represented as a String</li>
+ *      <li>The literal "*" which indicates that this value 
+ *      is the same as the last recorded value of this column.</li>
+ *      <li>The literal "!" which indicates that this value 
+ *      should be ignored and removed from the bit vector. This
+ *      can be used to take the place of NaN or INF values.</li>
+ *      </ul>
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -64,14 +67,10 @@ public class PersistentTS extends TSBase {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final PrintStream dataStream;   // Where we write new entries
-    private final Repo repo;                // The underlying repository
-    
-    private int  nRowsEmitted;              // Used as part of auto-flush
-    private Row  lastRowEmitted;            // Used to delta-encode values
-    private Row  pending;                   // Row that is waiting to be emitted
-    private long pendingTime;               // Adjusted time for pending Row
-    private long timeOfFirstRow;            // The oldest data in the series
+    private final Repo repo;        // The underlying repository
+    private final Emitter emitter;  // Used to write rows
+    private Row pendingRow;         // Used to merge rows if needed
+    private long timeOfFirstRow;    // The oldest data in the series
     
 /*==============================================================================
  * -------                                                               -------
@@ -79,16 +78,13 @@ public class PersistentTS extends TSBase {
  * -------                                                               -------
  *============================================================================*/
     
-    public PersistentTS(File container, String baseName, RowDescriptor descriptor)
+    public PersistentTS(File container, String baseName, RowDescriptor schema)
             throws IOException {
-        super(descriptor);
+        super(schema);
         
-        this.repo = Repo.getRepo(container, baseName, descriptor.columnNames);
-        this.dataStream = repo.getPrintStream();
-        
-        this.nRowsEmitted = 0;
-        this.lastRowEmitted = new Row(-1L, 0L, descriptor.nColumns);
-        this.pending = null;
+        this.repo = Repo.getRepo(container, baseName, schema);
+        this.emitter = new Emitter();
+        this.pendingRow = null;
         
         timeOfFirstRow = Long.MAX_VALUE;    // If no rows...
         streamRows(Range.<Long>all(), new RowCollector() {
@@ -110,42 +106,33 @@ public class PersistentTS extends TSBase {
  *----------------------------------------------------------------------------*/
     
     @Override public long firstTime() { return timeOfFirstRow; }
-        
+    
     @Override public synchronized Row storeRow(Row r) throws IllegalArgumentException {
-        long t;
-        if (pending == null) {
-            if (lastRowEmitted.timestamp < 0) t = -r.timestamp;
-            else t = r.timestamp - lastRowEmitted.timestamp;
+        if (pendingRow == null) {
+            pendingRow = r;
         } else {
-            t = r.timestamp - pending.timestamp;
-        }
-        t = deflate(t);
-
-        if (pending == null) {
-            pending = r;
-            pendingTime = t;
-        } else {
-            if (t == 0) {
-                pending.mergeWith(r);
+            if (deflate(r.timestamp) == deflate(pendingRow.timestamp)) {
+                pendingRow.mergeWith(r);
+                logger.info("Merging");
             } else {
-                emit(pendingTime, pending);
-                pending = r;
-                pendingTime = t;
+                emitter.emit(pendingRow);
+                pendingRow = r;
             }
         }
-
+        
         return r;
     }
-            
+    
     @Override public final synchronized void streamRows(
             Range<Long> period, RowCollector collector) {
         double accumulator[] = new double[schema.nColumns];
-        Map<String,Double> lastValSeen = new HashMap<>();
         if (period == null) period = Range.all();
+        long fromTime = period.hasLowerBound() ? period.lowerEndpoint() : 0L;
+        long toTime = period.hasUpperBound() ? period.upperEndpoint() : Long.MAX_VALUE;
         long prevTime = 0;
         BufferedReader rdr = null;
         try {
-            rdr = new BufferedReader(new FileReader(repo.dataFile));
+            rdr = repo.getReader();
             String line;
             while ((line = rdr.readLine()) != null) {
                 if (line.startsWith("#")) { continue; }
@@ -158,7 +145,8 @@ public class PersistentTS extends TSBase {
                 prevTime = time;    // Keep a running tally of the current time
                 
                 time = inflate(time);
-                if (!period.contains(time)) continue;
+                if (time < fromTime) continue;  // Out of range, ignore & move on
+                if (time > toTime) break;       // Out of range, ignore & stop
                 
                 Row row = new Row(time, 0L, schema.nColumns);
                 
@@ -174,17 +162,20 @@ public class PersistentTS extends TSBase {
                 long bit = 1;
                 int tokenIndex = 2;
                 for (int i = 0; i < schema.nColumns; i++) {
-                    int index = Row.indexForBit(bit);
-                    if ((bit & bitVector) != 0) {
+                    row.values[i] = accumulator[i]; // Start off with the previous value
+                    if (row.includes(bit)) {
                         String valString = tokens[tokenIndex++];
-                        Double val = (valString.equals("*")) ?
-                            lastValSeen.get(schema.columnNames[i]): doubleValue(valString);
-                        if (val != null) {
-                            accumulator[index] = row.values[index] = val.doubleValue();
-                            lastValSeen.put(schema.columnNames[i], val);
+                        switch (valString) {
+                            case "*": break;
+                            case "!": row.clear(bit); break;
+                            default: 
+                                Double val = doubleValue(valString);
+                                if (val == null) { row.clear(bit); }
+                                else { accumulator[i] = row.values[i] = val.doubleValue(); }
+                                break;
                         }
                     } else {
-                        row.values[index] = accumulator[index];
+                        row.values[i] = accumulator[i];
                     }
                     bit = bit << 1;
                 }
@@ -196,13 +187,9 @@ public class PersistentTS extends TSBase {
         if (rdr != null) try { rdr.close(); } catch (IOException e) { }
     }
 
-    @Override public void flush() {
-        if (this.dataStream != null) dataStream.flush();
-    }
+    @Override public void flush() { repo.flush(); }
     
-    @Override public void close() {
-        if (this.dataStream != null) dataStream.close();
-    }
+    @Override public void close() { repo.close(); }
     
 /*------------------------------------------------------------------------------
  *
@@ -210,30 +197,6 @@ public class PersistentTS extends TSBase {
  * 
  *----------------------------------------------------------------------------*/
     
-    private Row emit(long adjustedTime, Row r) {
-        dataStream.print(adjustedTime);
-        dataStream.append("\t");
-        dataStream.append(Long.toHexString(r.bitVector));
-        dataStream.append("\t");
-        long bitForColumn = 1;
-        for (int i = 0; i < schema.nColumns; i++) {
-            if (r.includes(bitForColumn)) {
-                if (r.values[i] == lastRowEmitted.values[i]) {
-                    dataStream.print("*");
-                } else {
-                    dataStream.print(r.values[i]);
-                }
-                dataStream.append("\t");
-            }
-            bitForColumn = bitForColumn << 1;
-        }
-        dataStream.println();
-
-        lastRowEmitted = r;
-        if (nRowsEmitted++ % 10 == 0) { dataStream.flush(); }
-        return r;
-    }
-
     private static Long longValue(String valString) {
         try {
             return Long.decode(valString);
@@ -252,8 +215,53 @@ public class PersistentTS extends TSBase {
         }
     }
     
-    private long deflate(long timestamp) { return timestamp/100; }
-    private long inflate(long timestamp) { return timestamp*100; }
+    private static long deflate(long timestamp) { return timestamp/100; }
+    private static long inflate(long timestamp) { return timestamp*100; }
+    
+    private class Emitter {
+        private Row lastRowEmitted;
+        private int nRowsEmitted;
+        private final PrintStream ps;
+        
+        Emitter() {
+            this.nRowsEmitted = 0;
+            this.lastRowEmitted = null;
+            this.ps = repo.getPrintStream();
+        }
+        
+        Row emit(Row r) {
+            // Emit the timestamp for the row
+            long time = lastRowEmitted == null ?  -deflate(r.timestamp) :
+                    deflate(r.timestamp) - deflate(lastRowEmitted.timestamp);
+            ps.print(time);
+
+            // Emit the bit vector describing which columns are included
+            ps.append("\t");
+            ps.append(Long.toHexString(r.bitVector));
+
+            // Emit the column values
+            long bitForColumn = 1;
+            for (int i = 0; i < schema.nColumns; i++) {
+                if (r.includes(bitForColumn)) {
+                    ps.append("\t");
+                    double val = r.values[i];
+                    if (Double.isInfinite(val) || Double.isNaN(val)) {
+                        ps.print("!");
+                    } else if (lastRowEmitted != null && val == lastRowEmitted.values[i]) {
+                        ps.print("*");
+                    } else {
+                        ps.print(val);
+                    }
+                }
+                bitForColumn = bitForColumn << 1;
+            }
+            ps.println();
+
+            lastRowEmitted = r;
+            if (nRowsEmitted++ % 10 == 0) { ps.flush(); }
+            return r;
+        }
+    }
     
 /*------------------------------------------------------------------------------
  *
@@ -262,15 +270,15 @@ public class PersistentTS extends TSBase {
  *----------------------------------------------------------------------------*/
 
     private static class Repo {
-        private final String[] columns;
-        private File dataFile;
-        private File hdrFile;
+        private final RowDescriptor schema;
+        private final File dataFile;
+        private final File hdrFile;
         private PrintStream ps;
         
-        private Repo(File container, String name, String[] columns) {
-            this.columns = columns;
-            dataFile = dataFile(container, name);
-            hdrFile =  headerFile(container, name);
+        private Repo(File container, String name, RowDescriptor schema) {
+            this.schema = schema;
+            this.dataFile = dataFile(container, name);
+            this.hdrFile =  headerFile(container, name);
             this.ps = null;
         }
         
@@ -278,10 +286,15 @@ public class PersistentTS extends TSBase {
             return headerFile(container, baseName).exists() &&
                    dataFile(container, baseName).exists();
         }
+        
+        public void flush() { if (ps != null) ps.flush(); }
 
-        static Repo getRepo(File container, String name, String[] columns)
+        public void close() { if (ps != null) ps.close(); }
+        
+        
+        static Repo getRepo(File container, String name, RowDescriptor schema)
                 throws IOException {
-            Repo repo = new Repo(container, name, columns);
+            Repo repo = new Repo(container, name, schema);
             if (!repo.hdrFile.exists() && repo.dataFile.exists()) {
                 // Danger! The data file has become "disconnected" from the
                 // header file. Don't create a new data file - the data is valuable
@@ -297,6 +310,9 @@ public class PersistentTS extends TSBase {
         }
         
         public PrintStream getPrintStream() { return ps; }
+        public BufferedReader getReader() throws FileNotFoundException {
+            return new BufferedReader(new FileReader(dataFile));
+        };
 
         private void ensureValidHeader() throws IOException {
             if (!hdrFile.exists()) {
@@ -320,18 +336,18 @@ public class PersistentTS extends TSBase {
             if (line == null) throw new IOException("Missing column name declarations");
 
             String[] declaredNames = line.split("\t");
-            if (declaredNames.length > columns.length) {
+            if (declaredNames.length > schema.nColumns) {
                 throw new IOException("Mismatched column names - too few supplied names");
             }
             
             for (int i = 0; i < declaredNames.length; i++) {
-                if (!declaredNames[i].equals(columns[i])) {
+                if (!declaredNames[i].equals(schema.columnNames[i])) {
                     throw new IOException("Mismatched column names");
                 }
             }
             reader.close();
             
-            if (columns.length > declaredNames.length) {
+            if (schema.nColumns > declaredNames.length) {
                 logger.info("Adding new column(s)");
                 createHeaderFile(); // We've got new columns! Overwrite the header file
             }
@@ -340,10 +356,10 @@ public class PersistentTS extends TSBase {
         private void createHeaderFile() throws FileNotFoundException {
             PrintStream writer = new PrintStream(new FileOutputStream(hdrFile, false));
             writer.format("%d\n", RepoVersion);
-            int lastIndex = columns.length-1;
+            int lastIndex = schema.nColumns-1;
             int index = 0;
             while (true) {
-                writer.append(columns[index]);
+                writer.append(schema.columnNames[index]);
                 if (index++ != lastIndex) writer.append("\t");
                 else break;
             }
@@ -357,13 +373,12 @@ public class PersistentTS extends TSBase {
         }
 
         private static File headerFile(File container, String baseName) {
-            return new File(container, baseName + ".stats.hdr");
+            return new File(container, baseName + ".pts.hdr");
         }
     
         private static File dataFile(File container, String baseName) {
-            return new File(container, baseName + ".stats.data");
+            return new File(container, baseName + ".pts.data");
         }
-    
 
     }
 }

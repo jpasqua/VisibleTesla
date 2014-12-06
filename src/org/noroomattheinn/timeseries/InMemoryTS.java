@@ -119,29 +119,6 @@ public class InMemoryTS extends TSBase implements IndexedTimeSeries {
  * 
  *----------------------------------------------------------------------------*/
     
-    @Override public Row storeValue(long timestamp, String columnName, double value)
-            throws IllegalArgumentException {
-        Row lastRow = rows.get(rows.size() - 1);
-
-        timestamp = adjustTimeIfNeeded(timestamp, lastRow.timestamp);
-        
-        long bit = schema.bitForColumn(columnName);
-        if (timestamp == lastRow.timestamp) {
-            // Add to existing row
-            lastRow.bitVector |= bit;
-            lastRow.values[Row.indexForBit(bit)] = value;
-            return lastRow;
-        } else {
-            // Create new row
-            Row newRow = new Row(timestamp, bit, lastRow.values);
-            newRow.bitVector |= bit;
-            newRow.values[Row.indexForBit(bit)] = value;
-            rows.add(newRow);
-            index.put(timestamp, newRow);
-            return newRow;
-        }
-    }
-        
     @Override public NavigableMap<Long,Row> getIndex() { return index; }
     
     @Override public NavigableMap<Long,Row> getIndex(Range<Long> period) {

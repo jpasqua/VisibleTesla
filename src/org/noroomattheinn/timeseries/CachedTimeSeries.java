@@ -130,10 +130,6 @@ public class CachedTimeSeries implements TimeSeries, IndexedTimeSeries {
     }
     
     @Override public void flush() {
-        if (pending != null) {
-            persistent.storeRow(pending);
-            pending = null;
-        }
         persistent.flush();
     }
     
@@ -168,16 +164,6 @@ public class CachedTimeSeries implements TimeSeries, IndexedTimeSeries {
         }
     }
 
-    private Row pending = null;
-    @Override public synchronized Row storeValue(long timestamp, String columnName, double value) {
-        Row inMemoryRow = inMemory.storeValue(timestamp, columnName, value);
-        if (inMemoryRow != pending) {
-            if (pending != null) persistent.storeRow(pending);
-            pending = inMemoryRow;
-        }
-        return inMemoryRow;
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * Private Utility Methods

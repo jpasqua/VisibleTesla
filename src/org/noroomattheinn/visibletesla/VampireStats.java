@@ -75,7 +75,7 @@ public class VampireStats {
         }
 
         // Process stats for the selected time period
-        IndexedTimeSeries ts = ac.statsCollector.getLoadedData();
+        IndexedTimeSeries ts = ac.statsCollector.getLoadedTimeSeries();
         restInProgress = null;
 
         ts.streamRows(exportPeriod, new RowCollector() {
@@ -228,7 +228,7 @@ public class VampireStats {
     }
     
     private Map<String,Object> genProps() {
-        NavigableMap<Long,Row> rows = ac.statsCollector.getAll();
+        NavigableMap<Long,Row> rows = ac.statsCollector.getAllLoadedRows();
         
         
         Map<String,Object> props = new HashMap<>();
