@@ -36,8 +36,12 @@ public class DateRangeDialog implements DialogUtils.DialogController {
         Calendar end = drd.getEndCalendar();
         if (start == null) {
             return null;
+        } else {
+            long t0 = start.getTimeInMillis();
+            long t1 = end.getTimeInMillis();
+            if (t1 < t0) return Range.closed(t1, t0);
+            return Range.closed(t0, t1);
         }
-        return Range.closed(start.getTimeInMillis(), end.getTimeInMillis());
     }
 
     private Stage stage;
