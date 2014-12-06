@@ -5,14 +5,8 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.stats.Stat;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -23,9 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -46,16 +37,14 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
-import org.noroomattheinn.tesla.StreamState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
-import org.noroomattheinn.utils.GeoUtils.ElevationData;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 
 /**
- * TripController:
+ * TripController: Manage the recording, selection and display of Trips
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -70,7 +59,6 @@ public class TripController extends BaseController {
     private static final String IncludeGraphKey = "TR_INCLUDE_GRAPH";
     private static final String SnapToRoadKey = "TR_SNAP";
     private static final String PathTemplateFileName = "PathTemplate.html";
-    private static final String CarIconResource = "org/noroomattheinn/TeslaResources/02_loc_arrow@2x.png";
     private static final long MaxTimeBetweenWayPoints = 15 * 60 * 1000;
     private static final String RangeRowName = "Range";
     private static final String OdoRowName = "Odometer";
@@ -128,7 +116,7 @@ public class TripController extends BaseController {
         Collections.sort(selection, new Comparator<Trip>() {
             @Override
             public int compare(Trip o1, Trip o2) {
-                return Long.signum(o1.firstWayPoint().timestamp - o2.firstWayPoint().timestamp);
+                return Long.signum(o1.firstWayPoint().getTime() - o2.firstWayPoint().getTime());
             }
         });
         return selection;
@@ -267,13 +255,14 @@ public class TripController extends BaseController {
         
         double cvt = useMiles ? 1.0 : Utils.KilometersPerMile;
         updateStartEndProps(
-                StatsCollector.EstRangeKey, start.timestamp, end.timestamp, 
+                StatsCollector.EstRangeKey, start.getTime(), end.getTime(), 
                 rangeRow, cvt);
         updateStartEndProps(
-                StatsCollector.SOCKey, start.timestamp, end.timestamp,
+                StatsCollector.SOCKey, start.getTime(), end.getTime(),
                 socRow, 1.0);
         
-        updateStartEndProps(odoRow, start.odo, end.odo, cvt);
+        updateStartEndProps(odoRow, start.get(StatsCollector.OdometerKey),
+                            end.get(StatsCollector.OdometerKey), cvt);
         
         double power = 0.0;
         for (Trip t:trips) {
@@ -285,7 +274,7 @@ public class TripController extends BaseController {
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        NavigableMap<Long,Row> rows = ac.statsCollector.getRange(startTime, endTime);
+        NavigableMap<Long,Row> rows = ac.statsCollector.getRangeOfLoadedRows(startTime, endTime);
 
         double startValue = rows.firstEntry().getValue().get(StatsCollector.schema, statType);
         double endValue = rows.lastEntry().getValue().get(StatsCollector.schema, statType);
@@ -324,7 +313,7 @@ public class TripController extends BaseController {
             if (trips != null) {
                 for (Trip t : trips) {
                     String id = String.format("%s @ %s, %.1f %s",
-                        dateKey, hourAndMinutes(t.firstWayPoint().timestamp),
+                        dateKey, hourAndMinutes(t.firstWayPoint().getTime()),
                         t.distance()*cvt, useMiles ? "mi" : "km");
                     selectedTrips.put(id, t);
                     availableTripsView.getItems().add(id);
@@ -349,15 +338,14 @@ public class TripController extends BaseController {
         boolean first = true;
         for (Trip t : trips) {
             if (includeGraph.isSelected()) {
-                decorateWayPoints(t);
-                addElevations(t);
+                WayPoint.addElevations(t.waypoints);
             }
             if (!first) sb.append(",\n");
             sb.append(t.asJSON(useMiles));
             first = false;
         }
         sb.append("]\n");
-        Date date = new Date(trips.get(0).firstWayPoint().timestamp);
+        Date date = new Date(trips.get(0).firstWayPoint().getTime());
         return template.fillIn(
                 "TRIPS", sb.toString(),
                 "TITLE", "Tesla Path on " + date,
@@ -379,7 +367,7 @@ public class TripController extends BaseController {
         List<Calendar> daysToHighlight = new ArrayList<>();
         for (List<Trip> trips : dateToTrips.values()) {
             Calendar day = Calendar.getInstance();
-            day.setTimeInMillis(trips.get(0).firstWayPoint().timestamp);
+            day.setTimeInMillis(trips.get(0).firstWayPoint().getTime());
             if (sameMonth(month, day)) daysToHighlight.add(day);
         }
         calendarPicker.highlightedCalendars().clear();
@@ -393,27 +381,23 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void readTrips() {
-        Map<Long,Row> rows = ac.statsCollector.getLoadedData().getIndex();
+        Map<Long,Row> rows = ac.statsCollector.getLoadedTimeSeries().getIndex();
         for (Row r : rows.values()) {
-            WayPoint wp = new WayPoint(
-                r.timestamp,
-                r.get(StatsCollector.schema, StatsCollector.LatitudeKey),
-                r.get(StatsCollector.schema, StatsCollector.LongitudeKey),
-           (int)r.get(StatsCollector.schema, StatsCollector.HeadingKey),
-                r.get(StatsCollector.schema, StatsCollector.SpeedKey),
-                r.get(StatsCollector.schema, StatsCollector.OdometerKey));
+            WayPoint wp = new WayPoint(r);
             handleNewWayPoint(wp);
         }
         
         if (tripInProgress != null) {   // Finish off this last trip
-            handleNewWayPoint(new WayPoint(Long.MAX_VALUE, 0, 0, 0, 0, 0));
+            handleNewWayPoint(new WayPoint());
             tripInProgress = null;
         }
         
         // Start listening for new WayPoints
         ac.statsCollector.lastStoredStreamState.addTracker(false, new Runnable() {
             @Override public void run() {
-                handleNewWayPoint(new WayPoint(ac.statsCollector.lastStoredStreamState.get()));
+                handleNewWayPoint(new WayPoint(
+                        ac.statsCollector.lastStoredStreamState.get(),
+                        ac.statsCollector.lastStoredChargeState.get()));
             }
         });
         
@@ -429,13 +413,13 @@ public class TripController extends BaseController {
             return;
         }
         WayPoint last = tripInProgress.lastWayPoint();
-        if ((wp.timestamp - last.timestamp > MaxTimeBetweenWayPoints)) {
+        if ((wp.getTime() - last.getTime() > MaxTimeBetweenWayPoints)) {
             if (tripInProgress.distance() > 0.1) {
                 updateTripData(tripInProgress);
             }
             tripInProgress = null;
         }
-        if (!tooCloseToIncludeInTrip(wp, last)) {
+        if (thereWasMotion(wp, last)) {
             if (tripInProgress == null) tripInProgress = new Trip();
             tripInProgress.addWayPoint(wp);
         }
@@ -443,7 +427,7 @@ public class TripController extends BaseController {
     
     private void updateTripData(Trip t) {
         WayPoint wp = t.firstWayPoint();
-        Date d = new Date(wp.timestamp);
+        Date d = new Date(wp.getTime());
         String dateKey = keyFromDate(d);
         List<Trip> tripsForDay = dateToTrips.get(dateKey);
         if (tripsForDay == null) {
@@ -473,88 +457,19 @@ public class TripController extends BaseController {
         return false;
     }
     
-    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Methods to check proximity between points
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean tooCloseToIncludeInTrip(WayPoint wp1, WayPoint wp2) {
-        return tooClose(wp1, wp2, 10, (2 * 1000), 5);
+    private boolean thereWasMotion(WayPoint wp1, WayPoint wp2) {
+        double turn =  180.0 - Math.abs((Math.abs(wp1.get(StatsCollector.HeadingKey) - wp2.get(StatsCollector.HeadingKey))%360.0) - 180.0);
+        double meters = GeoUtils.distance(wp1.getLat(), wp1.getLng(), wp2.getLat(), wp2.getLng());
+
+        return (meters >= 5 || (turn > 10 && meters > 0.1));
     }
     
-    private boolean tooClose(WayPoint wp1, WayPoint wp2, double maxTurn, long minTime, int minDist) {
-        double turn =  180.0 - Math.abs((Math.abs(wp1.heading - wp2.heading)%360.0) - 180.0);
-        double meters = GeoUtils.distance(wp1.lat, wp1.lng, wp2.lat, wp2.lng);
-
-        // Sometimes we get spurious heading changes even when the car is sitting
-        // still. Ignore those. Use ~2 inches as stationary.
-        if (turn > maxTurn && meters > 0.05) return false;
-        
-        if (Math.abs(wp1.timestamp - wp2.timestamp) < minTime)  return true;
-        
-        return (meters < minDist);
-    }
-    
-    
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - Utility Methods
- * 
- *----------------------------------------------------------------------------*/
-
-    private double safeGet(Map<String,Double> vals, String key) {
-        Double val = vals.get(key);
-        return (val == null) ? 0.0 : val.doubleValue();
-    }
-
-    private void decorateWayPoints(Trip t) {
-        if (t.firstWayPoint().decoration != null) return;
-        long start = t.firstWayPoint().timestamp;
-        long end   = t.lastWayPoint().timestamp;
-
-        NavigableMap<Long,Row> rows = ac.statsCollector.getRange(start, end);
-        
-        for (WayPoint wp : t.waypoints) {
-            wp.decoration = new HashMap<>();
-            long wpTime = wp.timestamp;
-
-            Row row = rowForTime(wpTime, rows);
-            double soc = row.get(StatsCollector.schema, StatsCollector.SOCKey);
-            double power = row.get(StatsCollector.schema, StatsCollector.PowerKey);
-            wp.decoration.put(StatsCollector.SOCKey, soc);
-            wp.decoration.put(StatsCollector.PowerKey, power);
-        }
-    }
-
-    private Row rowForTime(long time, NavigableMap<Long,Row> rows) {
-            Long key = rows.floorKey(time);
-            if (key == null) return rows.firstEntry().getValue();
-            return rows.get(key);
-    }
-    
-    private NavigableMap<Long,Double> mapFromSamples(List<Stat.Sample> samples) {
-        NavigableMap<Long,Double> map = new TreeMap<>();
-        if (samples != null) {
-            for (Stat.Sample s : samples) { map.put(s.timestamp, s.value); }
-        }
-        return map;
-    }
-    
-    private void addElevations(Trip t) {
-        List<WayPoint> waypoints = t.waypoints;
-        if (waypoints.get(0).decoration.get("L_ELV") != null) return;   // Already added
-        List<ElevationData> edl = GeoUtils.getElevations(waypoints);
-        if (edl == null) return;
-        for (int i = edl.size()-1; i >= 0; i--) {
-            double e = edl.get(i).elevation;
-            if (useMiles) e = metersToFeet(e); // Always use meters for now
-            waypoints.get(i).decoration.put("L_ELV", Utils.round(e, 1));
-        }
-    }
-    
-    private double metersToFeet(double meters) { return meters * 3.28084; }
     
 /*------------------------------------------------------------------------------
  *
@@ -574,10 +489,12 @@ public class TripController extends BaseController {
             waypoints.add(wp);
         }
         
+        public List<WayPoint> getWayPoints() { return waypoints; }
+        
         public double distance() {
             if (waypoints.isEmpty()) return 0.0;
-            double startLoc = firstWayPoint().odo;
-            double endLoc = lastWayPoint().odo;
+            double startLoc = firstWayPoint().get(StatsCollector.OdometerKey);
+            double endLoc = lastWayPoint().get(StatsCollector.OdometerKey);
             return (endLoc - startLoc);
         }
         
@@ -585,25 +502,21 @@ public class TripController extends BaseController {
             if (!Double.isNaN(energyEstimate)) return energyEstimate;
             double cumulative = 0.0;
             
-            decorateWayPoints(this);
             Double lastPower = null;
             long lastTime = 0;
             for (WayPoint wp: waypoints) {
-                Map<String,Double> decoration = wp.decoration;
-                if (decoration == null) continue;
-                Double power = decoration.get(StatsCollector.PowerKey);
-                if (power == null) continue;
+                double power = wp.get(StatsCollector.PowerKey);
                 if (lastPower == null) {
                     lastPower = power;
-                    lastTime = wp.timestamp;
+                    lastTime = wp.getTime();
                 } else {
                     double thisEnergy;
-                    long dT = wp.timestamp - lastTime;
+                    long dT = wp.getTime() - lastTime;
                     double dP = Math.abs(power-lastPower);
                     double minP = Math.min(power, lastPower);
                     thisEnergy = minP * dT + (dP*dT)/2.0;
                     cumulative += thisEnergy;
-                    lastTime = wp.timestamp;
+                    lastTime = wp.getTime();
                     lastPower = power;
                 }
             }
@@ -635,231 +548,5 @@ public class TripController extends BaseController {
         @Override public String toString() { return asJSON(); }
 
     }
-    
-    public class WayPoint implements GeoUtils.LocationSource {
-        long timestamp;
-        double lat, lng;
-        int heading;
-        double speed;
-        double odo;
-        Map<String,Double> decoration;
-        
-        public WayPoint() { this(0,0,0,0,0,0); }
-        
-        public WayPoint(long timestamp, double lat, double lng, int heading, double speed, double odo) {
-            this.timestamp = timestamp;
-            this.lat = lat;
-            this.lng = lng;
-            this.heading = heading;
-            this.speed = speed;
-            this.odo = odo;
-            decoration = null;
-        }
-        
-        public WayPoint(StreamState state) {
-            this.timestamp = state.timestamp;
-            this.lat = state.estLat;
-            this.lng = state.estLng;
-            this.heading = state.heading;
-            this.speed = state.speed;
-            this.odo = state.odometer;
-        }
-        
-        public String asJSON() { return asJSON(true); }
-        
-        public String asJSON(boolean useMiles) {
-            double speedUnits = useMiles ? speed: Utils.round(Utils.mToK(speed), 1);
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("    timestamp: \"");
-            sb.append(String.format("%1$tm/%1$td/%1$ty %1$tH:%1$tM:%1$tS", new Date(timestamp)));
-            sb.append("\",\n");
-            if (decoration != null) {
-                for (Map.Entry<String,Double> kv : decoration.entrySet()) {
-                    sb.append("    ").append(kv.getKey()).append(": ")
-                      .append(kv.getValue()).append(",\n");
-                }
-            }
-            sb.append("    lat: ").append(lat).append(",\n");
-            sb.append("    lng: ").append(lng).append(",\n");
-            sb.append("    speed: ").append(speedUnits).append(",\n");
-            sb.append("    heading: ").append(heading).append("\n");
-            //sb.append("    odometer: ").append(odo).append("\n");
-            sb.append("}\n");
-            return sb.toString();
-        }
-        
-        @Override public String toString() { return asJSON(); }
 
-        @Override public double getLat() { return lat; }
-        @Override public double getLng() { return lng; }
-    }
-
-    class KMLExporter {
-        private static final String CarIconFileName = "car.png";
-        private final String[] pathColors = {
-            "ff0000ff",     // Red
-            "ff00ff00",     // Green
-            "ffff0000",     // Blue
-            "ffffff00",     // Cyan
-            "ffff00ff",     // Magenta
-            "ff0000ff"      // Yellow
-        };
-        private int pathColorIndex = 0;
-        private int indent = 0;
-        private PrintWriter pw;
-        
-        private void emitIndent() {
-            for (int i = 0; i < indent; i++) {
-                pw.print("    ");
-            }
-        }
-        
-        private void println(String s) { emitIndent(); pw.println(s); }
-        private void emitOpen(String s) { emitIndent(); pw.println(s); indent++; }
-        private void emitClose(String s) { indent--; emitIndent(); pw.println(s); }
-        private void format(String s, Object... args) {
-            emitIndent();
-            pw.format(s, args);
-        }
-        
-        public boolean export(List<Trip> trips, File toFile) {
-            File tempDir;
-            File kmlFile;
-            
-            try {
-                tempDir = Files.createTempDirectory("VTKML").toFile();
-                kmlFile = File.createTempFile("VTKML", ".kml", tempDir);
-                pw = new PrintWriter(kmlFile);
-                InputStream is =
-                        getClass().getClassLoader().getResourceAsStream(CarIconResource);
-                File carIconFile = new File(tempDir, CarIconFileName);
-                FileUtils.copyInputStreamToFile(is, carIconFile);
-                emitKML(trips);
-                pw.flush(); pw.close();
-                return zipEm(toFile, carIconFile, kmlFile);
-            } catch (IOException ex) {
-                logger.warning("Unable to create KML file or directory");
-                return false;
-            }
-        }
-        
-        private void emitKML(List<Trip> trips) {
-            println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
-            emitOpen("<Document>");
-
-            for (Trip t : trips) {
-                decorateWayPoints(t);
-                emitPath(t);
-                emitFolderOfMarkers(t);
-            }
-            
-            emitClose("</Document>");
-            println("</kml>");
-        }
-        
-        private void emitCarMarker(WayPoint wp) {
-                emitOpen("<Placemark>");
-                emitExtendedData(wp);
-                emitPoint(wp);
-                emitIcon(wp);
-                emitClose("</Placemark>");
-        }
-
-        private void emitExtendedData(WayPoint wp) {
-            emitOpen("<ExtendedData>");
-            format("<Data name=\"Time\"><value>%1$tH:%1$tM:%1$tS</value></Data>\n",
-                    new Date(wp.timestamp));
-            if (wp.decoration != null) {
-                for (Map.Entry<String, Double> entry : wp.decoration.entrySet()) {
-                    String valueType = entry.getKey();
-                    double value = entry.getValue();
-                    format("<Data name=\"%s\"><value>%.1f</value></Data>\n",
-                            valueType, value);
-                }
-            }
-            emitClose("</ExtendedData>"); 
-        }
-        
-        private void emitFolderOfMarkers(Trip t) {
-            emitOpen("<Folder>");
-            println("<open>0</open>");
-            format( "<name>"+
-                       "Tesla Positions on %1$tY-%1$tm-%1$td @ "+
-                       "%1$tH:%1$tM</name>\n", new Date(t.firstWayPoint().timestamp));
-            for (WayPoint wp : t.waypoints) {
-                emitCarMarker(wp);
-            }
-            emitClose("</Folder>");
-        }
-        
-        private void emitPath(Trip t) {
-                emitOpen("<Placemark>");
-                format(
-                    "<name>Tesla Path on %1$tY-%1$tm-%1$td @ %1$tH:%1$tM</name>\n",
-                    new Date(t.firstWayPoint().timestamp));
-                emitOpen("<Style>");
-                emitOpen("<LineStyle>");
-		format("<color>%s</color>\n", pathColors[pathColorIndex++ % pathColors.length]);
-		println("<width>3</width>");
-                emitClose("</LineStyle>"); 
-                emitClose("</Style>"); 
-                emitOpen("<LineString>");
-                println("<tessellate>1</tessellate>");
-                emitOpen("<coordinates>");
-                for (WayPoint wp : t.waypoints) {
-                    format("%f,%f,0\n", wp.lng, wp.lat);
-                }
-                emitClose("</coordinates>"); 
-                emitClose("</LineString>"); 
-                emitClose("</Placemark>"); 
-        }
-        
-        private void emitPoint(WayPoint wp) {
-            emitOpen("<Point>");
-            format("<coordinates>%f,%f,0</coordinates>\n", wp.lng, wp.lat);
-            emitClose("</Point>"); 
-        }
-        
-        private void emitIcon(WayPoint wp) {
-            emitOpen("<Style>"); 
-            emitOpen("<IconStyle>");
-            println("<scale>0.7</scale>");
-            format("<heading>%d</heading>\n", wp.heading);
-            format("<Icon><href>%s</href></Icon>\n", CarIconFileName);
-            emitClose("</IconStyle>"); 
-            emitClose("</Style>"); 
-        }
-        
-        private boolean zipEm(File toFile, File... files) {
-            try {
-                byte[] buffer = new byte[1024];
-                FileOutputStream fos = new FileOutputStream(toFile);
-                ZipOutputStream zos = new ZipOutputStream(fos);
-
-                for (File file : files) {
-                    FileInputStream fis = new FileInputStream(file);
-                    zos.putNextEntry(new ZipEntry(file.getName()));
-
-                    int length;
-                    while ((length = fis.read(buffer)) > 0) {
-                        zos.write(buffer, 0, length);
-                    }
-
-                    zos.closeEntry();
-                    fis.close();
-                }
-                zos.close();
-
-            } catch (IOException ioe) {
-                logger.warning("Error creating zip file: " + ioe);
-                return false;
-            }
-
-            return true;
-        }
-        
-    }
 }
-
