@@ -104,7 +104,8 @@ public class MainController extends BaseController {
     
     private List<Tab> tabs;
     
-    @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem, exportChargeMenuItem;
+    @FXML private MenuItem exportStatsMenuItem, exportLocMenuItem, 
+                           exportAllMenuItem, exportChargeMenuItem;
     @FXML private MenuItem vampireLossMenuItem;
     @FXML private MenuItem remoteStartMenuItem;
     
@@ -398,6 +399,8 @@ public class MainController extends BaseController {
             ac.statsCollector.export(statsColumns);
         } else if (mi == exportLocMenuItem) {
             ac.statsCollector.export(locColumns);
+        } else if (mi == exportAllMenuItem) {
+            ac.statsCollector.export(StatsCollector.Columns);
         } else if (mi == exportChargeMenuItem)
             ac.chargeStore.exportCSV();
         else if (mi == this.vampireLossMenuItem) {

@@ -74,9 +74,15 @@
           <menus>
             <Menu mnemonicParsing="false" text="File">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Stats Data..." fx:id="exportStatsMenuItem" />
-                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Location Data..." fx:id="exportLocMenuItem" />
-                <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Export Charge Data..." fx:id="exportChargeMenuItem" />
+                <Menu mnemonicParsing="false" text="Export">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Charge Data..." fx:id="exportStatsMenuItem" />
+                    <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Streaming Data..." fx:id="exportLocMenuItem" />
+                    <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="All Data..." fx:id="exportAllMenuItem" />
+                    <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Charge Cycles..." fx:id="exportChargeMenuItem" />
+                  </items>
+                </Menu>
                 <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Vampire Loss..." fx:id="vampireLossMenuItem" />
                 <MenuItem mnemonicParsing="false" onAction="#closeHandler" text="Close">
                   <accelerator>
