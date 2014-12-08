@@ -47,20 +47,6 @@
           </content>
         </TitledPane>
         <fx:reference source="x2" />
-        <TitledPane fx:id="x1" animated="false" expanded="false" styleClass="first-titled-pane" text="Raw Data">
-          <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-              <children>
-                <VBox id="VBox" alignment="TOP_LEFT" prefWidth="512.0" spacing="0.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-                  <children>
-                    <Label prefWidth="75.0" text="Raw Data:" VBox.vgrow="NEVER" />
-                    <TextArea fx:id="rawDataField" prefWidth="558.0" wrapText="true" VBox.vgrow="ALWAYS" />
-                  </children>
-                </VBox>
-              </children>
-            </AnchorPane>
-          </content>
-        </TitledPane>
       </panes>
     </Accordion>
   </children>

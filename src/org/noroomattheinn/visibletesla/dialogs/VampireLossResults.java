@@ -6,6 +6,7 @@
 package org.noroomattheinn.visibletesla.dialogs;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +20,6 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -27,7 +27,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.TimeStringConverter;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.VampireStats;
+import org.noroomattheinn.visibletesla.RestCycle;
 
 /**
  * VampireLossResults: Display statistics about vampire loss.
@@ -43,7 +43,6 @@ public class VampireLossResults  implements DialogUtils.DialogController {
     @FXML private ResourceBundle resources;
     @FXML private URL location;
 
-    @FXML private TextArea rawDataField;
     @FXML private LineChart<Number, Number> chart;
     @FXML private LineChart<Number, Number> sequenceChart;
 
@@ -51,7 +50,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
 
     @Override public void setStage(Stage stage) { this.myStage = stage; }
     @Override public void setProps(Map props) {
-        List<VampireStats.Rest> restPeriods = Utils.cast(props.get("REST_PERIODS"));
+        List<RestCycle> restPeriods = Utils.cast(props.get("REST_PERIODS"));
         if (restPeriods == null || restPeriods.isEmpty()) return;
         units = (String)props.get("UNITS");
         
@@ -76,13 +75,18 @@ public class VampireLossResults  implements DialogUtils.DialogController {
             }
         });
         
-        for (VampireStats.Rest r : restPeriods) {
-            XYChart.Series<Number,Number> series = new XYChart.Series<>();
-            ObservableList<XYChart.Data<Number, Number>> data = series.getData();
+        List<RestCycle> splitCycles = new ArrayList<>(2);
+        for (RestCycle r : restPeriods) {
+            r.splitIntoDays(splitCycles);
+            for (RestCycle splitRest: splitCycles) {
+                XYChart.Series<Number,Number> series = new XYChart.Series<>();
+                ObservableList<XYChart.Data<Number, Number>> data = series.getData();
 
-            addPeriod(data, r);
-            chart.getData().add(series);
-            series.getNode().setStyle("-fx-opacity: 0.25; -fx-stroke-width: 3px;");
+                addPeriod(data, splitRest);
+                chart.getData().add(series);
+                series.getNode().setStyle("-fx-opacity: 0.25; -fx-stroke-width: 3px;");
+            }
+            splitCycles.clear();
         }
         
         
@@ -119,7 +123,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         XYChart.Series<Number,Number> series = new XYChart.Series<>();
         series.setName("Vampire Loss");
         ObservableList<XYChart.Data<Number, Number>> data = series.getData();
-        for (VampireStats.Rest r : restPeriods) {
+        for (RestCycle r : restPeriods) {
             final XYChart.Data<Number,Number> dataPoint =
                     new XYChart.Data<Number,Number>(r.startTime/1000L, r.avgLoss());
             addTooltip(dataPoint);
@@ -142,14 +146,9 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         sequenceChart.getData().add(avg);
         avg.getNode().setStyle("-fx-opacity: 0.5; -fx-stroke-width: 10px;");
         
-        // ----- Set up the raw data text area
-
-        String rawResults = (String) props.get("RAW_RESULTS");
-        if (rawResults == null) rawResults = "";
-        rawDataField.setText(rawResults);
     }
     
-    private double nHours(VampireStats.Rest r) {
+    private double nHours(RestCycle r) {
         long diff = r.endTime - r.startTime;
         long seconds = diff/1000;
         double minutes = seconds/60;
@@ -168,13 +167,13 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         return c;
     }
     
-    private void addPeriod(ObservableList<XYChart.Data<Number, Number>> data, VampireStats.Rest r) {
+    private void addPeriod(ObservableList<XYChart.Data<Number, Number>> data, RestCycle r) {
         addPoint(data, r, r.startTime);
         addPoint(data, r, r.endTime);
     }
     
     private void addPoint(ObservableList<XYChart.Data<Number, Number>> data,
-                          VampireStats.Rest r, long timestamp) {
+                          RestCycle r, long timestamp) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(timestamp);
         double time = c.get(Calendar.HOUR_OF_DAY) + ((double)c.get(Calendar.MINUTE))/60;
@@ -194,7 +193,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
                 if (newValue != null) {
                     String tip =  (dataPoint.getExtraValue() instanceof String) ?
                             (String)dataPoint.getExtraValue() : 
-                            genTooltip((VampireStats.Rest)dataPoint.getExtraValue());
+                            genTooltip((RestCycle)dataPoint.getExtraValue());
                     Tooltip.install(newValue, new Tooltip(tip));
                     dataPoint.nodeProperty().removeListener(this);
                 }
@@ -204,7 +203,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
     
     private double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
     
-    private String genTooltip(VampireStats.Rest rest) {
+    private String genTooltip(RestCycle rest) {
         double period = hours(rest.endTime - rest.startTime);
         double loss = rest.startRange - rest.endRange;
         String date = String.format("%1$tm/%1$td %1$tH:%1$tM", new Date(rest.startTime));
