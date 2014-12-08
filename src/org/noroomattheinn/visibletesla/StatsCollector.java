@@ -20,6 +20,7 @@ import org.noroomattheinn.timeseries.CachedTimeSeries;
 import org.noroomattheinn.timeseries.IndexedTimeSeries;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.RowDescriptor;
+import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
@@ -127,10 +128,35 @@ public class StatsCollector implements ThreadManager.Stoppable {
         });
     }
     
+    public Row rowFromStates(ChargeState cs, StreamState ss) {
+        Row r = new Row(cs.timestamp, 0L, schema.nColumns);
+        
+        r.set(schema, VoltageKey, cs.chargerVoltage);
+        r.set(schema, CurrentKey, cs.chargerActualCurrent);
+        r.set(schema, EstRangeKey, cs.range);
+        r.set(schema, SOCKey, cs.batteryPercent);
+        r.set(schema, ROCKey, cs.chargeRate);
+        r.set(schema, BatteryAmpsKey, cs.batteryCurrent);
+        r.set(schema, LatitudeKey, ss.estLat);
+        r.set(schema, LongitudeKey, ss.estLng);
+        r.set(schema, HeadingKey, ss.heading);
+        r.set(schema, SpeedKey, ss.speed);
+        r.set(schema, OdometerKey, ss.odometer);
+        r.set(schema, PowerKey, ss.power);
+        
+        return r;
+    }
+    
+    /**
+     * Return a TimeSeries for all of the collected data. 
+     * @return The TimeSeries
+     */
+    public TimeSeries getFullTimeSeries() { return ts; }
+    
     /**
      * Return an IndexedTimeSeries for only the data loaded into memory. The
      * range of data loaded is controlled by a preference.
-     * @return 
+     * @return The IndexedTimeSeries
      */
     public IndexedTimeSeries getLoadedTimeSeries() { return ts.getCachedSeries(); }
     
@@ -248,10 +274,11 @@ public class StatsCollector implements ThreadManager.Stoppable {
         if (!last.shiftState().equals(cur.shiftState())) { return true; }
         
         // If you've moved more than a minimum amount, it's worth recording
-        if (meters >= ac.prefs.locMinDist.get()) return true;
+        // if (meters >= ac.prefs.locMinDist.get()) return true;
         
         // If you're moving and it's been a while since a reading, it's worth recording
-        if (inMotion && (timeDelta >= ac.prefs.locMinTime.get() * 1000)) return true;
+        if ((timeDelta >= ac.prefs.locMinTime.get() * 1000) &&
+            (meters >= ac.prefs.locMinDist.get())) return true;
         
         return false;
     }
