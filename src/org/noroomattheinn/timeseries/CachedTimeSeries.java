@@ -112,6 +112,7 @@ public class CachedTimeSeries implements TimeSeries, IndexedTimeSeries {
     }
 
     @Override public void streamRows(Range<Long> period, RowCollector collector) {
+        if (period == null) period = Range.<Long>all();
         tsForPeriod(period).streamRows(period, collector);
     }
 
