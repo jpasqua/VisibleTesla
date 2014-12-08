@@ -81,6 +81,7 @@
                     <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="All Data..." fx:id="exportAllMenuItem" />
                     <SeparatorMenuItem mnemonicParsing="false" />
                     <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Charge Cycles..." fx:id="exportChargeMenuItem" />
+                    <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Rest Cycles..." fx:id="exportRestMenuItem" />
                   </items>
                 </Menu>
                 <MenuItem mnemonicParsing="false" onAction="#exportHandler" text="Vampire Loss..." fx:id="vampireLossMenuItem" />

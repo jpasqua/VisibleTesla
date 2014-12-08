@@ -7,6 +7,7 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.visibletesla.rest.RESTServer;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
@@ -70,6 +71,7 @@ public class AppContext {
     public final ObjectProperty<StreamState> lastStreamState;
     public final ObjectProperty<VehicleState> lastVehicleState;
     public final TrackedObject<ChargeCycle> lastChargeCycle;
+    public final TrackedObject<RestCycle> lastRestCycle;
     public final TrackedObject<String> schedulerActivity;
     public final RESTServer restServer;
     public final MailGun mailer;
@@ -77,6 +79,7 @@ public class AppContext {
     public Vehicle vehicle = null;
     public StatsCollector statsCollector;
     public ChargeStore chargeStore;
+    public RestStore restStore;
     public StreamProducer streamProducer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
@@ -90,6 +93,7 @@ public class AppContext {
     private final File appFilesFolder;
     private StatsStreamer statsStreamer;
     private ChargeMonitor chargeMonitor;
+    private RestMonitor restMonitor;
 
 /*==============================================================================
  * -------                                                               -------
@@ -115,6 +119,7 @@ public class AppContext {
         this.lastVehicleState = new SimpleObjectProperty<>();
         this.schedulerActivity = new TrackedObject<>("");
         this.lastChargeCycle = new TrackedObject<>(null);
+        this.lastRestCycle = new TrackedObject<>(null);
         
         restServer = new RESTServer(this);
 
@@ -140,18 +145,17 @@ public class AppContext {
         vehicle = v;
 
         statsCollector = new StatsCollector(this);
-        chargeStore = new ChargeStore(this);
+        initChargeStore();
+        initRestStore();
         
         streamProducer = new StreamProducer(this);
         stateProducer = new StateProducer(this);
         statsStreamer = new StatsStreamer(this);
-        chargeMonitor = new ChargeMonitor(this);
         
         lastStreamState.get().odometer = persistentState.getDouble(vinKey("odometer"), 0);
 
         restServer.launch();
     }
-
 
     public void noteUpdatedState(final BaseState state) {
         if (Platform.isFxApplicationThread()) { noteUpdatedStateInternal(state); }
@@ -185,5 +189,18 @@ public class AppContext {
 
     private Utils.Predicate sdPredicate = new Utils.Predicate() {
             @Override public boolean eval() { return shuttingDown; } };
+    
+    private void initRestStore() throws FileNotFoundException {
+        boolean needsInitialLoad = RestStore.requiresInitialLoad(this);
+        restStore = new RestStore(this);
+        restMonitor = new RestMonitor(this);
+        if (needsInitialLoad) { restStore.doIntialLoad(); }
+    }
+    
+    private void initChargeStore() throws FileNotFoundException {
+        chargeStore = new ChargeStore(this);
+        chargeMonitor = new ChargeMonitor(this);
+    }
+    
 
 }
