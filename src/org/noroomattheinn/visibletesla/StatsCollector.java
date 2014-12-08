@@ -128,8 +128,15 @@ public class StatsCollector implements ThreadManager.Stoppable {
         });
     }
     
+    /**
+     * Create a Row based on the Charge and Stream States provided. The timestamp
+     * if based on the timestamp of the newest state object
+     * @param cs    The ChargeState from which various column values will be pulled
+     * @param ss    The StreamState from which various column values will be pulled
+     * @return      The newly created and initialized Row
+     */
     public Row rowFromStates(ChargeState cs, StreamState ss) {
-        Row r = new Row(cs.timestamp, 0L, schema.nColumns);
+        Row r = new Row(Math.max(cs.timestamp, ss.timestamp), 0L, schema.nColumns);
         
         r.set(schema, VoltageKey, cs.chargerVoltage);
         r.set(schema, CurrentKey, cs.chargerActualCurrent);
