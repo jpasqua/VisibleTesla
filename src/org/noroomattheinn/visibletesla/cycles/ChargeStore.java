@@ -92,4 +92,9 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
         return String.format("%s, \"battery\": \"%s\", \"uuid\": \"%s\" }", 
                 jsonRep, ac.vehicle.getOptions().batteryType(), ac.vehicle.getUUID());
     }
+    
+    @Override protected void ditherLocation(ChargeCycle cycle) {
+        if (cycle.superCharger && ac.prefs.includeLocData.get()) return;
+        super.ditherLocation(cycle);
+    }
 }
