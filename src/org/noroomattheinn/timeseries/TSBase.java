@@ -126,6 +126,7 @@ public abstract class TSBase implements TimeSeries {
         private final boolean includeDerived;
         private final List<String> columns;
         private final int nColumnsToInclude;
+        private final long columnsIncluded;
         private int rNum;
         
         RowHandler(
@@ -136,12 +137,16 @@ public abstract class TSBase implements TimeSeries {
             this.columns = columns;
             this.nColumnsToInclude = columns.size();
             this.includeDerived = includeDerived;
+            this.columnsIncluded = bitVectorForColumns();
             
             try { lightGrayCell.setBackground(Colour.GREY_25_PERCENT); }
             catch (WriteException ex) { logger.warning("Can't Happen: " + ex); }
         }
 
         @Override public boolean collect(Row row) {
+            // Don't bother with rows that have only derived values
+            if ((row.bitVector & columnsIncluded) == 0L) return true;
+            
             try {
                 jxl.write.Number timeCell = new jxl.write.Number(
                         0, rNum, row.timestamp, integerFormat);
@@ -171,7 +176,17 @@ public abstract class TSBase implements TimeSeries {
                 return false;
             }
         }
+        
+        private long bitVectorForColumns() {
+            long bitVector = 0;
+            for (String c:columns) {
+                bitVector |= schema.bitForColumn(c);
+            }
+            return bitVector;
+        }
     }
+    
+    
     
     private void addTableHeader(WritableSheet sheet, List<String> columns) throws WriteException {
         // Start with the timestamp column

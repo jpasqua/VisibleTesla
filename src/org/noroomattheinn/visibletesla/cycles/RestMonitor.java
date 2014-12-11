@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 22, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.cycles;
 
 import java.util.Calendar;
 import javafx.beans.value.ChangeListener;
@@ -11,6 +11,8 @@ import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.CalTime;
+import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.StatsCollector;
 
 /**
  * RestMonitor - Monitor and store data about Rest Cycles.
@@ -37,14 +39,13 @@ public class RestMonitor {
     private final boolean       stradles;
     private RestCycle           cycleInProgress = null;
     
-    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
 
-    RestMonitor(AppContext appContext) {
+    public RestMonitor(AppContext appContext) {
         this.ac = appContext;
         
         if (ac.prefs.vsLimitEnabled.get()) {
@@ -84,6 +85,12 @@ public class RestMonitor {
             else { completeCycle(r); }
         }
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
     
     private void startCycle(Row r) {
         cycleInProgress = new RestCycle();

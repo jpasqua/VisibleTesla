@@ -403,9 +403,9 @@ public class MainController extends BaseController {
         } else if (mi == exportAllMenuItem) {
             ac.statsCollector.export(StatsCollector.Columns);
         } else if (mi == exportChargeMenuItem) {
-            ac.chargeStore.exportCSV();
+            ac.chargeStore.export();
         } else if (mi == exportRestMenuItem) {
-            ac.restStore.exportCSV();
+            ac.restStore.export();
         } else if (mi == this.vampireLossMenuItem) {
             vampireStats.showStats();
         }

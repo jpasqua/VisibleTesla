@@ -3,12 +3,13 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 22, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.cycles;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
+import org.noroomattheinn.visibletesla.AppContext;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.
@@ -16,33 +17,44 @@ import org.noroomattheinn.tesla.StreamState;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class ChargeMonitor {
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+
     private final AppContext ac;
     private ChargeCycle cycleInProgress = null;
-
-    ChargeMonitor(AppContext appContext) {
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+    
+    public ChargeMonitor(AppContext appContext) {
         this.ac = appContext;
         this.cycleInProgress = null;
         ac.lastChargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState chargeState) {
-                boolean charging = charging(chargeState);
+                boolean charging = chargeState.isCharging();
                 if (cycleInProgress == null ) {
                     if (charging) { startCycle(chargeState); }
                 } else {    // We're in the middle of a cycle
-                    if (charging) { updateCycle(chargeState); }
+                    if (charging) { updateRunningTotals(chargeState); }
                     else { completeCycle(chargeState); }
                 }
             }
         });
     }
-
-    private boolean charging(ChargeState chargeState) {
-        if (chargeState.chargingState == ChargeState.Status.Charging) return true;
-        if (chargeState.chargerVoltage > 50) return true;
-        // Other indicators that charging is in progress?
-        return false;
-    }
-
+    
+/*------------------------------------------------------------------------------
+ *
+ * Private methods to keep track of a charge cycle
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private void startCycle(ChargeState chargeState) {
         cycleInProgress = new ChargeCycle();
         cycleInProgress.superCharger = chargeState.fastChargerPresent;
@@ -51,9 +63,7 @@ public class ChargeMonitor {
         cycleInProgress.startRange = chargeState.range;
         cycleInProgress.startSOC = chargeState.batteryPercent;
         cycleInProgress.odometer = ac.lastStreamState.get().odometer;
-        cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
-        cycleInProgress.newCurrentReading(cycleInProgress.superCharger ?
-                chargeState.batteryCurrent : chargeState.chargerActualCurrent);
+        updateRunningTotals(chargeState);
 
         // It's possible that a charge began before we got any location information
         StreamState ss = ac.lastStreamState.get();
@@ -65,10 +75,11 @@ public class ChargeMonitor {
         }
     }
 
-    private void updateCycle(ChargeState chargeState) {
-        cycleInProgress.newVoltageReading(chargeState.chargerVoltage);
-        cycleInProgress.newCurrentReading(cycleInProgress.superCharger ?
-                chargeState.batteryCurrent : chargeState.chargerActualCurrent);
+    private void updateRunningTotals(ChargeState chargeState) {
+        cycleInProgress.newIE(
+                chargeState.chargerVoltage,
+                cycleInProgress.superCharger ?
+                    chargeState.batteryCurrent : chargeState.chargerActualCurrent);
     }
 
     private void completeCycle(ChargeState chargeState) {

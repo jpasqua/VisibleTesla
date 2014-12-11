@@ -118,7 +118,15 @@ public class StatsStreamer implements Runnable {
     }
     
     private void produce() {
-        if (carState.get() == CarState.Asleep) { wakeupVehicle(); }
+        if (carState.get() == CarState.Asleep) {
+            if (!wakeupVehicle()) {
+                // If we're unable to wake up the car, don't bother trying to
+                // produce more data. TO DO: Should we do something so that this
+                // is retried sooner rather than later?
+                logger.warning("Unable to wakeup the car after many attempts");
+                return;
+            }
+        }
         ac.streamProducer.produce(ac.prefs.streamWhenPossible.get());
         ac.stateProducer.produce(Vehicle.StateType.Charge, null);
     }
@@ -153,6 +161,9 @@ public class StatsStreamer implements Runnable {
         }
     }
 
-    private void wakeupVehicle() { if (VTExtras.forceWakeup(ac)) carState.set(CarState.Idle); }
+    private boolean wakeupVehicle() {
+        if (VTExtras.forceWakeup(ac)) { carState.set(CarState.Idle); return true; }
+        return false;
+    }
     
 }

@@ -3,13 +3,10 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 25, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.cycles;
 
-import com.google.gson.Gson;
 import java.util.Calendar;
 import java.util.List;
-import org.noroomattheinn.utils.RestyWrapper;
-import us.monoid.json.JSONObject;
 
 /**
  * Object that represents a single rest cycle. A rest cycle is a period where
@@ -18,13 +15,15 @@ import us.monoid.json.JSONObject;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class RestCycle {
-    private static Gson gson = new Gson();
+public class RestCycle extends BaseCycle implements Cloneable {
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
 
-    public long startTime, endTime;
     public double startRange, endRange;
     public double startSOC, endSOC;
-    public double lat, lng;
 
     public RestCycle() { }
 
@@ -38,16 +37,8 @@ public class RestCycle {
         this.lat = basis.lat;
         this.lng = basis.lng;
     }
-    
-    public static RestCycle fromJSON(String json) {
-        return gson.fromJson(json, RestCycle.class);
-    }
 
-    public JSONObject toJSON() {
-        return RestyWrapper.newJSONObject(toJSONString());
-    }
-
-    public String toJSONString() {
+    @Override public String toJSONString() {
         return String.format(
                 "{ " +
                 "  \"startTime\": %d, " +
@@ -62,12 +53,23 @@ public class RestCycle {
                 startTime, endTime, startRange, endRange, startSOC, endSOC, lat, lng);
     }
 
-    @Override public String toString() { return toJSONString(); }
-    
-    public double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
+    /**
+     * Return the loss in range over this RestCycle
+     * @return The loss in range. Always given in miles.
+     */
     public double loss() { return startRange - endRange; }
+    
+    /**
+     * Return the average loss in range per hour over this RestCycle.
+     * @return The average loss/hour. Always given in miles/hour.
+     */
     public double avgLoss() { return loss() / hours(endTime - startTime); }
 
+    /**
+     * This RestCycle may span multiple days, split it into a List of RestCycles
+     * that each covers at most one day.
+     * @param splitList A list of RestCycles with at least one element.
+     */
     public void splitIntoDays(List<RestCycle> splitList) {
         int startDay = dayOf(startTime);
         int endDay = dayOf(endTime);
@@ -92,6 +94,14 @@ public class RestCycle {
         }
     }
     
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
+
     private int dayOf(long time) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(time);
