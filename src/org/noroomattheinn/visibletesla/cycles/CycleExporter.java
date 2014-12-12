@@ -183,17 +183,11 @@ public abstract class CycleExporter<C extends BaseCycle> {
      */
     protected String filterSubmissionData(String data) { return data; }
     
-/*------------------------------------------------------------------------------
- *
- * Private Utility Methods
- * 
- *----------------------------------------------------------------------------*/
-    
     /**
      * Randomize (dither) the location of this cycle for privacy purposes.
      * @param cycle     The cycle whose location should be dithered.
      */
-    private void ditherLocation(C cycle) {
+    protected void ditherLocation(C cycle) {
         if (!ac.prefs.includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
         if (cycle.lat == 0 && cycle.lng == 0) return;
         
@@ -209,6 +203,13 @@ public abstract class CycleExporter<C extends BaseCycle> {
         offset = (random/pow) * (Math.random() > 0.5 ? -1 : 1);
         cycle.lng += offset;
     }
+    
+
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
     
     /**
      * The standard process of exporting Cycles to a file
