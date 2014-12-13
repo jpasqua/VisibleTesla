@@ -249,6 +249,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
         if (state == null) return;
         if (!worthRecording(state, lastStoredStreamState.get())) {
             if (!state.isInMotion()) lastUnrecordedStationarySS = state;
+            return;
         }
         
         if (lastUnrecordedStationarySS != null && state.isInMotion()) {
