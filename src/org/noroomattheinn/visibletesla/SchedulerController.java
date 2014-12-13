@@ -45,7 +45,6 @@ public class SchedulerController extends BaseController
     @FXML private GridPane gridPane;
     @FXML private TextArea activityLog;
     
-    private ChargeState charge;
     private Vehicle v;
     
     private final List<ScheduleItem> schedulers = new ArrayList<>();
@@ -157,7 +156,7 @@ public class SchedulerController extends BaseController
         
         String name = ScheduleItem.commandToName(command);
         if (ac.prefs.safeIncludesMinCharge.get()) {
-            if (charge.batteryPercent < Safe_Threshold) {
+            if (ac.lastChargeState.get().batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
                 logActivity(entry, true);
@@ -186,7 +185,8 @@ public class SchedulerController extends BaseController
     }
     
     private synchronized Result unpluggedTrigger() {
-        ChargeState.Status status = ac.lastChargeState.get().chargingState;
+        ChargeState charge = ac.lastChargeState.get();
+        ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
             ac.mailer.send(
                 ac.prefs.notificationAddress.get(),
