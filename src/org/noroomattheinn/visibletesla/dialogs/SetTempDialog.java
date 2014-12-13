@@ -1,14 +1,11 @@
 /*
- * SetValueDialog.java  - Copyright(c) 2014 Joe Pasqua
+ * SetTempDialog.java  - Copyright(c) 2014 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Feb 16, 2014
  */
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -20,18 +17,12 @@ import javafx.scene.control.Slider;
 import javafx.stage.Stage;
 
 /**
- * SetValueDialog
+ * SetTempDialog
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-public class SetTempDialog implements DialogUtils.DialogController {
-
-/*------------------------------------------------------------------------------
- *
- * Constants and Enums
- * 
- *----------------------------------------------------------------------------*/
+public class SetTempDialog extends VTDialog.Controller {
 
 /*------------------------------------------------------------------------------
  *
@@ -39,20 +30,16 @@ public class SetTempDialog implements DialogUtils.DialogController {
  * 
  *----------------------------------------------------------------------------*/
         
-    private Stage myStage;
     private boolean useDegreesF;
     private double finalValue;
     private boolean cancelled;
     
 /*------------------------------------------------------------------------------
  *
- * UI Elements
+ * Internal State - UI Components
  * 
  *----------------------------------------------------------------------------*/
         
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-
     @FXML private Button okButton;
     @FXML private Button cancelButton;
     @FXML private Slider valueSlider;
@@ -88,7 +75,7 @@ public class SetTempDialog implements DialogUtils.DialogController {
             cancelled = true;
             finalValue = -1;
         }
-        myStage.close();
+        dialogStage.close();
     }
     
 /*==============================================================================
@@ -97,7 +84,36 @@ public class SetTempDialog implements DialogUtils.DialogController {
  * -------                                                               -------
  *============================================================================*/
     
-    public void setUnits(boolean useDegreesF) {
+    public static SetTempDialog show(Stage stage, boolean useDegreesF, double target) {
+        SetTempDialog std = VTDialog.<SetTempDialog>load(
+                SetTempDialog.class.getResource("SetTempDialog.fxml"),
+                "Target Temperature", stage);
+        std.setInitialValues(useDegreesF, target);
+        std.show();
+        return std;
+    }
+    
+    public double getValue() { return finalValue; }
+    public boolean cancelled() { return cancelled; }
+    public boolean useCarsValue() { return useCarSetpoint.isSelected(); }
+
+/*------------------------------------------------------------------------------
+ *
+ * Private Methods
+ * 
+ *----------------------------------------------------------------------------*/
+
+    private void setInitialValues(boolean udf, double initTemp) {
+        setUnits(udf);
+        if (initTemp > 0) {
+            setValue(initTemp);
+            useCarSetpoint.setSelected(false);
+        } else {
+            useCarSetpoint.setSelected(true);
+        }
+    }
+    
+    private void setUnits(boolean useDegreesF) {
         if (useDegreesF) {
             valueSlider.setMin(62);
             valueSlider.setMax(90);
@@ -112,38 +128,6 @@ public class SetTempDialog implements DialogUtils.DialogController {
             valueSlider.setValue(19.5); // Default Value
         }
     }
-    
-    public double getValue() { return finalValue; }
-    public boolean cancelled() { return cancelled; }
-    public boolean useCarsValue() { return useCarSetpoint.isSelected(); }
-
-/*------------------------------------------------------------------------------
- *
- * Methods overriden from DialogController
- * 
- *----------------------------------------------------------------------------*/
-
-    @Override public void setStage(Stage stage) { this.myStage = stage; }
-    @Override public void setProps(Map props) {
-        Boolean udf = (Boolean)props.get("USE_DEGREES_F");
-        if (udf != null) useDegreesF = udf;
-        setUnits(useDegreesF);
-        
-        Double initTemp = (Double)props.get("INIT_TEMP");
-        if (initTemp != null && initTemp > 0) {
-            setValue(initTemp);
-            this.useCarSetpoint.setSelected(false);
-        } else {
-            this.useCarSetpoint.setSelected(true);
-        }
-    }
-    
-    
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - Methods that handle the details of the different value types
- * 
- *----------------------------------------------------------------------------*/
 
     private double adjustValue(double orig) {
         return useDegreesF ? Math.round(orig) : nearestHalf(orig);

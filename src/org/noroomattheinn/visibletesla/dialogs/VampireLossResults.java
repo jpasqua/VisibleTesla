@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -26,7 +24,6 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.TimeStringConverter;
-import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.cycles.RestCycle;
 
 /**
@@ -34,29 +31,49 @@ import org.noroomattheinn.visibletesla.cycles.RestCycle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VampireLossResults  implements DialogUtils.DialogController {
-    private static final int TimeOffset = 0;
-    
-    private Stage myStage;
+public class VampireLossResults  extends VTDialog.Controller {
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
     private String units;
     
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-
+/*------------------------------------------------------------------------------
+ *
+ * Internal State - UI Components
+ * 
+ *----------------------------------------------------------------------------*/
     @FXML private LineChart<Number, Number> chart;
     @FXML private LineChart<Number, Number> sequenceChart;
-
-    @FXML void initialize() { }
-
-    @Override public void setStage(Stage stage) { this.myStage = stage; }
-    @Override public void setProps(Map props) {
-        List<RestCycle> restPeriods = Utils.cast(props.get("REST_PERIODS"));
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+    
+    public static void show(Stage stage, List<RestCycle> restPeriods, String units, double average) {
+        VampireLossResults vlr = VTDialog.<VampireLossResults>load(
+                VampireLossResults.class.getResource("VampireLossResults.fxml"),
+                "Vampire Loss", stage);
+        vlr.buildCharts(restPeriods, units, average);
+        vlr.show();
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Main Chart Building Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void buildCharts(List<RestCycle> restPeriods, String units, double average) {
+        this.units = units;
         if (restPeriods == null || restPeriods.isEmpty()) return;
-        units = (String)props.get("UNITS");
         
         // Hack to make tooltip styles works. No one knows why.
         URL url = getClass().getClassLoader().getResource("org/noroomattheinn/styles/tooltip.css");
-        myStage.getScene().getStylesheets().add(url.toExternalForm());
+        dialogStage.getScene().getStylesheets().add(url.toExternalForm());
         
         // ----- Set up time-based chart
         
@@ -70,7 +87,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         xAxis.setUpperBound(24.0);        
         xAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(xAxis) {
             @Override public String toString(Number hr) {
-                int adjusted = (hr.intValue() + (24-TimeOffset)) % 24;
+                int adjusted = (hr.intValue() + 24) % 24;
                 return String.format("%2d", adjusted);
             }
         });
@@ -90,7 +107,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         }
         
         
-        final double overallAverage = (Double)props.get("OVERALL_AVG");
+        final double overallAverage = average;
         XYChart.Series<Number,Number> avg = new XYChart.Series<>();
         avg.setName("Average");
         
@@ -148,6 +165,12 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         
     }
     
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
     private double nHours(RestCycle r) {
         long diff = r.endTime - r.startTime;
         long seconds = diff/1000;
@@ -177,7 +200,7 @@ public class VampireLossResults  implements DialogUtils.DialogController {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(timestamp);
         double time = c.get(Calendar.HOUR_OF_DAY) + ((double)c.get(Calendar.MINUTE))/60;
-        time = (time + TimeOffset) % 24;
+        time = time % 24;
         
         final XYChart.Data<Number,Number> dataPoint =
                 new XYChart.Data<Number,Number>(time, r.avgLoss());

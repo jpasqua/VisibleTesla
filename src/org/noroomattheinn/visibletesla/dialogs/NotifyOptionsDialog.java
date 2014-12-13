@@ -6,9 +6,6 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -25,21 +22,13 @@ import javafx.stage.Stage;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-public class NotifyOptionsDialog implements DialogUtils.DialogController {
-
-/*------------------------------------------------------------------------------
- *
- * Constants and Enums
- * 
- *----------------------------------------------------------------------------*/
-
+public class NotifyOptionsDialog extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
         
-    private Stage myStage;
     private String email;
     private String subject;
     private String message;
@@ -47,13 +36,10 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
     
 /*------------------------------------------------------------------------------
  *
- * UI Elements
+ * Internal State - UI Components
  * 
  *----------------------------------------------------------------------------*/
         
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-
     @FXML private Button okButton;
     @FXML private Button cancelButton;
     @FXML private TextField emailField;
@@ -67,7 +53,7 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
  * 
  *----------------------------------------------------------------------------*/
     
-    @FXML void initialize() {
+    @FXML private void initialize() {
         cancelled = true;
         email = subject = message = null;
         useDefault.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -79,7 +65,7 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
         });
     }
     
-    @FXML void buttonHandler(ActionEvent event) {
+    @FXML private void buttonHandler(ActionEvent event) {
         Button b = (Button)event.getSource();
         if (b == okButton) {
             cancelled = false;
@@ -94,7 +80,7 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
             cancelled = true;
             email = subject = message = null;
         }
-        myStage.close();
+        dialogStage.close();
     }
     
 /*==============================================================================
@@ -103,6 +89,16 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
  * -------                                                               -------
  *============================================================================*/
     
+    public static NotifyOptionsDialog show(
+            String title, Stage stage,
+            String initEmail, String initSubject, String initMsg) {
+        NotifyOptionsDialog nod = VTDialog.<NotifyOptionsDialog>load(
+            NotifyOptionsDialog.class.getResource("NotifyOptionsDialog.fxml"),
+            title, stage);
+        nod.setInitialValues(initEmail, initSubject, initMsg);
+        nod.show();
+        return nod;
+    }
     
     public String getEmail() { return item(email); }
     public String getSubject() { return item(subject); }
@@ -112,23 +108,19 @@ public class NotifyOptionsDialog implements DialogUtils.DialogController {
 
 /*------------------------------------------------------------------------------
  *
- * Methods overriden from DialogController
+ * Private initialization methods
  * 
  *----------------------------------------------------------------------------*/
 
-    @Override public void setStage(Stage stage) { this.myStage = stage; }
-    @Override public void setProps(Map props) {
-        String initEmail = (String)props.get("EMAIL");
+    private void setInitialValues(String initEmail, String initSubject, String initMsg) {
         if (initEmail != null) {
             email = initEmail.trim();
             emailField.setText(email);
         }
-        String initSubject = (String)props.get("SUBJECT");
         if (initSubject != null) {
             subject = initSubject.trim();
             subjectField.setText(subject);
         }
-        String initMsg = (String)props.get("MESSAGE");
         if (initMsg != null) {
             message = initMsg;
             messageField.setText(message);

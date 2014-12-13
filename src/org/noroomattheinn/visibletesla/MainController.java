@@ -8,7 +8,6 @@ package org.noroomattheinn.visibletesla;
 
 import java.io.IOException;
 import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -538,11 +537,7 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private boolean letItSleep() {
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                getClass().getResource("dialogs/WakeSleepDialog.fxml"),
-                "Wake up your car?", ac.stage, null);
-        if (dc == null) return true;
-        WakeSleepDialog wsd = Utils.cast(dc);
+        WakeSleepDialog wsd = WakeSleepDialog.show(ac.stage);
         return wsd.letItSleep();
     }
     

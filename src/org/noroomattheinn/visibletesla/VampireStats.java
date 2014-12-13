@@ -16,7 +16,8 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
+import org.noroomattheinn.visibletesla.dialogs.VTDialog;
+import org.noroomattheinn.visibletesla.dialogs.VampireLossResults;
 
 /**
  * VampireStats: Collect and display statistics about vampire loss.
@@ -79,37 +80,23 @@ public class VampireStats {
             totalRestTime += r.endTime - r.startTime;
             totalLoss += r.startRange - r.endRange;
         }
-        
-        Map<Object, Object> props = new HashMap<>();
-        props.put("REST_PERIODS", rests);
-        props.put("OVERALL_AVG", totalLoss/hours(totalRestTime));
-        props.put("UNITS", useMiles ? "mi" : "km");
-        
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-            getClass().getResource("dialogs/VampireLossResults.fxml"),
-            "Vampire Loss", ac.stage, props);
-        if (dc == null) {
-            logger.warning("Unable to display Vampire Loss Dialog");
-        }
+                
+        VampireLossResults.show(ac.stage, rests, useMiles ? "mi" : "km", totalLoss/hours(totalRestTime));
     }
     
     
     private Range<Long> getExportPeriod() {
-        Map<String,Object> props = genProps();
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-            getClass().getResource("dialogs/DateRangeDialog.fxml"),
-            "Select a Date Range", ac.stage, props);
-        if (dc == null) return null;
-        DateRangeDialog drd = Utils.cast(dc);
-        if (drd.selectedAll()) {
-            return Range.closed(0L, Long.MAX_VALUE);
-        }
-        Calendar start = drd.getStartCalendar();
-        Calendar end = drd.getEndCalendar();
-        if (start == null) {
-            return null;
-        }
-        return Range.closed(start.getTimeInMillis(), end.getTimeInMillis());
+        NavigableMap<Long,Row> rows = ac.statsCollector.getAllLoadedRows();
+        long timestamp = rows.firstKey(); 
+        Calendar start = Calendar.getInstance();
+        start.setTimeInMillis(timestamp);
+        
+        timestamp = rows.lastKey(); 
+        Calendar end = Calendar.getInstance();
+        end.setTimeInMillis(timestamp);
+        
+        Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage, start, end);
+        return exportPeriod;
     }
     
     private Map<String,Object> genProps() {

@@ -4,9 +4,6 @@
  */
 package org.noroomattheinn.visibletesla.dialogs;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -22,15 +19,12 @@ import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.visibletesla.Area;
 
 
-public class ChooseLocationDialog implements DialogUtils.DialogController {
-    
+public class ChooseLocationDialog extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-    public static final String AREA_KEY = "AREA";
-    public static final String API_KEY = "API_KEY";
     private static final String MapTemplateFileName = "ChooseLocation.html";
     
 /*------------------------------------------------------------------------------
@@ -38,23 +32,16 @@ public class ChooseLocationDialog implements DialogUtils.DialogController {
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
-    
-    private Stage stage;
     private Area area = null;
     private WebEngine engine;
     private boolean cancelled = true;
     private boolean loaded = false;
-    private String apiKey;
     
 /*------------------------------------------------------------------------------
  *
  * UI Elements
  * 
  *----------------------------------------------------------------------------*/
-
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-
     @FXML private Button cancelButton, okButton;
     @FXML private WebView webView;
     @FXML private TextField nickname;
@@ -83,64 +70,32 @@ public class ChooseLocationDialog implements DialogUtils.DialogController {
             }
             area = new Area(lat, lng, radius, locationName);
             cancelled = false;
-            stage.close();
+            dialogStage.close();
         } else if (b == cancelButton) {
             cancelled = true;
             area = null;
-            stage.close();
+            dialogStage.close();
         }
     }
 
-    @FXML void initialize() {
-        engine = webView.getEngine();
-    }
+    @FXML void initialize() { engine = webView.getEngine(); }
     
-/*------------------------------------------------------------------------------
- *
- * Methods overridden from DialogController
- * 
- *----------------------------------------------------------------------------*/
-    
-    @Override public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    @Override public void setProps(Map props) {
-        apiKey = (String)props.get(API_KEY);
-        if (apiKey == null) {
-            logger.severe("API_KEY must be provided to ChooseLocationDialog!");
-            stage.close();
-            return;
-        }
-        
-        area = (Area)props.get(AREA_KEY);
-        if (area == null || (area.lat == 0 && area.lng == 0)) {
-            area = new Area(37.3941542, -122.1498701, 20.0, ""); // Tesla HQ
-        } else {
-            if (area.name != null) nickname.setText(area.name);
-        }
-        // Prep the web view...
-        String mapHTML = getMapFromTemplate(area.lat, area.lng, area.radius);
-        engine.getLoadWorker().stateProperty().addListener( new ChangeListener<State>() {
-            @Override public void changed(ObservableValue ov, State old, State cur) {
-                if (cur == State.SUCCEEDED) {
-                    loaded = true;
-                }
-            }
-        });
-        engine.loadContent(mapHTML);
-    }
-
-        
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
     
-    public Area getArea() {
-        return area;
+    public static ChooseLocationDialog show(Stage stage, Area area, String apiKey) {
+        ChooseLocationDialog cld = VTDialog.<ChooseLocationDialog>load(
+            ChooseLocationDialog.class.getResource("ChooseLocation.fxml"),
+            "Select an Area", stage);
+        cld.setInitialValues(area, apiKey);
+        cld.show();
+        return cld;
     }
+
+    public Area getArea() { return area; }
     
     public boolean cancelled() { return !loaded || cancelled; }
     
@@ -150,7 +105,31 @@ public class ChooseLocationDialog implements DialogUtils.DialogController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private String getMapFromTemplate(double lat, double lng, double radius) {
+    private void setInitialValues(Area area, String apiKey) {
+        if (apiKey == null) {
+            logger.severe("API_KEY must be provided to ChooseLocationDialog!");
+            dialogStage.close();
+            return;
+        }
+        
+        if (area == null || (area.lat == 0 && area.lng == 0)) {
+            area = new Area(37.3941542, -122.1498701, 20.0, ""); // Tesla HQ
+        } else {
+            if (area.name != null) nickname.setText(area.name);
+        }
+        // Prep the web view...
+        String mapHTML = getMapFromTemplate(area.lat, area.lng, area.radius, apiKey);
+        engine.getLoadWorker().stateProperty().addListener( new ChangeListener<State>() {
+            @Override public void changed(ObservableValue ov, State old, State cur) {
+                if (cur == State.SUCCEEDED) {
+                    loaded = true;
+                }
+            }
+        });
+        engine.loadContent(mapHTML);
+    }
+    
+    private String getMapFromTemplate(double lat, double lng, double radius, String apiKey) {
         SimpleTemplate template = new SimpleTemplate(getClass().getResourceAsStream(MapTemplateFileName));
         return template.fillIn(
                 "JFX_LAT", String.valueOf(lat), "JFX_LONG", String.valueOf(lng),

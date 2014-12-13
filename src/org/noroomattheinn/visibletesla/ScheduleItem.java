@@ -8,11 +8,9 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
 import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import it.sauronsoftware.cron4j.Scheduler;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -232,24 +230,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private EventHandler<ActionEvent> getMessageTarget = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent t) {
             if (messageTarget == null) messageTarget = loadMessageTarget();
-            Map<Object, Object> props = new HashMap<>();
-            props.put("EMAIL", messageTarget.getEmail());
-            props.put("SUBJECT", messageTarget.getSubject());
-            props.put("MESSAGE", messageTarget.getMessage());
-
-            DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                    getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
-                    "Message Options", owner.getAppContext().stage, props);
-            if (dc == null) {
-                logger.warning("Can't display \"Message Options\" dialog");
-                messageTarget.setEmail(null); 
-                messageTarget.setSubject(null);
-                messageTarget.setMessage(null);
-                messageTarget.externalize();
-                return;
-            }
-
-            NotifyOptionsDialog nod = Utils.cast(dc);
+            NotifyOptionsDialog nod = NotifyOptionsDialog.show(
+                    "Message Options", owner.getAppContext().stage,
+                    messageTarget.getEmail(), messageTarget.getSubject(), messageTarget.getMessage());
             if (!nod.cancelled()) {
                 if (!nod.useDefault()) {
                     messageTarget.setEmail(nod.getEmail());
@@ -267,22 +250,8 @@ class ScheduleItem implements EventHandler<ActionEvent> {
 
     EventHandler<ActionEvent> getChargeOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
-            Map<Object, Object> props = new HashMap<>();
-            boolean useDegreesF = owner.getAppContext().lastGUIState.get().
-                                        temperatureUnits.equalsIgnoreCase("F");
-            props.put("INIT_CHARGE", targetValue);
-            props.put("USE_DEGREES_F", useDegreesF);
-
-            DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                    getClass().getResource("dialogs/SetChargeDialog.fxml"),
-                    "Target Charge Level", owner.getAppContext().stage, props);
-            if (dc == null) {
-                logger.severe("Can't display \"Target Charge\" dialog");
-                targetValue = -1; 
-                return;
-            }
-
-            SetChargeDialog scd = Utils.cast(dc);
+            SetChargeDialog scd = SetChargeDialog.show(
+                    owner.getAppContext().stage, targetValue);
             if (!scd.cancelled()) {
                 if (!scd.useCarsValue()) {
                     targetValue = scd.getValue();
@@ -296,21 +265,10 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     
     EventHandler<ActionEvent> getTempOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
-            Map<Object, Object> props = new HashMap<>();
-            props.put("USE_DEGREES_F",
-                    owner.getAppContext().lastGUIState.get().temperatureUnits.equalsIgnoreCase("F"));
-            props.put("INIT_TEMP", targetValue);
+            SetTempDialog std = SetTempDialog.show(owner.getAppContext().stage,
+                    owner.getAppContext().lastGUIState.get().temperatureUnits.equalsIgnoreCase("F"),
+                    targetValue);
 
-            DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                    getClass().getResource("dialogs/SetTempDialog.fxml"),
-                    "Target Temperature", owner.getAppContext().stage, props);
-            if (dc == null) {
-                logger.severe("Can't display \"Target Temperature\" dialog");
-                targetValue = -1; 
-                return;
-            }
-
-            SetTempDialog std = Utils.cast(dc);
             if (!std.cancelled()) {
                 if (!std.useCarsValue()) {
                     targetValue = std.getValue();

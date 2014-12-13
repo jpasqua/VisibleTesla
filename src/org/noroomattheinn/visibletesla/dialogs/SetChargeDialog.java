@@ -6,9 +6,6 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -26,34 +23,22 @@ import javafx.stage.Stage;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-public class SetChargeDialog implements DialogUtils.DialogController {
-
-/*------------------------------------------------------------------------------
- *
- * Constants and Enums
- * 
- *----------------------------------------------------------------------------*/
-
+public class SetChargeDialog extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
-        
-    private Stage myStage;
-    private double finalValue;
+    
+    private double  finalValue;
     private boolean cancelled;
-    private Map props;
     
 /*------------------------------------------------------------------------------
  *
- * UI Elements
+ * Internal State - UI Components
  * 
  *----------------------------------------------------------------------------*/
         
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-
     @FXML private Button okButton;
     @FXML private Button cancelButton;
     @FXML private Slider chargeSlider;
@@ -68,7 +53,7 @@ public class SetChargeDialog implements DialogUtils.DialogController {
  * 
  *----------------------------------------------------------------------------*/
     
-    @FXML void initialize() {
+    @FXML private void initialize() {
         cancelled = true;
         finalValue = -1;
         bind(chargeSlider, chargeLabel);
@@ -80,7 +65,7 @@ public class SetChargeDialog implements DialogUtils.DialogController {
         });
     }
     
-    @FXML void buttonHandler(ActionEvent event) {
+    @FXML private void buttonHandler(ActionEvent event) {
         Button b = (Button)event.getSource();
         if (b == okButton) {
             cancelled = false;
@@ -89,10 +74,10 @@ public class SetChargeDialog implements DialogUtils.DialogController {
             cancelled = true;
             finalValue = -1;
         }
-        myStage.close();
+        dialogStage.close();
     }
 
-    @FXML void rangeLinkHandler(ActionEvent event) {
+    @FXML private void rangeLinkHandler(ActionEvent event) {
         Hyperlink h = (Hyperlink)event.getSource();
         chargeSlider.setValue((h == stdLink) ? 90 : 100);
     }    
@@ -104,19 +89,26 @@ public class SetChargeDialog implements DialogUtils.DialogController {
  * -------                                                               -------
  *============================================================================*/
     
+    public static SetChargeDialog show(Stage stage, Double initCharge) {
+        SetChargeDialog scd = VTDialog.<SetChargeDialog>load(
+            SetChargeDialog.class.getResource("SetChargeDialog.fxml"),
+            "Target Charge Level", stage);
+        scd.setInitialValues(initCharge);
+        scd.show();
+        return scd;
+    }
+    
     public double getValue() { return finalValue; }
     public boolean cancelled() { return cancelled; }
     public boolean useCarsValue() { return useCarSetpoint.isSelected(); }
 
 /*------------------------------------------------------------------------------
  *
- * Methods overriden from DialogController
+ * PRIVATE - Utility Methods
  * 
  *----------------------------------------------------------------------------*/
-
-    @Override public void setStage(Stage stage) { this.myStage = stage; }
-    @Override public void setProps(Map props) {
-        Double initCharge = (Double)props.get("INIT_CHARGE");
+    
+    public void setInitialValues(Double initCharge) {
         if (initCharge != null && initCharge > 0) {
             chargeSlider.setValue(initCharge);
             this.useCarSetpoint.setSelected(false);
@@ -124,14 +116,7 @@ public class SetChargeDialog implements DialogUtils.DialogController {
             this.useCarSetpoint.setSelected(true);
         }
     }
-    
-    
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - Utility Methods
- * 
- *----------------------------------------------------------------------------*/
-    
+
     private void bind(final Slider slider, final Label label) {
         label.setText(Math.round(slider.getValue()) + "");
         slider.valueProperty().addListener(new ChangeListener<Number>() {

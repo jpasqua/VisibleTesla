@@ -6,10 +6,6 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
-import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -22,40 +18,55 @@ import javafx.stage.Stage;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-public class WakeSleepDialog implements DialogUtils.DialogController {
-    private Stage myStage;
+public class WakeSleepDialog extends VTDialog.Controller {
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+
     private boolean letItSleep = true;
     private boolean dontAskAgain = false;
-    private Map props;
     
-    @FXML private ResourceBundle resources;
-    @FXML private URL location;
-
+/*------------------------------------------------------------------------------
+ *
+ * Internal State - UI Components
+ * 
+ *----------------------------------------------------------------------------*/
+    
     @FXML private CheckBox dontAskCheckbox;
     @FXML private Button sleepButton;
     @FXML private Button wakeButton;
 
-
-    @FXML void dontAskhandler(ActionEvent event) {
+/*------------------------------------------------------------------------------
+ *
+ * UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    @FXML private void dontAskhandler(ActionEvent event) {
         dontAskAgain = ((CheckBox)(event.getSource())).isSelected();
     }
 
-    @FXML void wakeSleepHandler(ActionEvent event) {
+    @FXML private void wakeSleepHandler(ActionEvent event) {
         letItSleep = (event.getSource() == sleepButton);
-        myStage.close();
+        dialogStage.close();
     }
-
-    @FXML
-    void initialize() {
-        assert dontAskCheckbox != null : "fx:id=\"dontAskCheckbox\" was not injected: check your FXML file 'WakeSleepDialog.fxml'.";
-        assert sleepButton != null : "fx:id=\"sleepButton\" was not injected: check your FXML file 'WakeSleepDialog.fxml'.";
-        assert wakeButton != null : "fx:id=\"wakeButton\" was not injected: check your FXML file 'WakeSleepDialog.fxml'.";
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+    
+    public static WakeSleepDialog show(Stage stage) {
+        WakeSleepDialog wsd = VTDialog.<WakeSleepDialog>load(
+            WakeSleepDialog.class.getResource("WakeSleepDialog.fxml"),
+            "Wake up your car?", stage);
+        return wsd;
     }
 
     public boolean letItSleep() { return letItSleep; }
     public boolean dontAskAgain() { return dontAskAgain; }
     
-    @Override public void setStage(Stage stage) { this.myStage = stage; }
-
-    @Override public void setProps(Map props) { this.props = props; }
 }

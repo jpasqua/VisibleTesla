@@ -1,11 +1,8 @@
 package org.noroomattheinn.visibletesla.dialogs;
 
 import com.google.common.collect.Range;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -13,56 +10,48 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
-import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.Prefs;
 
 
-public class DateRangeDialog implements DialogUtils.DialogController {
-
-    public static Range<Long> getExportPeriod(Stage stage) {
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-            DateRangeDialog.class.getResource("DateRangeDialog.fxml"),
-            "Date Range for Export", stage, null);
-        if (dc == null) return null;
-        DateRangeDialog drd = Utils.cast(dc);
-        if (drd.selectedAll()) {
-            return Range.closed(0L, Long.MAX_VALUE);
-        }
-        Calendar start = drd.getStartCalendar();
-        Calendar end = drd.getEndCalendar();
-        if (start == null) {
-            return null;
-        } else {
-            long t0 = start.getTimeInMillis();
-            long t1 = end.getTimeInMillis();
-            if (t1 < t0) return Range.closed(t1, t0);
-            return Range.closed(t0, t1);
-        }
-    }
-
-    private Stage stage;
+public class DateRangeDialog extends VTDialog.Controller {
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
     private Calendar start = null;
     private Calendar end = null;
     private boolean selectedAll = false;
-    private Map props;
     private Calendar highlightStart, highlightEnd;
     
-    @FXML private AnchorPane root;
-    @FXML private ResourceBundle resources;
-
-    @FXML private URL location;
-
+/*------------------------------------------------------------------------------
+ *
+ * Internal State - UI Components
+ * 
+ *----------------------------------------------------------------------------*/
     @FXML private Button allButton;
     @FXML private Button cancelButton;
     @FXML private Button selectedButton;
-
     @FXML private CalendarPicker calendarPicker;
-
     @FXML private ComboBox<String> quickSelect;
+    
+/*------------------------------------------------------------------------------
+ *
+ * UI Initialization and Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    @FXML void initialize() {
+        quickSelect.valueProperty().addListener(handleQuickSelect);
+        calendarPicker.setCalendarRangeCallback(new Callback<CalendarPicker.CalendarRange,java.lang.Void>() {
+            @Override public Void call(CalendarPicker.CalendarRange p) {
+                highlightDays(p.getStartCalendar());
+                return null;
+            } });
+    }
 
     @FXML void buttonHandler(ActionEvent event) {
         Button b = (Button)event.getSource();
@@ -79,7 +68,44 @@ public class DateRangeDialog implements DialogUtils.DialogController {
         } else if (b == cancelButton) {
             start = end = null;
         }
-        stage.close();
+        dialogStage.close();
+    }
+    
+/*==============================================================================
+ * -------                                                               -------
+ * -------              Public Interface To This Class                   ------- 
+ * -------                                                               -------
+ *============================================================================*/
+
+    public static DateRangeDialog show(Stage stage, Calendar sd, Calendar ed) {
+        DateRangeDialog drd = VTDialog.<DateRangeDialog>load(
+            DateRangeDialog.class.getResource("DateRangeDialog.fxml"),
+                "Date Range for Export", stage);
+        drd.setInitialValues(sd, ed);
+        drd.show();
+        return drd;
+    }
+    
+    public static Range<Long> getExportPeriod(Stage stage) {
+        return getExportPeriod(stage, null, null);
+    }
+    
+    public static Range<Long> getExportPeriod(Stage stage, Calendar sd, Calendar ed) {
+        DateRangeDialog drd = DateRangeDialog.show(stage, sd, ed);
+
+        if (drd.selectedAll()) {
+            return Range.closed(0L, Long.MAX_VALUE);
+        }
+        Calendar start = drd.getStartCalendar();
+        Calendar end = drd.getEndCalendar();
+        if (start == null) {
+            return null;
+        } else {
+            long t0 = start.getTimeInMillis();
+            long t1 = end.getTimeInMillis();
+            if (t1 < t0) return Range.closed(t1, t0);
+            return Range.closed(t0, t1);
+        }
     }
 
     public boolean selectedAll() { return selectedAll; }
@@ -94,24 +120,11 @@ public class DateRangeDialog implements DialogUtils.DialogController {
         return decodeDay(encodeDay(end), true);
     }
     
-    @FXML void initialize() {
-        quickSelect.valueProperty().addListener(handleQuickSelect);
-        calendarPicker.setCalendarRangeCallback(new Callback<CalendarPicker.CalendarRange,java.lang.Void>() {
-            @Override public Void call(CalendarPicker.CalendarRange p) {
-                highlightDays(p.getStartCalendar());
-                return null;
-            } });
-    }
-
-    @Override public void setStage(Stage stage) { this.stage = stage; }
-    
-    @Override public void setProps(Map props) {
-        this.props = props;
-        if (props != null) {
-            highlightStart = (Calendar)props.get("HIGHLIGHT_START");
-            highlightEnd = (Calendar)props.get("HIGHLIGHT_END");
-        }
-    }
+/*------------------------------------------------------------------------------
+ *
+ * UI Action Handlers
+ * 
+ *----------------------------------------------------------------------------*/
 
     private final ChangeListener<String> handleQuickSelect = new ChangeListener<String>() {
         @Override public void changed(
@@ -170,6 +183,17 @@ public class DateRangeDialog implements DialogUtils.DialogController {
         }
     };
     
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void setInitialValues(Calendar sd, Calendar ed) {
+        if (sd != null) this.highlightStart = sd;
+        if (ed != null) this.highlightEnd = ed;
+    }
+            
     private int encodeDay(Calendar day) {
         int encoded = day.get(Calendar.YEAR);
         encoded = (encoded * 1000) + day.get(Calendar.DAY_OF_YEAR);

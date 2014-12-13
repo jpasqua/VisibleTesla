@@ -13,7 +13,6 @@ import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javafx.beans.property.ObjectProperty;
@@ -36,7 +35,6 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
-import org.noroomattheinn.visibletesla.dialogs.DialogUtils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
 import org.noroomattheinn.visibletesla.trigger.GenericTrigger;
@@ -490,42 +488,19 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void showAreaDialog(ObjectProperty<Area> areaProp) {
-        Map<Object, Object> props = new HashMap<>();
-        props.put(ChooseLocationDialog.AREA_KEY, areaProp.get());
-        props.put(ChooseLocationDialog.API_KEY,
-                ac.prefs.useCustomGoogleAPIKey.get() ?
+        String apiKey = ac.prefs.useCustomGoogleAPIKey.get() ?
                     ac.prefs.googleAPIKey.get() :
-                    AppContext.GoogleMapsAPIKey);
+                    AppContext.GoogleMapsAPIKey;
 
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                getClass().getResource("dialogs/ChooseLocation.fxml"),
-                "Select an Area", ac.stage, props);
-
-        ChooseLocationDialog cld = Utils.cast(dc);
+        ChooseLocationDialog cld = ChooseLocationDialog.show(ac.stage, areaProp.get(), apiKey);
         if (!cld.cancelled()) {
             areaProp.set(cld.getArea());
         }
     }
 
     private void showDialog(MessageTarget mt) {
-        Map<Object, Object> props = new HashMap<>();
-        props.put("EMAIL", mt.getEmail());
-        props.put("SUBJECT", mt.getSubject());
-        props.put("MESSAGE", mt.getMessage());
-
-        DialogUtils.DialogController dc = DialogUtils.displayDialog(
-                getClass().getResource("dialogs/NotifyOptionsDialog.fxml"),
-                "Message Options", ac.stage, props);
-        if (dc == null) {
-            logger.warning("Can't display \"Message Options\" dialog");
-            mt.setEmail(null); 
-            mt.setSubject(null);
-            mt.setMessage(null);
-            mt.externalize();
-            return;
-        }
-
-        NotifyOptionsDialog nod = Utils.cast(dc);
+        NotifyOptionsDialog nod = NotifyOptionsDialog.show(
+                "Message Options", ac.stage, mt.getEmail(), mt.getSubject(), mt.getMessage());
         if (!nod.cancelled()) {
             if (!nod.useDefault()) {
                 mt.setEmail(nod.getEmail());
