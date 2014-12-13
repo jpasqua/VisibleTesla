@@ -16,252 +16,110 @@
 
 <AnchorPane id="AnchorPane" fx:id="root" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.PrefsController">
   <children>
-    <Accordion prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <expandedPane>
-        <TitledPane fx:id="x1" animated="false" prefHeight="400.0" prefWidth="640.0" text="General">
+    <TabPane prefHeight="400.0" prefWidth="640.0" side="TOP" style="" styleClass="nested-tab-pane" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <stylesheets>
+        <URL value="@../styles/VisibleTesla.css" />
+      </stylesheets>
+      <tabs>
+        <Tab text="General">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="427.0" prefWidth="636.0" style="-fx-background-color: gray">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #eee">
               <children>
-                <Accordion prefHeight="220.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                  <expandedPane>
-                    <TitledPane fx:id="x4" animated="false" prefHeight="198.0" prefWidth="591.0" style="-fx-background-color: blue&#10;" text="Basic">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <VBox id="VBox" alignment="CENTER_LEFT" spacing="15.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                  <children>
+                    <Group id="Group">
+                      <children>
+                        <CheckBox fx:id="wakeOnTabChange" contentDisplay="LEFT" layoutX="138.0" layoutY="0.0" mnemonicParsing="false" onAction="#wakeOnTCHandler" selected="true" text="" />
+                        <Label layoutX="232.0" layoutY="3.0" text="Idle Threshold:" />
+                        <Label layoutX="0.0" layoutY="0.0" text="Wake on Tab change:" />
+                        <Slider fx:id="idleThresholdSlider" layoutX="336.0" layoutY="3.0" max="90.0" min="1.0" value="15.0" />
+                        <Label fx:id="idleThresholdLabel" layoutX="487.0" layoutY="3.0" text="15" />
+                        <Label layoutX="507.0" layoutY="3.0" text="Minute(s)" />
+                      </children>
+                    </Group>
+                    <Line endX="540.0" endY="0.0" startX="-100.0" />
+                    <Group id="Group">
+                      <children>
+                        <ComboBox fx:id="graphsTimePeriod" layoutX="94.0" layoutY="0.0" value="Last 7 days">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="Last 7 days" />
+                              <String fx:value="Last 14 days" />
+                              <String fx:value="Last 30 days" />
+                              <String fx:value="This week" />
+                              <String fx:value="This month" />
+                              <String fx:value="All" />
+                              <String fx:value="None" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                        <Label layoutX="0.0" layoutY="2.0" text="Load data for:" />
+                      </children>
+                    </Group>
+                    <Line endX="540.0" endY="0.0" startX="-100.0" />
+                    <Group id="Group">
+                      <children>
+                        <Label layoutX="0.0" layoutY="3.0" text="Email for notifications:" />
+                        <TextField fx:id="emailForNotifications" layoutX="149.0" layoutY="0.0" prefWidth="300.0" />
+                        <Button layoutX="455.0" layoutY="1.0" mnemonicParsing="false" onAction="#testDelivery" text="Test Delivery" />
+                        <Label layoutX="155.0" layoutY="26.0" text="Normal charges may apply for text messages" textAlignment="CENTER">
+                          <font>
+                            <Font name="Arial Bold Italic" size="13.0" />
+                          </font>
+                        </Label>
+                      </children>
+                    </Group>
+                    <Line endX="540.0" endY="0.0" startX="-100.0" />
+                    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
+                      <children>
+                        <Label text="Overview Range Type:" />
+                        <ComboBox fx:id="overviewRange" value="Rated">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="Rated" />
+                              <String fx:value="Ideal" />
+                              <String fx:value="Estimated" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                      </children>
+                    </HBox>
+                    <Line endX="540.0" endY="0.0" startX="-100.0" />
+                    <VBox id="VBox" alignment="CENTER_LEFT" spacing="7.0">
+                      <children>
+                        <HBox id="HBox" alignment="CENTER_LEFT" spacing="10.0">
                           <children>
-                            <CheckBox fx:id="wakeOnTabChange" contentDisplay="LEFT" mnemonicParsing="false" onAction="#wakeOnTCHandler" selected="true" text="" AnchorPane.leftAnchor="152.0" AnchorPane.topAnchor="7.0" />
-                            <Label layoutX="246.0" layoutY="10.0" text="Idle Threshold:" />
-                            <Label layoutX="14.0" layoutY="7.0" text="Wake on Tab change:" />
-                            <Slider fx:id="idleThresholdSlider" layoutX="350.0" layoutY="10.0" max="90.0" min="1.0" value="15.0" />
-                            <Label fx:id="idleThresholdLabel" layoutX="501.0" layoutY="10.0" text="15" />
-                            <Label layoutX="521.0" layoutY="10.0" text="Minute(s)" />
-                            <Line endX="499.0" endY="0.0" layoutX="100.0" layoutY="34.0" startX="-100.0" />
-                            <ComboBox fx:id="graphsTimePeriod" layoutX="108.0" layoutY="42.0" value="Last 7 days">
-                              <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                  <String fx:value="Last 7 days" />
-                                  <String fx:value="Last 14 days" />
-                                  <String fx:value="Last 30 days" />
-                                  <String fx:value="This week" />
-                                  <String fx:value="This month" />
-                                  <String fx:value="All" />
-                                  <String fx:value="None" />
-                                </FXCollections>
-                              </items>
-                            </ComboBox>
-                            <Label layoutX="14.0" layoutY="44.0" text="Load data for:" />
-                            <Line endX="499.0" endY="0.0" layoutX="101.0" layoutY="71.0" startX="-100.0" />
-                            <Label layoutX="14.0" layoutY="81.0" text="Email for notifications:" />
-                            <TextField fx:id="emailForNotifications" layoutX="163.0" layoutY="78.0" prefWidth="300.0" />
-                            <Button layoutX="469.0" layoutY="79.0" mnemonicParsing="false" onAction="#testDelivery" text="Test Delivery" />
-                            <Label layoutX="169.0" layoutY="104.0" text="Normal charges may apply for text messages" textAlignment="CENTER">
+                            <Label prefWidth="-1.0" text="Anonymous Data Submissions:" textFill="#990000">
                               <font>
-                                <Font name="Arial Bold Italic" size="13.0" />
+                                <Font name="System Bold" size="13.0" fx:id="x1" />
                               </font>
                             </Label>
-                            <Line endX="499.0" endY="0.0" layoutX="95.0" layoutY="124.0" startX="-100.0" />
-                            <ComboBox fx:id="overviewRange" layoutX="157.0" layoutY="131.0" value="Rated">
-                              <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                  <String fx:value="Rated" />
-                                  <String fx:value="Ideal" />
-                                  <String fx:value="Estimated" />
-                                </FXCollections>
-                              </items>
-                            </ComboBox>
-                            <Label layoutX="14.0" layoutY="134.0" text="Overview Range Type:" />
-                            <Line endX="499.0" endY="0.0" layoutX="98.0" layoutY="160.0" startX="-100.0" />
-                            <HBox id="HBox" alignment="CENTER" layoutX="14.0" layoutY="171.0" spacing="10.0">
-                              <children>
-                                <CheckBox fx:id="submitAnon" mnemonicParsing="false" text="Submit Anonymous Data" />
-                                <CheckBox fx:id="includeLoc" mnemonicParsing="false" prefWidth="-1.0" text="Include Location" />
-                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefWidth="62.0" text="Coarse" />
-                                <Slider id="idleThresholdSlider" fx:id="ditherAmt" blockIncrement="0.5" majorTickUnit="0.5" max="3.0" min="0.0" minorTickCount="0" prefWidth="122.0" showTickLabels="true" showTickMarks="true" value="1.5" />
-                                <Label id="idleThresholdLabel" text="Fine" />
-                              </children>
-                            </HBox>
-                            <Button id="displayUUID" layoutX="14.0" layoutY="204.0" mnemonicParsing="false" onAction="#displayUUID" text="Display UUID" />
+                            <CheckBox fx:id="anonRest" mnemonicParsing="false" text="Rest Cycles" />
+                            <CheckBox fx:id="anonCharge" mnemonicParsing="false" text="Charge Cycles" />
+                            <CheckBox fx:id="anonFailure" mnemonicParsing="false" text="Failure Rates" />
                           </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
-                  </expandedPane>
-                  <panes>
-                    <fx:reference source="x4" />
-                    <TitledPane fx:id="x8" animated="false" minWidth="598.0" prefHeight="391.0" prefWidth="598.0" text="Advanced">
-                      <content>
-                        <ScrollPane prefHeight="355.0" prefWidth="594.0">
-                          <content>
-                            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="352.0" prefWidth="581.0">
-                              <children>
-                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" AnchorPane.rightAnchor="422.0" AnchorPane.topAnchor="261.0" />
-                                <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enable Proxy" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="17.0" />
-                                <Label text="Proxy Host:" AnchorPane.rightAnchor="383.0" AnchorPane.topAnchor="17.0" />
-                                <Label text="Proxy Port:" AnchorPane.rightAnchor="387.0" AnchorPane.topAnchor="38.0" />
-                                <TextField fx:id="proxyHost" prefWidth="371.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="14.0" />
-                                <Label layoutX="14.0" layoutY="68.0" text="Offer experimental versions:">
-                                  <labelFor>
-                                    <CheckBox fx:id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" AnchorPane.leftAnchor="198.0" AnchorPane.topAnchor="69.0" />
-                                  </labelFor>
-                                </Label>
-                                <TextField fx:id="proxyPort" prefWidth="55.0" text="8080" AnchorPane.rightAnchor="328.0" AnchorPane.topAnchor="36.0" />
-                                <fx:reference source="offerExperimental" />
-                                <Separator layoutX="0.0" layoutY="253.0" prefWidth="598.0" style="&#10;" />
-                                <Separator layoutX="0.0" layoutY="62.0" prefWidth="598.0" style="&#10;" />
-                                <CheckBox fx:id="useCustomGoogleAPIKey" layoutX="198.0" layoutY="91.0" mnemonicParsing="false" text="" />
-                                <Label layoutX="14.0" layoutY="89.0" text="Use custom Google API Key:">
-                                  <labelFor>
-                                    <CheckBox id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" />
-                                  </labelFor>
-                                </Label>
-                                <TextField fx:id="customGoogleAPIKey" layoutX="226.0" layoutY="85.0" prefWidth="340.0" />
-                                <CheckBox id="useCustomGoogleAPIKey" fx:id="useCustomMailGunKey" layoutX="198.0" layoutY="113.0" mnemonicParsing="false" text="" />
-                                <Label layoutX="14.0" layoutY="111.0" text="Use custom MailGun Key:">
-                                  <labelFor>
-                                    <CheckBox id="offerExperimental" contentDisplay="TEXT_ONLY" mnemonicParsing="false" text="" />
-                                  </labelFor>
-                                </Label>
-                                <TextField id="customGoogleAPIKey" fx:id="customMailGunKey" layoutX="226.0" layoutY="107.0" prefWidth="340.0" />
-                                <Separator layoutX="-2.0" layoutY="137.0" prefWidth="598.0" style="&#10;" />
-                                <Slider fx:id="fontScaleSlider" layoutX="94.0" layoutY="145.0" majorTickUnit="10.0" min="70.0" minorTickCount="9" prefWidth="353.0" showTickLabels="true" showTickMarks="true" value="100.0" />
-                                <Label layoutX="14.0" layoutY="145.0" text="Font Scale:" />
-                                <Label fx:id="fontScale" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="461.0" layoutY="148.0" prefWidth="29.0" text="100" textAlignment="RIGHT" />
-                                <Label layoutX="490.0" layoutY="148.0" text="\%" />
-                                <Separator layoutX="0.0" layoutY="186.0" prefWidth="598.0" style="&#10;" />
-                                <CheckBox fx:id="enableRest" layoutX="14.0" layoutY="196.0" mnemonicParsing="false" text="Enable REST Services" />
-                                <Label layoutX="187.0" layoutY="196.0" text="Port:" />
-                                <TextField fx:id="restPort" layoutX="218.0" layoutY="193.0" prefWidth="55.0" text="9090" />
-                                <Label layoutX="297.0" layoutY="196.0" text="Auth Code:" />
-                                <PasswordField fx:id="authCode" layoutX="369.0" layoutY="193.0" prefWidth="141.0" promptText="Reset Auth Code" text="" />
-                                <Button id="setAuthCode" layoutX="511.0" layoutY="193.0" mnemonicParsing="false" onAction="#setAuthCode" text="Set" />
-                                <TextField id="customURL" fx:id="customURLSrc" layoutX="153.0" layoutY="223.0" prefWidth="400.0" />
-                                <Label layoutX="14.0" layoutY="226.0" prefWidth="140.0" text="Custom Page Source" />
-                                <ComboBox fx:id="logLevel" value="Info" AnchorPane.bottomAnchor="69.0" AnchorPane.rightAnchor="219.0">
-                                  <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                      <String fx:value="Severe" />
-                                      <String fx:value="Warning" />
-                                      <String fx:value="Info" />
-                                      <String fx:value="Config" />
-                                      <String fx:value="Fine" />
-                                      <String fx:value="Finer" />
-                                      <String fx:value="Finest" />
-                                    </FXCollections>
-                                  </items>
-                                </ComboBox>
-                                <Label prefWidth="70.0" text="Log Level:" AnchorPane.bottomAnchor="71.0" AnchorPane.rightAnchor="304.0" />
-                              </children>
-                            </AnchorPane>
-                          </content>
-                        </ScrollPane>
-                      </content>
-                    </TitledPane>
-                    <TitledPane fx:id="x2" animated="false" expanded="false" text="Overrides">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        </HBox>
+                        <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
                           <children>
-                            <GridPane gridLinesVisible="true" layoutX="14.0" layoutY="14.0" prefWidth="272.0">
-                              <children>
-                                <ComboBox id="overideWheelsCombo" fx:id="overrideWheelsCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-                                  <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                      <String fx:value="From Car" />
-                                      <String fx:value="19&quot; Silver" />
-                                      <String fx:value="19&quot; Aero" />
-                                      <String fx:value="19&quot; Turbine" />
-                                      <String fx:value="19&quot; Turbine Grey" />
-                                      <String fx:value="21&quot; Silver" />
-                                      <String fx:value="21&quot; Grey" />
-                                    </FXCollections>
-                                  </items>
-                                </ComboBox>
-                                <ComboBox fx:id="overrideColorCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                                  <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                      <String fx:value="From Car" />
-                                      <String fx:value="Red" />
-                                      <String fx:value="Blue" />
-                                      <String fx:value="Black" />
-                                      <String fx:value="Gren" />
-                                      <String fx:value="Pearl" />
-                                      <String fx:value="Sig. Red" />
-                                      <String fx:value="Brown" />
-                                      <String fx:value="Grey" />
-                                      <String fx:value="Steel Grey" />
-                                      <String fx:value="Silver" />
-                                      <String fx:value="White" />
-                                    </FXCollections>
-                                  </items>
-                                </ComboBox>
-                                <ComboBox fx:id="overrideUnitsCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
-                                  <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                      <String fx:value="From Car" />
-                                      <String fx:value="Metric" />
-                                      <String fx:value="Imperial" />
-                                    </FXCollections>
-                                  </items>
-                                </ComboBox>
-                                <ComboBox fx:id="overrideModelCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4">
-                                  <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                      <String fx:value="From Car" />
-                                      <String fx:value="Force P85+" />
-                                    </FXCollections>
-                                  </items>
-                                </ComboBox>
-                                <Label alignment="CENTER_RIGHT" contentDisplay="CENTER" prefWidth="58.0" text="Wheels" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Color" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Units" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="P85+?" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                <Label text="Item" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
-                                <Label text="Value" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
-                                <Label text="Active" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
-                                <CheckBox fx:id="overrideWheelsActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                                <CheckBox fx:id="overrideColorActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                                <CheckBox fx:id="overrideUnitsActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-                                <CheckBox fx:id="overrideModelActive" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
-                                <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Roof" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                <ComboBox id="overrideModelCombo" fx:id="overrideRoofCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5">
-                                  <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                      <String fx:value="From Car" />
-                                      <String fx:value="Body Color" />
-                                      <String fx:value="Black" />
-                                      <String fx:value="Pano" />
-                                    </FXCollections>
-                                  </items>
-                                </ComboBox>
-                                <CheckBox id="overrideModelActive" fx:id="overrideRoofActive" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
-                              </children>
-                              <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="79.0" minWidth="10.0" prefWidth="68.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="196.0" minWidth="10.0" prefWidth="162.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="1.0" prefWidth="42.0" />
-                              </columnConstraints>
-                              <rowConstraints>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              </rowConstraints>
-                            </GridPane>
+                            <CheckBox fx:id="includeLoc" mnemonicParsing="false" prefWidth="-1.0" text="Include Location:" />
+                            <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefWidth="-1.0" text="Coarse" />
+                            <Slider id="idleThresholdSlider" fx:id="ditherAmt" blockIncrement="0.5" majorTickUnit="0.5" max="3.0" min="0.0" minorTickCount="0" prefWidth="122.0" showTickLabels="false" showTickMarks="false" value="1.5" />
+                            <Label id="idleThresholdLabel" text="Fine" />
+                            <Region prefHeight="21.0" prefWidth="95.00009999999747" />
+                            <Button id="displayUUID" mnemonicParsing="false" onAction="#displayUUID" text="Display UUID" />
                           </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
-                  </panes>
-                </Accordion>
+                        </HBox>
+                      </children>
+                    </VBox>
+                  </children>
+                </VBox>
               </children>
             </AnchorPane>
           </content>
-        </TitledPane>
-      </expandedPane>
-      <panes>
-        <TitledPane fx:id="x9" animated="false" text="Location">
+        </Tab>
+        <Tab text="Location">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #eee">
               <children>
                 <CheckBox fx:id="collectLocationData" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" text="Collect Location Data" />
                 <Label layoutX="372.0" layoutY="17.0" text="(Minimum seconds between samples)" />
@@ -274,10 +132,10 @@
               </children>
             </AnchorPane>
           </content>
-        </TitledPane>
-        <TitledPane id="x7" fx:id="x3" animated="false" text="Graphs">
+        </Tab>
+        <Tab style="" text="Graphs">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #eee">
               <children>
                 <CheckBox id="collectLocationData" fx:id="ignoreGaps" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Ignore Graph Gaps" />
                 <Slider id="locMinTime" fx:id="gapTime" layoutX="178.0" layoutY="16.0" majorTickUnit="10.0" max="60.0" min="10.0" minorTickCount="1" prefWidth="214.0" showTickLabels="true" showTickMarks="true" value="10.0" />
@@ -393,10 +251,10 @@
               </children>
             </AnchorPane>
           </content>
-        </TitledPane>
-        <TitledPane fx:id="x7" animated="false" text="Scheduler">
+        </Tab>
+        <Tab style="" text="Scheduler">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #eee">
               <children>
                 <Label text="&quot;Safe&quot; includes:" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
                 <CheckBox fx:id="safeMinCharge" mnemonicParsing="false" text="Minimum Battery Power" AnchorPane.leftAnchor="122.0" AnchorPane.topAnchor="10.0" />
@@ -404,10 +262,243 @@
               </children>
             </AnchorPane>
           </content>
-        </TitledPane>
-        <fx:reference source="x1" />
-      </panes>
-    </Accordion>
+        </Tab>
+        <Tab text="Overrides">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #eee;">
+              <children>
+                <GridPane gridLinesVisible="true" prefWidth="-1.0" style="" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                  <children>
+                    <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #888;&#10;" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="0" />
+                    <ComboBox id="overideWheelsCombo" fx:id="overrideWheelsCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+                      <items>
+                        <FXCollections fx:factory="observableArrayList">
+                          <String fx:value="From Car" />
+                          <String fx:value="19&quot; Silver" />
+                          <String fx:value="19&quot; Aero" />
+                          <String fx:value="19&quot; Turbine" />
+                          <String fx:value="19&quot; Turbine Grey" />
+                          <String fx:value="21&quot; Silver" />
+                          <String fx:value="21&quot; Grey" />
+                        </FXCollections>
+                      </items>
+                    </ComboBox>
+                    <ComboBox fx:id="overrideColorCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                      <items>
+                        <FXCollections fx:factory="observableArrayList">
+                          <String fx:value="From Car" />
+                          <String fx:value="Red" />
+                          <String fx:value="Blue" />
+                          <String fx:value="Black" />
+                          <String fx:value="Gren" />
+                          <String fx:value="Pearl" />
+                          <String fx:value="Sig. Red" />
+                          <String fx:value="Brown" />
+                          <String fx:value="Grey" />
+                          <String fx:value="Steel Grey" />
+                          <String fx:value="Silver" />
+                          <String fx:value="White" />
+                        </FXCollections>
+                      </items>
+                    </ComboBox>
+                    <ComboBox fx:id="overrideUnitsCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+                      <items>
+                        <FXCollections fx:factory="observableArrayList">
+                          <String fx:value="From Car" />
+                          <String fx:value="Metric" />
+                          <String fx:value="Imperial" />
+                        </FXCollections>
+                      </items>
+                    </ComboBox>
+                    <ComboBox fx:id="overrideModelCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+                      <items>
+                        <FXCollections fx:factory="observableArrayList">
+                          <String fx:value="From Car" />
+                          <String fx:value="Force P85+" />
+                        </FXCollections>
+                      </items>
+                    </ComboBox>
+                    <Label alignment="CENTER_RIGHT" contentDisplay="CENTER" prefWidth="58.0" text="Wheels" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Color" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Units" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="P85+?" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label font="$x1" text="Item" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
+                    <Label font="$x1" text="Value" textFill="WHITE" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
+                    <Label font="$x1" text="Active" textFill="WHITE" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
+                    <CheckBox fx:id="overrideWheelsActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                    <CheckBox fx:id="overrideColorActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                    <CheckBox fx:id="overrideUnitsActive" contentDisplay="RIGHT" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                    <CheckBox fx:id="overrideModelActive" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                    <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Roof" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox id="overrideModelCombo" fx:id="overrideRoofCombo" prefWidth="124.0" value="From Car" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5">
+                      <items>
+                        <FXCollections fx:factory="observableArrayList">
+                          <String fx:value="From Car" />
+                          <String fx:value="Body Color" />
+                          <String fx:value="Black" />
+                          <String fx:value="Pano" />
+                        </FXCollections>
+                      </items>
+                    </ComboBox>
+                    <CheckBox id="overrideModelActive" fx:id="overrideRoofActive" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+                  </children>
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="79.0" minWidth="10.0" prefWidth="73.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="196.0" minWidth="10.0" prefWidth="159.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="1.0" prefWidth="54.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                </GridPane>
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
+        <Tab text="Advanced">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="349.0" prefWidth="625.0" style="-fx-background-color: #eee;">
+              <children>
+                <Accordion prefHeight="364.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <expandedPane>
+                    <TitledPane fx:id="x2" animated="false" text="Other">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <VBox id="VBox" alignment="CENTER_LEFT" spacing="10.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                              <children>
+                                <CheckBox fx:id="offerExperimental" contentDisplay="RIGHT" mnemonicParsing="false" text="Offer Experimental Versions" />
+                                <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="5.0">
+                                  <children>
+                                    <Label prefWidth="70.0" text="Log Level:" />
+                                    <ComboBox fx:id="logLevel" value="Info">
+                                      <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                          <String fx:value="Severe" />
+                                          <String fx:value="Warning" />
+                                          <String fx:value="Info" />
+                                          <String fx:value="Config" />
+                                          <String fx:value="Fine" />
+                                          <String fx:value="Finer" />
+                                          <String fx:value="Finest" />
+                                        </FXCollections>
+                                      </items>
+                                    </ComboBox>
+                                  </children>
+                                </HBox>
+                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" />
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <TitledPane animated="false" text="Proxy">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <VBox id="VBox" alignment="CENTER_LEFT" spacing="5.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                              <children>
+                                <CheckBox fx:id="enableProxy" mnemonicParsing="false" text="Enabled" />
+                                <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="608.0" spacing="5.0">
+                                  <children>
+                                    <Label prefWidth="-1.0" text="Host Name:" />
+                                    <TextField fx:id="proxyHost" prefWidth="-1.0" promptText="Host Name or IP Address" HBox.hgrow="ALWAYS" />
+                                    <Label prefWidth="-1.0" text="Port:" />
+                                    <TextField fx:id="proxyPort" prefWidth="55.0" promptText="Port" text="8080" />
+                                  </children>
+                                </HBox>
+                                <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" />
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                    <TitledPane animated="false" text="REST Services">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                              <children>
+                                <HBox id="HBox" alignment="CENTER_LEFT" spacing="10.0">
+                                  <children>
+                                    <CheckBox fx:id="enableRest" mnemonicParsing="false" text="Enabled" />
+                                  </children>
+                                </HBox>
+                                <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
+                                  <children>
+                                    <Label text="Port:" />
+                                    <TextField fx:id="restPort" prefWidth="55.0" text="9090" />
+                                  </children>
+                                </HBox>
+                                <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
+                                  <children>
+                                    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+                                      <children>
+                                        <Label text="Password:" />
+                                        <PasswordField fx:id="authCode" prefWidth="177.0" promptText="Password" text="" />
+                                        <Button id="setAuthCode" mnemonicParsing="false" onAction="#setAuthCode" text="Reset" />
+                                      </children>
+                                    </HBox>
+                                  </children>
+                                </HBox>
+                                <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="461.0" spacing="5.0">
+                                  <children>
+                                    <Label prefWidth="-1.0" text="Custom Page Source" />
+                                    <TextField id="customURL" fx:id="customURLSrc" prefWidth="320.0" promptText="URL of Custom Page Source" />
+                                  </children>
+                                </HBox>
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                    <TitledPane animated="false" text="API Keys">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <CheckBox fx:id="useCustomGoogleAPIKey" mnemonicParsing="false" prefWidth="-1.0" text="Use custom Google API Key" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                            <TextField fx:id="customGoogleAPIKey" layoutX="225.0" layoutY="11.0" prefWidth="379.0" />
+                            <CheckBox id="useCustomGoogleAPIKey" fx:id="useCustomMailGunKey" mnemonicParsing="false" prefWidth="-1.0" text="Use custom MailGun Key" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="43.0" />
+                            <TextField id="customGoogleAPIKey" fx:id="customMailGunKey" layoutX="225.0" layoutY="40.0" prefWidth="379.0" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                    <TitledPane animated="false" text="Font Scaling">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <Slider fx:id="fontScaleSlider" layoutX="94.0" layoutY="14.0" majorTickUnit="10.0" min="70.0" minorTickCount="9" prefWidth="353.0" showTickLabels="true" showTickMarks="true" value="100.0" />
+                            <Label layoutX="14.0" layoutY="14.0" text="Font Scale" textFill="BLACK">
+                              <font>
+                                <Font size="13.0" />
+                              </font>
+                            </Label>
+                            <Label fx:id="fontScale" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="461.0" layoutY="17.0" prefWidth="29.0" text="100" textAlignment="RIGHT" />
+                            <Label layoutX="490.0" layoutY="17.0" text="\%" />
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                    <fx:reference source="x2" />
+                  </panes>
+                </Accordion>
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
+      </tabs>
+    </TabPane>
   </children>
   <stylesheets>
     <URL value="@../styles/VisibleTesla.css" />
