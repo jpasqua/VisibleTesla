@@ -16,7 +16,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import org.noroomattheinn.visibletesla.dialogs.VTDialog;
+import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
 import org.noroomattheinn.visibletesla.dialogs.VampireLossResults;
 
 /**

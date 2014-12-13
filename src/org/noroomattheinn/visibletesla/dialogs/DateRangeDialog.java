@@ -1,5 +1,6 @@
 package org.noroomattheinn.visibletesla.dialogs;
 
+import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
 import com.google.common.collect.Range;
 import java.util.Calendar;
 import java.util.List;

@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla.dialogs;
 
+import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;

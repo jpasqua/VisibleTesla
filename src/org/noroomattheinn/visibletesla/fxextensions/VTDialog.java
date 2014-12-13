@@ -4,7 +4,7 @@
  * Created: Aug 31, 2013
  */
 
-package org.noroomattheinn.visibletesla.dialogs;
+package org.noroomattheinn.visibletesla.fxextensions;
 
 import java.io.IOException;
 import java.net.URL;

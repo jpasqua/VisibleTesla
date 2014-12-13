@@ -244,9 +244,21 @@ public class StatsCollector implements ThreadManager.Stoppable {
         lastStoredChargeState.set(state);
     }
     
+    private StreamState lastUnrecordedStationarySS = null;
     private synchronized void handleStreamState(StreamState state) {
-        if (state == null || !worthRecording(state, lastStoredStreamState.get())) return;
+        if (state == null) return;
+        if (!worthRecording(state, lastStoredStreamState.get())) {
+            if (!state.isInMotion()) lastUnrecordedStationarySS = state;
+        }
         
+        if (lastUnrecordedStationarySS != null && state.isInMotion()) {
+            recordStreamState(lastUnrecordedStationarySS);
+        }
+        recordStreamState(state);
+        lastUnrecordedStationarySS = null;        
+    }
+    
+    private void recordStreamState(StreamState state) {
         double speed = Utils.round(state.speed, 1);
         Row r = new Row(state.timestamp, 0L, schema.nColumns);
         
@@ -263,6 +275,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
         }
         lastStoredStreamState.set(state);
     }
+    
     
     private boolean worthRecording(StreamState cur, StreamState last) {
         double meters = GeoUtils.distance(cur.estLat, cur.estLng, last.estLat, last.estLng);

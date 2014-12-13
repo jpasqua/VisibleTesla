@@ -4,6 +4,7 @@
  */
 package org.noroomattheinn.visibletesla.dialogs;
 
+import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
