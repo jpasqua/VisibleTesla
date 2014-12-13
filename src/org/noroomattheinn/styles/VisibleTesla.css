@@ -3,6 +3,14 @@
     /* -fx-font-size: 100%;*/
 }
 
+.nested-tab-pane .tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #555;   
+}
+
+.nested-tab-pane .tab {
+    -fx-background-radius: 0, 0, 0, 0;
+}
+
 .TransparentBG {
 	-fx-background-color:transparent
 }
