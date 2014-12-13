@@ -100,7 +100,9 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
             "Start Date/Time", "Ending Date/Time", "Start Range", "End Range",
             "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Loss/Hr"};
 
-    RestCycleExporter(AppContext appContext) {  super(appContext, "Rest", labels); }
+    RestCycleExporter(AppContext appContext) {
+        super(appContext, "Rest", labels, appContext.prefs.submitAnonRest);
+    }
     
     @Override protected void emitRow(
             WritableSheet sheet, int row, RestCycle cycle, StandardFormats sf)

@@ -69,7 +69,9 @@ public class PrefsController extends BaseController {
     @FXML private ComboBox<String> overviewRange;
     @FXML private ComboBox<String> logLevel;
     
-    @FXML private CheckBox      submitAnon;
+    @FXML private CheckBox      anonRest;
+    @FXML private CheckBox      anonCharge;
+    @FXML private CheckBox      anonFailure;
     @FXML private CheckBox      includeLoc;
     @FXML private Slider        ditherAmt;
 
@@ -158,7 +160,9 @@ public class PrefsController extends BaseController {
         bindToTextField(emailForNotifications, ac.prefs.notificationAddress);
         bindToComboBox(overviewRange, ac.prefs.overviewRange);
         
-        bindToCheckBox(submitAnon, ac.prefs.submitAnonData);
+        bindToCheckBox(anonRest, ac.prefs.submitAnonRest);
+        bindToCheckBox(anonCharge, ac.prefs.submitAnonCharge);
+        bindToCheckBox(anonFailure, ac.prefs.submitAnonFailure);
         bindToCheckBox(includeLoc, ac.prefs.includeLocData);
         bindToDoubleProperty(ditherAmt, null, ac.prefs.ditherLocAmt);
         

@@ -9,6 +9,7 @@ import com.google.common.collect.Range;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.Dialogs;
 import javafx.stage.FileChooser;
 import jxl.Workbook;
@@ -17,6 +18,7 @@ import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.StatsCollector;
 import static org.noroomattheinn.tesla.Tesla.logger;
@@ -67,6 +69,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
     protected final AppContext ac;
     protected final String cycleType;
     protected final String[] columns;
+    protected final BooleanProperty submitData;
     
 /*==============================================================================
  * -------                                                               -------
@@ -79,11 +82,15 @@ public abstract class CycleExporter<C extends BaseCycle> {
      * @param appContext    The application context
      * @param cycleType     The name of this type of Cycle (eg Charge or Rest)
      * @param columns       The names of the columns of data being exported
+     * @param submitData    A property that indicates whether to submit anonymous
+     *                      data for this cycle type
      */
-    public CycleExporter(AppContext appContext, String cycleType, String[] columns) {
+    public CycleExporter(AppContext appContext, String cycleType, String[] columns,
+                         BooleanProperty submitData) {
         this.ac = appContext;
         this.cycleType = cycleType;
         this.columns = columns;
+        this.submitData = submitData;
     }
     
     /**
@@ -124,7 +131,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
      * @param cycle The Cycle to be submitted
      */
     public void submitData(C cycle) {
-        if (!ac.prefs.submitAnonData.get()) return;
+        if (!submitData.get()) return;
         ditherLocation(cycle);
         String jsonRep = cycle.toJSONString();
         

@@ -61,7 +61,9 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
             "End Range", "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Odometer",
             "Peak V", "Avg V", "Peak I", "Avg I", "Energy"};
 
-    ChargeCycleExporter(AppContext appContext) {  super(appContext, "Charge", labels); }
+    ChargeCycleExporter(AppContext appContext) { 
+        super(appContext, "Charge", labels, appContext.prefs.submitAnonCharge);
+    }
     
     @Override protected void emitRow(
             WritableSheet sheet, int row, ChargeCycle cycle, StandardFormats sf)

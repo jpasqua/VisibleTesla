@@ -92,10 +92,14 @@ public class Prefs {
     private static final String OverviewRangeKey    = "OVERVIEW_RANGE";
     private static final String NotifyAddressKey    = "NOTIFICATION_ADDR";
     
-    public BooleanProperty  submitAnonData          = new SimpleBooleanProperty();
+    public BooleanProperty  submitAnonRest          = new SimpleBooleanProperty();
+    public BooleanProperty  submitAnonCharge        = new SimpleBooleanProperty();
+    public BooleanProperty  submitAnonFailure       = new SimpleBooleanProperty();
     public BooleanProperty  includeLocData          = new SimpleBooleanProperty();
     public DoubleProperty   ditherLocAmt            = new SimpleDoubleProperty();
-    private static final String SubmitAnonData      = "APP_SUBMIT_ANON";
+    private static final String SubmitAnonRest      = "APP_SUBMIT_ANON_REST";
+    private static final String SubmitAnonCharge    = "APP_SUBMIT_ANON_CHARGE";
+    private static final String SubmitAnonFailure   = "APP_SUBMIT_ANON_FAILURE";
     private static final String IncludeLocData      = "APP_INCLUDE_LOC";
     private static final String DitherAmtKey        = "APP_DITHER_AMT";
     
@@ -167,7 +171,9 @@ public class Prefs {
         stringPref(GraphPeriodPrefKey, loadPeriod, LoadPeriod.All.name());
         stringPref(OverviewRangeKey, overviewRange, "Rated");
         
-        booleanPref(SubmitAnonData, submitAnonData, false);
+        booleanPref(SubmitAnonRest, submitAnonRest, false);
+        booleanPref(SubmitAnonCharge, submitAnonCharge, false);
+        booleanPref(SubmitAnonFailure, submitAnonFailure, false);
         booleanPref(IncludeLocData, includeLocData, false);
         doublePref(DitherAmtKey, ditherLocAmt, 1.5);
 

@@ -178,7 +178,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             sb.append("("); sb.append(tries); sb.append(", "); sb.append(count); sb.append(") ");
         }
         logger.info(sb.toString());
-        if (ac.prefs.submitAnonData.get() && timeSince(lastReport) > ReportingInterval) {
+        if (ac.prefs.submitAnonFailure.get() && timeSince(lastReport) > ReportingInterval) {
             logger.info("Sending api stats report: " + sb.toString());
             ac.mailer.send(
                 ReportAddress,
