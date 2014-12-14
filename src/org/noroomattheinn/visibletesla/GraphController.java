@@ -26,7 +26,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
@@ -320,6 +319,7 @@ public class GraphController extends BaseController {
         
         
         DefaultedHashMap<String,Long> lastTimeForType = new DefaultedHashMap<>(0L);
+        DefaultedHashMap<String,Double> lastValForType = new DefaultedHashMap<>(0.0);
         for (Row row : rows.values()) {
             long time = row.timestamp;
             long bit = 1;
@@ -333,11 +333,14 @@ public class GraphController extends BaseController {
                         // Don't overload the graph. Make sure that samples are
                         // At least 5 seconds apart unless they represent a huge 
                         // swing in values: greater than 50%
-                        if (time - lastTimeForType.get(type) >= 5 * 1000) {
+                        if (time - lastTimeForType.get(type) >= 5 * 1000 ||
+                            Utils.percentChange(value, lastValForType.get(type)) > 0.5)
+                        {
                             data.add(new XYChart.Data<>(
                                     vts.getXformX().transform(time), 
                                     vts.getXformY().transform(value)));
                             lastTimeForType.put(type, time);
+                            lastValForType.put(type, value);
                         }
                     }
                 }
