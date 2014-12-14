@@ -18,7 +18,6 @@ import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.StatsCollector;
 import static org.noroomattheinn.tesla.Tesla.logger;
