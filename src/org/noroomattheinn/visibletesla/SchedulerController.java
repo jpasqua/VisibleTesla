@@ -59,6 +59,7 @@ public class SchedulerController extends BaseController
         for (ScheduleItem si : schedulers) {
             si.shutDown();
         }
+        ScheduleItem.stop();
     }
 
 /*------------------------------------------------------------------------------
