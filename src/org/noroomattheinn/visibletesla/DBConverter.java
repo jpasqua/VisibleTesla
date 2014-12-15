@@ -57,7 +57,7 @@ public class DBConverter {
     
     public boolean conversionRequired() {
         if (PersistentTS.repoExistsFor(container, baseName)) {
-            logger.info("TimeSeries already exists");
+            logger.fine("TimeSeries already exists");
             return false;
         }
         File oldRepo = new File(container, baseName + ".stats.log");
