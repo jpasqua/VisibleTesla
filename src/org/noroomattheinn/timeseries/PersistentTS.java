@@ -14,6 +14,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * PersistentTS: A persistent repository for time series data.
@@ -60,6 +62,7 @@ public class PersistentTS extends TSBase {
  * 
  *----------------------------------------------------------------------------*/
     private static final int RepoVersion = 1;
+    private static final long FlushInterval = 20 * 1000L;
     
 /*------------------------------------------------------------------------------
  *
@@ -69,6 +72,7 @@ public class PersistentTS extends TSBase {
 
     private final Repo repo;        // The underlying repository
     private final Emitter emitter;  // Used to write rows
+    private final Timer timer;      // To manage flushing
     private Row pendingRow;         // Used to merge rows if needed
     private long timeOfFirstRow;    // The oldest data in the series
     
@@ -85,6 +89,11 @@ public class PersistentTS extends TSBase {
         this.repo = Repo.getRepo(container, baseName, schema);
         this.emitter = new Emitter();
         this.pendingRow = null;
+        this.timer = new Timer();
+        
+        timer.schedule(
+                new TimerTask() { @Override public void run() { flush(); } },
+                FlushInterval);
         
         timeOfFirstRow = Long.MAX_VALUE;    // If no rows...
         streamRows(Range.<Long>all(), new RowCollector() {
@@ -187,9 +196,19 @@ public class PersistentTS extends TSBase {
         if (rdr != null) try { rdr.close(); } catch (IOException e) { }
     }
 
-    @Override public void flush() { repo.flush(); }
+    @Override public synchronized void flush() {
+        if (pendingRow != null) {
+            emitter.emit(pendingRow);
+            pendingRow = null;
+        }
+        repo.flush();
+    }
     
-    @Override public void close() { repo.close(); }
+    @Override public synchronized void close() {
+        flush();
+        repo.close();
+        timer.cancel();
+    }
     
 /*------------------------------------------------------------------------------
  *
@@ -220,11 +239,9 @@ public class PersistentTS extends TSBase {
     
     private class Emitter {
         private Row lastRowEmitted;
-        private int nRowsEmitted;
         private final PrintStream ps;
         
         Emitter() {
-            this.nRowsEmitted = 0;
             this.lastRowEmitted = null;
             this.ps = repo.getPrintStream();
         }
@@ -258,7 +275,6 @@ public class PersistentTS extends TSBase {
             ps.println();
 
             lastRowEmitted = r;
-            if (nRowsEmitted++ % 10 == 0) { ps.flush(); }
             return r;
         }
     }
