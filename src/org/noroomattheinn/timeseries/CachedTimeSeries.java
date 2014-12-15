@@ -88,7 +88,6 @@ public class CachedTimeSeries implements TimeSeries, IndexedTimeSeries {
         this.schema = descriptor;
         this.inMemory = new InMemoryTS(descriptor, true);
         this.persistent = new PersistentTS(container, baseName, descriptor);
-        long now = System.currentTimeMillis();
         persistent.loadInto(inMemory, cacheRange);
     }
     
@@ -107,8 +106,8 @@ public class CachedTimeSeries implements TimeSeries, IndexedTimeSeries {
  *----------------------------------------------------------------------------*/
     
     @Override public Row storeRow(Row r) throws IllegalArgumentException {
-        persistent.storeRow(r);
-        return inMemory.storeRow(r);
+        Row storedRow = inMemory.storeRow(r);
+        return persistent.storeRow(storedRow);
     }
 
     @Override public void streamRows(Range<Long> period, RowCollector collector) {
