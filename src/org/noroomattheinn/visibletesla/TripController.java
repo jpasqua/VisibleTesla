@@ -42,6 +42,9 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.cycles.KMLExporter;
+import org.noroomattheinn.visibletesla.cycles.Trip;
+import org.noroomattheinn.visibletesla.cycles.WayPoint;
 
 /**
  * TripController: Manage the recording, selection and display of Trips
@@ -261,8 +264,7 @@ public class TripController extends BaseController {
                 StatsCollector.SOCKey, start.getTime(), end.getTime(),
                 socRow, 1.0);
         
-        updateStartEndProps(odoRow, start.get(StatsCollector.OdometerKey),
-                            end.get(StatsCollector.OdometerKey), cvt);
+        updateStartEndProps(odoRow, start.getOdo(), end.getOdo(), cvt);
         
         double power = 0.0;
         for (Trip t:trips) {
@@ -337,9 +339,7 @@ public class TripController extends BaseController {
         sb.append("[\n");
         boolean first = true;
         for (Trip t : trips) {
-            if (includeGraph.isSelected()) {
-                WayPoint.addElevations(t.waypoints);
-            }
+            if (includeGraph.isSelected()) { t.addElevationData(); }
             if (!first) sb.append(",\n");
             sb.append(t.asJSON(useMiles));
             first = false;
@@ -464,89 +464,10 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private boolean thereWasMotion(WayPoint wp1, WayPoint wp2) {
-        double turn =  180.0 - Math.abs((Math.abs(wp1.get(StatsCollector.HeadingKey) - wp2.get(StatsCollector.HeadingKey))%360.0) - 180.0);
+        double turn =  180.0 - Math.abs((Math.abs(wp1.getHeading() - wp2.getHeading())%360.0) - 180.0);
         double meters = GeoUtils.distance(wp1.getLat(), wp1.getLng(), wp2.getLat(), wp2.getLng());
 
         return (meters >= 5 || (turn > 10 && meters > 0.1));
-    }
-    
-    
-/*------------------------------------------------------------------------------
- *
- * Public - Nested Classes
- * 
- *----------------------------------------------------------------------------*/
-    
-    public class Trip {
-        private List<WayPoint> waypoints;
-        private double energyEstimate = Double.NaN;
-        
-        public Trip() {
-            waypoints = new ArrayList<>();
-        }
-        
-        public void addWayPoint(WayPoint wp) { 
-            waypoints.add(wp);
-        }
-        
-        public List<WayPoint> getWayPoints() { return waypoints; }
-        
-        public double distance() {
-            if (waypoints.isEmpty()) return 0.0;
-            double startLoc = firstWayPoint().get(StatsCollector.OdometerKey);
-            double endLoc = lastWayPoint().get(StatsCollector.OdometerKey);
-            return (endLoc - startLoc);
-        }
-        
-        public double estimateEnergy() {
-            if (!Double.isNaN(energyEstimate)) return energyEstimate;
-            double cumulative = 0.0;
-            
-            Double lastPower = null;
-            long lastTime = 0;
-            for (WayPoint wp: waypoints) {
-                double power = wp.get(StatsCollector.PowerKey);
-                if (lastPower == null) {
-                    lastPower = power;
-                    lastTime = wp.getTime();
-                } else {
-                    double thisEnergy;
-                    long dT = wp.getTime() - lastTime;
-                    double dP = Math.abs(power-lastPower);
-                    double minP = Math.min(power, lastPower);
-                    thisEnergy = minP * dT + (dP*dT)/2.0;
-                    cumulative += thisEnergy;
-                    lastTime = wp.getTime();
-                    lastPower = power;
-                }
-            }
-            energyEstimate = cumulative/(1000*60*60);
-            return energyEstimate;
-        }
-
-
-        public boolean isEmpty() { return waypoints.isEmpty(); }
-        public WayPoint firstWayPoint() { return waypoints.get(0); }
-        public WayPoint lastWayPoint() { return waypoints.get(waypoints.size()-1); }
-        
-        public String asJSON() { return asJSON(true); }
-        
-        public String asJSON(boolean useMiles) {
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
-            sb.append("[\n");
-            for (WayPoint wp : waypoints) {
-                if (first) first = false;
-                else sb.append(",\n");
-                sb.append(wp.asJSON(useMiles));
-            }
-            sb.append("]\n");
-            return sb.toString();
-            
-        }
-        
-        @Override public String toString() { return asJSON(); }
-
     }
 
 }

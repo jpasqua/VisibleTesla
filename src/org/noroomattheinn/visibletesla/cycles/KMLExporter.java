@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 27, 2013
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.cycles;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-class KMLExporter {
+public class KMLExporter {
     private static final String CarIconFileName = "car.png";
     private static final String CarIconResource = "org/noroomattheinn/TeslaResources/02_loc_arrow@2x.png";
     private final String[] pathColors = {
@@ -54,7 +54,7 @@ class KMLExporter {
         pw.format(s, args);
     }
 
-    public boolean export(List<TripController.Trip> trips, File toFile) {
+    public boolean export(List<Trip> trips, File toFile) {
         File tempDir;
         File kmlFile;
 
@@ -75,12 +75,12 @@ class KMLExporter {
         }
     }
 
-    private void emitKML(List<TripController.Trip> trips) {
+    private void emitKML(List<Trip> trips) {
         println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
         emitOpen("<Document>");
 
-        for (TripController.Trip t : trips) {
+        for (Trip t : trips) {
             emitPath(t);
             emitFolderOfMarkers(t);
         }
@@ -100,17 +100,14 @@ class KMLExporter {
     private void emitExtendedData(WayPoint wp) {
         emitOpen("<ExtendedData>");
 
-        format("<Data name=\"Time\"><value>%1$tH:%1$tM:%1$tS</value></Data>\n",
-                new Date(wp.getTime()));
-        format("<Data name=\"Power\"><value>%.1f</value></Data>\n",
-                wp.get(StatsCollector.PowerKey));
-        format("<Data name=\"SOC\"><value>%.1f</value></Data>\n",
-                wp.get(StatsCollector.SOCKey));
+        format("<Data name=\"Time\"><value>%1$tH:%1$tM:%1$tS</value></Data>\n", new Date(wp.getTime()));
+        format("<Data name=\"Power\"><value>%.1f</value></Data>\n", wp.getPower());
+        format("<Data name=\"SOC\"><value>%.1f</value></Data>\n", wp.getSOC());
 
         emitClose("</ExtendedData>"); 
     }
 
-    private void emitFolderOfMarkers(TripController.Trip t) {
+    private void emitFolderOfMarkers(Trip t) {
         emitOpen("<Folder>");
         println("<open>0</open>");
         format( "<name>"+
@@ -122,7 +119,7 @@ class KMLExporter {
         emitClose("</Folder>");
     }
 
-    private void emitPath(TripController.Trip t) {
+    private void emitPath(Trip t) {
             emitOpen("<Placemark>");
             format(
                 "<name>Tesla Path on %1$tY-%1$tm-%1$td @ %1$tH:%1$tM</name>\n",
@@ -154,7 +151,7 @@ class KMLExporter {
         emitOpen("<Style>"); 
         emitOpen("<IconStyle>");
         println("<scale>0.7</scale>");
-        format("<heading>%f</heading>\n", wp.get(StatsCollector.HeadingKey));
+        format("<heading>%f</heading>\n", wp.getHeading());
         format("<Icon><href>%s</href></Icon>\n", CarIconFileName);
         emitClose("</IconStyle>"); 
         emitClose("</Style>"); 

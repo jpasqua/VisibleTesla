@@ -97,7 +97,7 @@ public class VTExtras {
 
     public static double inProperUnits(AppContext ac, double val) {
         if (unitType(ac) == Utils.UnitType.Imperial) return val;
-        return Utils.mToK(val);
+        return Utils.milesToKm(val);
     }
 
     public static Options.WheelType computedWheelType(AppContext ac) {

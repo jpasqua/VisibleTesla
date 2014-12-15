@@ -576,7 +576,7 @@ public class NotifierController extends BaseController {
                 notifyUser(socFallsTrigger, socFallsMessageTarget);
             }
             
-            double speed = useMiles ? cur.speed : Utils.mToK(cur.speed);
+            double speed = useMiles ? cur.speed : Utils.milesToKm(cur.speed);
             if (speedHitsTrigger.evalPredicate(new BigDecimal(speed))) {
                 notifyUser(speedHitsTrigger, shMessageTarget);
             }

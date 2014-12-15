@@ -138,33 +138,27 @@ public class VTSeries implements Comparable {
     }
     
     public static Transform<Number> idTransform = new Transform<Number>() {
-        @Override
-        public Number transform(Number value) { return value; }
+        @Override public Number transform(Number value) { return value; }
     };
             
     public static Transform<Number> cToFTransform = new Transform<Number>() {
-        @Override
-        public Number transform(Number value) { return Utils.cToF(value.doubleValue()); }
+        @Override public Number transform(Number value) { return Utils.cToF(value.doubleValue()); }
     };
     
     public static Transform<Number> fToCTransform = new Transform<Number>() {
-        @Override
-        public Number transform(Number value) { return Utils.fToC(value.doubleValue()); }
+        @Override public Number transform(Number value) { return Utils.fToC(value.doubleValue()); }
     };
     
     public static Transform<Number> mToKTransform = new Transform<Number>() {
-        @Override
-        public Double transform(Number value) { return Utils.mToK(value.doubleValue()); }
+        @Override public Double transform(Number value) { return Utils.milesToKm(value.doubleValue()); }
     };
     
     public static Transform<Number> kToMTransform = new Transform<Number>() {
-        @Override
-        public Double transform(Number value) { return Utils.kToM(value.doubleValue()); }
+        @Override public Double transform(Number value) { return Utils.kmToMiles(value.doubleValue()); }
     };
 
     public static Transform<Number> millisToSeconds = new Transform<Number>() {
-        @Override
-        public Long transform(Number value) { return value.longValue()/1000; }
+        @Override public Long transform(Number value) { return value.longValue()/1000; }
     };
 
 }
