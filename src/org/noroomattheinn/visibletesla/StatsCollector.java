@@ -25,7 +25,6 @@ import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 import org.noroomattheinn.utils.Utils;
-import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * StatsCollector: Collect stats as they are generated, store them in
@@ -102,9 +101,10 @@ public class StatsCollector implements ThreadManager.Stoppable {
      */
     public StatsCollector(AppContext appContext)
             throws IOException {
+        this.ac = appContext;
+
         upgradeIfNeeded(appContext.appFileFolder(), appContext.vehicle.getVIN());
         
-        this.ac = appContext;
         this.ts = new CachedTimeSeries(
                 ac.appFileFolder(), ac.vehicle.getVIN(),
                 schema, ac.prefs.getLoadPeriod());
@@ -127,6 +127,8 @@ public class StatsCollector implements ThreadManager.Stoppable {
                 handleChargeState(cur);
             }
         });
+        
+        appContext.tm.addStoppable((ThreadManager.Stoppable)this);
     }
     
     /**
@@ -245,51 +247,31 @@ public class StatsCollector implements ThreadManager.Stoppable {
         lastStoredChargeState.set(state);
     }
     
-    private StreamState lastUnrecorded = null;
     private synchronized void handleStreamState(StreamState state) {
         StreamState lastRecorded = lastStoredStreamState.get();
-        if (!worthRecording(state, lastRecorded)) {
-            lastUnrecorded = state;
-            return;
-        }
-        
-        if (lastUnrecorded != null) {
-            if (moving(state) && !moving(lastRecorded)) {
-                if (state.timestamp - lastRecorded.timestamp > 60 * 1000) {
-                    if (lastRecorded.timestamp < lastUnrecorded.timestamp) {
-                        recordStreamState(lastUnrecorded, lastUnrecorded.timestamp);
-                        logger.finest(
-                            "Recording a previously unrecorded StreamState for time: "
-                            + lastUnrecorded.timestamp);
-                        lastUnrecorded = null;
-                    }
-                }
+        if (worthRecording(state, lastRecorded)) {
+            Row r = new Row(state.timestamp, 0L, schema.nColumns);
+
+            r.set(schema, LatitudeKey, state.estLat);
+            r.set(schema, LongitudeKey, state.estLng);
+            r.set(schema, HeadingKey, state.heading);
+            r.set(schema, SpeedKey, Utils.round(state.speed, 1));
+            r.set(schema, OdometerKey, state.odometer);
+            r.set(schema, PowerKey, state.power);
+            ts.storeRow(r);
+
+            if (state.odometer - lastStoredStreamState.get().odometer >= 1.0) {
+                ac.persistentState.putDouble(ac.vinKey("odometer"), state.odometer);
             }
+            lastStoredStreamState.set(state);
         }
-        recordStreamState(state, state.timestamp);
     }
-    
-    private void recordStreamState(StreamState state, long atTime) {
-        double speed = Utils.round(state.speed, 1);
-        Row r = new Row(atTime, 0L, schema.nColumns);
-        
-        r.set(schema, LatitudeKey, state.estLat);
-        r.set(schema, LongitudeKey, state.estLng);
-        r.set(schema, HeadingKey, state.heading);
-        r.set(schema, SpeedKey, speed);
-        r.set(schema, OdometerKey, state.odometer);
-        r.set(schema, PowerKey, state.power);
-        ts.storeRow(r);
-        
-        if (state.odometer - lastStoredStreamState.get().odometer >= 1.0) {
-            ac.persistentState.putDouble(ac.vinKey("odometer"), state.odometer);
-        }
-        lastStoredStreamState.set(state);
-    }
-    
     
     private boolean worthRecording(StreamState cur, StreamState last) {
         double meters = GeoUtils.distance(cur.estLat, cur.estLng, last.estLat, last.estLng);
+        
+        // The app becoming active makes it worth recording
+        if (ac.appState.isActive() && ac.appState.lastSet() > last.timestamp) return true;
         
         // A big turn makes it worth recording. Note that heading changes can be
         // spurious. They can happen when the car is sitting still. Ignore those.
@@ -302,9 +284,6 @@ public class StatsCollector implements ThreadManager.Stoppable {
         
         // A change in motion (moving->stationary or stationaty->moving) is worth recording
         if (moving(last) != moving(cur)) { return true; }
-        
-        // If you've moved more than a minimum amount, it's worth recording
-        // if (meters >= ac.prefs.locMinDist.get()) return true;
         
         // If you're moving and it's been a while since a reading, it's worth recording
         if ((timeDelta >= ac.prefs.locMinTime.get() * 1000) &&
