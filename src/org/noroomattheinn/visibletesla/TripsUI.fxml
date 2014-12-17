@@ -22,6 +22,7 @@
         <CalendarPicker fx:id="calendarPicker" layoutX="-2.0" layoutY="14.0" mode="RANGE" prefHeight="186.0" prefWidth="311.0" showTime="false" style="&#10;" />
         <Button id="todayHandler" layoutX="184.0" layoutY="203.0" mnemonicParsing="false" onAction="#todayHandler" text="Today" />
         <Button layoutX="254.0" layoutY="203.0" mnemonicParsing="false" onAction="#clearSelection" text="Clear" />
+        <Button id="todayHandler" layoutX="14.0" layoutY="200.0" mnemonicParsing="false" onAction="#endTripHandler" text="End Trip" />
       </children>
     </Pane>
     <ListView id="displaySelectedTrips" fx:id="availableTripsView" layoutX="350.0" layoutY="40.0" prefHeight="211.0" prefWidth="277.0" style="-fx-border-color: black" />

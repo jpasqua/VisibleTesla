@@ -169,6 +169,10 @@ public class TripController extends BaseController {
         calendarPicker.calendars().add(new GregorianCalendar());
     }
     
+    @FXML void endTripHandler(ActionEvent event) {
+        endCurrentTrip();
+    }
+    
 
     @FXML void clearSelection(ActionEvent event) {
         mapItButton.setDisable(true);
@@ -387,10 +391,7 @@ public class TripController extends BaseController {
             handleNewWayPoint(wp);
         }
         
-        if (tripInProgress != null) {   // Finish off this last trip
-            handleNewWayPoint(new WayPoint());
-            tripInProgress = null;
-        }
+        endCurrentTrip();
         
         // Start listening for new WayPoints
         ac.statsCollector.lastStoredStreamState.addTracker(false, new Runnable() {
@@ -402,6 +403,12 @@ public class TripController extends BaseController {
         });
         
         highlightDaysWithTrips(Calendar.getInstance());
+    }
+    
+    private void endCurrentTrip() {
+        if (tripInProgress == null) return;
+        handleNewWayPoint(new WayPoint());
+        tripInProgress = null;
     }
     
     private Trip tripInProgress = null;
