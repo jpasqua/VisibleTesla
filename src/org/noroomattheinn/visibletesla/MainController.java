@@ -255,7 +255,8 @@ public class MainController extends BaseController {
             boolean remoteStartEnabled = ac.vehicle.remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
-            ac.appState.trackInactivity(tabs);
+            ac.appState.trackInactivity(
+                    Arrays.asList(overviewTab, hvacTab, locationTab, chargeTab));
             try {
                 ac.prepForVehicle(ac.vehicle);
             } catch (IOException e) {
