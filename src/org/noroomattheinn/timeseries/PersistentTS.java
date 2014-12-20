@@ -16,6 +16,7 @@ import java.io.PrintStream;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import static org.noroomattheinn.timeseries.TSBase.logger;
 
 /**
  * PersistentTS: A persistent repository for time series data.
@@ -70,11 +71,11 @@ public class PersistentTS extends TSBase {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final Repo repo;        // The underlying repository
-    private final Emitter emitter;  // Used to write rows
-    private final Timer timer;      // To manage flushing
-    private Row pendingRow;         // Used to merge rows if needed
-    private long timeOfFirstRow;    // The oldest data in the series
+    private final Repo repo;                // The underlying repository
+    private final Emitter emitter;          // Used to write rows
+    private final Timer timer;              // To manage flushing
+    private Row pendingRow;                 // Used to merge rows if needed
+    private long timeOfFirstRow;            // The oldest data in the series
     
 /*==============================================================================
  * -------                                                               -------
@@ -82,12 +83,26 @@ public class PersistentTS extends TSBase {
  * -------                                                               -------
  *============================================================================*/
     
-    public PersistentTS(File container, String baseName, RowDescriptor schema)
+    /**
+     * Create PersistentTimeSeries object that is ready to take writes
+     * 
+     * @param container     The directory that should contain the persistent store
+     * @param baseName      The baseName of the persistent store files
+     * @param descriptor    Describes the schema of the rows in the store
+     * @param forceOrdering If true, then all data added to the time series
+     *                      will be forced to have monotonically increasing
+     *                      timestamps. If a row or value is added whose time-
+     *                      stamp is less than a value that has already been
+     *                      added, the newer timestamp will be used.
+     *                      If false, an old timestamp will result in an
+     *                      IllegalArgumentException
+     */
+    public PersistentTS(File container, String baseName, RowDescriptor schema, boolean forceOrdering)
             throws IOException {
         super(schema);
         
         this.repo = Repo.getRepo(container, baseName, schema);
-        this.emitter = new Emitter();
+        this.emitter = new Emitter(forceOrdering);
         this.pendingRow = null;
         this.timer = new Timer();
         
@@ -240,17 +255,17 @@ public class PersistentTS extends TSBase {
     private class Emitter {
         private Row lastRowEmitted;
         private final PrintStream ps;
+        private final boolean forceOrdering;
         
-        Emitter() {
+        Emitter(boolean forceOrdering) {
             this.lastRowEmitted = null;
+            this.forceOrdering = forceOrdering;
             this.ps = repo.getPrintStream();
         }
         
-        Row emit(Row r) {
+        Row emit(Row r) throws IllegalArgumentException {
             // Emit the timestamp for the row
-            long time = lastRowEmitted == null ?  -deflate(r.timestamp) :
-                    deflate(r.timestamp) - deflate(lastRowEmitted.timestamp);
-            ps.print(time);
+            ps.print(adjustTimeIfNeeded(r.timestamp));
 
             // Emit the bit vector describing which columns are included
             ps.append("\t");
@@ -276,6 +291,24 @@ public class PersistentTS extends TSBase {
 
             lastRowEmitted = r;
             return r;
+        }
+        
+        private long adjustTimeIfNeeded(long newTime) {
+            if (lastRowEmitted == null) { return -deflate(newTime); }
+            else {
+                long oldTime = lastRowEmitted.timestamp;
+                long time = deflate(newTime) - deflate(oldTime);
+                if (time < 0) {
+                    if (forceOrdering) {
+                        time = deflate(lastRowEmitted.timestamp);
+                        logger.fine("Forcing timestamps into sequence: " +
+                                newTime + ", " + oldTime);
+                    } else throw new IllegalArgumentException(
+                            "Timestamps out of sequence: " + newTime +
+                            ", " + oldTime);
+                }
+                return time;
+            }
         }
     }
     

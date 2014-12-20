@@ -77,7 +77,7 @@ public class DBConverter {
         repos.add(new StatsRepository(new File(container, baseName+".locs.log")));
         repos.add(new StatsRepository(new File(container, baseName+".stats.log")));
         
-        TimeSeries ts = new PersistentTS(container, baseName, StatsCollector.schema);
+        TimeSeries ts = new PersistentTS(container, baseName, StatsCollector.schema, true);
         
         // Load each Repo into a separate MapTable
         MapTable[] tableForRepo = new MapTable[repos.size()];

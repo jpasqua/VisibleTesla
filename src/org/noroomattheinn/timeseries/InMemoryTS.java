@@ -56,6 +56,7 @@ public class InMemoryTS extends TSBase implements IndexedTimeSeries {
         // part of the actual data
         rows.add(new Row(0, 0, descriptor.nColumns));
     }
+    
 /*------------------------------------------------------------------------------
  *
  * Methods overriden from TimeSeries

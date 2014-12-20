@@ -87,7 +87,7 @@ public class CachedTimeSeries implements TimeSeries, IndexedTimeSeries {
             throws IOException {
         this.schema = descriptor;
         this.inMemory = new InMemoryTS(descriptor, true);
-        this.persistent = new PersistentTS(container, baseName, descriptor);
+        this.persistent = new PersistentTS(container, baseName, descriptor, true);
         persistent.loadInto(inMemory, cacheRange);
     }
     
