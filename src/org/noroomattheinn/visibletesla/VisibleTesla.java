@@ -51,6 +51,7 @@ public class VisibleTesla extends Application {
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
         Dialogs.useNativeChrome(true);
+        ThreadManager.create();
         AppContext ac = new AppContext(this, stage);
         mainController = Utils.cast(root.getUserData());
         mainController.start(ac);

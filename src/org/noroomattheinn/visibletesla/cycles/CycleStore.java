@@ -54,7 +54,7 @@ public abstract class CycleStore<C extends BaseCycle>
         
         FileOutputStream fos = new FileOutputStream(cycleFile, true);
         cycleWriter = new PrintStream(fos);
-        ac.tm.addStoppable((ThreadManager.Stoppable)this);
+        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
     @Override public void stop() { cycleWriter.close(); }

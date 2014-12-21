@@ -43,7 +43,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
     public StreamProducer(AppContext ac) {
         super(ac, "StreamProducer");
         this.streamer = ac.vehicle.getStreamer();
-        ac.tm.addStoppable((ThreadManager.Stoppable)this);
+        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
     public void produce(boolean stream) {

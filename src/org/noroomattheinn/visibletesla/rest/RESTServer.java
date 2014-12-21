@@ -68,7 +68,7 @@ public class RESTServer implements ThreadManager.Stoppable {
     public RESTServer(AppContext ac) {
         this.ac = ac;
         server = null;
-        ac.tm.addStoppable((ThreadManager.Stoppable)this);
+        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
 
     public synchronized void launch() {

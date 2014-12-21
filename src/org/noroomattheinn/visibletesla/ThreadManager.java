@@ -35,16 +35,18 @@ public class ThreadManager {
  * 
  *----------------------------------------------------------------------------*/
     
+    private static ThreadManager instance = null;
+    
     private int threadID = 0;
     
-    private final AppContext        ac;
     private final ArrayList<Thread> threads = new ArrayList<>();
     private final List<Stoppable>   stopList;
     private final Timer timer = new Timer();
+    private boolean shuttingDown;
     
-    public ThreadManager(final AppContext appContext) {
-        this.ac = appContext;
+    private ThreadManager() {
         this.stopList = new ArrayList<>();
+        this.shuttingDown = false;
     }
     
 /*==============================================================================
@@ -53,10 +55,19 @@ public class ThreadManager {
  * -------                                                               -------
  *============================================================================*/
     
+    public static ThreadManager create() {
+        instance = new ThreadManager();
+        return instance;
+    }
+    
+    public static ThreadManager get() { return instance; }
+    
     public interface Stoppable { public void stop(); }
     
+    public boolean shuttingDown() { return shuttingDown; }
+    
     public synchronized Thread launch(Runnable r, String name) {
-        if (ac.shuttingDown) return null;
+        if (shuttingDown) return null;
         
         Thread t = new Thread(r);
         if (name == null) name = String.valueOf(threadID++);
@@ -84,7 +95,7 @@ public class ThreadManager {
     public void addStoppable(Stoppable s) { stopList.add(s); }
     
     public synchronized void shutDown() {
-        ac.shuttingDown = true;
+        shuttingDown = true;
         timer.cancel();
         for (Stoppable s : stopList) { s.stop(); }
         
@@ -169,4 +180,6 @@ public class ThreadManager {
             return false;
         }
     }
+    
 }
+

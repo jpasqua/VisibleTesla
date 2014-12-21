@@ -634,7 +634,7 @@ public class NotifierController extends BaseController {
             if (args != null) args = (new MessageTemplate(ac, args)).getMessage(contextSpecific);
             String stdin = target.getMessage();
             if (stdin != null) stdin = (new MessageTemplate(ac, stdin)).getMessage(contextSpecific);
-            ac.tm.launchExternal(command, args, stdin, 60 * 1000);
+            ThreadManager.get().launchExternal(command, args, stdin, 60 * 1000);
             logger.info("Executing external command for notification: " + command);
         } else {
             MessageTemplate mt = new MessageTemplate(ac, target.getActiveMsg());
@@ -698,7 +698,7 @@ public class NotifierController extends BaseController {
         
         void exec() {
             logger.info("HTTPAsyncGet exec with url: " + connection.getURL());
-            ac.tm.launch(this, "HTTPAsyncGet");
+            ThreadManager.get().launch(this, "HTTPAsyncGet");
         }
         
         @Override public void run() {

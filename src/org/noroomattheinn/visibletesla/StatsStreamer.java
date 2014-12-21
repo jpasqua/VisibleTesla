@@ -79,7 +79,7 @@ public class StatsStreamer implements Runnable {
                 logger.finest("Car State changed to: " + carState.get());
             }
         });
-        appContext.tm.launch((Runnable)this, "CollectStats");
+        ThreadManager.get().launch((Runnable)this, "CollectStats");
     }
         
 /*------------------------------------------------------------------------------

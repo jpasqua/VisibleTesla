@@ -264,7 +264,7 @@ public class SchedulerController extends BaseController
 
     @Override protected void initializeState() {
         v = ac.vehicle;
-        ac.tm.addStoppable(this);
+        ThreadManager.get().addStoppable(this);
     }
     
     @Override protected void activateTab() {

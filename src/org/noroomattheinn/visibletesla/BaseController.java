@@ -175,7 +175,7 @@ abstract class BaseController {
     }
 
     protected final void updateStateLater(final Vehicle.StateType whichState, long delay) {
-        ac.tm.addTimedTask(new TimerTask() {
+        ThreadManager.get().addTimedTask(new TimerTask() {
             @Override public void run() { updateState(whichState);  } }, delay);
     }
     

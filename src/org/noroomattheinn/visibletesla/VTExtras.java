@@ -141,7 +141,7 @@ public class VTExtras {
             }
         };
         
-        ac.tm.launch(poller, "Wait For Wakeup");
+        ThreadManager.get().launch(poller, "Wait For Wakeup");
     }
 
     public static boolean forceWakeup(AppContext ac) {

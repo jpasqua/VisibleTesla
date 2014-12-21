@@ -128,7 +128,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
             }
         });
         
-        appContext.tm.addStoppable((ThreadManager.Stoppable)this);
+        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
     /**

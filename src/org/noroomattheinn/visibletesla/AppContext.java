@@ -67,7 +67,6 @@ public class AppContext {
     public final Stage stage;
     public final Preferences persistentState;
     public final Prefs prefs;
-    public final ThreadManager tm;
     public final AppMode appMode;
     public final AppState appState;
     public final ObjectProperty<ChargeState> lastChargeState;
@@ -113,7 +112,6 @@ public class AppContext {
         this.persistentState = Preferences.userNodeForPackage(this.getClass());
         
         this.shuttingDown = false;
-        this.tm = new ThreadManager(this);
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
         

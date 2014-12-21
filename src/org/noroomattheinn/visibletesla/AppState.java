@@ -72,7 +72,7 @@ public class AppState {
             n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
             n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
         }
-        ac.tm.launch(new InactivityThread(), "Inactivity");
+        ThreadManager.get().launch(new InactivityThread(), "Inactivity");
     }
     
     public void setActive() { state.set(State.Active); }

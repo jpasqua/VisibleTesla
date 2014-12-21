@@ -48,7 +48,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
         this.histogram = new TreeMap<>();
         this.nRequestsExecuted = 0;
         this.lastReport = System.currentTimeMillis();
-        this.ac.tm.launch((Runnable)this, name);
+        ThreadManager.get().launch((Runnable)this, name);
     }
     
     public synchronized void produce(R r) {
@@ -81,7 +81,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     private void retry(final R r) {
-        ac.tm.addTimedTask(new TimerTask() {
+        ThreadManager.get().addTimedTask(new TimerTask() {
             @Override public void run() { produce(r); } },
             r.retryDelay());
     }

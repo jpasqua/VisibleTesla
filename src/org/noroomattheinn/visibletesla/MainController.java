@@ -169,7 +169,7 @@ public class MainController extends BaseController {
         lc.activate();
     }
     
-    public void stop() { ac.tm.shutDown(); }
+    public void stop() { ThreadManager.get().shutDown(); }
     
 /*------------------------------------------------------------------------------
  *
