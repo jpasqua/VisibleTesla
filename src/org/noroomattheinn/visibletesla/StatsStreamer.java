@@ -92,7 +92,7 @@ public class StatsStreamer implements Runnable {
         WakeEarlyPredicate wakeEarly = new WakeEarlyPredicate();
 
         try {
-            while (!ac.shuttingDown) {
+            while (!ThreadManager.get().shuttingDown()) {
                 String theState = String.format(
                         "App State: %s, App Mode: %s, Car State: %s",
                         ac.appState, ac.appMode, carState.get());
@@ -154,7 +154,7 @@ public class StatsStreamer implements Runnable {
         @Override public boolean eval() {
             try {
                 if (ac.appMode.lastSet() > lastEval && ac.appMode.stayingAwake()) return true;
-                return ac.shuttingDown;
+                return ThreadManager.get().shuttingDown();
             } finally {
                 lastEval = System.currentTimeMillis();
             }

@@ -124,7 +124,7 @@ public class VTExtras {
         
         final Utils.Predicate p = new Utils.Predicate() {
             @Override public boolean eval() {
-                return ac.shuttingDown || (forceWakeup != null && forceWakeup.get());
+                return ThreadManager.get().shuttingDown() || (forceWakeup != null && forceWakeup.get());
             }
         };
 
@@ -132,7 +132,7 @@ public class VTExtras {
             @Override public void run() {
                 while (ac.vehicle.isAsleep()) {
                     Utils.sleep(TestSleepInterval, p);
-                    if (ac.shuttingDown) return;
+                    if (ThreadManager.get().shuttingDown()) return;
                     if (forceWakeup != null && forceWakeup.get()) {
                         forceWakeup.set(false);
                         if (r != null) Platform.runLater(r);

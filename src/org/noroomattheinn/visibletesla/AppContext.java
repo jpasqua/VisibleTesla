@@ -80,7 +80,6 @@ public class AppContext {
     public final TrackedObject<String> schedulerActivity;
     public final RESTServer restServer;
     public final MailGun mailer;
-    public boolean shuttingDown;
     public Vehicle vehicle = null;
     public StatsCollector statsCollector;
     public ChargeStore chargeStore;
@@ -111,7 +110,6 @@ public class AppContext {
         this.stage = stage;
         this.persistentState = Preferences.userNodeForPackage(this.getClass());
         
-        this.shuttingDown = false;
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
         
@@ -192,7 +190,7 @@ public class AppContext {
     public void sleep(long timeInMillis) { Utils.sleep(timeInMillis,  sdPredicate); }
 
     private Utils.Predicate sdPredicate = new Utils.Predicate() {
-            @Override public boolean eval() { return shuttingDown; } };
+            @Override public boolean eval() { return ThreadManager.get().shuttingDown(); } };
     
     private void initRestStore() throws FileNotFoundException {
         boolean needsInitialLoad = RestStore.requiresInitialLoad(this);

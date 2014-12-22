@@ -299,7 +299,7 @@ public class MainController extends BaseController {
         long MaxWaitTime = 70 * 1000;
         long now = System.currentTimeMillis();
         while (timeSince(now) < MaxWaitTime) {
-            if (ac.shuttingDown) { return new Result(false, "shutting down"); }
+            if (ThreadManager.get().shuttingDown()) { return new Result(false, "shutting down"); }
             GUIState gs = v.queryGUI();
             if (gs.valid) {
                 if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
@@ -330,7 +330,7 @@ public class MainController extends BaseController {
         while (!(vs.valid && cs.valid)) {
             if (tries++ > MaxTriesToStart) { return Result.Failed; }
             ac.sleep(5 * 1000);
-            if (ac.shuttingDown) return Result.Failed;
+            if (ThreadManager.get().shuttingDown()) return Result.Failed;
             if (!vs.valid) vs = v.queryVehicle();
             if (!cs.valid) cs = v.queryCharge();
         }

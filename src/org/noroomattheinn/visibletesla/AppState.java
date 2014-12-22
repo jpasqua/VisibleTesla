@@ -104,7 +104,7 @@ public class AppState {
         @Override public void run() {
             while (true) {
                 ac.sleep(60 * 1000);
-                if (ac.shuttingDown) return;
+                if (ThreadManager.get().shuttingDown()) return;
                 long idleThreshold = ac.prefs.idleThresholdInMinutes.get() * 60 * 1000;
                 if (timeSince(lastEventTime) > idleThreshold && ac.appMode.allowingSleeping()) {
                     state.update(State.Idle);
