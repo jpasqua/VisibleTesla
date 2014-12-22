@@ -78,7 +78,6 @@ public class AppContext {
     public final TrackedObject<ChargeCycle> lastChargeCycle;
     public final TrackedObject<RestCycle> lastRestCycle;
     public final TrackedObject<String> schedulerActivity;
-    public final RESTServer restServer;
     public final MailGun mailer;
     public Vehicle vehicle = null;
     public StatsCollector statsCollector;
@@ -123,8 +122,6 @@ public class AppContext {
         this.lastChargeCycle = new TrackedObject<>(null);
         this.lastRestCycle = new TrackedObject<>(null);
         
-        restServer = new RESTServer(this);
-
         // Establish the prefs first, they are used be code below
         this.prefs = new Prefs(this);
 
@@ -156,7 +153,7 @@ public class AppContext {
         
         lastStreamState.get().odometer = persistentState.getDouble(vinKey("odometer"), 0);
 
-        restServer.launch();
+        RESTServer.get().launch(this);
     }
 
     public void noteUpdatedState(final BaseState state) {

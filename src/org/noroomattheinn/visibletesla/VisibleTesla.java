@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Dialogs;
 import javafx.stage.Stage;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 /**
  * This is the main class for the VisibleTesla application.
@@ -52,6 +53,7 @@ public class VisibleTesla extends Application {
         // complete and that it can start the mainline activity of the App.
         Dialogs.useNativeChrome(true);
         ThreadManager.create();
+        RESTServer.create();
         AppContext ac = new AppContext(this, stage);
         mainController = Utils.cast(root.getUserData());
         mainController.start(ac);

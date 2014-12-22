@@ -54,7 +54,9 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext ac;
+    private static RESTServer instance = null;
+    
+    private AppContext ac;
     private HttpServer server;
     private PWUtils pwUtils = new PWUtils();
     private byte[] encPW, salt;
@@ -65,13 +67,14 @@ public class RESTServer implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    public RESTServer(AppContext ac) {
-        this.ac = ac;
-        server = null;
-        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
+    public static RESTServer create() {
+        return (instance = new RESTServer());
     }
-
-    public synchronized void launch() {
+    
+    public static RESTServer get() { return instance; }
+    
+    public synchronized void launch(AppContext appContext) {
+        this.ac = appContext;
         if (!ac.prefs.enableRest.get()) {
             logger.info("REST Services are disabled");
             return;
@@ -131,6 +134,18 @@ public class RESTServer implements ThreadManager.Stoppable {
         salt = internalForm.get(0);
         encPW = internalForm.get(1);
     }
+
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Constructor
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private RESTServer() {
+        server = null;
+        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
+    }
+
 
 /*------------------------------------------------------------------------------
  *

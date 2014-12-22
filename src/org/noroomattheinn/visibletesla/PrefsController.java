@@ -28,6 +28,7 @@ import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
+import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -92,7 +93,7 @@ public class PrefsController extends BaseController {
     //
     @FXML void setAuthCode(ActionEvent event) {
         String code = authCode.getText();
-	String externalForm = ac.restServer.setPW(code);
+	String externalForm = RESTServer.get().setPW(code);
         ac.prefs.authCode.set(externalForm);
     }
     

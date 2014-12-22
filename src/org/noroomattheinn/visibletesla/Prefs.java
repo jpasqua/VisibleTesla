@@ -26,6 +26,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 /**
  * Prefs - Stores and Manages Preferences data for all of the tabs.
@@ -194,7 +195,7 @@ public class Prefs {
         stringPref(LogLevelKey, logLevel, "Info");
         
         stringPref(AuthCodeKey, authCode, "");
-	appContext.restServer.internalizePW(authCode.get());
+	RESTServer.get().internalizePW(authCode.get());
         
         // ----- Overrides
         stringPref(ORWheelToKey, overideWheelsTo, "From Car");
