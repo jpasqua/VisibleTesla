@@ -316,21 +316,21 @@ public class NotifierController extends BaseController {
     private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            ac.persistentState.putBoolean(ac.vinKey(NotifyCAKey), cur);
+            Prefs.store().putBoolean(ac.vinKey(NotifyCAKey), cur);
         }
     };
     
     private ChangeListener<Boolean> ulListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            ac.persistentState.putBoolean(ac.vinKey(NotifyULKey), cur);
+            Prefs.store().putBoolean(ac.vinKey(NotifyULKey), cur);
         }
     };
     
     private ChangeListener<BigDecimal> ulvListener = new ChangeListener<BigDecimal>() {
         @Override public void changed(
                 ObservableValue<? extends BigDecimal> ov, BigDecimal old, BigDecimal cur) {
-            ac.persistentState.putLong(ac.vinKey(NotifyULValKey), cur.longValue());
+            Prefs.store().putLong(ac.vinKey(NotifyULValKey), cur.longValue());
         }
     };
     
@@ -362,7 +362,7 @@ public class NotifierController extends BaseController {
     }
 
     @Override protected void initializeState() {
-            lastOdoCheck = ac.persistentState.getDouble(OdoCheckKey, 0);
+            lastOdoCheck = Prefs.store().getDouble(OdoCheckKey, 0);
                     
             socHitsTrigger = new GenericTrigger<>(
                 ac, socHits.selectedProperty(), bdHelper,
@@ -442,7 +442,7 @@ public class NotifierController extends BaseController {
             caMessageTarget = new MessageTarget(
                     ac, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
-                    ac.persistentState.getBoolean(ac.vinKey(NotifyCAKey),
+                    Prefs.store().getBoolean(ac.vinKey(NotifyCAKey),
                     false));
             
             unlockedTrigger = new StationaryTrigger(
@@ -451,10 +451,10 @@ public class NotifierController extends BaseController {
             ulMessageTarget = new MessageTarget(
                     ac, NotifyULKey, UnlockedSubj, UnlockedMsg);
             unlocked.setSelected(
-                    ac.persistentState.getBoolean(ac.vinKey(NotifyULKey),
+                    Prefs.store().getBoolean(ac.vinKey(NotifyULKey),
                     false));
             unlockedDoorsField.numberProperty().set(
-                    new BigDecimal(ac.persistentState.getLong(
+                    new BigDecimal(Prefs.store().getLong(
                         ac.vinKey(NotifyULValKey), UnlockedThreshold)));
             checkForUnlocked = false;
             
@@ -488,9 +488,9 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void showAreaDialog(ObjectProperty<Area> areaProp) {
-        String apiKey = ac.prefs.useCustomGoogleAPIKey.get() ?
-                    ac.prefs.googleAPIKey.get() :
-                    AppContext.GoogleMapsAPIKey;
+        String apiKey = Prefs.get().useCustomGoogleAPIKey.get() ?
+                    Prefs.get().googleAPIKey.get() :
+                    Prefs.GoogleMapsAPIKey;
 
         ChooseLocationDialog cld = ChooseLocationDialog.show(ac.stage, areaProp.get(), apiKey);
         if (!cld.cancelled()) {
@@ -586,7 +586,7 @@ public class NotifierController extends BaseController {
                 if (odoHitsTrigger.evalPredicate(new BigDecimal(odo))) {
                     notifyUser(odoHitsTrigger, ohMessageTarget);
                     // Store in miles, but convert & test relative to the GUI setting
-                    ac.persistentState.putDouble(OdoCheckKey, cur.odometer);
+                    Prefs.store().putDouble(OdoCheckKey, cur.odometer);
                     lastOdoCheck = cur.odometer;
                 }
             }

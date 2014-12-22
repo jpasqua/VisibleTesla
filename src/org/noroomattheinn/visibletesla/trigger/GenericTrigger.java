@@ -13,6 +13,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
 
 /**
  * GenericTrigger: A generic trigger mechanism that handles a number of different
@@ -204,12 +205,12 @@ public class GenericTrigger<T> {
     
     private void externalize() {
         String encoded = String.format("%s_%s", onOff(isEnabled.get()), th.toExternal(targetProperty.get()));
-        ac.persistentState.put(fullKey(), encoded);
+        Prefs.store().put(fullKey(), encoded);
     }
     
     private void internalize() {
         String dfltEncoded = th.toExternal(targetDefault);
-        String encoded = ac.persistentState.get(fullKey(), "0_" + dfltEncoded);
+        String encoded = Prefs.store().get(fullKey(), "0_" + dfltEncoded);
         String[] elements = encoded.split("_");
         if (elements.length >= 2) {
             isEnabled.set(elements[0].equals("1"));

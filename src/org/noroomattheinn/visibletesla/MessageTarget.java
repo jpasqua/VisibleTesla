@@ -26,7 +26,7 @@ public class MessageTarget {
     }
 
     String getActiveEmail() {
-        return address != null ? address : ac.prefs.notificationAddress.get();
+        return address != null ? address : Prefs.get().notificationAddress.get();
     }
     String getActiveSubj() { return subject != null ? subject : dfltSubj; }
     String getActiveMsg() { return message != null ? message : dfltMsg; }
@@ -51,13 +51,13 @@ public class MessageTarget {
                 address == null ? "null" : encodeUnderscore(address),
                 subject == null ? "null" : encodeUnderscore(subject),
                 message == null ? "null" : Utils.toB64(message.getBytes()));
-        ac.persistentState.put(theKey, encoded);
+        Prefs.store().put(theKey, encoded);
     }
 
     final void internalize() {
         address = subject = message = null;
 
-        String encoded = ac.persistentState.get(theKey, "");
+        String encoded = Prefs.store().get(theKey, "");
         if (encoded.isEmpty()) return;
 
         String[] elements = encoded.split("_");

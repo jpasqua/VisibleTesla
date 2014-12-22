@@ -127,7 +127,7 @@ public class StatsStreamer implements Runnable {
                 return;
             }
         }
-        ac.streamProducer.produce(ac.prefs.streamWhenPossible.get());
+        ac.streamProducer.produce(Prefs.get().streamWhenPossible.get());
         ac.stateProducer.produce(Vehicle.StateType.Charge, null);
     }
     

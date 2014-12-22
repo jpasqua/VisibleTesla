@@ -11,6 +11,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
 
 
 
@@ -62,7 +63,7 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
             "Peak V", "Avg V", "Peak I", "Avg I", "Energy"};
 
     ChargeCycleExporter(AppContext appContext) { 
-        super(appContext, "Charge", labels, appContext.prefs.submitAnonCharge);
+        super(appContext, "Charge", labels, Prefs.get().submitAnonCharge);
     }
     
     @Override protected void emitRow(
@@ -96,7 +97,7 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
     }
     
     @Override protected void ditherLocation(ChargeCycle cycle) {
-        if (cycle.superCharger && ac.prefs.includeLocData.get()) return;
+        if (cycle.superCharger && Prefs.get().includeLocData.get()) return;
         super.ditherLocation(cycle);
     }
 }

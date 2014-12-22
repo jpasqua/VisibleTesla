@@ -63,29 +63,29 @@ public class VTExtras {
  *============================================================================*/
     
     public static Options.RoofType roofType(AppContext ac) {
-        Options.RoofType roof = overrideRoof.get(ac.prefs.overideRoofTo.get());
-        if (ac.prefs.overideRoofActive.get() && roof != null) return roof;
+        Options.RoofType roof = overrideRoof.get(Prefs.get().overideRoofTo.get());
+        if (Prefs.get().overideRoofActive.get() && roof != null) return roof;
         return (ac.vehicle.getOptions().roofType());
     }
     
     public static Options.PaintColor paintColor(AppContext ac) {
-        Options.PaintColor color = overrideColor.get(ac.prefs.overideColorTo.get());
-        if (ac.prefs.overideColorActive.get() && color != null) return color;
+        Options.PaintColor color = overrideColor.get(Prefs.get().overideColorTo.get());
+        if (Prefs.get().overideColorActive.get() && color != null) return color;
         return (ac.vehicle.getOptions().paintColor());
     }
     
     
     public static boolean useDegreesF(AppContext ac) {
-        Utils.UnitType units = overrideUnits.get(ac.prefs.overideUnitsTo.get());
-        if (ac.prefs.overideUnitsActive.get() && units != null)
+        Utils.UnitType units = overrideUnits.get(Prefs.get().overideUnitsTo.get());
+        if (Prefs.get().overideUnitsActive.get() && units != null)
             return units == Utils.UnitType.Imperial;
         return ac.lastGUIState.get().temperatureUnits.equalsIgnoreCase("F");
 
     }
     
     public static Utils.UnitType unitType(AppContext ac) {
-        Utils.UnitType units = overrideUnits.get(ac.prefs.overideUnitsTo.get());
-        if (ac.prefs.overideUnitsActive.get() && units != null) return units;
+        Utils.UnitType units = overrideUnits.get(Prefs.get().overideUnitsTo.get());
+        if (Prefs.get().overideUnitsActive.get() && units != null) return units;
 
         GUIState gs = ac.lastGUIState.get();
         if (gs != null) {
@@ -101,8 +101,8 @@ public class VTExtras {
     }
 
     public static Options.WheelType computedWheelType(AppContext ac) {
-        Options.WheelType wt = overrideWheels.get(ac.prefs.overideWheelsTo.get());
-        if (ac.prefs.overideWheelsActive.get() && wt != null) return wt;
+        Options.WheelType wt = overrideWheels.get(Prefs.get().overideWheelsTo.get());
+        if (Prefs.get().overideWheelsActive.get() && wt != null) return wt;
 
         wt = ac.vehicle.getOptions().wheelType();
         VehicleState vs = ac.lastVehicleState.get();

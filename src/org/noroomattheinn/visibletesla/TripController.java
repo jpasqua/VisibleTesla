@@ -126,7 +126,7 @@ public class TripController extends BaseController {
     }
     
     @FXML void exportItHandler(ActionEvent event) {
-        String initialDir = ac.persistentState.get(
+        String initialDir = Prefs.store().get(
                 StatsCollector.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Trip as KMZ");
@@ -136,7 +136,7 @@ public class TripController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                ac.persistentState.put(StatsCollector.LastExportDirKey, enclosingDirectory);
+                Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
             KMLExporter ke = new KMLExporter();
             if (ke.export(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(
@@ -214,13 +214,13 @@ public class TripController extends BaseController {
         
         includeGraph.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                ac.persistentState.putBoolean(IncludeGraphKey, t1);
+                Prefs.store().putBoolean(IncludeGraphKey, t1);
             }
         });
         
         snapToRoad.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                ac.persistentState.putBoolean(SnapToRoadKey, t1);
+                Prefs.store().putBoolean(SnapToRoadKey, t1);
             }
         });
         
@@ -240,9 +240,9 @@ public class TripController extends BaseController {
     
     @Override protected void initializeState() {
         includeGraph.setSelected(
-                ac.persistentState.getBoolean(IncludeGraphKey, false));
+                Prefs.store().getBoolean(IncludeGraphKey, false));
         snapToRoad.setSelected(
-                ac.persistentState.getBoolean(SnapToRoadKey, false));
+                Prefs.store().getBoolean(SnapToRoadKey, false));
         readTrips();
     }
 
@@ -357,9 +357,9 @@ public class TripController extends BaseController {
                 "SP_UNITS", useMiles ? "mph" : "km/h",
                 "INCLUDE_GRAPH", includeGraph.isSelected() ? "true" : "false",
                 "SNAP", snapToRoad.isSelected() ? "true" : "false",
-                "GMAP_API_KEY", ac.prefs.useCustomGoogleAPIKey.get() ?
-                    ac.prefs.googleAPIKey.get() :
-                    AppContext.GoogleMapsAPIKey);
+                "GMAP_API_KEY", Prefs.get().useCustomGoogleAPIKey.get() ?
+                    Prefs.get().googleAPIKey.get() :
+                    Prefs.GoogleMapsAPIKey);
     }
     
     private boolean sameMonth(Calendar month, Calendar day) {

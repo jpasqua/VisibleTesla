@@ -15,6 +15,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.
@@ -101,7 +102,7 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
             "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Loss/Hr"};
 
     RestCycleExporter(AppContext appContext) {
-        super(appContext, "Rest", labels, appContext.prefs.submitAnonRest);
+        super(appContext, "Rest", labels, Prefs.get().submitAnonRest);
     }
     
     @Override protected void emitRow(

@@ -105,7 +105,7 @@ abstract class BaseController {
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
         if (ac.appState.isIdle()) {
-            if (ac.prefs.wakeOnTabChange.get()) {
+            if (Prefs.get().wakeOnTabChange.get()) {
                 ac.appState.setActive();
                 doRefresh();
             }

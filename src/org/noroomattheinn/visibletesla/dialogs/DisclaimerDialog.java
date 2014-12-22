@@ -8,6 +8,7 @@ package org.noroomattheinn.visibletesla.dialogs;
 
 import javafx.scene.control.Dialogs;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
 
 
 /**
@@ -26,7 +27,7 @@ public class DisclaimerDialog {
  *============================================================================*/
     
     public static void show(AppContext ac) {
-        boolean disclaimer = ac.persistentState.getBoolean(
+        boolean disclaimer = Prefs.store().getBoolean(
                 ac.vinKey("Disclaimer"), false);
         if (!disclaimer) {
             Dialogs.showInformationDialog(
@@ -42,6 +43,6 @@ public class DisclaimerDialog {
                     "reducing the available charge in the battery.",
                     "Please Read Carefully", "Disclaimer");
         }
-        ac.persistentState.putBoolean(ac.vinKey("Disclaimer"), true);                
+        Prefs.store().putBoolean(ac.vinKey("Disclaimer"), true);                
     }
 }

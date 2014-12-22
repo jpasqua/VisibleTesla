@@ -15,7 +15,6 @@ import org.noroomattheinn.visibletesla.rest.RESTServer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -51,10 +50,6 @@ public class AppContext {
         
     public static final String ProductName = "VisibleTesla";
     public static final String ProductVersion = "0.31.00";
-    public static final String GoogleMapsAPIKey =
-            "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
-    public static final String MailGunKey =
-            "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6";
 
 /*------------------------------------------------------------------------------
  *
@@ -65,8 +60,6 @@ public class AppContext {
     public final Application fxApp;
     public final Tesla tesla;
     public final Stage stage;
-    public final Preferences persistentState;
-    public final Prefs prefs;
     public final AppMode appMode;
     public final AppState appState;
     public final ObjectProperty<ChargeState> lastChargeState;
@@ -105,9 +98,9 @@ public class AppContext {
  *============================================================================*/
     
     AppContext(Application app, Stage stage) {
+        Prefs prefs = Prefs.get();
         this.fxApp = app;
         this.stage = stage;
-        this.persistentState = Preferences.userNodeForPackage(this.getClass());
         
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
@@ -122,9 +115,6 @@ public class AppContext {
         this.lastChargeCycle = new TrackedObject<>(null);
         this.lastRestCycle = new TrackedObject<>(null);
         
-        // Establish the prefs first, they are used be code below
-        this.prefs = new Prefs(this);
-
         appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
         Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
         
@@ -132,7 +122,7 @@ public class AppContext {
             new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
 
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
-                ? prefs.mailGunKey.get() : MailGunKey);
+                ? prefs.mailGunKey.get() : Prefs.MailGunKey);
         issuer = new CommandIssuer(this);
     }
 
@@ -151,7 +141,7 @@ public class AppContext {
         stateProducer = new StateProducer(this);
         statsStreamer = new StatsStreamer(this);
         
-        lastStreamState.get().odometer = persistentState.getDouble(vinKey("odometer"), 0);
+        lastStreamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
 
         RESTServer.get().launch(this);
     }

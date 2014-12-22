@@ -12,6 +12,7 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.StatsCollector;
 
 /**
@@ -48,9 +49,9 @@ public class RestMonitor {
     public RestMonitor(AppContext appContext) {
         this.ac = appContext;
         
-        if (ac.prefs.vsLimitEnabled.get()) {
-            fromLimit = ac.prefs.vsFrom.get();
-            toLimit = ac.prefs.vsTo.get();
+        if (Prefs.get().vsLimitEnabled.get()) {
+            fromLimit = Prefs.get().vsFrom.get();
+            toLimit = Prefs.get().vsTo.get();
             stradles = (toLimit.before(fromLimit));
         } else {
             fromLimit = toLimit = null;
@@ -123,7 +124,7 @@ public class RestMonitor {
     }
     
     private boolean outOfRange(long ts) {
-        if (!ac.prefs.vsLimitEnabled.get()) return false;
+        if (!Prefs.get().vsLimitEnabled.get()) return false;
         CalTime c = new CalTime(ts);
         if (stradles) { return (c.after(toLimit) && c.before(fromLimit)); }
         else { return c.after(toLimit) || c.before(fromLimit); }

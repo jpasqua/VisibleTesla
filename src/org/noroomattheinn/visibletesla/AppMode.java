@@ -46,7 +46,7 @@ public class AppMode {
         mode.addTracker(false, new Runnable() {
             @Override public void run() {
                 logger.finest("App Mode changed to " + mode.get());
-                ac.persistentState.put(
+                Prefs.store().put(
                     ac.vinKey("InactivityMode"), mode.get().name());
                 if (mode.get() == Mode.StayAwake) ac.appState.setActive();
             }
@@ -63,7 +63,7 @@ public class AppMode {
     public long lastSet() { return mode.lastSet(); }
     
     public void restore() {
-        String modeName = ac.persistentState.get(
+        String modeName = Prefs.store().get(
                 ac.vinKey("InactivityMode"), Mode.StayAwake.name());
         // Handle obsolete values or changed names
         switch (modeName) {

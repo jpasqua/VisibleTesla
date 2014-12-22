@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -26,7 +27,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 /**
  * Prefs - Stores and Manages Preferences data for all of the tabs.
@@ -51,24 +51,35 @@ public class Prefs {
         nameToLoadPeriod.put("All", LoadPeriod.All);
         nameToLoadPeriod.put("None", LoadPeriod.None);
     }
-    
+    public static final String GoogleMapsAPIKey = "AIzaSyAZDh-9z3wgvLFnhTu72O5h2Qn9_4Omyj4";
+    public static final String MailGunKey = "key-2x6kwt4t-f4qcy9nb9wmo4yed681ogr6";
+
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext appContext;
-    
+    private static Prefs instance;
+    private final Preferences persistentState;
     
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
-
-    public Prefs(AppContext ac) {
-        appContext = ac;
+    
+    public static Prefs create() {
+        instance = new Prefs();
+        return instance;
+    }
+    
+    public static Prefs get() { return instance; }
+    
+    public static Preferences store() { return instance.persistentState; }
+    
+    private Prefs() {
+        this.persistentState = Preferences.userNodeForPackage(this.getClass());
         loadGeneralPrefs();
         loadGraphPrefs();
         loadSchedulerPrefs();
@@ -185,9 +196,9 @@ public class Prefs {
         stringPref(ProxyHostKey, proxyHost, "");
         integerPref(ProxyPortKey, proxyPort, 8080);
         booleanPref(UseCustomGoogleKey, useCustomGoogleAPIKey, false);
-        stringPref(CustomGoogleKey, googleAPIKey, AppContext.GoogleMapsAPIKey);
+        stringPref(CustomGoogleKey, googleAPIKey, GoogleMapsAPIKey);
         booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
-        stringPref(CustomMailGunKey, mailGunKey, AppContext.MailGunKey);
+        stringPref(CustomMailGunKey, mailGunKey, MailGunKey);
         integerPref(FontScaleKey, fontScale, 100);
         booleanPref(EnableRestKey, enableRest, false);
         integerPref(RestPortKey, restPort, 9090);
@@ -195,7 +206,6 @@ public class Prefs {
         stringPref(LogLevelKey, logLevel, "Info");
         
         stringPref(AuthCodeKey, authCode, "");
-	RESTServer.get().internalizePW(authCode.get());
         
         // ----- Overrides
         stringPref(ORWheelToKey, overideWheelsTo, "From Car");
@@ -326,53 +336,53 @@ public class Prefs {
  *----------------------------------------------------------------------------*/
 
     private void integerPref(final String key, IntegerProperty property, int defaultValue) {
-        property.set(appContext.persistentState.getInt(key, defaultValue));
+        property.set(persistentState.getInt(key, defaultValue));
         property.addListener(new ChangeListener<Number>() {
             @Override public void changed(
                 ObservableValue<? extends Number> ov, Number old, Number cur) {
-                    appContext.persistentState.putInt(key, cur.intValue());
+                    persistentState.putInt(key, cur.intValue());
             }
         });
     }
     
     private void doublePref(final String key, DoubleProperty property, double defaultValue) {
-        property.set(appContext.persistentState.getDouble(key, defaultValue));
+        property.set(persistentState.getDouble(key, defaultValue));
         property.addListener(new ChangeListener<Number>() {
             @Override public void changed(
                 ObservableValue<? extends Number> ov, Number old, Number cur) {
-                    appContext.persistentState.putDouble(key, cur.doubleValue());
+                    persistentState.putDouble(key, cur.doubleValue());
             }
         });
     }
     
     private void booleanPref(final String key, BooleanProperty property, boolean defaultValue) {
-        property.set(appContext.persistentState.getBoolean(key, defaultValue));
+        property.set(persistentState.getBoolean(key, defaultValue));
         property.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-                    appContext.persistentState.putBoolean(key, cur);
+                    persistentState.putBoolean(key, cur);
             }
         });
     }
     
     private void stringPref(final String key, StringProperty property, String defaultValue) {
-        property.set(appContext.persistentState.get(key, defaultValue));
+        property.set(persistentState.get(key, defaultValue));
         property.addListener(new ChangeListener<String>() {
             @Override public void changed(
                 ObservableValue<? extends String> ov, String old, String cur) {
-                    appContext.persistentState.put(key, cur);
+                    persistentState.put(key, cur);
             }
         });
     }
     
     
     private void calTimePref(final String key, ObjectProperty<CalTime> property, CalTime defaultValue) {
-        String initial = appContext.persistentState.get(key, defaultValue.toString());
+        String initial = persistentState.get(key, defaultValue.toString());
         property.set(new CalTime(initial));
         property.addListener(new ChangeListener<CalTime>() {
             @Override public void changed(
                 ObservableValue<? extends CalTime> ov, CalTime old, CalTime cur) {
-                    appContext.persistentState.put(key, cur.toString());
+                    persistentState.put(key, cur.toString());
             }
         });
     }

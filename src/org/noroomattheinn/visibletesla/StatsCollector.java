@@ -107,7 +107,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
         
         this.ts = new CachedTimeSeries(
                 ac.appFileFolder(), ac.vehicle.getVIN(),
-                schema, ac.prefs.getLoadPeriod());
+                schema, Prefs.get().getLoadPeriod());
 
         this.lastStoredStreamState = new TrackedObject<>(new StreamState());
         this.lastStoredChargeState = new TrackedObject<>(null);
@@ -196,7 +196,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
      *                  correspond to entries in StatsCollector.Columns
      */
     public void export(String[] columns) {
-        String initialDir = ac.persistentState.get(
+        String initialDir = Prefs.store().get(
                 LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Data");
@@ -206,7 +206,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                ac.persistentState.put(LastExportDirKey, enclosingDirectory);
+                Prefs.store().put(LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage);
             if (exportPeriod == null)
                 return;
@@ -261,7 +261,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
             ts.storeRow(r);
 
             if (state.odometer - lastStoredStreamState.get().odometer >= 1.0) {
-                ac.persistentState.putDouble(ac.vinKey("odometer"), state.odometer);
+                Prefs.store().putDouble(ac.vinKey("odometer"), state.odometer);
             }
             lastStoredStreamState.set(state);
         }
@@ -286,8 +286,8 @@ public class StatsCollector implements ThreadManager.Stoppable {
         if (moving(last) != moving(cur)) { return true; }
         
         // If you're moving and it's been a while since a reading, it's worth recording
-        if ((timeDelta >= ac.prefs.locMinTime.get() * 1000) &&
-            (meters >= ac.prefs.locMinDist.get())) return true;
+        if ((timeDelta >= Prefs.get().locMinTime.get() * 1000) &&
+            (meters >= Prefs.get().locMinDist.get())) return true;
         
         return false;
     }

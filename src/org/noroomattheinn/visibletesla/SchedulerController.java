@@ -69,7 +69,7 @@ public class SchedulerController extends BaseController
  *----------------------------------------------------------------------------*/
     
     @Override public String getExternalKey() { return v.getVIN(); }
-    @Override public Preferences getPreferences() { return ac.persistentState; }
+    @Override public Preferences getPreferences() { return Prefs.store(); }
     @Override public AppContext getAppContext() { return ac; }
     
     @Override public void runCommand(
@@ -134,7 +134,7 @@ public class SchedulerController extends BaseController
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
             ac.mailer.send(
-                ac.prefs.notificationAddress.get(),
+                Prefs.get().notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
             return Result.Succeeded;
@@ -156,7 +156,7 @@ public class SchedulerController extends BaseController
         if (!requiresSafeMode(command)) return true;
         
         String name = ScheduleItem.commandToName(command);
-        if (ac.prefs.safeIncludesMinCharge.get()) {
+        if (Prefs.get().safeIncludesMinCharge.get()) {
             if (ac.lastChargeState.get().batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
@@ -165,7 +165,7 @@ public class SchedulerController extends BaseController
             }
         }
 
-        if (ac.prefs.safeIncludesPluggedIn.get()) {
+        if (Prefs.get().safeIncludesPluggedIn.get()) {
             String msg;
 
             switch (ac.lastChargeState.get().chargingState) {
@@ -190,12 +190,12 @@ public class SchedulerController extends BaseController
         ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
             ac.mailer.send(
-                ac.prefs.notificationAddress.get(),
+                Prefs.get().notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (status == ChargeState.Status.Unknown) {
             ac.mailer.send(
-                ac.prefs.notificationAddress.get(),
+                Prefs.get().notificationAddress.get(),
                 "Can't determine if your car is plugged in. Please check");
             return new Result(true, "Can't tell if car is plugged in. Warning sent");
         }

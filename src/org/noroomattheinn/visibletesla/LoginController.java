@@ -86,8 +86,8 @@ public class LoginController extends BaseController {
     }
     
     @FXML void rememberMeHandler(ActionEvent event) {
-        ac.persistentState.putBoolean(RememberMePrefKey, rememberMe.isSelected());
-        if (!rememberMe.isSelected()) { ac.persistentState.remove(AuthTokenKey); }
+        Prefs.store().putBoolean(RememberMePrefKey, rememberMe.isSelected());
+        if (!rememberMe.isSelected()) { Prefs.store().remove(AuthTokenKey); }
     }
 
 /*------------------------------------------------------------------------------
@@ -104,10 +104,10 @@ public class LoginController extends BaseController {
     @Override protected void refresh() { }
     
     @Override protected void initializeState() {
-        Boolean rememberPref = ac.persistentState.getBoolean(RememberMePrefKey, false);
+        Boolean rememberPref = Prefs.store().getBoolean(RememberMePrefKey, false);
         rememberMe.setSelected(rememberPref);
 
-        String username = rememberPref ? ac.persistentState.get(UsernameKey, null) : null;
+        String username = rememberPref ? Prefs.store().get(UsernameKey, null) : null;
         if (username != null) usernameField.setText(username);
     }
     
@@ -178,7 +178,7 @@ public class LoginController extends BaseController {
             boolean succeeded;
             
             if (password == null) {  // Try auto login
-                String authToken = ac.persistentState.get(AuthTokenKey, null);
+                String authToken = Prefs.store().get(AuthTokenKey, null);
                 succeeded = (authToken == null) ? false :
                         ac.tesla.connectWithToken(username, authToken);
             } else {   // Login with the specified username and password
@@ -196,8 +196,8 @@ public class LoginController extends BaseController {
                 } else {
                     String authToken = ac.tesla.getToken();
                     if (rememberMe.isSelected()) {
-                        ac.persistentState.put(AuthTokenKey, authToken);
-                        ac.persistentState.put(UsernameKey, username);
+                        Prefs.store().put(AuthTokenKey, authToken);
+                        Prefs.store().put(UsernameKey, username);
                     }
                 }
             }

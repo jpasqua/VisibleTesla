@@ -21,6 +21,7 @@ import jxl.write.WriteException;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.StatsCollector;
 import static org.noroomattheinn.tesla.Tesla.logger;
+import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 
 /**
@@ -98,7 +99,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
      *                  specified range of times.
      */
     public void export(CycleStore<C> provider) {        
-        String initialDir = ac.persistentState.get(
+        String initialDir = Prefs.store().get(
                 StatsCollector.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export " + cycleType + " Data");
@@ -108,7 +109,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                ac.persistentState.put(StatsCollector.LastExportDirKey, enclosingDirectory);
+                Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage);
             if (exportPeriod == null)
                 return;
@@ -194,11 +195,11 @@ public abstract class CycleExporter<C extends BaseCycle> {
      * @param cycle     The cycle whose location should be dithered.
      */
     protected void ditherLocation(C cycle) {
-        if (!ac.prefs.includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
+        if (!Prefs.get().includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
         if (cycle.lat == 0 && cycle.lng == 0) return;
         
         double random, offset;
-        double ditherAmt = ac.prefs.ditherLocAmt.get();
+        double ditherAmt = Prefs.get().ditherLocAmt.get();
         double pow = Math.pow(10, ditherAmt);       // 10^ditherAmt
         
         random = 0.5 + (Math.random()/2);           // value in [0.5, 1]

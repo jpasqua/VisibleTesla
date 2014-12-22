@@ -19,6 +19,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Versions;
 import org.noroomattheinn.utils.Versions.Release;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
 
 
 /**
@@ -47,7 +48,7 @@ public class VersionUpdater {
  *============================================================================*/
     
     public static void conditionalCheckVersion(final AppContext ac) {
-        long lastVersionCheck = ac.persistentState.getLong(ac.vinKey("LastVersionCheck"), 0);
+        long lastVersionCheck = Prefs.store().getLong(ac.vinKey("LastVersionCheck"), 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
             checkForNewerVersion(ac);
@@ -55,7 +56,7 @@ public class VersionUpdater {
     }
     
     public static boolean checkForNewerVersion(final AppContext ac) {
-        ac.persistentState.putLong(ac.vinKey("LastVersionCheck"), System.currentTimeMillis());
+        Prefs.store().putLong(ac.vinKey("LastVersionCheck"), System.currentTimeMillis());
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
         if (versions == null) return false; // Missing, empty, or corrupt versions file
@@ -66,7 +67,7 @@ public class VersionUpdater {
             Release lastRelease = null;
             for (Release cur : releases) {
                 if (cur.getInvisible()) continue;
-                if (cur.getExperimental() && !ac.prefs.offerExperimental.get())
+                if (cur.getExperimental() && !Prefs.get().offerExperimental.get())
                     continue;
                 lastRelease = cur;
                 break;

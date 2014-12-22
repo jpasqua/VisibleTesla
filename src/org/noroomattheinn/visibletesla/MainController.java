@@ -149,7 +149,7 @@ public class MainController extends BaseController {
         for (Tab t : tabs) { controllerFromTab(t).setAppContext(this.ac); }
         
         // Handle font scaling
-        int fontScale = this.ac.prefs.fontScale.get();
+        int fontScale = Prefs.get().fontScale.get();
         if (fontScale != 100) {
             for (Tab t : tabs) { 
                 Node n = t.getContent();

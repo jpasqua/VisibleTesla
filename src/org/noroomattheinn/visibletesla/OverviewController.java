@@ -214,13 +214,13 @@ public class OverviewController extends BaseController {
     @Override protected void initializeState() {
         final Vehicle v = ac.vehicle;
         getAppropriateImages(v);
-        ac.prefs.overideColorTo.addListener(new ChangeListener<String>() {
+        Prefs.get().overideColorTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateImages(v);
             }
         });
-        ac.prefs.overideColorActive.addListener(new ChangeListener<Boolean>() {
+        Prefs.get().overideColorActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateImages(v);
@@ -290,7 +290,7 @@ public class OverviewController extends BaseController {
     private void updateRange() {
         ChargeState cs = ac.lastChargeState.get();
         double range = 0;
-        String rangeType = ac.prefs.overviewRange.get();
+        String rangeType = Prefs.get().overviewRange.get();
         switch (rangeType) {
             case "Estimated": range = cs.estimatedRange; break;
             case "Ideal": range = cs.idealRange; break;
@@ -427,12 +427,12 @@ public class OverviewController extends BaseController {
     }
     
     private boolean displayVIN() {
-        return ac.persistentState.getBoolean(ac.vinKey("DISP_VIN"), true);
+        return Prefs.store().getBoolean(ac.vinKey("DISP_VIN"), true);
     }
     
     private void toggleDisplayVIN() {
-        boolean displayVIN = ac.persistentState.getBoolean(ac.vinKey("DISP_VIN"), true);
-        ac.persistentState.putBoolean(ac.vinKey("DISP_VIN"), !displayVIN);
+        boolean displayVIN = Prefs.store().getBoolean(ac.vinKey("DISP_VIN"), true);
+        Prefs.store().putBoolean(ac.vinKey("DISP_VIN"), !displayVIN);
     }
 
 /*------------------------------------------------------------------------------

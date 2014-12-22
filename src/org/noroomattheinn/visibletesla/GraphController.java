@@ -116,7 +116,7 @@ public class GraphController extends BaseController {
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
-        ac.persistentState.putBoolean(ac.vinKey(series.getName()), visible);
+        Prefs.store().putBoolean(ac.vinKey(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
@@ -165,14 +165,14 @@ public class GraphController extends BaseController {
         // Restore the last settings of the checkboxes
         for (CheckBox cb : cbToSeries.keySet()) {
             VTSeries s = cbToSeries.get(cb);
-            boolean selected = ac.persistentState.getBoolean(ac.vinKey(s.getName()), true);
+            boolean selected = Prefs.store().getBoolean(ac.vinKey(s.getName()), true);
             cb.setSelected(selected);
             lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
-        displayLines = ac.persistentState.getBoolean(ac.vinKey("DISPLAY_LINES"), true);
-        displayMarkers = ac.persistentState.getBoolean(ac.vinKey("DISPLAY_MARKERS"), true);
+        displayLines = Prefs.store().getBoolean(ac.vinKey("DISPLAY_LINES"), true);
+        displayMarkers = Prefs.store().getBoolean(ac.vinKey("DISPLAY_MARKERS"), true);
 
         reflectDisplayOptions();
     }
@@ -198,12 +198,12 @@ public class GraphController extends BaseController {
         ac.statsCollector.lastStoredStreamState.addTracker(false, streamHandler);
         
         setGap();
-        ac.prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
+        Prefs.get().ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 setGap(); lineChart.refreshChart();
             }
         });
-        ac.prefs.graphGapTime.addListener(new ChangeListener<Number>() {
+        Prefs.get().graphGapTime.addListener(new ChangeListener<Number>() {
             @Override public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
                 setGap(); lineChart.refreshChart();
             }
@@ -276,8 +276,8 @@ public class GraphController extends BaseController {
 
             reflectDisplayOptions();
 
-            ac.persistentState.putBoolean(ac.vinKey("DISPLAY_LINES"), displayLines);
-            ac.persistentState.putBoolean(ac.vinKey("DISPLAY_MARKERS"), displayMarkers);
+            Prefs.store().putBoolean(ac.vinKey("DISPLAY_LINES"), displayLines);
+            Prefs.store().putBoolean(ac.vinKey("DISPLAY_MARKERS"), displayMarkers);
         }
     };
 
@@ -297,8 +297,8 @@ public class GraphController extends BaseController {
     }
 
     private void setGap() {
-        lineChart.setIgnoreGap(ac.prefs.ignoreGraphGaps.get(),
-                               ac.prefs.graphGapTime.get());
+        lineChart.setIgnoreGap(Prefs.get().ignoreGraphGaps.get(),
+                               Prefs.get().graphGapTime.get());
     }
     
 /*------------------------------------------------------------------------------

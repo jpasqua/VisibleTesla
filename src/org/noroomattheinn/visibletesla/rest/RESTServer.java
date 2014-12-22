@@ -28,6 +28,7 @@ import org.noroomattheinn.visibletesla.MessageTemplate;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.utils.LRUMap;
 import org.noroomattheinn.visibletesla.AppMode;
+import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 
 /**
@@ -75,11 +76,12 @@ public class RESTServer implements ThreadManager.Stoppable {
     
     public synchronized void launch(AppContext appContext) {
         this.ac = appContext;
-        if (!ac.prefs.enableRest.get()) {
+        if (!Prefs.get().enableRest.get()) {
             logger.info("REST Services are disabled");
             return;
         }
-        int restPort = ac.prefs.restPort.get();
+        internalizePW(Prefs.get().authCode.get());
+        int restPort = Prefs.get().restPort.get();
         try {
             server = HttpServer.create(new InetSocketAddress(restPort), 0);
             
@@ -122,6 +124,17 @@ public class RESTServer implements ThreadManager.Stoppable {
         return pwUtils.externalRep(salt, encPW);
     }
 
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Constructor and initialization
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private RESTServer() {
+        server = null;
+        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
+    }
+
     /**
      * Initialize the password and salt from previously generated values.
      * @param externalForm  An external representation of the password and
@@ -134,18 +147,6 @@ public class RESTServer implements ThreadManager.Stoppable {
         salt = internalForm.get(0);
         encPW = internalForm.get(1);
     }
-
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - Constructor
- * 
- *----------------------------------------------------------------------------*/
-    
-    private RESTServer() {
-        server = null;
-        ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
-    }
-
 
 /*------------------------------------------------------------------------------
  *
@@ -245,7 +246,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     InputStream is;
                     if (path.startsWith("custom/")) {
                         String cPath = path.substring(7);
-                        is = new URL(ac.prefs.customURLSource.get()+cPath).openStream();
+                        is = new URL(Prefs.get().customURLSource.get()+cPath).openStream();
                     } else if (path.startsWith("TeslaResources/")) {
                         path = "org/noroomattheinn/" + path;
                         is = getClass().getClassLoader().getResourceAsStream(path);

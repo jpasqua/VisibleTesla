@@ -208,9 +208,9 @@ public class LocationController extends BaseController {
         return template.fillIn(
                 "DIRECTION", heading, "LAT", lat, "LONG", lng,
                 "GMAP_API_KEY", 
-                ac.prefs.useCustomGoogleAPIKey.get() ?
-                    ac.prefs.googleAPIKey.get() :
-                    AppContext.GoogleMapsAPIKey
+                Prefs.get().useCustomGoogleAPIKey.get() ?
+                    Prefs.get().googleAPIKey.get() :
+                    Prefs.GoogleMapsAPIKey
                 );
     }
         
