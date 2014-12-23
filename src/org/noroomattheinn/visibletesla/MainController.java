@@ -310,7 +310,7 @@ public class MainController extends BaseController {
             } else {
                 String error = gs.rawState.optString("error");
                 if (error.equals("vehicle unavailable")) v.wakeUp();
-                ac.sleep(10 * 1000);
+                ThreadManager.get().sleep(10 * 1000);
             }
         }
         return Result.Failed;
@@ -329,7 +329,7 @@ public class MainController extends BaseController {
         int tries = 0;
         while (!(vs.valid && cs.valid)) {
             if (tries++ > MaxTriesToStart) { return Result.Failed; }
-            ac.sleep(5 * 1000);
+            ThreadManager.get().sleep(5 * 1000);
             if (ThreadManager.get().shuttingDown()) return Result.Failed;
             if (!vs.valid) vs = v.queryVehicle();
             if (!cs.valid) cs = v.queryCharge();

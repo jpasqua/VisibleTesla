@@ -150,6 +150,11 @@ public class ThreadManager {
         }
     }
     
+    public void sleep(long timeInMillis) { Utils.sleep(timeInMillis,  sdPredicate); }
+
+    private Utils.Predicate sdPredicate = new Utils.Predicate() {
+            @Override public boolean eval() { return shuttingDown; } };
+    
     private int wdID = 0;
     private void watch(final String name, final Process p, final long timeout) {
         Runnable watchdog = new Runnable() {

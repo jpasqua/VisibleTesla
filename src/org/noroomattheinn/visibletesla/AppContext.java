@@ -174,11 +174,6 @@ public class AppContext {
     
     public File appFileFolder() { return appFilesFolder; }
     
-    public void sleep(long timeInMillis) { Utils.sleep(timeInMillis,  sdPredicate); }
-
-    private Utils.Predicate sdPredicate = new Utils.Predicate() {
-            @Override public boolean eval() { return ThreadManager.get().shuttingDown(); } };
-    
     private void initRestStore() throws FileNotFoundException {
         boolean needsInitialLoad = RestStore.requiresInitialLoad(this);
         restStore = new RestStore(this);

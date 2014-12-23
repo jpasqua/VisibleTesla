@@ -152,7 +152,7 @@ public class VTExtras {
                 return true;
             }
             ac.vehicle.wakeUp();
-            ac.sleep(5 * 1000);
+            ThreadManager.get().sleep(5 * 1000);
         }
         return false;
     }
