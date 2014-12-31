@@ -48,12 +48,13 @@ public abstract class CycleExporter<C extends BaseCycle> {
         final WritableCellFormat dateFormat;
         
         StandardFormats() {
-            standardFormat = new WritableCellFormat(
-                new WritableFont(WritableFont.ARIAL, 12));
+            WritableFont stdFont = new WritableFont(WritableFont.ARIAL, 12);
+            standardFormat = new WritableCellFormat(stdFont);
             headerFormat = new WritableCellFormat(
                 new WritableFont(WritableFont.ARIAL, 12, WritableFont.BOLD));
             dateFormat = new jxl.write.WritableCellFormat(
                 new jxl.write.DateFormat("M/d/yy H:mm:ss"));
+            dateFormat.setFont(stdFont);
         }
 
     }
