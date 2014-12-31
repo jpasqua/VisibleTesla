@@ -12,6 +12,7 @@ import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 
 
@@ -93,7 +94,8 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
         jsonRep = StringUtils.substringBefore(jsonRep, "}");
         // Concatenate the extra fields and put back the closing curly
         return String.format("%s, \"battery\": \"%s\", \"uuid\": \"%s\" }", 
-                jsonRep, ac.vehicle.getOptions().batteryType(), ac.vehicle.getUUID());
+                jsonRep, VTVehicle.get().getVehicle().getOptions().batteryType(),
+                VTVehicle.get().getVehicle().getUUID());
     }
     
     @Override protected void ditherLocation(ChargeCycle cycle) {

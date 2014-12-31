@@ -14,6 +14,7 @@ import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.StatsCollector;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * RestMonitor - Monitor and store data about Rest Cycles.
@@ -59,10 +60,10 @@ public class RestMonitor {
         }
               
         this.cycleInProgress = null;
-        ac.lastChargeState.addListener(new ChangeListener<ChargeState>() {
+        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov, ChargeState old, ChargeState cur) {
                 handleNewData(
-                        ac.statsCollector.rowFromStates(cur, ac.lastStreamState.get()));
+                        ac.statsCollector.rowFromStates(cur, VTVehicle.get().streamState.get()));
             }
         });
     }

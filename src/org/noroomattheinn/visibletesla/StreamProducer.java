@@ -42,7 +42,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
     
     public StreamProducer() {
         super("StreamProducer");
-        this.streamer = ac.vehicle.getStreamer();
+        this.streamer = VTVehicle.get().getVehicle().getStreamer();
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
@@ -68,7 +68,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
         
         if (!r.continuation || snapshot.timestamp - lastSnapshotTime > StreamingThreshold) {
             lastSnapshotTime = snapshot.timestamp;
-            ac.lastStreamState.set(snapshot);
+            VTVehicle.get().streamState.set(snapshot);
         }
         
         if (r.stream) super.produce(new Request(true, true));
@@ -88,7 +88,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
     }
             
     private boolean isInMotion() {
-        return ac.lastStreamState.get().isInMotion();
+        return VTVehicle.get().streamState.get().isInMotion();
     }
 
     @Override protected void addToHistogram(Executor.Request r) {

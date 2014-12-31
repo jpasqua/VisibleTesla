@@ -123,7 +123,7 @@ public class OverviewController extends BaseController {
         final Button source = (Button)event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = ac.vehicle.setLockState(source == lockButton);
+                Result r = VTVehicle.get().getVehicle().setLockState(source == lockButton);
                 updateStateLater(Vehicle.StateType.Vehicle, 3 * 1000);
                 return r;
             } }, (source == lockButton) ? "Lock" : "Unlock");
@@ -136,7 +136,7 @@ public class OverviewController extends BaseController {
                 ((source == openPanoButton) ? PanoCommand.open : PanoCommand.close);
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = ac.vehicle.setPano(cmd);
+                Result r = VTVehicle.get().getVehicle().setPano(cmd);
                 updateStateLater(Vehicle.StateType.Vehicle, 5 * 1000);
                 return r;
             } }, "Move Pano");
@@ -144,15 +144,15 @@ public class OverviewController extends BaseController {
 
     @FXML void detailsButtonHandler(ActionEvent event) {
         AnchorPane pane = new AnchorPane();
-        VehicleState car = ac.lastVehicleState.get();
-        String info = ac.vehicle.toString() +
+        VehicleState car = VTVehicle.get().vehicleState.get();
+        String info = VTVehicle.get().getVehicle().toString() +
                 "\nFirmware Version: " + car.version +
-                "\nUUID: " + ac.vehicle.getUUID() +
-                "\nRemote Start Enabled: " + ac.vehicle.remoteStartEnabled() +
-                "\nCalendar Enabled: " + ac.vehicle.calendarEnabled() +
-                "\nNotifications Enabled: " + ac.vehicle.notificationsEnabled() +
+                "\nUUID: " + VTVehicle.get().getVehicle().getUUID() +
+                "\nRemote Start Enabled: " + VTVehicle.get().getVehicle().remoteStartEnabled() +
+                "\nCalendar Enabled: " + VTVehicle.get().getVehicle().calendarEnabled() +
+                "\nNotifications Enabled: " + VTVehicle.get().getVehicle().notificationsEnabled() +
                 "\n--------------------------------------------" +
-                "\nLow level information: " + ac.vehicle.getUnderlyingValues() +
+                "\nLow level information: " + VTVehicle.get().getVehicle().getUnderlyingValues() +
                 "\nAPI Usage Rates:";
         for (Map.Entry<Integer,Integer> e: RestyWrapper.stats().entrySet()) {
             int seconds = e.getKey();
@@ -212,7 +212,7 @@ public class OverviewController extends BaseController {
     }
     
     @Override protected void initializeState() {
-        final Vehicle v = ac.vehicle;
+        final Vehicle v = VTVehicle.get().getVehicle();
         getAppropriateImages(v);
         Prefs.get().overideColorTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
@@ -227,7 +227,7 @@ public class OverviewController extends BaseController {
             }
         });
 
-        ac.lastVehicleState.addListener(new ChangeListener<VehicleState>() {
+        VTVehicle.get().vehicleState.addListener(new ChangeListener<VehicleState>() {
             @Override public void changed(ObservableValue<? extends VehicleState> ov,
                 VehicleState old, VehicleState cur) {
                 Platform.runLater(new Runnable() {
@@ -235,7 +235,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        ac.lastChargeState.addListener(new ChangeListener<ChargeState>() {
+        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                 ChargeState old, ChargeState cur) {
                 Platform.runLater(new Runnable() {
@@ -243,7 +243,7 @@ public class OverviewController extends BaseController {
                 });
             }
         });
-        ac.lastStreamState.addListener(new ChangeListener<StreamState>() {
+        VTVehicle.get().streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, final StreamState cur) {
@@ -288,7 +288,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRange() {
-        ChargeState cs = ac.lastChargeState.get();
+        ChargeState cs = VTVehicle.get().chargeState.get();
         double range = 0;
         String rangeType = Prefs.get().overviewRange.get();
         switch (rangeType) {
@@ -296,19 +296,19 @@ public class OverviewController extends BaseController {
             case "Ideal": range = cs.idealRange; break;
             case "Rated": range = cs.range; break;
         }
-        range = VTVehicle.inProperUnits(range);
-        String units = VTVehicle.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+        range = VTVehicle.get().inProperUnits(range);
+        String units = VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "mi" : "km";
         rangeLabel.setText(String.format("%s Range: %3.1f %s", rangeType, range, units));
     }
     
     private void updateShiftState() {
-        StreamState snapshot = ac.lastStreamState.get();
+        StreamState snapshot = VTVehicle.get().streamState.get();
         if (snapshot == null) return;
         shiftStateLabel.setText(snapshot.shiftState());
     }
     
     private void updateDoorView() {
-        VehicleState car = ac.lastVehicleState.get();
+        VehicleState car = VTVehicle.get().vehicleState.get();
         boolean rtOpen = car.isRTOpen;
         
         // Show the open/closed state of the doors and trunks
@@ -321,13 +321,13 @@ public class OverviewController extends BaseController {
         setOptionState(car.locked, lockedImg, unlockedImg);
         
         spoilerOpenImg.setVisible(false); spoilerClosedImg.setVisible(false);
-        if (ac.lastVehicleState.get().hasSpoiler) {
+        if (VTVehicle.get().vehicleState.get().hasSpoiler) {
             setOptionState(rtOpen, spoilerOpenImg, spoilerClosedImg);
         }        
     }
     
     private void updateRoofView() {
-        Options.RoofType type = VTVehicle.roofType();
+        Options.RoofType type = VTVehicle.get().roofType();
         
         boolean hasPano = (type == Options.RoofType.RFPO);
         
@@ -350,7 +350,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updatePanoView() {
-        VehicleState car = ac.lastVehicleState.get();
+        VehicleState car = VTVehicle.get().vehicleState.get();
         int pct = car.panoPercent;
         
         if (pct == 0) panoClosedImg.setVisible(true);
@@ -360,11 +360,11 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        updateImages(VTVehicle.computedWheelType(), wheelImages, wheelEquivs);
+        updateImages(VTVehicle.get().computedWheelType(), wheelImages, wheelEquivs);
     }
     
     private void updateChargePort() {
-        ChargeState charge = ac.lastChargeState.get();
+        ChargeState charge = VTVehicle.get().chargeState.get();
         boolean connected = charge.connectedToCharger();
         
         boolean chargePortDoorOpen = (charge.chargePortOpen || connected);
@@ -376,7 +376,7 @@ public class OverviewController extends BaseController {
     private void updateSeats() {
         seatsGrayImg.setVisible(false);
         seatsTanImg.setVisible(false);
-        switch (ac.vehicle.getOptions().seatType().getColor()) {
+        switch (VTVehicle.get().getVehicle().getOptions().seatType().getColor()) {
             case Gray:
             case White:
                 seatsGrayImg.setVisible(true);
@@ -395,7 +395,7 @@ public class OverviewController extends BaseController {
         s85Img.setVisible(false);
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
-        Options o = ac.vehicle.getOptions();
+        Options o = VTVehicle.get().getVehicle().getOptions();
         if (o.isPerfPlus()) {
             p85pImg.setVisible(true);
         } else if (o.isPerformance()) {
@@ -408,19 +408,19 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading =  ac.lastStreamState.get().odometer;
+        double odometerReading =  VTVehicle.get().streamState.get().odometer;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
-        boolean useMiles = VTVehicle.unitType() == Utils.UnitType.Imperial;
+        boolean useMiles = VTVehicle.get().unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : Utils.KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
     }
     
     private void reflectVINOrFirmware() {
-        VehicleState car = ac.lastVehicleState.get();
+        VehicleState car = VTVehicle.get().vehicleState.get();
         if (displayVIN())
-            vinButton.setText("VIN " + StringUtils.right(ac.vehicle.getVIN(), 6));
+            vinButton.setText("VIN " + StringUtils.right(VTVehicle.get().getVehicle().getVIN(), 6));
         else {
             vinButton.setText("v" + Firmware.getSoftwareVersion(car.version));
         }
@@ -465,7 +465,7 @@ public class OverviewController extends BaseController {
 
     // Replace the images that were selected by default with images for the actual color
     private void getAppropriateImages(Vehicle v) {
-        Options.PaintColor c = VTVehicle.paintColor();
+        Options.PaintColor c = VTVehicle.get().paintColor();
 
         ClassLoader cl = getClass().getClassLoader();
         String colorDirectory = colorToDirectory.get(c);

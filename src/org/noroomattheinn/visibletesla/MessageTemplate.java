@@ -124,24 +124,24 @@ public class MessageTemplate {
                 String val;
                 switch (varName) {
                     case "SPEED": val = String.format(
-                            "%3.1f", VTVehicle.inProperUnits(ac.lastStreamState.get().speed));
+                            "%3.1f", VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().speed));
                         break;
-                    case "SOC": val = String.valueOf(ac.lastStreamState.get().soc);
+                    case "SOC": val = String.valueOf(VTVehicle.get().streamState.get().soc);
                         break;
                     case "IDEAL": val = String.format(
-                            "%3.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().idealRange));
+                            "%3.1f", VTVehicle.get().inProperUnits(VTVehicle.get().chargeState.get().idealRange));
                         break;
                     case "RATED": val = String.format(
-                            "%3.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().range));
+                            "%3.1f", VTVehicle.get().inProperUnits(VTVehicle.get().chargeState.get().range));
                         break;
                     case "ESTIMATED": val = String.format(
-                            "%3.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().estimatedRange));
+                            "%3.1f", VTVehicle.get().inProperUnits(VTVehicle.get().chargeState.get().estimatedRange));
                         break;
-                    case "CHARGE_STATE": val = ac.lastChargeState.get().chargingState.name();
+                    case "CHARGE_STATE": val = VTVehicle.get().chargeState.get().chargingState.name();
                         break;
-                    case "D_UNITS": val = VTVehicle.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+                    case "D_UNITS": val = VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "mi" : "km";
                         break;
-                    case "S_UNITS": val = VTVehicle.unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
+                    case "S_UNITS": val = VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
                         break;
                     case "DATE":
                         val = String.format("%1$tY-%1$tm-%1$td", new Date());
@@ -151,8 +151,8 @@ public class MessageTemplate {
                         break;
                     case "LOC":
                     case "HT_LOC":
-                        String lat = String.valueOf(ac.lastStreamState.get().estLat);
-                        String lng = String.valueOf(ac.lastStreamState.get().estLng);
+                        String lat = String.valueOf(VTVehicle.get().streamState.get().estLat);
+                        String lng = String.valueOf(VTVehicle.get().streamState.get().estLng);
                         val = GeoUtils.getAddrForLatLong(lat, lng);
                         if (val == null || val.isEmpty()) {
                             val = String.format("(%s, %s)", lat, lng);
@@ -175,25 +175,25 @@ public class MessageTemplate {
                         break;
                     case "P_CURRENT":
                         val = String.valueOf(
-                                ac.lastChargeState.get().chargerPilotCurrent);
+                                VTVehicle.get().chargeState.get().chargerPilotCurrent);
                         break;
                     case "TIME_TO_FULL":
                         val = ChargeController.getDurationString(
-                            ac.lastChargeState.get().timeToFullCharge); 
+                            VTVehicle.get().chargeState.get().timeToFullCharge); 
                         break;
                     case "C_RATE":
                         val = String.format(
-                            "%.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().chargeRate));
+                            "%.1f", VTVehicle.get().inProperUnits(VTVehicle.get().chargeState.get().chargeRate));
                         break;
                     case "C_AMP":
                         val = String.format(
-                            "%.1f", ac.lastChargeState.get().batteryCurrent);
+                            "%.1f", VTVehicle.get().chargeState.get().batteryCurrent);
                         break;
                     case "C_VLT":
-                        val = String.valueOf(ac.lastChargeState.get().chargerVoltage);
+                        val = String.valueOf(VTVehicle.get().chargeState.get().chargerVoltage);
                         break;
                     case "C_PWR":
-                        val = String.valueOf(ac.lastChargeState.get().chargerPower);
+                        val = String.valueOf(VTVehicle.get().chargeState.get().chargerPower);
                         break;
                     case "HT_SOC_G":
                         val = genSOCGauge(ac);
@@ -202,13 +202,13 @@ public class MessageTemplate {
                         val = genODO(ac);
                         break;
                     case "HT_RATED_G":
-                        val = genGaugeWrapper(ac, "Rated", ac.lastChargeState.get().range);
+                        val = genGaugeWrapper(ac, "Rated", VTVehicle.get().chargeState.get().range);
                         break;
                     case "HT_IDEAL_G":
-                        val = genGaugeWrapper(ac, "Ideal", ac.lastChargeState.get().idealRange);
+                        val = genGaugeWrapper(ac, "Ideal", VTVehicle.get().chargeState.get().idealRange);
                         break;
                     case "HT_ESTIMATED_G":
-                        val = genGaugeWrapper(ac, "Estimated", ac.lastChargeState.get().estimatedRange);
+                        val = genGaugeWrapper(ac, "Estimated", VTVehicle.get().chargeState.get().estimatedRange);
                         break;
                     case "HT_SPEEDO":
                         val = genSpeedo(ac);
@@ -218,7 +218,7 @@ public class MessageTemplate {
                         break;
                     case "ODO":
                         val = String.format(
-                            "%.1f", VTVehicle.inProperUnits(ac.lastStreamState.get().odometer));
+                            "%.1f", VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().odometer));
                         break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
@@ -237,8 +237,8 @@ public class MessageTemplate {
                 "</script>";
             
             private String genSpeedo(AppContext ac) {
-                double speed = VTVehicle.inProperUnits(ac.lastStreamState.get().speed);
-                double power = VTVehicle.inProperUnits(ac.lastStreamState.get().power);
+                double speed = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().speed);
+                double power = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().power);
                 return String.format(SpeedoTemplate, speed, power);
             }
             
@@ -251,9 +251,9 @@ public class MessageTemplate {
                 "</script>";
             
             private String genSOCGauge(AppContext ac) {
-                int soc = ac.lastStreamState.get().soc;
+                int soc = VTVehicle.get().streamState.get().soc;
                 boolean showPlug = false;
-                switch (ac.lastChargeState.get().chargingState) {
+                switch (VTVehicle.get().chargeState.get().chargingState) {
                     case Charging:
                     case Complete:
                         showPlug = true;
@@ -263,9 +263,9 @@ public class MessageTemplate {
             }
             
             private static String genODO(AppContext ac) {
-                String punc = VTVehicle.unitType() == Utils.UnitType.Imperial ? "," : ".";
+                String punc = VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "," : ".";
                 StringBuilder sb = new StringBuilder();
-                double odo = VTVehicle.inProperUnits(ac.lastStreamState.get().odometer);
+                double odo = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().odometer);
                 double modulus = 100000;
                 for (int i = 0; i < 6; i++) {
                     int digit = (int)(odo / modulus);
@@ -289,8 +289,8 @@ public class MessageTemplate {
 
             private static String genGaugeWrapper(AppContext ac, String label, double val) {
                 return genGauge(
-                        label, VTVehicle.inProperUnits(val),
-                        VTVehicle.unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",
+                        label, VTVehicle.get().inProperUnits(val),
+                        VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",
                         val < 25);
             }
             

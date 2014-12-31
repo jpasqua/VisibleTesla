@@ -268,8 +268,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     
     EventHandler<ActionEvent> getTempOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
-            SetTempDialog std = SetTempDialog.show(owner.getAppContext().stage,
-                    owner.getAppContext().lastGUIState.get().temperatureUnits.equalsIgnoreCase("F"),
+            SetTempDialog std = SetTempDialog.show(
+                    owner.getAppContext().stage,
+                    VTVehicle.get().useDegreesF(),
                     targetValue);
 
             if (!std.cancelled()) {

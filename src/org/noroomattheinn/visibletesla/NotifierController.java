@@ -462,7 +462,7 @@ public class NotifierController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        if (VTVehicle.unitType() == Utils.UnitType.Imperial) {
+        if (VTVehicle.get().unitType() == Utils.UnitType.Imperial) {
             speedUnitsLabel.setText("mph");
             speedHitsSlider.setMin(0);
             speedHitsSlider.setMax(100);
@@ -522,9 +522,9 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void startListening() {
-        ac.lastChargeState.addListener(csListener);
-        ac.lastStreamState.addListener(ssListener);
-        ac.lastVehicleState.addListener(vsListener);
+        VTVehicle.get().chargeState.addListener(csListener);
+        VTVehicle.get().streamState.addListener(ssListener);
+        VTVehicle.get().vehicleState.addListener(vsListener);
         ac.schedulerActivity.addTracker(false, schedListener);
     }
     
@@ -581,8 +581,8 @@ public class NotifierController extends BaseController {
                 notifyUser(speedHitsTrigger, shMessageTarget);
             }
             
-            if (VTVehicle.inProperUnits(lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
-                double odo = VTVehicle.inProperUnits(cur.odometer);
+            if (VTVehicle.get().inProperUnits(lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
+                double odo = VTVehicle.get().inProperUnits(cur.odometer);
                 if (odoHitsTrigger.evalPredicate(new BigDecimal(odo))) {
                     notifyUser(odoHitsTrigger, ohMessageTarget);
                     // Store in miles, but convert & test relative to the GUI setting

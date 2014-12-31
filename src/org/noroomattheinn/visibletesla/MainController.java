@@ -214,7 +214,7 @@ public class MainController extends BaseController {
         
         @Override public void run() {
             if (!loggedIn.get()) {
-                ac.vehicle = null;
+                VTVehicle.get().setVehicle(null);
                 setTabsEnabled(false);
                 return;
             }
@@ -222,18 +222,19 @@ public class MainController extends BaseController {
             if (assumeAwake) {
                 wakePane.setVisible(false);
             } else {
-                ac.vehicle = SelectVehicleDialog.select(ac);
+                Vehicle v = SelectVehicleDialog.select(ac);
+                VTVehicle.get().setVehicle(v);
                 if (!ac.lockAppInstance()) {
                     showLockError();
                     Platform.exit();
                 }
-                logger.info("Vehicle Info: " + ac.vehicle.getUnderlyingValues());
+                logger.info("Vehicle Info: " + VTVehicle.get().getVehicle().getUnderlyingValues());
 
-                if (ac.vehicle.status().equals("asleep")) {
+                if (VTVehicle.get().getVehicle().status().equals("asleep")) {
                     if (letItSleep()) {
                         logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        VTVehicle.waitForWakeup(
+                        VTVehicle.get().waitForWakeup(
                                 new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
@@ -251,13 +252,14 @@ public class MainController extends BaseController {
     
     private Runnable finishAppStartup = new Runnable() {
         @Override public void run() {
-            boolean remoteStartEnabled = ac.vehicle.remoteStartEnabled();
+            boolean remoteStartEnabled = VTVehicle.get().getVehicle().remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
             ac.appState.trackInactivity(
                     Arrays.asList(overviewTab, hvacTab, locationTab, chargeTab));
             try {
-                ac.prepForVehicle(ac.vehicle);
+                VTVehicle.get().setVehicle(VTVehicle.get().getVehicle());
+                ac.prepForVehicle(VTVehicle.get().getVehicle());
             } catch (IOException e) {
                 logger.severe("Unable to establish repository: " + e.getMessage());
                 Dialogs.showErrorDialog(ac.stage,
@@ -293,7 +295,7 @@ public class MainController extends BaseController {
      * @return 
      */
     private Result establishContact() {
-        Vehicle v = ac.vehicle;
+        Vehicle v = VTVehicle.get().getVehicle();
         
         long MaxWaitTime = 70 * 1000;
         long now = System.currentTimeMillis();
@@ -304,7 +306,7 @@ public class MainController extends BaseController {
                 if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
                     return new Result(false, "mobile_access_disabled");
                 }
-                ac.lastGUIState.set(gs);
+                VTVehicle.get().guiState.set(gs);
                 return Result.Succeeded;
             } else {
                 String error = gs.rawState.optString("error");
@@ -321,7 +323,7 @@ public class MainController extends BaseController {
         if (!madeContact.success) return madeContact;
         
         // As part of establishing contact with the car we cached the GUIState
-        Vehicle         v = ac.vehicle;
+        Vehicle         v = VTVehicle.get().getVehicle();
         VehicleState    vs = v.queryVehicle();
         ChargeState     cs = v.queryCharge();
         
@@ -334,8 +336,8 @@ public class MainController extends BaseController {
             if (!cs.valid) cs = v.queryCharge();
         }
         
-        ac.lastVehicleState.set(vs);
-        ac.lastChargeState.set(cs);
+        VTVehicle.get().vehicleState.set(vs);
+        VTVehicle.get().chargeState.set(cs);
         return Result.Succeeded;
     }
     
@@ -458,7 +460,7 @@ public class MainController extends BaseController {
         }
         ac.issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { 
-                return ac.vehicle.remoteStart(unp[1]); 
+                return VTVehicle.get().getVehicle().remoteStart(unp[1]); 
             } }, true, null, "Remote Start");
     }
 
@@ -466,17 +468,17 @@ public class MainController extends BaseController {
     
     @FXML private void honk(ActionEvent e) {
         ac.issuer.issueCommand(new Callable<Result>() {
-            @Override public Result call() { return ac.vehicle.honk(); }
+            @Override public Result call() { return VTVehicle.get().getVehicle().honk(); }
         }, true, null, "Honk");
     }
     @FXML private void flash(ActionEvent e) {
         ac.issuer.issueCommand(new Callable<Result>() {
-            @Override public Result call() { return ac.vehicle.flashLights(); }
+            @Override public Result call() { return VTVehicle.get().getVehicle().flashLights(); }
         }, true, null, "Flash Lights");
     }
     @FXML private void wakeup(ActionEvent e) {
         ac.issuer.issueCommand(new Callable<Result>() {
-            @Override public Result call() { return ac.vehicle.wakeUp(); }
+            @Override public Result call() { return VTVehicle.get().getVehicle().wakeUp(); }
         }, true, null, "Wake up");
     }
     
@@ -500,7 +502,7 @@ public class MainController extends BaseController {
     }
     
     private void refreshTitle() {
-        String carName = (ac.vehicle != null) ? ac.vehicle.getDisplayName() : null;
+        String carName = (VTVehicle.get().getVehicle() != null) ? VTVehicle.get().getVehicle().getDisplayName() : null;
         String title = AppContext.ProductName + " " + AppContext.ProductVersion;
         if (carName != null) title = title + " for " + carName;
         if (ac.appState.isIdle()) {

@@ -118,8 +118,8 @@ public class HVACController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     @Override protected void initializeState() {
-        v = ac.vehicle;
-        ac.lastHVACState.addListener(new ChangeListener<HVACState>() {
+        v = VTVehicle.get().getVehicle();
+        VTVehicle.get().hvacState.addListener(new ChangeListener<HVACState>() {
             @Override public void changed(ObservableValue<? extends HVACState> ov,
                 HVACState old, HVACState cur) {
                 if (active()) { reflectNewState(); }
@@ -139,11 +139,11 @@ public class HVACController extends BaseController {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        useDegreesF = VTVehicle.useDegreesF();
+        useDegreesF = VTVehicle.get().useDegreesF();
     }
     
     @Override protected void activateTab() {
-        useDegreesF = VTVehicle.useDegreesF();
+        useDegreesF = VTVehicle.get().useDegreesF();
         if (useDegreesF) {
             tempSlider.setMin(62);
             tempSlider.setMax(90);
@@ -190,7 +190,7 @@ public class HVACController extends BaseController {
         // you whether the AC is running - not the heat. Until I determine a better
         // way, I'm using the fan speed to indicate whether the HVAC is on and using
         // the temp vs. temp set point to determine whether it is heating or cooling.
-        HVACState hvac = ac.lastHVACState.get();
+        HVACState hvac = VTVehicle.get().hvacState.get();
         boolean hvacOn = (hvac.fanStatus > 0);
         hvacOnButton.setSelected(hvacOn);
         hvacOffButton.setSelected(!hvacOn);
@@ -208,7 +208,7 @@ public class HVACController extends BaseController {
         fan2.setVisible(false); fan3.setVisible(false); fan4.setVisible(false);
         
         // Now turn on the right one...
-        int fanSpeed = ac.lastHVACState.get().fanStatus;   // Range of 0-7
+        int fanSpeed = VTVehicle.get().hvacState.get().fanStatus;   // Range of 0-7
         if (fanSpeed >= 6) fan4.setVisible(true);
         else if (fanSpeed >= 4) fan3.setVisible(true);
         else if (fanSpeed >= 2) fan2.setVisible(true);
@@ -217,19 +217,19 @@ public class HVACController extends BaseController {
     }
     
     private void reflectDefrosterState() {
-        HVACState hvac = ac.lastHVACState.get();
+        HVACState hvac = VTVehicle.get().hvacState.get();
         setOptionState(hvac.isFrontDefrosterOn != 0, frontDefOnImg, frontDefOffImg);
         setOptionState(hvac.isRearDefrosterOn, rearDefOnImg, rearDefOffImg);
     }
     
     private void reflectActualTemps() {
-        HVACState hvac = ac.lastHVACState.get();
+        HVACState hvac = VTVehicle.get().hvacState.get();
         setTempLabel(insideTmpLabel, hvac.insideTemp);
         setTempLabel(outsideTempLabel, hvac.outsideTemp);
     }
     
     private void updateCoolHotImages() {
-        HVACState hvac = ac.lastHVACState.get();
+        HVACState hvac = VTVehicle.get().hvacState.get();
         climateColdImg.setVisible(false);
         climateHotImg.setVisible(false);
         
@@ -259,7 +259,7 @@ public class HVACController extends BaseController {
     private static final String ImagePrefix = "org/noroomattheinn/TeslaResources/";
     private void getAppropriateBody() {
         ClassLoader cl = getClass().getClassLoader();
-        Options.WheelType wt = VTVehicle.computedWheelType();
+        Options.WheelType wt = VTVehicle.get().computedWheelType();
         String image;
         
         switch (wt) {

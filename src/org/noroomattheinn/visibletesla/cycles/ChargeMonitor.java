@@ -10,6 +10,7 @@ import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.
@@ -35,7 +36,7 @@ public class ChargeMonitor {
     public ChargeMonitor(AppContext appContext) {
         this.ac = appContext;
         this.cycleInProgress = null;
-        ac.lastChargeState.addListener(new ChangeListener<ChargeState>() {
+        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState chargeState) {
                 boolean charging = chargeState.isCharging();
@@ -62,11 +63,11 @@ public class ChargeMonitor {
         cycleInProgress.startTime = chargeState.timestamp;
         cycleInProgress.startRange = chargeState.range;
         cycleInProgress.startSOC = chargeState.batteryPercent;
-        cycleInProgress.odometer = ac.lastStreamState.get().odometer;
+        cycleInProgress.odometer = VTVehicle.get().streamState.get().odometer;
         updateRunningTotals(chargeState);
 
         // It's possible that a charge began before we got any location information
-        StreamState ss = ac.lastStreamState.get();
+        StreamState ss = VTVehicle.get().streamState.get();
         if (ss != null) {
             cycleInProgress.lat = ss.estLat;
             cycleInProgress.lng = ss.estLng;
@@ -90,7 +91,7 @@ public class ChargeMonitor {
 
         // If we didn't have location information at startup, see if we've got it now
         if (cycleInProgress.lat == 0 && cycleInProgress.lng == 0) {
-            StreamState ss = ac.lastStreamState.get();
+            StreamState ss = VTVehicle.get().streamState.get();
             if (ss != null) {
                 cycleInProgress.lat = ss.estLat;
                 cycleInProgress.lng = ss.estLng;

@@ -46,7 +46,7 @@ public class VampireStats {
     }
         
     public void showStats() {
-        useMiles = VTVehicle.unitType() == Utils.UnitType.Imperial;
+        useMiles = VTVehicle.get().unitType() == Utils.UnitType.Imperial;
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null) { return; }
         

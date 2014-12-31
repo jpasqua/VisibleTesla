@@ -18,6 +18,7 @@ import java.util.List;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.ThreadManager;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * CycleStore: Bases class for classes that provide persistent storage for 
@@ -50,7 +51,9 @@ public abstract class CycleStore<C extends BaseCycle>
         this.ac = appContext;
         this.theClass = theClass;
         this.cycleType = cycleType;
-        this.cycleFile = new File(ac.appFileFolder(), ac.vehicle.getVIN()+"." + cycleType + ".json");
+        this.cycleFile = new File(
+                ac.appFileFolder(),
+                VTVehicle.get().getVehicle().getVIN()+"." + cycleType + ".json");
         
         FileOutputStream fos = new FileOutputStream(cycleFile, true);
         cycleWriter = new PrintStream(fos);

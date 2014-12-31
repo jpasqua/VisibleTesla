@@ -103,16 +103,16 @@ public class StatsCollector implements ThreadManager.Stoppable {
             throws IOException {
         this.ac = appContext;
 
-        upgradeIfNeeded(appContext.appFileFolder(), appContext.vehicle.getVIN());
+        upgradeIfNeeded(appContext.appFileFolder(), VTVehicle.get().getVehicle().getVIN());
         
         this.ts = new CachedTimeSeries(
-                ac.appFileFolder(), ac.vehicle.getVIN(),
+                ac.appFileFolder(), VTVehicle.get().getVehicle().getVIN(),
                 schema, Prefs.get().getLoadPeriod());
 
         this.lastStoredStreamState = new TrackedObject<>(new StreamState());
         this.lastStoredChargeState = new TrackedObject<>(null);
         
-        appContext.lastStreamState.addListener(new ChangeListener<StreamState>() {
+        VTVehicle.get().streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, StreamState cur) {
@@ -120,7 +120,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
             }
         });
         
-        appContext.lastChargeState.addListener(new ChangeListener<ChargeState>() {
+        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(
                     ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState cur) {

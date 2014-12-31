@@ -182,7 +182,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
             logger.info("Sending api stats report: " + sb.toString());
             ac.mailer.send(
                 ReportAddress,
-                "API Stats for " + ac.vehicle.getUUID(),
+                "API Stats for " + VTVehicle.get().getVehicle().getUUID(),
                 sb.toString());
             lastReport = System.currentTimeMillis();
         }

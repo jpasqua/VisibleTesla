@@ -14,6 +14,7 @@ import javafx.beans.value.ObservableValue;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * GenericTrigger: A generic trigger mechanism that handles a number of different
@@ -199,7 +200,7 @@ public class GenericTrigger<T> {
  * 
  *----------------------------------------------------------------------------*/
     
-    private String fullKey() { return ac.vehicle.getVIN()+"_"+key; }
+    private String fullKey() { return VTVehicle.get().getVehicle().getVIN()+"_"+key; }
     private String onOff(boolean b) { return b ? "1" : "0"; }
     
     

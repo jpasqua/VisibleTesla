@@ -54,7 +54,7 @@ public class StatsStreamer implements Runnable {
         // The following two changeListeners look similar, but the order of
         // the if statements is different and significant. Always check the
         // one that changed, then test the other (older) value.
-        ac.lastChargeState.addListener(new ChangeListener<BaseState>() {
+        VTVehicle.get().chargeState.addListener(new ChangeListener<BaseState>() {
             @Override public void changed(
                     ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
                 if (isCharging()) carState.update(CarState.Charging);
@@ -64,7 +64,7 @@ public class StatsStreamer implements Runnable {
             }
         });
 
-        ac.lastStreamState.addListener(new ChangeListener<BaseState>() {
+        VTVehicle.get().streamState.addListener(new ChangeListener<BaseState>() {
             @Override public void changed(
                     ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
                 if (isInMotion()) carState.update(CarState.Moving);
@@ -137,11 +137,11 @@ public class StatsStreamer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean isCharging() { return ac.lastChargeState.get().isCharging(); }
-    private boolean isInMotion() { return  ac.lastStreamState.get().isInMotion(); }
+    private boolean isCharging() { return VTVehicle.get().chargeState.get().isCharging(); }
+    private boolean isInMotion() { return  VTVehicle.get().streamState.get().isInMotion(); }
     
     private boolean carIsAsleep() { return !carIsAwake(); }
-    private boolean carIsAwake() { return  ac.vehicle.isAwake(); }
+    private boolean carIsAwake() { return  VTVehicle.get().getVehicle().isAwake(); }
 
     private boolean carIsInactive() { return !carIsActive(); }
     private boolean carIsActive() {
@@ -162,7 +162,7 @@ public class StatsStreamer implements Runnable {
     }
 
     private boolean wakeupVehicle() {
-        if (VTVehicle.forceWakeup()) { carState.set(CarState.Idle); return true; }
+        if (VTVehicle.get().forceWakeup()) { carState.set(CarState.Idle); return true; }
         return false;
     }
     

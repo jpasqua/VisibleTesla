@@ -91,20 +91,20 @@ public class CarInfo {
  *============================================================================*/
     
     public static String carDetailsAsJSON(AppContext ac) {
-        Options options = ac.vehicle.getOptions();
-        VehicleState vs = ac.lastVehicleState.get();
+        Options options = VTVehicle.get().getVehicle().getOptions();
+        VehicleState vs = VTVehicle.get().vehicleState.get();
         return String.format(DetailsFormat,
                 ColorMap.get(options.paintColor()),
                 SeatMap.get(options.seatType().getColor()),
-                WheelMap.get(VTVehicle.computedWheelType()),
+                WheelMap.get(VTVehicle.get().computedWheelType()),
                 vs.hasSpoiler, vs.hasPano,
                 getModel(options));
 
     }
     
     public static String carStateAsJSON(AppContext ac) {
-        VehicleState vs = ac.lastVehicleState.get();
-        ChargeState cs = ac.lastChargeState.get();
+        VehicleState vs = VTVehicle.get().vehicleState.get();
+        ChargeState cs = VTVehicle.get().chargeState.get();
         return String.format(CarStateFormat,
                 ooc(vs.isPFOpen), ooc(vs.isPROpen), ooc(vs.isDFOpen), ooc(vs.isDROpen),
                 ooc(vs.isFTOpen), ooc(vs.isRTOpen), vs.panoPercent,

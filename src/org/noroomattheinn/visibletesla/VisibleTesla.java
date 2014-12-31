@@ -55,7 +55,8 @@ public class VisibleTesla extends Application {
         Prefs.create();
         ThreadManager.create();
         RESTServer.create();
-        AppContext ac = AppContext.create(this, stage);
+        AppContext.create(this, stage);
+        VTVehicle.create();
         mainController = Utils.cast(root.getUserData());
         mainController.start();
     }

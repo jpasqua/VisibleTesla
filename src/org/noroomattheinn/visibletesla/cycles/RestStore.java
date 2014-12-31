@@ -16,6 +16,7 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.
@@ -64,7 +65,9 @@ public class RestStore extends CycleStore<RestCycle> {
  *----------------------------------------------------------------------------*/
     
     public static boolean requiresInitialLoad(AppContext ac) {
-        File f = new File(ac.appFileFolder(), ac.vehicle.getVIN()+".rest.json");
+        File f = new File(
+                ac.appFileFolder(),
+                VTVehicle.get().getVehicle().getVIN()+".rest.json");
         return !f.exists();
     }
     
@@ -126,6 +129,6 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
         // Strip the closing curly to prepare to add more fields
         jsonRep = StringUtils.substringBefore(jsonRep, "}");
         // Concatenate the extra fields and put back the closing curly
-        return String.format("%s, \"uuid\": \"%s\" }", jsonRep, ac.vehicle.getUUID());
+        return String.format("%s, \"uuid\": \"%s\" }", jsonRep, VTVehicle.get().getVehicle().getUUID());
     }
 }

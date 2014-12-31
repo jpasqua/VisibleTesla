@@ -16,20 +16,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
-import org.noroomattheinn.tesla.BaseState;
-import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.DriveState;
-import org.noroomattheinn.tesla.GUIState;
-import org.noroomattheinn.tesla.HVACState;
-import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Tesla;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
@@ -49,7 +39,7 @@ public class AppContext {
  *----------------------------------------------------------------------------*/
         
     public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.31.00";
+    public static final String ProductVersion = "0.32.00";
 
 /*------------------------------------------------------------------------------
  *
@@ -62,23 +52,16 @@ public class AppContext {
     public final Stage stage;
     public final AppMode appMode;
     public final AppState appState;
-    public final ObjectProperty<ChargeState> lastChargeState;
-    public final ObjectProperty<DriveState> lastDriveState;
-    public final ObjectProperty<GUIState> lastGUIState;
-    public final ObjectProperty<HVACState> lastHVACState;
-    public final ObjectProperty<StreamState> lastStreamState;
-    public final ObjectProperty<VehicleState> lastVehicleState;
-    public final TrackedObject<ChargeCycle> lastChargeCycle;
-    public final TrackedObject<RestCycle> lastRestCycle;
-    public final TrackedObject<String> schedulerActivity;
     public final MailGun mailer;
-    public Vehicle vehicle = null;
     public StatsCollector statsCollector;
     public ChargeStore chargeStore;
     public RestStore restStore;
     public StreamProducer streamProducer;
     public StateProducer stateProducer;
     public CommandIssuer issuer;
+    public final TrackedObject<ChargeCycle> lastChargeCycle;
+    public final TrackedObject<RestCycle> lastRestCycle;
+    public final TrackedObject<String> schedulerActivity;
 
 /*------------------------------------------------------------------------------
  *
@@ -107,12 +90,10 @@ public class AppContext {
     public static AppContext get() { return instance; }
     
     public boolean lockAppInstance() {
-        return (Utils.obtainLock(vehicle.getVIN() + ".lck", appFilesFolder));
+        return (Utils.obtainLock(VTVehicle.get().getVehicle().getVIN() + ".lck", appFilesFolder));
     }
                         
     public void prepForVehicle(Vehicle v) throws IOException {
-        vehicle = v;
-
         statsCollector = new StatsCollector(this);
         initChargeStore();
         initRestStore();
@@ -121,36 +102,10 @@ public class AppContext {
         stateProducer = new StateProducer();
         statsStreamer = new StatsStreamer();
         
-        lastStreamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
-
         RESTServer.get().launch(this);
     }
 
-    public void noteUpdatedState(final BaseState state) {
-        if (Platform.isFxApplicationThread()) { noteUpdatedStateInternal(state); }
-        else {
-            Platform.runLater(new Runnable() {
-                @Override public void run() { noteUpdatedStateInternal(state); } });
-        }
-    }
-    
-    private void noteUpdatedStateInternal(BaseState state) {
-        if (state instanceof ChargeState) {
-            lastChargeState.set((ChargeState)state);
-        } else if (state instanceof DriveState) {
-            lastDriveState.set((DriveState)state);
-        } else if (state instanceof GUIState) {
-            lastGUIState.set((GUIState)state);
-        } else if (state instanceof HVACState) {
-            lastHVACState.set((HVACState)state);
-        } else if (state instanceof VehicleState) {
-            lastVehicleState.set((VehicleState)state);
-        } else if (state instanceof StreamState) {
-            lastStreamState.set((StreamState)state);
-        }
-    }
-
-    public final String vinKey(String key) { return vehicle.getVIN() + "_" + key; }
+    public final String vinKey(String key) { return VTVehicle.get().getVehicle().getVIN() + "_" + key; }
     
     public File appFileFolder() { return appFilesFolder; }
 
@@ -167,23 +122,17 @@ public class AppContext {
         
         this.appMode = new AppMode(this);    
         this.appState = new AppState(this);    
-        
-        this.lastChargeState = new SimpleObjectProperty<>(new ChargeState());
-        this.lastDriveState = new SimpleObjectProperty<>();
-        this.lastGUIState = new SimpleObjectProperty<>();
-        this.lastHVACState = new SimpleObjectProperty<>();
-        this.lastStreamState = new SimpleObjectProperty<>(new StreamState());
-        this.lastVehicleState = new SimpleObjectProperty<>();
-        this.schedulerActivity = new TrackedObject<>("");
-        this.lastChargeCycle = new TrackedObject<>(null);
-        this.lastRestCycle = new TrackedObject<>(null);
-        
+                
         appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
         Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
         
         tesla = (prefs.enableProxy.get()) ?
             new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
-
+        
+        this.lastChargeCycle = new TrackedObject<>(null);
+        this.lastRestCycle = new TrackedObject<>(null);
+        this.schedulerActivity = new TrackedObject<>("");
+        
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : Prefs.MailGunKey);
         issuer = new CommandIssuer();

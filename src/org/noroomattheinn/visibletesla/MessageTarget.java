@@ -81,7 +81,7 @@ public class MessageTarget {
     }
 
     private String key(String base) {
-        return ac.vehicle.getVIN()+"_MT_"+base;
+        return VTVehicle.get().getVehicle().getVIN()+"_MT_"+base;
     }
 
 }
