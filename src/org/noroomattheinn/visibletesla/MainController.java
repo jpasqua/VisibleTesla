@@ -124,15 +124,14 @@ public class MainController extends BaseController {
      * and perform any other fxApp startup tasks. In particular, we (1) distribute
      * fxApp context to all of the controllers, and (2) we set a listener for login
      * completion and try and automatic login.
-     * @param ac    The AppContext
      */
-    public void start(final AppContext ac) {
-        this.ac = ac;
+    public void start() {
+        ac = AppContext.get();
         logAppInfo();
-        addSystemSpecificHandlers(ac);
+        addSystemSpecificHandlers(ac.stage);
 
         refreshTitle();
-        this.ac.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
+        ac.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
         
         vampireStats = new VampireStats(ac);
@@ -158,9 +157,9 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        this.ac.appMode.addTracker(true, new Runnable() {
+        ac.appMode.addTracker(true, new Runnable() {
             @Override public void run() { setAppModeMenu(); } } );
-        this.ac.appState.addTracker(true, new Runnable() {
+        ac.appState.addTracker(true, new Runnable() {
             @Override public void run() { refreshTitle(); } });
 
         // Kick off the login process
@@ -488,10 +487,9 @@ public class MainController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
 
-    private void addSystemSpecificHandlers(AppContext ac) {
+    private void addSystemSpecificHandlers(final Stage theStage) {
         if (SystemUtils.IS_OS_MAC) {    // Add a handler for Command-H
-            final Stage theStage = ac.stage;
-            ac.stage.getScene().getAccelerators().put(
+            theStage.getScene().getAccelerators().put(
                     new KeyCodeCombination(KeyCode.H, KeyCombination.SHORTCUT_DOWN),
                     new Runnable() {
                 @Override public void run() {

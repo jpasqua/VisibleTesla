@@ -86,6 +86,8 @@ public class AppContext {
  * 
  *----------------------------------------------------------------------------*/
     
+    private static AppContext instance = null;
+            
     private final File appFilesFolder;
     private StatsStreamer statsStreamer;
     private ChargeMonitor chargeMonitor;
@@ -97,35 +99,13 @@ public class AppContext {
  * -------                                                               -------
  *============================================================================*/
     
-    AppContext(Application app, Stage stage) {
-        Prefs prefs = Prefs.get();
-        this.fxApp = app;
-        this.stage = stage;
-        
-        this.appMode = new AppMode(this);    
-        this.appState = new AppState(this);    
-        
-        this.lastChargeState = new SimpleObjectProperty<>(new ChargeState());
-        this.lastDriveState = new SimpleObjectProperty<>();
-        this.lastGUIState = new SimpleObjectProperty<>();
-        this.lastHVACState = new SimpleObjectProperty<>();
-        this.lastStreamState = new SimpleObjectProperty<>(new StreamState());
-        this.lastVehicleState = new SimpleObjectProperty<>();
-        this.schedulerActivity = new TrackedObject<>("");
-        this.lastChargeCycle = new TrackedObject<>(null);
-        this.lastRestCycle = new TrackedObject<>(null);
-        
-        appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
-        Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
-        
-        tesla = (prefs.enableProxy.get()) ?
-            new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
-
-        mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
-                ? prefs.mailGunKey.get() : Prefs.MailGunKey);
-        issuer = new CommandIssuer(this);
+    public static AppContext create(Application app, Stage stage) {
+        if (instance != null) return instance;
+        return (instance = new AppContext(app, stage));
     }
-
+    
+    public static AppContext get() { return instance; }
+    
     public boolean lockAppInstance() {
         return (Utils.obtainLock(vehicle.getVIN() + ".lck", appFilesFolder));
     }
@@ -173,7 +153,48 @@ public class AppContext {
     public final String vinKey(String key) { return vehicle.getVIN() + "_" + key; }
     
     public File appFileFolder() { return appFilesFolder; }
-    
+
+/*------------------------------------------------------------------------------
+ *
+ * Hide the constructor for the singleton
+ * 
+ *----------------------------------------------------------------------------*/
+
+    private AppContext(Application app, Stage stage) {
+        Prefs prefs = Prefs.get();
+        this.fxApp = app;
+        this.stage = stage;
+        
+        this.appMode = new AppMode(this);    
+        this.appState = new AppState(this);    
+        
+        this.lastChargeState = new SimpleObjectProperty<>(new ChargeState());
+        this.lastDriveState = new SimpleObjectProperty<>();
+        this.lastGUIState = new SimpleObjectProperty<>();
+        this.lastHVACState = new SimpleObjectProperty<>();
+        this.lastStreamState = new SimpleObjectProperty<>(new StreamState());
+        this.lastVehicleState = new SimpleObjectProperty<>();
+        this.schedulerActivity = new TrackedObject<>("");
+        this.lastChargeCycle = new TrackedObject<>(null);
+        this.lastRestCycle = new TrackedObject<>(null);
+        
+        appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
+        Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
+        
+        tesla = (prefs.enableProxy.get()) ?
+            new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
+
+        mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
+                ? prefs.mailGunKey.get() : Prefs.MailGunKey);
+        issuer = new CommandIssuer(this);
+    }
+
+/*------------------------------------------------------------------------------
+ *
+ * Private Utility Methods
+ * 
+ *----------------------------------------------------------------------------*/
+
     private void initRestStore() throws FileNotFoundException {
         boolean needsInitialLoad = RestStore.requiresInitialLoad(this);
         restStore = new RestStore(this);
