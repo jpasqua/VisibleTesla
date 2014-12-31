@@ -124,24 +124,24 @@ public class MessageTemplate {
                 String val;
                 switch (varName) {
                     case "SPEED": val = String.format(
-                            "%3.1f", VTExtras.inProperUnits(ac, ac.lastStreamState.get().speed));
+                            "%3.1f", VTVehicle.inProperUnits(ac.lastStreamState.get().speed));
                         break;
                     case "SOC": val = String.valueOf(ac.lastStreamState.get().soc);
                         break;
                     case "IDEAL": val = String.format(
-                            "%3.1f", VTExtras.inProperUnits(ac, ac.lastChargeState.get().idealRange));
+                            "%3.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().idealRange));
                         break;
                     case "RATED": val = String.format(
-                            "%3.1f", VTExtras.inProperUnits(ac, ac.lastChargeState.get().range));
+                            "%3.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().range));
                         break;
                     case "ESTIMATED": val = String.format(
-                            "%3.1f", VTExtras.inProperUnits(ac, ac.lastChargeState.get().estimatedRange));
+                            "%3.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().estimatedRange));
                         break;
                     case "CHARGE_STATE": val = ac.lastChargeState.get().chargingState.name();
                         break;
-                    case "D_UNITS": val = VTExtras.unitType(ac) == Utils.UnitType.Imperial ? "mi" : "km";
+                    case "D_UNITS": val = VTVehicle.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
                         break;
-                    case "S_UNITS": val = VTExtras.unitType(ac) == Utils.UnitType.Imperial ? "mph" : "km/h";
+                    case "S_UNITS": val = VTVehicle.unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
                         break;
                     case "DATE":
                         val = String.format("%1$tY-%1$tm-%1$td", new Date());
@@ -183,7 +183,7 @@ public class MessageTemplate {
                         break;
                     case "C_RATE":
                         val = String.format(
-                            "%.1f", VTExtras.inProperUnits(ac, ac.lastChargeState.get().chargeRate));
+                            "%.1f", VTVehicle.inProperUnits(ac.lastChargeState.get().chargeRate));
                         break;
                     case "C_AMP":
                         val = String.format(
@@ -218,7 +218,7 @@ public class MessageTemplate {
                         break;
                     case "ODO":
                         val = String.format(
-                            "%.1f", VTExtras.inProperUnits(ac, ac.lastStreamState.get().odometer));
+                            "%.1f", VTVehicle.inProperUnits(ac.lastStreamState.get().odometer));
                         break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
@@ -237,8 +237,8 @@ public class MessageTemplate {
                 "</script>";
             
             private String genSpeedo(AppContext ac) {
-                double speed = VTExtras.inProperUnits(ac, ac.lastStreamState.get().speed);
-                double power = VTExtras.inProperUnits(ac, ac.lastStreamState.get().power);
+                double speed = VTVehicle.inProperUnits(ac.lastStreamState.get().speed);
+                double power = VTVehicle.inProperUnits(ac.lastStreamState.get().power);
                 return String.format(SpeedoTemplate, speed, power);
             }
             
@@ -263,9 +263,9 @@ public class MessageTemplate {
             }
             
             private static String genODO(AppContext ac) {
-                String punc = VTExtras.unitType(ac) == Utils.UnitType.Imperial ? "," : ".";
+                String punc = VTVehicle.unitType() == Utils.UnitType.Imperial ? "," : ".";
                 StringBuilder sb = new StringBuilder();
-                double odo = VTExtras.inProperUnits(ac, ac.lastStreamState.get().odometer);
+                double odo = VTVehicle.inProperUnits(ac.lastStreamState.get().odometer);
                 double modulus = 100000;
                 for (int i = 0; i < 6; i++) {
                     int digit = (int)(odo / modulus);
@@ -289,8 +289,8 @@ public class MessageTemplate {
 
             private static String genGaugeWrapper(AppContext ac, String label, double val) {
                 return genGauge(
-                        label, VTExtras.inProperUnits(ac, val),
-                        VTExtras.unitType(ac) == Utils.UnitType.Imperial ? "Miles" : "Km",
+                        label, VTVehicle.inProperUnits(val),
+                        VTVehicle.unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",
                         val < 25);
             }
             

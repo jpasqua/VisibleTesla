@@ -233,8 +233,8 @@ public class MainController extends BaseController {
                     if (letItSleep()) {
                         logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        VTExtras.waitForWakeup(
-                                ac, new LoginStateChange(loggedIn, true), forceWakeup);
+                        VTVehicle.waitForWakeup(
+                                new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
                         logger.log(Level.INFO, "Waking up your vehicle");

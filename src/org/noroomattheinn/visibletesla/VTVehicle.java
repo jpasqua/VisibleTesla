@@ -1,5 +1,5 @@
 /*
- * VTExtras - Copyright(c) 2014 Joe Pasqua
+ * VTVehicle - Copyright(c) 2014 Joe Pasqua
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 20, 2014
  */
@@ -16,12 +16,12 @@ import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 
 /**
- * VTExtras: These methods are logically an extension to the Vehicle object.
+ * VTVehicle: These methods are logically an extension to the Vehicle object.
  * If only we could dynamically subclass!
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VTExtras {
+public class VTVehicle {
 
 /*------------------------------------------------------------------------------
  *
@@ -62,32 +62,32 @@ public class VTExtras {
  * -------                                                               -------
  *============================================================================*/
     
-    public static Options.RoofType roofType(AppContext ac) {
+    public static Options.RoofType roofType() {
         Options.RoofType roof = overrideRoof.get(Prefs.get().overideRoofTo.get());
         if (Prefs.get().overideRoofActive.get() && roof != null) return roof;
-        return (ac.vehicle.getOptions().roofType());
+        return (AppContext.get().vehicle.getOptions().roofType());
     }
     
-    public static Options.PaintColor paintColor(AppContext ac) {
+    public static Options.PaintColor paintColor() {
         Options.PaintColor color = overrideColor.get(Prefs.get().overideColorTo.get());
         if (Prefs.get().overideColorActive.get() && color != null) return color;
-        return (ac.vehicle.getOptions().paintColor());
+        return (AppContext.get().vehicle.getOptions().paintColor());
     }
     
     
-    public static boolean useDegreesF(AppContext ac) {
+    public static boolean useDegreesF() {
         Utils.UnitType units = overrideUnits.get(Prefs.get().overideUnitsTo.get());
         if (Prefs.get().overideUnitsActive.get() && units != null)
             return units == Utils.UnitType.Imperial;
-        return ac.lastGUIState.get().temperatureUnits.equalsIgnoreCase("F");
+        return AppContext.get().lastGUIState.get().temperatureUnits.equalsIgnoreCase("F");
 
     }
     
-    public static Utils.UnitType unitType(AppContext ac) {
+    public static Utils.UnitType unitType() {
         Utils.UnitType units = overrideUnits.get(Prefs.get().overideUnitsTo.get());
         if (Prefs.get().overideUnitsActive.get() && units != null) return units;
 
-        GUIState gs = ac.lastGUIState.get();
+        GUIState gs = AppContext.get().lastGUIState.get();
         if (gs != null) {
             return gs.distanceUnits.equalsIgnoreCase("mi/hr")
                     ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
@@ -95,17 +95,17 @@ public class VTExtras {
         return Utils.UnitType.Imperial;
     }
 
-    public static double inProperUnits(AppContext ac, double val) {
-        if (unitType(ac) == Utils.UnitType.Imperial) return val;
+    public static double inProperUnits(double val) {
+        if (unitType() == Utils.UnitType.Imperial) return val;
         return Utils.milesToKm(val);
     }
 
-    public static Options.WheelType computedWheelType(AppContext ac) {
+    public static Options.WheelType computedWheelType() {
         Options.WheelType wt = overrideWheels.get(Prefs.get().overideWheelsTo.get());
         if (Prefs.get().overideWheelsActive.get() && wt != null) return wt;
 
-        wt = ac.vehicle.getOptions().wheelType();
-        VehicleState vs = ac.lastVehicleState.get();
+        wt = AppContext.get().vehicle.getOptions().wheelType();
+        VehicleState vs = AppContext.get().lastVehicleState.get();
         if (vs.wheelType != null) {
             // Check for known override wheel types, right now that's just Aero19
             switch (vs.wheelType) {
@@ -118,8 +118,7 @@ public class VTExtras {
         return wt;
     }
     
-    public static void waitForWakeup(
-            final AppContext ac, final Runnable r, final BooleanProperty forceWakeup) {
+    public static void waitForWakeup(final Runnable r, final BooleanProperty forceWakeup) {
         final long TestSleepInterval = 5 * 60 * 1000;   // 5 Minutes
         
         final Utils.Predicate p = new Utils.Predicate() {
@@ -130,7 +129,7 @@ public class VTExtras {
 
         Runnable poller = new Runnable() {
             @Override public void run() {
-                while (ac.vehicle.isAsleep()) {
+                while (AppContext.get().vehicle.isAsleep()) {
                     Utils.sleep(TestSleepInterval, p);
                     if (ThreadManager.get().shuttingDown()) return;
                     if (forceWakeup != null && forceWakeup.get()) {
@@ -144,14 +143,14 @@ public class VTExtras {
         ThreadManager.get().launch(poller, "Wait For Wakeup");
     }
 
-    public static boolean forceWakeup(AppContext ac) {
+    public static boolean forceWakeup() {
         ChargeState charge;
         for (int i = 0; i < 15; i++) {
-            if ((charge = ac.vehicle.queryCharge()).valid) {
-                ac.noteUpdatedState(charge);
+            if ((charge = AppContext.get().vehicle.queryCharge()).valid) {
+                AppContext.get().noteUpdatedState(charge);
                 return true;
             }
-            ac.vehicle.wakeUp();
+            AppContext.get().vehicle.wakeUp();
             ThreadManager.get().sleep(5 * 1000);
         }
         return false;

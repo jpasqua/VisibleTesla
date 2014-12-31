@@ -130,7 +130,7 @@ public class GraphController extends BaseController {
     
     private void prepSeries() {
         VTSeries.Transform<Number> distTransform = 
-                VTExtras.unitType(ac) == Utils.UnitType.Imperial 
+                VTVehicle.unitType() == Utils.UnitType.Imperial 
                 ? VTSeries.idTransform : VTSeries.mToKTransform;
         lineChart.clearSeries();
 

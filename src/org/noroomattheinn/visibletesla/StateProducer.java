@@ -37,8 +37,8 @@ public class StateProducer extends Executor<StateProducer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public StateProducer(AppContext ac) {
-        super(ac, "StateProducer");
+    public StateProducer() {
+        super("StateProducer");
     }
     
     public void produce(Vehicle.StateType whichState, ProgressIndicator pi) {

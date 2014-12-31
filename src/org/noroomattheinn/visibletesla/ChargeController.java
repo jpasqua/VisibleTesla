@@ -182,7 +182,7 @@ public class ChargeController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
+        useMiles = VTVehicle.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "Miles" : "Km";
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);

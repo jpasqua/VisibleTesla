@@ -462,7 +462,7 @@ public class NotifierController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        if (VTExtras.unitType(ac) == Utils.UnitType.Imperial) {
+        if (VTVehicle.unitType() == Utils.UnitType.Imperial) {
             speedUnitsLabel.setText("mph");
             speedHitsSlider.setMin(0);
             speedHitsSlider.setMax(100);
@@ -581,8 +581,8 @@ public class NotifierController extends BaseController {
                 notifyUser(speedHitsTrigger, shMessageTarget);
             }
             
-            if (VTExtras.inProperUnits(ac, lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
-                double odo = VTExtras.inProperUnits(ac, cur.odometer);
+            if (VTVehicle.inProperUnits(lastOdoCheck) < odoHitsField.getNumber().doubleValue()) {
+                double odo = VTVehicle.inProperUnits(cur.odometer);
                 if (odoHitsTrigger.evalPredicate(new BigDecimal(odo))) {
                     notifyUser(odoHitsTrigger, ohMessageTarget);
                     // Store in miles, but convert & test relative to the GUI setting

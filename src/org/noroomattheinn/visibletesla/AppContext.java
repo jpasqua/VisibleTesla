@@ -117,9 +117,9 @@ public class AppContext {
         initChargeStore();
         initRestStore();
         
-        streamProducer = new StreamProducer(this);
-        stateProducer = new StateProducer(this);
-        statsStreamer = new StatsStreamer(this);
+        streamProducer = new StreamProducer();
+        stateProducer = new StateProducer();
+        statsStreamer = new StatsStreamer();
         
         lastStreamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
 
@@ -186,7 +186,7 @@ public class AppContext {
 
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : Prefs.MailGunKey);
-        issuer = new CommandIssuer(this);
+        issuer = new CommandIssuer();
     }
 
 /*------------------------------------------------------------------------------

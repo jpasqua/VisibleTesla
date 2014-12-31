@@ -12,11 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
 import org.noroomattheinn.visibletesla.dialogs.VampireLossResults;
 
 /**
@@ -48,7 +46,7 @@ public class VampireStats {
     }
         
     public void showStats() {
-        useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
+        useMiles = VTVehicle.unitType() == Utils.UnitType.Imperial;
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null) { return; }
         

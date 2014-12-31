@@ -76,7 +76,7 @@ public class SchedulerController extends BaseController
             ScheduleItem.Command command, double value,
             MessageTarget messageTarget) {
         if (command != ScheduleItem.Command.SLEEP) {
-            if (!VTExtras.forceWakeup(ac)) {
+            if (!VTVehicle.forceWakeup()) {
                 logActivity("Can't wake vehicle - aborting", true);
                 return;
             }

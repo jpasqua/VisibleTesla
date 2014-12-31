@@ -114,7 +114,7 @@ public class LocationController extends BaseController {
     }
 
     @Override protected void initializeState() {
-        useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
+        useMiles = VTVehicle.unitType() == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
         ac.streamProducer.produce(false);
         ac.lastStreamState.addListener(new ChangeListener<StreamState>() {

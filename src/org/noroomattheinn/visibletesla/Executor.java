@@ -41,8 +41,8 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  * -------                                                               -------
  *============================================================================*/
     
-    public Executor(AppContext ac, String name) {
-        this.ac = ac;
+    public Executor(String name) {
+        this.ac = AppContext.get();
         this.queue = new ArrayBlockingQueue<>(20);
         this.name = name;
         this.histogram = new TreeMap<>();

@@ -23,8 +23,8 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public CommandIssuer(AppContext ac) {
-        super(ac, "CommandIssuer");
+    public CommandIssuer() {
+        super("CommandIssuer");
     }
     
     public void issueCommand(Callable<Result> command, boolean retry,

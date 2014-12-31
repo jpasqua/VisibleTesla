@@ -47,8 +47,8 @@ public class StatsStreamer implements Runnable {
  * -------                                                               -------
  *============================================================================*/
     
-    public StatsStreamer(AppContext appContext) {
-        this.ac = appContext;
+    public StatsStreamer() {
+        this.ac = AppContext.get();
         this.carState = new TrackedObject<>(CarState.Idle);
         
         // The following two changeListeners look similar, but the order of
@@ -162,7 +162,7 @@ public class StatsStreamer implements Runnable {
     }
 
     private boolean wakeupVehicle() {
-        if (VTExtras.forceWakeup(ac)) { carState.set(CarState.Idle); return true; }
+        if (VTVehicle.forceWakeup()) { carState.set(CarState.Idle); return true; }
         return false;
     }
     

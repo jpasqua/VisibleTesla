@@ -296,8 +296,8 @@ public class OverviewController extends BaseController {
             case "Ideal": range = cs.idealRange; break;
             case "Rated": range = cs.range; break;
         }
-        range = VTExtras.inProperUnits(ac, range);
-        String units = VTExtras.unitType(ac) == Utils.UnitType.Imperial ? "mi" : "km";
+        range = VTVehicle.inProperUnits(range);
+        String units = VTVehicle.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
         rangeLabel.setText(String.format("%s Range: %3.1f %s", rangeType, range, units));
     }
     
@@ -327,7 +327,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateRoofView() {
-        Options.RoofType type = VTExtras.roofType(ac);
+        Options.RoofType type = VTVehicle.roofType();
         
         boolean hasPano = (type == Options.RoofType.RFPO);
         
@@ -360,7 +360,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        updateImages(VTExtras.computedWheelType(ac), wheelImages, wheelEquivs);
+        updateImages(VTVehicle.computedWheelType(), wheelImages, wheelEquivs);
     }
     
     private void updateChargePort() {
@@ -411,7 +411,7 @@ public class OverviewController extends BaseController {
         double odometerReading =  ac.lastStreamState.get().odometer;
         if (odometerReading == 0) return;   // The reading isn't ready yet
         
-        boolean useMiles = VTExtras.unitType(ac) == Utils.UnitType.Imperial;
+        boolean useMiles = VTVehicle.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
         odometerReading *= useMiles ? 1.0 : Utils.KilometersPerMile;
         odometerLabel.setText(String.format("Odometer: %.1f %s", odometerReading, units));
@@ -465,7 +465,7 @@ public class OverviewController extends BaseController {
 
     // Replace the images that were selected by default with images for the actual color
     private void getAppropriateImages(Vehicle v) {
-        Options.PaintColor c = VTExtras.paintColor(ac);
+        Options.PaintColor c = VTVehicle.paintColor();
 
         ClassLoader cl = getClass().getClassLoader();
         String colorDirectory = colorToDirectory.get(c);

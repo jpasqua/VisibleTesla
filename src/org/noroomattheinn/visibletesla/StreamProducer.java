@@ -40,8 +40,8 @@ public class StreamProducer extends Executor<StreamProducer.Request>
  * -------                                                               -------
  *============================================================================*/
     
-    public StreamProducer(AppContext ac) {
-        super(ac, "StreamProducer");
+    public StreamProducer() {
+        super("StreamProducer");
         this.streamer = ac.vehicle.getStreamer();
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
