@@ -58,6 +58,7 @@ abstract class BaseController {
     
     protected boolean       initialized = false;    // Has this controller been init'd?
     protected AppContext    ac;                     // The overall app context
+    protected VTVehicle     vtVehicle = null;       // The current VTVehicle
     
 /*------------------------------------------------------------------------------
  *
@@ -101,6 +102,7 @@ abstract class BaseController {
      * Called whenever the tab associated with this controller is activated.
      */
     public final void activate() {
+        vtVehicle = VTVehicle.get();
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();

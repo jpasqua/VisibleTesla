@@ -102,7 +102,7 @@ public class AppContext {
         stateProducer = new StateProducer();
         statsStreamer = new StatsStreamer();
         
-        RESTServer.get().launch(this);
+        RESTServer.get().launch();
     }
 
     public final String vinKey(String key) { return VTVehicle.get().getVehicle().getVIN() + "_" + key; }

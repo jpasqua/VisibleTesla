@@ -116,7 +116,7 @@ public class ChargeController extends BaseController {
     
     @FXML void rangeLinkHandler(ActionEvent event) {
         Hyperlink h = (Hyperlink)event.getSource();
-        ChargeState charge = VTVehicle.get().chargeState.get();
+        ChargeState charge = vtVehicle.chargeState.get();
         int percent = (h == stdLink) ? charge.chargeLimitSOCStd : charge.chargeLimitSOCMax;
         setChargePercent(percent);
     }
@@ -126,7 +126,7 @@ public class ChargeController extends BaseController {
         final Button b = (Button) event.getSource();
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = VTVehicle.get().getVehicle().setChargeState(b == startButton);
+                Result r = vtVehicle.getVehicle().setChargeState(b == startButton);
                 updateStateLater(Vehicle.StateType.Charge, 5 * 1000);
                 return r;
             } }, "Start Charge");
@@ -137,7 +137,7 @@ public class ChargeController extends BaseController {
         chargeSetting.setText(percent + " %");
         issueCommand(new Callable<Result>() {
             @Override public Result call() {
-                Result r = VTVehicle.get().getVehicle().setChargePercent(percent);
+                Result r = vtVehicle.getVehicle().setChargePercent(percent);
                 updateStateLater(Vehicle.StateType.Charge, 3 * 1000);
                 return r;
             } }, "Set Charge %");
@@ -171,9 +171,9 @@ public class ChargeController extends BaseController {
 
     @Override protected void initializeState() {
         chargeSlider.setDisable(Utils.compareVersions(
-            VTVehicle.get().vehicleState.get().version, MinVersionForChargePct) < 0);
+            vtVehicle.vehicleState.get().version, MinVersionForChargePct) < 0);
         reflectNewState();
-        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
+        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                 ChargeState old, ChargeState cur) {
                 if (active()) { reflectNewState(); }
@@ -182,13 +182,13 @@ public class ChargeController extends BaseController {
     }
     
     @Override protected void activateTab() {
-        useMiles = VTVehicle.get().unitType() == Utils.UnitType.Imperial;
+        useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "Miles" : "Km";
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);
         ratedOdometer.setUnit(units);
         chargeRate.setUnits(useMiles ? "mph" : "km/h");
-        if (VTVehicle.get().chargeState.get() != null) { reflectNewState(); }
+        if (vtVehicle.chargeState.get() != null) { reflectNewState(); }
     }
 
     @Override protected void refresh() { updateState(Vehicle.StateType.Charge); }
@@ -204,13 +204,13 @@ public class ChargeController extends BaseController {
         reflectBatteryStats();
         reflectChargeStatus();
         reflectProperties();
-        boolean connected = VTVehicle.get().chargeState.get().connectedToCharger();
+        boolean connected = vtVehicle.chargeState.get().connectedToCharger();
         startButton.setDisable(!connected);
         stopButton.setDisable(!connected);
     }
 
     private void reflectProperties() {
-        ChargeState charge = VTVehicle.get().chargeState.get();
+        ChargeState charge = vtVehicle.chargeState.get();
         double conversionFactor = useMiles ? 1.0 : Utils.KilometersPerMile;
         int pc = charge.chargerPilotCurrent;
         if (pc == -1) pilotCurrent.setValue("Unknown");
@@ -235,7 +235,7 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectChargeStatus() {
-        ChargeState charge = VTVehicle.get().chargeState.get();
+        ChargeState charge = vtVehicle.chargeState.get();
         int percent = charge.chargeLimitSOC;
         chargeSlider.setMin((charge.chargeLimitSOCMin/10)*10);
         chargeSlider.setMax(100);
@@ -258,7 +258,7 @@ public class ChargeController extends BaseController {
     }
     
     private void reflectBatteryStats() {
-        ChargeState charge = VTVehicle.get().chargeState.get();
+        ChargeState charge = vtVehicle.chargeState.get();
         double range = charge.range;
         int bl = charge.batteryPercent;
         int ubl = charge.usableBatteryLevel;
@@ -291,7 +291,7 @@ public class ChargeController extends BaseController {
     }
 
     private void reflectRange() {
-        ChargeState charge = VTVehicle.get().chargeState.get();
+        ChargeState charge = vtVehicle.chargeState.get();
         double conversionFactor = useMiles ? 1.0 : Utils.KilometersPerMile;
         estOdometer.setValue(Utils.round(charge.estimatedRange * conversionFactor, 1));
         idealOdometer.setValue(Utils.round(charge.idealRange * conversionFactor, 1));

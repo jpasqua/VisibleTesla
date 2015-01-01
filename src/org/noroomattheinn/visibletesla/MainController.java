@@ -306,7 +306,7 @@ public class MainController extends BaseController {
                 if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
                     return new Result(false, "mobile_access_disabled");
                 }
-                VTVehicle.get().guiState.set(gs);
+                VTVehicle.get().noteUpdatedState(gs);
                 return Result.Succeeded;
             } else {
                 String error = gs.rawState.optString("error");
@@ -336,8 +336,8 @@ public class MainController extends BaseController {
             if (!cs.valid) cs = v.queryCharge();
         }
         
-        VTVehicle.get().vehicleState.set(vs);
-        VTVehicle.get().chargeState.set(cs);
+        VTVehicle.get().noteUpdatedState(vs);
+        VTVehicle.get().noteUpdatedState(cs);
         return Result.Succeeded;
     }
     

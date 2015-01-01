@@ -74,8 +74,8 @@ public class RESTServer implements ThreadManager.Stoppable {
     
     public static RESTServer get() { return instance; }
     
-    public synchronized void launch(AppContext appContext) {
-        this.ac = appContext;
+    public synchronized void launch() {
+        this.ac = AppContext.get();
         if (!Prefs.get().enableRest.get()) {
             logger.info("REST Services are disabled");
             return;
@@ -196,10 +196,10 @@ public class RESTServer implements ThreadManager.Stoppable {
             String response;
             switch (infoType) {
                 case "car_state":
-                    response = CarInfo.carStateAsJSON(ac);
+                    response = CarInfo.carStateAsJSON();
                     break;
                 case "car_details":
-                    response = CarInfo.carDetailsAsJSON(ac);
+                    response = CarInfo.carDetailsAsJSON();
                     break;
                 case "inactivity_mode":
                     response = String.format("{ \"mode\": \"%s\" }", ac.appMode);

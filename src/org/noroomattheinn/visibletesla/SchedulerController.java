@@ -76,7 +76,7 @@ public class SchedulerController extends BaseController
             ScheduleItem.Command command, double value,
             MessageTarget messageTarget) {
         if (command != ScheduleItem.Command.SLEEP) {
-            if (!VTVehicle.get().forceWakeup()) {
+            if (!vtVehicle.forceWakeup()) {
                 logActivity("Can't wake vehicle - aborting", true);
                 return;
             }
@@ -110,7 +110,7 @@ public class SchedulerController extends BaseController
             case CHARGE_OFF: r = v.stopCharing(); break;
             case HVAC_ON:
                 if (value > 0) {    // Set the target temp first
-                    if (VTVehicle.get().useDegreesF())
+                    if (vtVehicle.useDegreesF())
                         r = v.setTempF(value, value);
                     else
                         r = v.setTempC(value, value);
@@ -157,7 +157,7 @@ public class SchedulerController extends BaseController
         
         String name = ScheduleItem.commandToName(command);
         if (Prefs.get().safeIncludesMinCharge.get()) {
-            if (VTVehicle.get().chargeState.get().batteryPercent < Safe_Threshold) {
+            if (vtVehicle.chargeState.get().batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
                 logActivity(entry, true);
@@ -168,7 +168,7 @@ public class SchedulerController extends BaseController
         if (Prefs.get().safeIncludesPluggedIn.get()) {
             String msg;
 
-            switch (VTVehicle.get().chargeState.get().chargingState) {
+            switch (vtVehicle.chargeState.get().chargingState) {
                 case Unknown:
                     msg = String.format("%s: Can't tell if car is plugged in - aborted", name);
                     logActivity(msg, true);
@@ -186,7 +186,7 @@ public class SchedulerController extends BaseController
     }
     
     private synchronized Result unpluggedTrigger() {
-        ChargeState charge = VTVehicle.get().chargeState.get();
+        ChargeState charge = vtVehicle.chargeState.get();
         ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
             ac.mailer.send(
@@ -263,7 +263,7 @@ public class SchedulerController extends BaseController
     }
 
     @Override protected void initializeState() {
-        v = VTVehicle.get().getVehicle();
+        v = vtVehicle.getVehicle();
         ThreadManager.get().addStoppable(this);
     }
     

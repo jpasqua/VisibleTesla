@@ -195,6 +195,19 @@ public class VTVehicle {
     
     public final String vinKey(String key) { return vehicle.getVIN() + "_" + key; }
     
+    public void noteUpdatedState(final BaseState state) {
+        if (Platform.isFxApplicationThread()) {
+            noteUpdatedStateInternal(state);
+        } else {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    noteUpdatedStateInternal(state);
+                }
+            });
+        }
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Hide the Constructor
@@ -210,7 +223,7 @@ public class VTVehicle {
         this.vehicleState = new SimpleObjectProperty<>();
     }
 
-    void noteUpdatedStateInternal(BaseState state) {
+    private void noteUpdatedStateInternal(BaseState state) {
         if (state instanceof ChargeState) {
             chargeState.set((ChargeState) state);
         } else if (state instanceof DriveState) {
@@ -226,16 +239,4 @@ public class VTVehicle {
         }
     }
 
-    public void noteUpdatedState(final BaseState state) {
-        if (Platform.isFxApplicationThread()) {
-            noteUpdatedStateInternal(state);
-        } else {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    noteUpdatedStateInternal(state);
-                }
-            });
-        }
-    }
 }

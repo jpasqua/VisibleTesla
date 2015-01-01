@@ -102,7 +102,7 @@ public class PrefsController extends BaseController {
         AnchorPane pane = new AnchorPane();
         String body = "This value is only known to you and allows you to identify " +
             "your information amongst anonymized data at VisibleTesla.com\n" +
-            "ID: " + VTVehicle.get().getVehicle().getUUID();
+            "ID: " + vtVehicle.getVehicle().getUUID();
 
         TextArea t = new TextArea(body);
         pane.getChildren().add(t);

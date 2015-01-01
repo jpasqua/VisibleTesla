@@ -90,7 +90,7 @@ public class CarInfo {
  * -------                                                               -------
  *============================================================================*/
     
-    public static String carDetailsAsJSON(AppContext ac) {
+    public static String carDetailsAsJSON() {
         Options options = VTVehicle.get().getVehicle().getOptions();
         VehicleState vs = VTVehicle.get().vehicleState.get();
         return String.format(DetailsFormat,
@@ -102,7 +102,7 @@ public class CarInfo {
 
     }
     
-    public static String carStateAsJSON(AppContext ac) {
+    public static String carStateAsJSON() {
         VehicleState vs = VTVehicle.get().vehicleState.get();
         ChargeState cs = VTVehicle.get().chargeState.get();
         return String.format(CarStateFormat,
@@ -113,7 +113,7 @@ public class CarInfo {
     }
     
     public static String genCarView(AppContext ac) {
-        return String.format(CarViewFormat, carDetailsAsJSON(ac), carStateAsJSON(ac));
+        return String.format(CarViewFormat, carDetailsAsJSON(), carStateAsJSON());
     }
 
 /*------------------------------------------------------------------------------
@@ -125,10 +125,14 @@ public class CarInfo {
     private static String ooc(boolean openState) { return openState ? "open" : "closed"; }
 
     private static String getModel(Options options) {
-        if (options.isPerfPlus()) { return "p85+"; }
-        else if (options.isPerformance()) { return "p85"; }
-        else if (options.batteryType() == Options.BatteryType.BT85) { return "s85"; } 
-        return "s60";
+        switch (options.model()) {
+            case S60: return "s60";
+            case S85: return "s85";
+            case P85: return "p85";
+            case P85Plus: return "p85+";
+            case P85D: return "p85d";
+        }
+        return "unknown";
     }
 
 }
