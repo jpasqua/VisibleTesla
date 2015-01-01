@@ -118,7 +118,7 @@ public class GraphController extends BaseController {
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
-        Prefs.store().putBoolean(ac.vinKey(series.getName()), visible);
+        Prefs.store().putBoolean(app.vinKey(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
@@ -167,14 +167,14 @@ public class GraphController extends BaseController {
         // Restore the last settings of the checkboxes
         for (CheckBox cb : cbToSeries.keySet()) {
             VTSeries s = cbToSeries.get(cb);
-            boolean selected = Prefs.store().getBoolean(ac.vinKey(s.getName()), true);
+            boolean selected = Prefs.store().getBoolean(app.vinKey(s.getName()), true);
             cb.setSelected(selected);
             lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
-        displayLines = Prefs.store().getBoolean(ac.vinKey("DISPLAY_LINES"), true);
-        displayMarkers = Prefs.store().getBoolean(ac.vinKey("DISPLAY_MARKERS"), true);
+        displayLines = Prefs.store().getBoolean(app.vinKey("DISPLAY_LINES"), true);
+        displayMarkers = Prefs.store().getBoolean(app.vinKey("DISPLAY_MARKERS"), true);
 
         reflectDisplayOptions();
     }
@@ -191,7 +191,7 @@ public class GraphController extends BaseController {
         // css class decalratively, but that doesn't work and no one seems to
         // know why. This is a workaround.
         URL url = getClass().getClassLoader().getResource("org/noroomattheinn/styles/tooltip.css");
-        ac.stage.getScene().getStylesheets().add(url.toExternalForm());
+        app.stage.getScene().getStylesheets().add(url.toExternalForm());
         
         prepSeries();
         loadExistingData();
@@ -278,8 +278,8 @@ public class GraphController extends BaseController {
 
             reflectDisplayOptions();
 
-            Prefs.store().putBoolean(ac.vinKey("DISPLAY_LINES"), displayLines);
-            Prefs.store().putBoolean(ac.vinKey("DISPLAY_MARKERS"), displayMarkers);
+            Prefs.store().putBoolean(app.vinKey("DISPLAY_LINES"), displayLines);
+            Prefs.store().putBoolean(app.vinKey("DISPLAY_MARKERS"), displayMarkers);
         }
     };
 

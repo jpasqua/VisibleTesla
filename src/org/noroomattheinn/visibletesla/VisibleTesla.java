@@ -55,10 +55,10 @@ public class VisibleTesla extends Application {
         Dialogs.useNativeChrome(true);
         Prefs.create();
         ThreadManager.create();
-        RESTServer.create();
-        AppContext.create(this, stage);
+        App.create(this, stage);
         VTVehicle.create();
         VTData.create();
+        RESTServer.create(VTVehicle.get());
         mainController = Utils.cast(root.getUserData());
         mainController.start();
     }

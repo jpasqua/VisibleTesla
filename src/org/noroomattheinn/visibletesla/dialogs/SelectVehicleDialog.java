@@ -11,7 +11,7 @@ import java.util.List;
 import javafx.scene.control.Dialogs;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 
 
 /**
@@ -29,7 +29,7 @@ public class SelectVehicleDialog {
  * -------                                                               -------
  *============================================================================*/
     
-    public static Vehicle select(AppContext appContext) {
+    public static Vehicle select(App appContext) {
         int selectedVehicleIndex = 0;
         List<Vehicle> vehicleList = appContext.tesla.getVehicles();
         if (vehicleList.size() != 1) {

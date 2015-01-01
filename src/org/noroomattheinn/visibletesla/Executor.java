@@ -29,7 +29,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     protected final ArrayBlockingQueue<R>   queue;
-    protected final AppContext              ac;
+    protected final App              ac;
     protected final String                  name;
     protected final TreeMap<Integer,Integer> histogram;
     protected       int                     nRequestsExecuted;
@@ -42,7 +42,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *============================================================================*/
     
     public Executor(String name) {
-        this.ac = AppContext.get();
+        this.ac = App.get();
         this.queue = new ArrayBlockingQueue<>(20);
         this.name = name;
         this.histogram = new TreeMap<>();

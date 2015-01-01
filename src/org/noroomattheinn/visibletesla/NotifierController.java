@@ -316,21 +316,21 @@ public class NotifierController extends BaseController {
     private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            Prefs.store().putBoolean(ac.vinKey(NotifyCAKey), cur);
+            Prefs.store().putBoolean(app.vinKey(NotifyCAKey), cur);
         }
     };
     
     private ChangeListener<Boolean> ulListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            Prefs.store().putBoolean(ac.vinKey(NotifyULKey), cur);
+            Prefs.store().putBoolean(app.vinKey(NotifyULKey), cur);
         }
     };
     
     private ChangeListener<BigDecimal> ulvListener = new ChangeListener<BigDecimal>() {
         @Override public void changed(
                 ObservableValue<? extends BigDecimal> ov, BigDecimal old, BigDecimal cur) {
-            Prefs.store().putLong(ac.vinKey(NotifyULValKey), cur.longValue());
+            Prefs.store().putLong(app.vinKey(NotifyULValKey), cur.longValue());
         }
     };
     
@@ -365,64 +365,64 @@ public class NotifierController extends BaseController {
             lastOdoCheck = Prefs.store().getDouble(OdoCheckKey, 0);
                     
             socHitsTrigger = new GenericTrigger<>(
-                ac, socHits.selectedProperty(), bdHelper,
+                app, socHits.selectedProperty(), bdHelper,
                 "SOC", NotifySOCHitsKey,  GenericTrigger.Predicate.HitsOrExceeds,
                 socHitsField.numberProperty(), new BigDecimal(88.0), TypicalDebounce);
             socHitsMessageTarget = new MessageTarget(
-                    ac, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
+                    app, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
             
             socFallsTrigger = new GenericTrigger<>(
-                ac, socFalls.selectedProperty(), bdHelper,
+                app, socFalls.selectedProperty(), bdHelper,
                 "SOC", NotifySOCFallsKey, GenericTrigger.Predicate.FallsBelow,
                 socFallsField.numberProperty(), new BigDecimal(50.0), TypicalDebounce);
             socFallsMessageTarget = new MessageTarget(
-                    ac, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
+                    app, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
             
             speedHitsTrigger = new GenericTrigger<>(
-                ac, speedHits.selectedProperty(), bdHelper,
+                app, speedHits.selectedProperty(), bdHelper,
                 "Speed", NotifySpeedKey, GenericTrigger.Predicate.HitsOrExceeds,
                 speedHitsField.numberProperty(), new BigDecimal(70.0), SpeedDebounce);
             shMessageTarget = new MessageTarget(
-                    ac, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
+                    app, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
             
             odoHitsTrigger = new GenericTrigger<>(
-                ac, odoHits.selectedProperty(), bdHelper,
+                app, odoHits.selectedProperty(), bdHelper,
                 "Odometer", NotifyOdoKey, GenericTrigger.Predicate.GT,
                 odoHitsField.numberProperty(), new BigDecimal(14325), TypicalDebounce);
             ohMessageTarget = new MessageTarget(
-                    ac, NotifyOdoKey, OdoHitsSubj, OdoHitsMsg);
+                    app, NotifyOdoKey, OdoHitsSubj, OdoHitsMsg);
             
             seTrigger = new GenericTrigger<>(
-                ac, schedulerEvent.selectedProperty(), stringHelper,
+                app, schedulerEvent.selectedProperty(), stringHelper,
                 "Scheduler", NotifySEKey, GenericTrigger.Predicate.AnyChange,
                 new SimpleObjectProperty<>("Anything"), "Anything", 0L);
             seMessageTarget = new MessageTarget(
-                    ac, NotifySEKey, SchedEventSubj, SchedEventMsg);
+                    app, NotifySEKey, SchedEventSubj, SchedEventMsg);
             
             csTrigger = new GenericTrigger<>(
-                ac, chargeState.selectedProperty(), stringListHelper,
+                app, chargeState.selectedProperty(), stringListHelper,
                 "Charge State", NotifyCSKey, GenericTrigger.Predicate.Becomes,
                 csSelectProp, new StringList("Anything"), 0L);
             csMessageTarget = new MessageTarget(
-                    ac, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
+                    app, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
             
             for (int i = 0; i < 4; i++) {
                 GeoTrigger gt = geoTriggers[i];
                 gt.trigger = new GenericTrigger<>(
-                    ac, gt.enabled.selectedProperty(), areaHelper,
+                    app, gt.enabled.selectedProperty(), areaHelper,
                     "Enter Area", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
                     gt.prop, new Area(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
-                        ac, NotifyEnterKey+i, EnterAreaSubj, EnterAreaMsg);
+                        app, NotifyEnterKey+i, EnterAreaSubj, EnterAreaMsg);
             }
             for (int i = 4; i < 8; i++) {
                 GeoTrigger gt = geoTriggers[i];
                 gt.trigger = new GenericTrigger<>(
-                    ac, gt.enabled.selectedProperty(), areaHelper,
+                    app, gt.enabled.selectedProperty(), areaHelper,
                     "Left Area", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
                     gt.prop, new Area(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
-                        ac, NotifyLeftKey+i, LeftAreaSubj, LeftAreaMsg);
+                        app, NotifyLeftKey+i, LeftAreaSubj, LeftAreaMsg);
             }
             for (final GeoTrigger g : geoTriggers) {
                 String name = g.prop.get().name;
@@ -440,22 +440,22 @@ public class NotifierController extends BaseController {
             ccTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             pcTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             caMessageTarget = new MessageTarget(
-                    ac, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
+                    app, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
-                    Prefs.store().getBoolean(ac.vinKey(NotifyCAKey),
+                    Prefs.store().getBoolean(app.vinKey(NotifyCAKey),
                     false));
             
             unlockedTrigger = new StationaryTrigger(
                     unlocked.selectedProperty(),
                     unlockedDoorsField.numberProperty());
             ulMessageTarget = new MessageTarget(
-                    ac, NotifyULKey, UnlockedSubj, UnlockedMsg);
+                    app, NotifyULKey, UnlockedSubj, UnlockedMsg);
             unlocked.setSelected(
-                    Prefs.store().getBoolean(ac.vinKey(NotifyULKey),
+                    Prefs.store().getBoolean(app.vinKey(NotifyULKey),
                     false));
             unlockedDoorsField.numberProperty().set(
                     new BigDecimal(Prefs.store().getLong(
-                        ac.vinKey(NotifyULValKey), UnlockedThreshold)));
+                        app.vinKey(NotifyULValKey), UnlockedThreshold)));
             checkForUnlocked = false;
             
             startListening();
@@ -492,7 +492,7 @@ public class NotifierController extends BaseController {
                     Prefs.get().googleAPIKey.get() :
                     Prefs.GoogleMapsAPIKey;
 
-        ChooseLocationDialog cld = ChooseLocationDialog.show(ac.stage, areaProp.get(), apiKey);
+        ChooseLocationDialog cld = ChooseLocationDialog.show(app.stage, areaProp.get(), apiKey);
         if (!cld.cancelled()) {
             areaProp.set(cld.getArea());
         }
@@ -500,7 +500,7 @@ public class NotifierController extends BaseController {
 
     private void showDialog(MessageTarget mt) {
         NotifyOptionsDialog nod = NotifyOptionsDialog.show(
-                "Message Options", ac.stage, mt.getEmail(), mt.getSubject(), mt.getMessage());
+                "Message Options", app.stage, mt.getEmail(), mt.getSubject(), mt.getMessage());
         if (!nod.cancelled()) {
             if (!nod.useDefault()) {
                 mt.setEmail(nod.getEmail());
@@ -525,12 +525,12 @@ public class NotifierController extends BaseController {
         vtVehicle.chargeState.addListener(csListener);
         vtVehicle.streamState.addListener(ssListener);
         vtVehicle.vehicleState.addListener(vsListener);
-        ac.schedulerActivity.addTracker(false, schedListener);
+        app.schedulerActivity.addTracker(false, schedListener);
     }
     
     private Runnable schedListener = new Runnable() {
         @Override public void run() {
-            if (seTrigger.evalPredicate(ac.schedulerActivity.get())) {
+            if (seTrigger.evalPredicate(app.schedulerActivity.get())) {
                 notifyUser(seTrigger, seMessageTarget); }
         }
     };
@@ -631,15 +631,15 @@ public class NotifierController extends BaseController {
         } if (lower.startsWith("command:")) {
             String command = StringUtils.remove(addr, "command:");
             String args = target.getSubject();
-            if (args != null) args = (new MessageTemplate(ac, args)).getMessage(contextSpecific);
+            if (args != null) args = (new MessageTemplate(args)).getMessage(contextSpecific);
             String stdin = target.getMessage();
-            if (stdin != null) stdin = (new MessageTemplate(ac, stdin)).getMessage(contextSpecific);
+            if (stdin != null) stdin = (new MessageTemplate(stdin)).getMessage(contextSpecific);
             ThreadManager.get().launchExternal(command, args, stdin, 60 * 1000);
             logger.info("Executing external command for notification: " + command);
         } else {
-            MessageTemplate mt = new MessageTemplate(ac, target.getActiveMsg());
-            MessageTemplate st = new MessageTemplate(ac, target.getActiveSubj());
-            ac.mailer.send(
+            MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
+            MessageTemplate st = new MessageTemplate(target.getActiveSubj());
+            app.mailer.send(
                 addr, st.getMessage(contextSpecific), mt.getMessage(contextSpecific));
         }
     }

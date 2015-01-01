@@ -148,7 +148,7 @@ public class LoginController extends BaseController {
     }
     
     private void showLoginSucceeded() {
-        showLoginUI("Logged in as:", ac.tesla.getUsername(), true);
+        showLoginUI("Logged in as:", app.tesla.getUsername(), true);
     }
     
     private void showAutoLoginUI() {
@@ -162,7 +162,7 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void attemptLogin(String username, String password) {
-        ac.issuer.issueCommand(
+        app.issuer.issueCommand(
                 new AttemptLogin(username, password), false, progressIndicator, "Attempt Login");
     }
 
@@ -180,21 +180,21 @@ public class LoginController extends BaseController {
             if (password == null) {  // Try auto login
                 String authToken = Prefs.store().get(AuthTokenKey, null);
                 succeeded = (authToken == null) ? false :
-                        ac.tesla.connectWithToken(username, authToken);
+                        app.tesla.connectWithToken(username, authToken);
             } else {   // Login with the specified username and password
-                succeeded = ac.tesla.connect(username, password);
+                succeeded = app.tesla.connect(username, password);
                 if (!succeeded) {
                     Platform.runLater(new Runnable() {
                         @Override public void run() {
                             Dialogs.showErrorDialog(
-                                    ac.stage,
+                                    app.stage,
                                     "Remember to use your email address as your username",
                                     "Login failed - Please check your credentials",
                                     "Problem logging in");
                         }
                     });
                 } else {
-                    String authToken = ac.tesla.getToken();
+                    String authToken = app.tesla.getToken();
                     if (rememberMe.isSelected()) {
                         Prefs.store().put(AuthTokenKey, authToken);
                         Prefs.store().put(UsernameKey, username);

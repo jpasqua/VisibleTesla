@@ -12,7 +12,7 @@ import org.noroomattheinn.tesla.BaseState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
@@ -42,7 +42,7 @@ public class StatsStreamer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext    ac;
+    private final App    ac;
     private final TrackedObject<CarState> carState;
     
 /*==============================================================================
@@ -52,7 +52,7 @@ public class StatsStreamer implements Runnable {
  *============================================================================*/
     
     public StatsStreamer() {
-        this.ac = AppContext.get();
+        this.ac = App.get();
         this.carState = new TrackedObject<>(CarState.Idle);
         
         // The following two changeListeners look similar, but the order of
@@ -99,10 +99,10 @@ public class StatsStreamer implements Runnable {
             while (!ThreadManager.get().shuttingDown()) {
                 String theState = String.format(
                         "App State: %s, App Mode: %s, Car State: %s",
-                        ac.appState, ac.appMode, carState.get());
+                        ac.state, ac.mode.get().name(), carState.get());
                 logger.finer(theState);
                 boolean produce = true;
-                if (ac.appState.isIdle() && ac.appMode.allowingSleeping()) {
+                if (ac.isIdle() && ac.allowingSleeping()) {
                     if (carState.get() == CarState.Idle) {
                         if (timeSince(carState.lastSet()) < AllowSleepInterval) {
                             produce = false;
@@ -157,7 +157,7 @@ public class StatsStreamer implements Runnable {
 
         @Override public boolean eval() {
             try {
-                if (ac.appMode.lastSet() > lastEval && ac.appMode.stayingAwake()) return true;
+                if (ac.mode.lastSet() > lastEval && ac.stayingAwake()) return true;
                 return ThreadManager.get().shuttingDown();
             } finally {
                 lastEval = System.currentTimeMillis();

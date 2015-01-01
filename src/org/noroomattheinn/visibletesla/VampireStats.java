@@ -32,7 +32,7 @@ public class VampireStats {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext ac;
+    private final App ac;
     private boolean         useMiles;
     
     
@@ -42,7 +42,7 @@ public class VampireStats {
  * -------                                                               -------
  *============================================================================*/
     
-    public VampireStats(AppContext ac) {
+    public VampireStats(App ac) {
         this.ac = ac;
     }
         

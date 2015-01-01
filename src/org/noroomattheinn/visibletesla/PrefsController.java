@@ -107,18 +107,18 @@ public class PrefsController extends BaseController {
         TextArea t = new TextArea(body);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
-            ac.stage, pane, "Your Anonymous UUID", "General Preferences", Dialogs.DialogOptions.OK, null);
+            app.stage, pane, "Your Anonymous UUID", "General Preferences", Dialogs.DialogOptions.OK, null);
     }
     
     @FXML void showAppFiles(ActionEvent event) {
-        Utils.openFileViewer(ac.appFileFolder().getAbsolutePath());
+        Utils.openFileViewer(app.appFileFolder().getAbsolutePath());
     }
     
     @FXML void wakeOnTCHandler(ActionEvent event) {
     }
     
     @FXML void generalHandleAFF(ActionEvent event) {
-        Dialogs.showInformationDialog(ac.stage, 
+        Dialogs.showInformationDialog(app.stage, 
             "This change will take effect the next time the application is started.\n",
             "Please Note...", "General Preferences");
     }
@@ -127,20 +127,20 @@ public class PrefsController extends BaseController {
         String msg = "Testing delivery from VisibleTesla on ";
         String addr = prefs.notificationAddress.get();
         if (addr == null || addr.length() == 0) {
-            Dialogs.showWarningDialog(ac.stage,
+            Dialogs.showWarningDialog(app.stage,
                     "You must supply an email address before testing delivery",
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!ac.mailer.send(addr, msg + date)) {
-            Dialogs.showWarningDialog(ac.stage,
+        if (!app.mailer.send(addr, msg + date)) {
+            Dialogs.showWarningDialog(app.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +
                     "If you have changed any advanced settings,\n" +
                     "please double check them  or revert to defaults",
                     "Test Problem");
         } else {
-            Dialogs.showInformationDialog(ac.stage, 
+            Dialogs.showInformationDialog(app.stage, 
                     "The test message has been sent to the specified\n" +
                     "address. If you do not receive it within 15 minutes,\n" +
                     "please check your email address and try again. After\n" +

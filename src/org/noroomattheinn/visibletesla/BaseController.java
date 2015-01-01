@@ -57,9 +57,9 @@ abstract class BaseController {
     private static BaseController activeController = null;
     private static long lastRefreshTime;
     
-    protected boolean       initialized = false;    // Has this controller been init'd?
-    protected AppContext    ac;                     // The overall app context
-    protected VTVehicle     vtVehicle = null;       // The current VTVehicle
+    protected boolean   initialized = false;    // Has this controller been init'd?
+    protected App       app;                    // The overall app context
+    protected VTVehicle vtVehicle = null;       // The current VTVehicle
     
 /*------------------------------------------------------------------------------
  *
@@ -95,8 +95,8 @@ abstract class BaseController {
      * Subclasses may override appInitialize if they want to do something
      * once the ac is set (not true at fxInitialize() time)
      */
-    public final void setAppContext(AppContext ctxt) {
-        this.ac = ctxt;
+    public final void setAppContext(App ctxt) {
+        this.app = ctxt;
     }
     
     /**
@@ -107,9 +107,9 @@ abstract class BaseController {
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
-        if (ac.appState.isIdle()) {
+        if (app.isIdle()) {
             if (Prefs.get().wakeOnTabChange.get()) {
-                ac.appState.setActive();
+                app.setActive();
                 doRefresh();
             }
         } else {
@@ -170,7 +170,7 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/    
 
     protected final void issueCommand(Callable<Result> c, String commandName) {
-        ac.issuer.issueCommand(c, true, progressIndicator, commandName);
+        app.issuer.issueCommand(c, true, progressIndicator, commandName);
     }
     
     protected final void updateState(Vehicle.StateType whichState) {

@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 30, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.data;
 
 import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.File;

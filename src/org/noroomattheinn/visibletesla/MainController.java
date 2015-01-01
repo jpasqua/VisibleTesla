@@ -128,15 +128,15 @@ public class MainController extends BaseController {
      * completion and try and automatic login.
      */
     public void start() {
-        ac = AppContext.get();
+        app = App.get();
         logAppInfo();
-        addSystemSpecificHandlers(ac.stage);
+        addSystemSpecificHandlers(app.stage);
 
         refreshTitle();
-        ac.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
+        app.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
         
-        vampireStats = new VampireStats(ac);
+        vampireStats = new VampireStats(app);
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
@@ -147,7 +147,7 @@ public class MainController extends BaseController {
 
         tabs = Arrays.asList(prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
                              hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
-        for (Tab t : tabs) { controllerFromTab(t).setAppContext(this.ac); }
+        for (Tab t : tabs) { controllerFromTab(t).setAppContext(this.app); }
         
         // Handle font scaling
         int fontScale = Prefs.get().fontScale.get();
@@ -159,9 +159,9 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        ac.appMode.addTracker(true, new Runnable() {
+        app.mode.addTracker(true, new Runnable() {
             @Override public void run() { setAppModeMenu(); } } );
-        ac.appState.addTracker(true, new Runnable() {
+        app.state.addTracker(true, new Runnable() {
             @Override public void run() { refreshTitle(); } });
 
         // Kick off the login process
@@ -224,13 +224,13 @@ public class MainController extends BaseController {
             if (assumeAwake) {
                 wakePane.setVisible(false);
             } else {
-                Vehicle v = SelectVehicleDialog.select(ac);
+                Vehicle v = SelectVehicleDialog.select(app);
                 VTVehicle.get().setVehicle(v);
                 try {
                     VTData.get().setVehicle(v);
                 } catch (IOException e) {
                     logger.severe("Unable to establish VTData: " + e.getMessage());
-                    Dialogs.showErrorDialog(ac.stage,
+                    Dialogs.showErrorDialog(app.stage,
                             "VisibleTesla has encountered a severe error\n"
                             + "while trying to access its data files. Another\n"
                             + "copy of VisibleTesla may already be writing to them\n"
@@ -239,7 +239,7 @@ public class MainController extends BaseController {
                             "Problem accessing data files", "Problem launching application");
                     Platform.exit();
                 }
-                if (!ac.lock()) {
+                if (!app.lock()) {
                     showLockError();
                     Platform.exit();
                 }
@@ -258,9 +258,9 @@ public class MainController extends BaseController {
                 }
             }
                 
-            DisclaimerDialog.show(ac);
-            VersionUpdater.conditionalCheckVersion(ac);
-            ac.appMode.restore();
+            DisclaimerDialog.show(app);
+            VersionUpdater.conditionalCheckVersion(app);
+            app.restoreMode();
             fetchInitialCarState();
         }
     }
@@ -270,7 +270,7 @@ public class MainController extends BaseController {
             boolean remoteStartEnabled = VTVehicle.get().getVehicle().remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
-            ac.appState.trackInactivity(
+            app.trackInactivity(
                     Arrays.asList(overviewTab, hvacTab, locationTab, chargeTab));
 
             // TO DO: Isn't the following line redundant?
@@ -419,51 +419,51 @@ public class MainController extends BaseController {
     
     // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
-        if (event.getTarget() == allowSleepMenuItem) ac.appMode.allowSleeping();
-        else ac.appMode.stayAwake();
+        if (event.getTarget() == allowSleepMenuItem) app.allowSleeping();
+        else app.stayAwake();
     }
     
     // Help->Documentation
     @FXML private void helpHandler(ActionEvent event) {
-        ac.fxApp.getHostServices().showDocument(DocumentationURL);
+        app.fxApp.getHostServices().showDocument(DocumentationURL);
     }
     
     // Help->What's New
     @FXML private void whatsNewHandler(ActionEvent event) {
-        ac.fxApp.getHostServices().showDocument(ReleaseNotesURL);
+        app.fxApp.getHostServices().showDocument(ReleaseNotesURL);
     }
     
     // Help->About
     @FXML private void aboutHandler(ActionEvent event) {
         Dialogs.showInformationDialog(
-                ac.stage,
+                app.stage,
                 "Copyright (c) 2013, Joe Pasqua\n" +
                 "Free for personal and non-commercial use.\n" +
                 "Based on the great API detective work of many members\n" +
                 "of teslamotorsclub.com.  All Tesla imagery derives\n" +
                 "from the official Tesla iPhone app.",
-                AppContext.ProductName + " " + AppContext.ProductVersion,
-                "About " + AppContext.ProductName);
+                App.ProductName + " " + App.ProductVersion,
+                "About " + App.ProductName);
     }
 
     // Help->Check for Updates
     @FXML private void updatesHandler(ActionEvent event) {
-        if (!VersionUpdater.checkForNewerVersion(ac)) 
+        if (!VersionUpdater.checkForNewerVersion(app)) 
             Dialogs.showInformationDialog(
-                    ac.stage,
+                    app.stage,
                     "There is no newer version available.",
                     "Update Check Results", "Checking for Updates");
     }
     
     @FXML private void remoteStart(ActionEvent e) {
         final String[] unp = PasswordDialog.getCredentials(
-                ac.stage, "Authenticate", "Remote Start", false);
+                app.stage, "Authenticate", "Remote Start", false);
         if (unp == null) return;    // User cancelled
         if (unp[1] == null || unp[1].isEmpty()) {
-            Dialogs.showErrorDialog(ac.stage, "You must enter a password");
+            Dialogs.showErrorDialog(app.stage, "You must enter a password");
             return;
         }
-        ac.issuer.issueCommand(new Callable<Result>() {
+        app.issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { 
                 return VTVehicle.get().getVehicle().remoteStart(unp[1]); 
             } }, true, null, "Remote Start");
@@ -472,17 +472,17 @@ public class MainController extends BaseController {
     // Options->Action_>{Honk,Flsh,Wakeup}
     
     @FXML private void honk(ActionEvent e) {
-        ac.issuer.issueCommand(new Callable<Result>() {
+        app.issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().honk(); }
         }, true, null, "Honk");
     }
     @FXML private void flash(ActionEvent e) {
-        ac.issuer.issueCommand(new Callable<Result>() {
+        app.issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().flashLights(); }
         }, true, null, "Flash Lights");
     }
     @FXML private void wakeup(ActionEvent e) {
-        ac.issuer.issueCommand(new Callable<Result>() {
+        app.issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().wakeUp(); }
         }, true, null, "Wake up");
     }
@@ -508,22 +508,22 @@ public class MainController extends BaseController {
     
     private void refreshTitle() {
         String carName = (VTVehicle.get().getVehicle() != null) ? VTVehicle.get().getVehicle().getDisplayName() : null;
-        String title = AppContext.ProductName + " " + AppContext.ProductVersion;
+        String title = App.ProductName + " " + App.ProductVersion;
         if (carName != null) title = title + " for " + carName;
-        if (ac.appState.isIdle()) {
+        if (app.isIdle()) {
             String time = String.format("%1$tH:%1$tM", new Date());
             title = title + " [sleeping at " + time + "]";
         }
-        ac.stage.setTitle(title);
+        app.stage.setTitle(title);
     }
 
     private void setAppModeMenu() {
-        if (ac.appMode.allowingSleeping()) allowSleepMenuItem.setSelected(true);
+        if (app.allowingSleeping()) allowSleepMenuItem.setSelected(true);
         else stayAwakeMenuItem.setSelected(true);
     }
 
     private void logAppInfo() {
-        logger.info(AppContext.ProductName + ": " + AppContext.ProductVersion);
+        logger.info(App.ProductName + ": " + App.ProductVersion);
         
         logger.info(
                 String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
@@ -543,7 +543,7 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private boolean letItSleep() {
-        WakeSleepDialog wsd = WakeSleepDialog.show(ac.stage);
+        WakeSleepDialog wsd = WakeSleepDialog.show(app.stage);
         return wsd.letItSleep();
     }
     
@@ -552,7 +552,7 @@ public class MainController extends BaseController {
     private void exitWithMobileAccessError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                Dialogs.showErrorDialog(ac.stage,
+                Dialogs.showErrorDialog(app.stage,
                         "Your Tesla has not been configured to allow mobile " +
                         "access. You have to enable this on your car's touch"  +
                         "screen using Controls / Settings / Vehicle." +
@@ -567,7 +567,7 @@ public class MainController extends BaseController {
     private void exitWithCachingError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                Dialogs.showErrorDialog(ac.stage,
+                Dialogs.showErrorDialog(app.stage,
                         "Failed to connect to your vehicle even after a successful " +
                         "login. It may be in a deep sleep and can't be woken up.\n"  +
                         "\nPlease try to wake your Tesla and then try VisibleTesla again.",
@@ -579,7 +579,7 @@ public class MainController extends BaseController {
     }
     
     private void showLockError() {
-        Dialogs.showErrorDialog(ac.stage,
+        Dialogs.showErrorDialog(app.stage,
             "There appears to be another copy of VisibleTesla\n" +
             "running on this computer and trying to talk\n" +
             "to the same car. That can cause problems and\n" +

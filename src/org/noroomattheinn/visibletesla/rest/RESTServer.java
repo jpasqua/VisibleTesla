@@ -25,9 +25,8 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.utils.LRUMap;
-import org.noroomattheinn.visibletesla.AppMode;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
@@ -45,10 +44,10 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final Map<String,AppMode.Mode> toAppMode = 
-            Utils.newHashMap("sleep", AppMode.Mode.AllowSleeping,
-                             "wakeup", AppMode.Mode.StayAwake,
-                             "produce", AppMode.Mode.StayAwake);
+    private static final Map<String,App.Mode> toAppMode = 
+            Utils.newHashMap("sleep", App.Mode.AllowSleeping,
+                             "wakeup", App.Mode.StayAwake,
+                             "produce", App.Mode.StayAwake);
 
 /*------------------------------------------------------------------------------
  *
@@ -69,9 +68,9 @@ public class RESTServer implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    public static RESTServer create() {
+    public static RESTServer create(VTVehicle v) {
         instance = new RESTServer();
-        instance.watchVehicle();
+        instance.watch(v);
         return instance;
     }
     
@@ -112,10 +111,13 @@ public class RESTServer implements ThreadManager.Stoppable {
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
-    private void watchVehicle() {
-        VTVehicle.get().vehicle.addTracker(false, new Runnable() {
+    private void watch(final VTVehicle v) {
+        v.vehicle.addTracker(false, new Runnable() {
             @Override public void run() {
-                if (VTVehicle.get().vehicle.get() != null && !launched) { launch(); }
+                if (v.vehicle.get() != null && !launched) {
+                    launch();
+                    launched = true;
+                }
             }
         });
     }
@@ -176,15 +178,15 @@ public class RESTServer implements ThreadManager.Stoppable {
                 sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
-            AppMode.Mode requestedMode = toAppMode.get(mode);
+            App.Mode requestedMode = toAppMode.get(mode);
             if (requestedMode == null) {
                 logger.warning("Unknown app mode: " + mode + "\n");
                 sendResponse(exchange, 400, "Unknown app mode");
                 return;
             }
             logger.info("Requested app mode: " + mode);
-            if (requestedMode == AppMode.Mode.AllowSleeping) AppContext.get().appMode.allowSleeping();
-            else AppContext.get().appMode.stayAwake();
+            if (requestedMode == App.Mode.AllowSleeping) App.get().allowSleeping();
+            else App.get().stayAwake();
 
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
         }
@@ -212,12 +214,12 @@ public class RESTServer implements ThreadManager.Stoppable {
                     response = CarInfo.carDetailsAsJSON();
                     break;
                 case "inactivity_mode":
-                    response = String.format("{ \"mode\": \"%s\" }", AppContext.get().appMode);
+                    response = String.format("{ \"mode\": \"%s\" }", App.get().mode.get().name());
                     break;
                 case "dbg_sar":
                     Map<String,String> params = getParams(exchange.getRequestURI().getQuery());
                     response = params.get("p1");
-                    AppContext.get().schedulerActivity.set(response == null ? "DBG_SAR" : response);
+                    App.get().schedulerActivity.set(response == null ? "DBG_SAR" : response);
                     break;
                 default:
                     logger.warning("Unknown info request: " + infoType + "\n");
@@ -276,7 +278,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 
                 String type = getMimeType(StringUtils.substringAfterLast(path, "."));
                 if (type.equalsIgnoreCase("text/html")) {
-                    MessageTemplate mt = new MessageTemplate(AppContext.get(), new String(content, "UTF-8"));
+                    MessageTemplate mt = new MessageTemplate(new String(content, "UTF-8"));
                     content = mt.getMessage(null).getBytes();
                 } else if (cacheOnClient(type)) {
                     exchange.getResponseHeaders().add("Cache-Control", "max-age=2592000");

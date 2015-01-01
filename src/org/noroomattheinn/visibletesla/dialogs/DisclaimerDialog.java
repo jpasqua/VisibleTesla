@@ -7,7 +7,7 @@
 package org.noroomattheinn.visibletesla.dialogs;
 
 import javafx.scene.control.Dialogs;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 
 
@@ -26,7 +26,7 @@ public class DisclaimerDialog {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void show(AppContext ac) {
+    public static void show(App ac) {
         boolean disclaimer = Prefs.store().getBoolean(
                 ac.vinKey("Disclaimer"), false);
         if (!disclaimer) {

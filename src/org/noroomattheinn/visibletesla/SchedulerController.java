@@ -70,7 +70,7 @@ public class SchedulerController extends BaseController
     
     @Override public String getExternalKey() { return v.getVIN(); }
     @Override public Preferences getPreferences() { return Prefs.store(); }
-    @Override public AppContext getAppContext() { return ac; }
+    @Override public App getAppContext() { return app; }
     
     @Override public void runCommand(
             ScheduleItem.Command command, double value,
@@ -80,7 +80,7 @@ public class SchedulerController extends BaseController
                 logActivity("Can't wake vehicle - aborting", true);
                 return;
             }
-            ac.appState.setActive();
+            app.setActive();
         }
         if (!safeToRun(command)) return;
         
@@ -119,8 +119,8 @@ public class SchedulerController extends BaseController
                 r = v.startAC();
                 break;
             case HVAC_OFF: r = v.stopAC();break;
-            case AWAKE: ac.appMode.stayAwake(); break;
-            case SLEEP: ac.appMode.allowSleeping(); break;
+            case AWAKE: app.stayAwake(); break;
+            case SLEEP: app.allowSleeping(); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
             case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }
@@ -133,15 +133,15 @@ public class SchedulerController extends BaseController
     
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
-            ac.mailer.send(
+            app.mailer.send(
                 Prefs.get().notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
             return Result.Succeeded;
         }
-        MessageTemplate body = new MessageTemplate(ac, messageTarget.getActiveMsg());
-        MessageTemplate subj = new MessageTemplate(ac, messageTarget.getActiveSubj());
-        boolean sent = ac.mailer.send(
+        MessageTemplate body = new MessageTemplate(messageTarget.getActiveMsg());
+        MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
+        boolean sent = app.mailer.send(
             messageTarget.getActiveEmail(),
             subj.getMessage(null),
             body.getMessage(null));
@@ -189,12 +189,12 @@ public class SchedulerController extends BaseController
         ChargeState charge = vtVehicle.chargeState.get();
         ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
-            ac.mailer.send(
+            app.mailer.send(
                 Prefs.get().notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (status == ChargeState.Status.Unknown) {
-            ac.mailer.send(
+            app.mailer.send(
                 Prefs.get().notificationAddress.get(),
                 "Can't determine if your car is plugged in. Please check");
             return new Result(true, "Can't tell if car is plugged in. Warning sent");
@@ -287,7 +287,7 @@ public class SchedulerController extends BaseController
             "[%1$tm/%1$td/%1$ty %1$tH:%1$tM] %2$s\n%3$s", now, entry, previousEntries);
         activityLog.setText(datedEntry);
         logger.log(Level.FINE, entry);
-        if (report) { ac.schedulerActivity.set(entry); }
+        if (report) { app.schedulerActivity.set(entry); }
     }
 
 }

@@ -164,7 +164,7 @@ public class OverviewController extends BaseController {
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);
         Dialogs.showCustomDialog(
-            ac.stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
+            app.stage, pane, "Detailed Vehicle Description", "Details", DialogOptions.OK, null);
     }
     
 /*------------------------------------------------------------------------------
@@ -426,12 +426,12 @@ public class OverviewController extends BaseController {
     }
     
     private boolean displayVIN() {
-        return Prefs.store().getBoolean(ac.vinKey("DISP_VIN"), true);
+        return Prefs.store().getBoolean(app.vinKey("DISP_VIN"), true);
     }
     
     private void toggleDisplayVIN() {
-        boolean displayVIN = Prefs.store().getBoolean(ac.vinKey("DISP_VIN"), true);
-        Prefs.store().putBoolean(ac.vinKey("DISP_VIN"), !displayVIN);
+        boolean displayVIN = Prefs.store().getBoolean(app.vinKey("DISP_VIN"), true);
+        Prefs.store().putBoolean(app.vinKey("DISP_VIN"), !displayVIN);
     }
 
 /*------------------------------------------------------------------------------

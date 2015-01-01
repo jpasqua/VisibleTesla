@@ -10,7 +10,6 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
@@ -25,6 +24,7 @@ public class CarInfo {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
+    
     private static final Map<Options.PaintColor,String> ColorMap =
             Utils.<Options.PaintColor,String>newHashMap(
                 Options.PaintColor.PBCW, "white",
@@ -112,7 +112,7 @@ public class CarInfo {
                 vs.locked);
     }
     
-    public static String genCarView(AppContext ac) {
+    public static String genCarView() {
         return String.format(CarViewFormat, carDetailsAsJSON(), carStateAsJSON());
     }
 

@@ -18,7 +18,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Versions;
 import org.noroomattheinn.utils.Versions.Release;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 
 
@@ -47,7 +47,7 @@ public class VersionUpdater {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void conditionalCheckVersion(final AppContext ac) {
+    public static void conditionalCheckVersion(final App ac) {
         long lastVersionCheck = Prefs.store().getLong(ac.vinKey("LastVersionCheck"), 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
@@ -55,7 +55,7 @@ public class VersionUpdater {
         }
     }
     
-    public static boolean checkForNewerVersion(final AppContext ac) {
+    public static boolean checkForNewerVersion(final App ac) {
         Prefs.store().putLong(ac.vinKey("LastVersionCheck"), System.currentTimeMillis());
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
@@ -74,7 +74,7 @@ public class VersionUpdater {
             }
             if (lastRelease == null) return false;
             String releaseNumber = lastRelease.getReleaseNumber();
-            if (Utils.compareVersions(AppContext.ProductVersion, releaseNumber) < 0) {
+            if (Utils.compareVersions(App.ProductVersion, releaseNumber) < 0) {
                 VBox customPane = new VBox();
                 String msgText = String.format(
                         "A newer version of VisibleTesla is available:\n" +

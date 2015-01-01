@@ -134,7 +134,7 @@ public class TripController extends BaseController {
         fileChooser.setTitle("Export Trip as KMZ");
         fileChooser.setInitialDirectory(new File(initialDir));
 
-        File file = fileChooser.showSaveDialog(ac.stage);
+        File file = fileChooser.showSaveDialog(app.stage);
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
@@ -142,11 +142,11 @@ public class TripController extends BaseController {
             KMLExporter ke = new KMLExporter();
             if (ke.export(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(
-                        ac.stage, "Your data has been exported",
+                        app.stage, "Your data has been exported",
                         "Data Export Process" , "Export Complete");
             } else {
                 Dialogs.showWarningDialog(
-                        ac.stage, "There was a problem exporting your trip data to KMZ",
+                        app.stage, "There was a problem exporting your trip data to KMZ",
                         "Data Export Process" , "Export Failed");
             }
         }
@@ -159,7 +159,7 @@ public class TripController extends BaseController {
         try {
             File tempFile = File.createTempFile("VTTrip", ".html");
             FileUtils.write(tempFile, map);
-            ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
+            app.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
         } catch (IOException ex) {
             logger.warning("Unable to create temp file");
             // TO DO: Pop up a dialog!

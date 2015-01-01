@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.VTVehicle;
 import org.noroomattheinn.visibletesla.data.VTData;
@@ -67,7 +67,7 @@ public class RestStore extends CycleStore<RestCycle> {
     
     public static boolean requiresInitialLoad() {
         File f = new File(
-                AppContext.get().appFileFolder(),
+                App.get().appFileFolder(),
                 VTVehicle.get().getVehicle().getVIN()+".rest.json");
         return !f.exists();
     }

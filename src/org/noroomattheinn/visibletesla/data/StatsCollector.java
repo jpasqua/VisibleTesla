@@ -25,8 +25,7 @@ import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.AppContext;
-import org.noroomattheinn.visibletesla.DBConverter;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
@@ -73,7 +72,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final AppContext ac;
+    private final App ac;
     private final CachedTimeSeries ts;
             
 /*==============================================================================
@@ -106,7 +105,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
      */
     public StatsCollector()
             throws IOException {
-        this.ac = AppContext.get();
+        this.ac = App.get();
 
         upgradeIfNeeded(ac.appFileFolder(), VTVehicle.get().getVehicle().getVIN());
         
@@ -276,7 +275,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
         double meters = GeoUtils.distance(cur.estLat, cur.estLng, last.estLat, last.estLng);
         
         // The app becoming active makes it worth recording
-        if (ac.appState.isActive() && ac.appState.lastSet() > last.timestamp) return true;
+        if (ac.isActive() && ac.state.lastSet() > last.timestamp) return true;
         
         // A big turn makes it worth recording. Note that heading changes can be
         // spurious. They can happen when the car is sitting still. Ignore those.

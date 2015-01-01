@@ -19,7 +19,7 @@ import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.Prefs;
@@ -103,7 +103,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
         fileChooser.setTitle("Export " + cycleType + " Data");
         fileChooser.setInitialDirectory(new File(initialDir));
 
-        Stage stage = AppContext.get().stage;
+        Stage stage = App.get().stage;
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             String enclosingDirectory = file.getParent();
@@ -138,7 +138,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
         
         // Send the notification and log the body
         String subject = cycleType + " Data Submission";
-        AppContext.get().mailer.send(VTDataAddress, subject, jsonRep);
+        App.get().mailer.send(VTDataAddress, subject, jsonRep);
         logger.info(subject + ": " + jsonRep);
     }
     

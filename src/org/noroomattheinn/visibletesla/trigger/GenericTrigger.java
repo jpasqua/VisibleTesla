@@ -12,7 +12,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.VTVehicle;
 
@@ -43,7 +43,7 @@ public class GenericTrigger<T> {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext        ac;
+    private final App        ac;
     private final String            triggerName;
     private final String            key;
     private final BooleanProperty   isEnabled;
@@ -62,7 +62,7 @@ public class GenericTrigger<T> {
  * -------                                                               -------
  *============================================================================*/
     
-    public GenericTrigger(AppContext ac, BooleanProperty isEnabled, RW<T> th,
+    public GenericTrigger(App ac, BooleanProperty isEnabled, RW<T> th,
             String name, String key, Predicate predicate,
             ObjectProperty<T> targetProperty, T targetDefault,
             long bounceInterval) {

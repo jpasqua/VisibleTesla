@@ -29,7 +29,6 @@ public class MessageTemplate {
     
     // The overall message template is represented by a list of MsgComponents
     private List<MsgComponent> components;
-    private AppContext ac;
     
 /*==============================================================================
  * -------                                                               -------
@@ -37,19 +36,18 @@ public class MessageTemplate {
  * -------                                                               -------
  *============================================================================*/
 
-    public MessageTemplate(AppContext ac, String format) {
+    public MessageTemplate(String format) {
         components = new ArrayList<>();
         if (format == null) {
             return;
         }
         parse(format);
-        this.ac = ac;
     }
 
     public String getMessage(Map<String,String> contextSpecific) {
         StringBuilder sb = new StringBuilder();
         for (MsgComponent mc : components) {
-            sb.append(mc.asString(ac, contextSpecific));
+            sb.append(mc.asString(contextSpecific));
         }
         return sb.toString();
     }
@@ -103,7 +101,7 @@ public class MessageTemplate {
  *----------------------------------------------------------------------------*/
     
     private static abstract class MsgComponent {
-        abstract String asString(AppContext ac, Map<String,String> contextSpecific);
+        abstract String asString(Map<String,String> contextSpecific);
 
         // A String component is very simple - it's just a literal String
         static class StrComponent extends MsgComponent {
@@ -111,7 +109,7 @@ public class MessageTemplate {
             
             StrComponent(String s) { this.string = s; }
             
-            @Override String asString(AppContext ac, Map<String,String> cs) { return string; }
+            @Override String asString(Map<String,String> cs) { return string; }
         }
 
         // A Variable component represents a formatted reading from the car
@@ -120,7 +118,7 @@ public class MessageTemplate {
 
             VarComponent(String v) { this.varName = v; }
 
-            @Override String asString(AppContext ac, Map<String,String> contextSpecific) {
+            @Override String asString(Map<String,String> contextSpecific) {
                 String val;
                 switch (varName) {
                     case "SPEED": val = String.format(
@@ -168,10 +166,10 @@ public class MessageTemplate {
                         }
                         break;
                     case "I_STATE":
-                        val = ac.appState.toString();
+                        val = App.get().state.get().name();
                         break;
                     case "I_MODE":
-                        val = ac.appMode.toString();
+                        val = App.get().mode.get().name();
                         break;
                     case "P_CURRENT":
                         val = String.valueOf(
@@ -196,25 +194,25 @@ public class MessageTemplate {
                         val = String.valueOf(VTVehicle.get().chargeState.get().chargerPower);
                         break;
                     case "HT_SOC_G":
-                        val = genSOCGauge(ac);
+                        val = genSOCGauge();
                         break;
                     case "HT_ODO":
-                        val = genODO(ac);
+                        val = genODO();
                         break;
                     case "HT_RATED_G":
-                        val = genGaugeWrapper(ac, "Rated", VTVehicle.get().chargeState.get().range);
+                        val = genGaugeWrapper("Rated", VTVehicle.get().chargeState.get().range);
                         break;
                     case "HT_IDEAL_G":
-                        val = genGaugeWrapper(ac, "Ideal", VTVehicle.get().chargeState.get().idealRange);
+                        val = genGaugeWrapper("Ideal", VTVehicle.get().chargeState.get().idealRange);
                         break;
                     case "HT_ESTIMATED_G":
-                        val = genGaugeWrapper(ac, "Estimated", VTVehicle.get().chargeState.get().estimatedRange);
+                        val = genGaugeWrapper("Estimated", VTVehicle.get().chargeState.get().estimatedRange);
                         break;
                     case "HT_SPEEDO":
-                        val = genSpeedo(ac);
+                        val = genSpeedo();
                         break;
                     case "HT_CARVIEW":
-                        val = CarInfo.genCarView(ac);
+                        val = CarInfo.genCarView();
                         break;
                     case "ODO":
                         val = String.format(
@@ -236,7 +234,7 @@ public class MessageTemplate {
                 "speedGauge(document.getElementById('speedo').getContext('2d'), 150, 150, %f, %f);" +
                 "</script>";
             
-            private String genSpeedo(AppContext ac) {
+            private String genSpeedo() {
                 double speed = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().speed);
                 double power = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().power);
                 return String.format(SpeedoTemplate, speed, power);
@@ -250,7 +248,7 @@ public class MessageTemplate {
 		"batteryGauge(document.getElementById('bg').getContext('2d'), 100, 50, %d, %b);" +
                 "</script>";
             
-            private String genSOCGauge(AppContext ac) {
+            private String genSOCGauge() {
                 int soc = VTVehicle.get().streamState.get().soc;
                 boolean showPlug = false;
                 switch (VTVehicle.get().chargeState.get().chargingState) {
@@ -262,7 +260,7 @@ public class MessageTemplate {
                 return String.format(SOCGaugeTemplate, soc, showPlug);
             }
             
-            private static String genODO(AppContext ac) {
+            private static String genODO() {
                 String punc = VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "," : ".";
                 StringBuilder sb = new StringBuilder();
                 double odo = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().odometer);
@@ -287,7 +285,7 @@ public class MessageTemplate {
                 return sb.toString();
             }
 
-            private static String genGaugeWrapper(AppContext ac, String label, double val) {
+            private static String genGaugeWrapper(String label, double val) {
                 return genGauge(
                         label, VTVehicle.get().inProperUnits(val),
                         VTVehicle.get().unitType() == Utils.UnitType.Imperial ? "Miles" : "Km",

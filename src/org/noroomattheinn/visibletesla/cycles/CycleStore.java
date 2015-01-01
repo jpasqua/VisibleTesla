@@ -16,7 +16,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
 
@@ -50,7 +50,7 @@ public abstract class CycleStore<C extends BaseCycle>
         this.theClass = theClass;
         this.cycleType = cycleType;
         this.cycleFile = new File(
-                AppContext.get().appFileFolder(),
+                App.get().appFileFolder(),
                 VTVehicle.get().getVehicle().getVIN()+"." + cycleType + ".json");
         
         FileOutputStream fos = new FileOutputStream(cycleFile, true);

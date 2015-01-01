@@ -14,10 +14,10 @@ public class MessageTarget {
     private String subject, dfltSubj;
     private String message, dfltMsg;
 
-    private AppContext ac;
+    private App ac;
     private String theKey;
 
-    MessageTarget(AppContext ac, String baseKey, String dfltSubj, String dfltMsg) {
+    MessageTarget(App ac, String baseKey, String dfltSubj, String dfltMsg) {
         this.ac = ac;
         this.theKey = key(baseKey);
         this.dfltSubj = dfltSubj;

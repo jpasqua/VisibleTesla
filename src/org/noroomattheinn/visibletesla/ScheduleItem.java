@@ -86,7 +86,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         public String getExternalKey();
         public Preferences getPreferences();
         public void runCommand(ScheduleItem.Command command, double value, MessageTarget mt);
-        public AppContext getAppContext();
+        public App getAppContext();
     }
 
 /*------------------------------------------------------------------------------

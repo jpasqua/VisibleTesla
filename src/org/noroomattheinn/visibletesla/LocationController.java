@@ -197,7 +197,7 @@ public class LocationController extends BaseController {
         try {
             File tempFile = File.createTempFile("VTTrip", ".html");
             FileUtils.write(tempFile, map);
-            ac.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
+            app.fxApp.getHostServices().showDocument(tempFile.toURI().toString());
         } catch (IOException ex) {
             logger.warning("Unable to create temp file");
             // TO DO: Pop up a dialog!
