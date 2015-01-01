@@ -9,9 +9,9 @@ package org.noroomattheinn.visibletesla.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Dialogs;
+import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.visibletesla.App;
 
 
 /**
@@ -29,9 +29,9 @@ public class SelectVehicleDialog {
  * -------                                                               -------
  *============================================================================*/
     
-    public static Vehicle select(App appContext) {
+    public static Vehicle select(Stage stage, List<Vehicle> vehicleList) {
         int selectedVehicleIndex = 0;
-        List<Vehicle> vehicleList = appContext.tesla.getVehicles();
+        
         if (vehicleList.size() != 1) {
             // Ask the  user to select a vehicle
             List<String> cars = new ArrayList<>();
@@ -45,7 +45,7 @@ public class SelectVehicleDialog {
                 cars.add(descriptor.toString());
             }
             String selection = Dialogs.showInputDialog(
-                    appContext.stage,
+                    stage,
                     "Vehicle: ",
                     "You lucky devil, you've got more than 1 Tesla!",
                     "Select a vehicle", cars.get(0), cars);

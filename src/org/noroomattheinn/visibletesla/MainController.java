@@ -49,7 +49,6 @@ import static org.noroomattheinn.utils.Utils.timeSince;
 import static org.noroomattheinn.visibletesla.data.StatsCollector.LastExportDirKey;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
@@ -229,7 +228,7 @@ public class MainController extends BaseController {
             if (assumeAwake) {
                 wakePane.setVisible(false);
             } else {
-                Vehicle v = SelectVehicleDialog.select(app);
+                Vehicle v = SelectVehicleDialog.select(app.stage, app.tesla.getVehicles());
                 VTVehicle.get().setVehicle(v);
                 try {
                     VTData data = VTData.get();
@@ -278,8 +277,10 @@ public class MainController extends BaseController {
                 }
             }
                 
-            DisclaimerDialog.show(app);
-            VersionUpdater.conditionalCheckVersion(app);
+            showDisclaimer();
+            VersionUpdater.conditionalCheckVersion(
+                    app.vinKey("LastVersionCheck"), App.ProductVersion,
+                    app.stage, app.fxApp.getHostServices());
             app.restoreMode();
             fetchInitialCarState();
         }
@@ -462,10 +463,12 @@ public class MainController extends BaseController {
 
     // Help->Check for Updates
     @FXML private void updatesHandler(ActionEvent event) {
-        if (!VersionUpdater.checkForNewerVersion(app)) 
+        if (!VersionUpdater.checkForNewerVersion(
+                app.vinKey("LastVersionCheck"), App.ProductVersion,
+                app.stage, app.fxApp.getHostServices()))
             Dialogs.showInformationDialog(
                     app.stage,
-                    "There is no newer version available.",
+                    "You already have the latest release.",
                     "Update Check Results", "Checking for Updates");
     }
     
@@ -696,5 +699,25 @@ public class MainController extends BaseController {
             "is not allowed\n\n"+
             "VisibleTesla will close when you close this window.",
             "Multiple Copies of VisibleTesla", "Problem launching application");
+    }
+    
+    private void showDisclaimer() {
+        boolean disclaimer = Prefs.store().getBoolean(
+                app.vinKey("Disclaimer"), false);
+        if (!disclaimer) {
+            Dialogs.showInformationDialog(
+                    app.stage,
+                    "Use this application at your own risk. The author\n" +
+                    "does not guarantee its proper functioning.\n" +
+                    "It is possible that use of this application may cause\n" +
+                    "unexpected damage for which nobody but you are\n" +
+                    "responsible. Use of this application can change the\n" +
+                    "settings on your car and may have negative\n" +
+                    "consequences such as (but not limited to):\n" +
+                    "unlocking the doors, opening the sun roof, or\n" +
+                    "reducing the available charge in the battery.",
+                    "Please Read Carefully", "Disclaimer");
+        }
+        Prefs.store().putBoolean(app.vinKey("Disclaimer"), true);                
     }
 }

@@ -8,17 +8,18 @@ package org.noroomattheinn.visibletesla.dialogs;
 
 import java.net.URL;
 import java.util.List;
+import javafx.application.HostServices;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Dialogs;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Versions;
 import org.noroomattheinn.utils.Versions.Release;
-import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 
 
@@ -47,16 +48,18 @@ public class VersionUpdater {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void conditionalCheckVersion(final App ac) {
-        long lastVersionCheck = Prefs.store().getLong(ac.vinKey("LastVersionCheck"), 0);
+    public static void conditionalCheckVersion(
+            String key, String thisVersion, Stage stage, HostServices svcs) {
+        long lastVersionCheck = Prefs.store().getLong(key, 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
-            checkForNewerVersion(ac);
+            checkForNewerVersion(key, thisVersion, stage, svcs);
         }
     }
     
-    public static boolean checkForNewerVersion(final App ac) {
-        Prefs.store().putLong(ac.vinKey("LastVersionCheck"), System.currentTimeMillis());
+    public static boolean checkForNewerVersion(
+            String key, String thisVersion, Stage stage, final HostServices svcs) {
+        Prefs.store().putLong(key, System.currentTimeMillis());
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
         if (versions == null) return false; // Missing, empty, or corrupt versions file
@@ -74,7 +77,7 @@ public class VersionUpdater {
             }
             if (lastRelease == null) return false;
             String releaseNumber = lastRelease.getReleaseNumber();
-            if (Utils.compareVersions(App.ProductVersion, releaseNumber) < 0) {
+            if (Utils.compareVersions(thisVersion, releaseNumber) < 0) {
                 VBox customPane = new VBox();
                 String msgText = String.format(
                         "A newer version of VisibleTesla is available:\n" +
@@ -99,8 +102,7 @@ public class VersionUpdater {
                     platformLink.setStyle("-fx-color: blue; -fx-text-fill: blue;");
                     platformLink.setOnAction(new EventHandler<ActionEvent>() {
                         @Override public void handle(ActionEvent t) {
-                            ac.fxApp.getHostServices().showDocument(
-                                    platformURL.toExternalForm());
+                            svcs.showDocument(platformURL.toExternalForm());
 
                         }
                     });
@@ -108,15 +110,14 @@ public class VersionUpdater {
                 Hyperlink rnLink = new Hyperlink("Click to view the release notes");
                 rnLink.setOnAction(new EventHandler<ActionEvent>() {
                     @Override public void handle(ActionEvent t) {
-                        ac.fxApp.getHostServices().showDocument(
-                                versions.getReleaseNotes().toExternalForm());
+                        svcs.showDocument(versions.getReleaseNotes().toExternalForm());
 
                     }
                 });
                 customPane.getChildren().addAll(msg, rnLink);
                 customPane.getChildren().add(platformLink);
                 Dialogs.showCustomDialog(
-                        ac.stage, customPane,
+                        stage, customPane,
                         "Newer Version Available",
                         "Checking for Updates", Dialogs.DialogOptions.OK, null);
                 return true;
