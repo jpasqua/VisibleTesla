@@ -21,7 +21,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.fxextensions.TrackedObject;
 
 /**
  * VTVehicle: These methods are logically an extension to the Vehicle object.

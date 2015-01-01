@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 19, 2014
  */
-package org.noroomattheinn.visibletesla.fxextensions;
+package org.noroomattheinn.fxextensions;
 
 
 import java.util.Calendar;

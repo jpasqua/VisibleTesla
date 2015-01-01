@@ -46,6 +46,7 @@ abstract class BaseController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
+    
     protected static final long MinRefreshInterval =   2 * 1000;
     
 /*------------------------------------------------------------------------------

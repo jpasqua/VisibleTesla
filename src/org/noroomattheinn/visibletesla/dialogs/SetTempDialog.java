@@ -6,7 +6,7 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
+import org.noroomattheinn.fxextensions.VTDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;

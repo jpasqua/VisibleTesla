@@ -4,7 +4,7 @@
  * Created: Oct 16, 2013
  */
 
-package org.noroomattheinn.visibletesla.fxextensions;
+package org.noroomattheinn.fxextensions;
 
 import com.google.common.collect.Range;
 import javafx.beans.property.ObjectProperty;

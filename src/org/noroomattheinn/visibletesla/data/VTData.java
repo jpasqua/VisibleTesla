@@ -13,7 +13,7 @@ import java.util.List;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils.Predicate;
-import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.fxextensions.TrackedObject;
 
 
 /**

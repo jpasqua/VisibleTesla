@@ -4,7 +4,7 @@
  * Created: Oct 12, 2013
  */
 
-package org.noroomattheinn.visibletesla.fxextensions;
+package org.noroomattheinn.fxextensions;
 
 
 import com.google.common.collect.BiMap;

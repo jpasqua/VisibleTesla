@@ -18,7 +18,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.fxextensions.TrackedObject;
 
 /**
  * This controller allows the user to login and logout. The "logged-in" state

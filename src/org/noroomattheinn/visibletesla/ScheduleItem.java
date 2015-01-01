@@ -27,7 +27,7 @@ import javafx.scene.layout.HBox;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
-import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
+import org.noroomattheinn.fxextensions.TimeSelector;
 
 
 

@@ -19,7 +19,7 @@ import org.noroomattheinn.tesla.Tesla;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
-import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.fxextensions.TrackedObject;
 
 /**
  * App - Stores state about the app for use across the app. This is a singleton

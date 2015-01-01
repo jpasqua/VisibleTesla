@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 18 16, 2014
  */
-package org.noroomattheinn.visibletesla.fxextensions;
+package org.noroomattheinn.fxextensions;
 
 import java.util.ArrayList;
 import java.util.List;

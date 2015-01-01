@@ -27,7 +27,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.fxextensions.TimeSelector;
+import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 public class PrefsController extends BaseController {

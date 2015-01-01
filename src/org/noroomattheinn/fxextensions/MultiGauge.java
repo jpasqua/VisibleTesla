@@ -4,7 +4,7 @@
  * Created: Apr 19, 2014
  */
 
-package org.noroomattheinn.visibletesla.fxextensions;
+package org.noroomattheinn.fxextensions;
 //package multigauge;
 
 import javafx.geometry.Side;

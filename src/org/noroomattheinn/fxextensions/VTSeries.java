@@ -4,7 +4,7 @@
  * Created: Aug 25, 2013
  */
 
-package org.noroomattheinn.visibletesla.fxextensions;
+package org.noroomattheinn.fxextensions;
 
 import java.util.ArrayList;
 import java.util.List;

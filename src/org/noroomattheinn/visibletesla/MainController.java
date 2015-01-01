@@ -52,7 +52,7 @@ import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
-import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.fxextensions.TrackedObject;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -517,7 +517,7 @@ public class MainController extends BaseController {
         fileChooser.setTitle("Export " + cycleType + " Data");
         fileChooser.setInitialDirectory(new File(initialDir));
 
-        Stage stage = App.get().stage;
+        Stage stage = app.stage;
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             String enclosingDirectory = file.getParent();
@@ -620,7 +620,7 @@ public class MainController extends BaseController {
         }
     }
     
-    private class WakeEarlyPredicate implements Utils.Predicate {
+    private static class WakeEarlyPredicate implements Utils.Predicate {
         private long lastEval  = System.currentTimeMillis();
 
         @Override public boolean eval() {
@@ -633,7 +633,7 @@ public class MainController extends BaseController {
         }
     }
     
-    private class CollectNowPredicate implements VTData.TimeBasedPredicate {
+    private static class CollectNowPredicate implements VTData.TimeBasedPredicate {
         private long last = Long.MAX_VALUE;
         
         @Override public void setTime(long time) { last = time; }
@@ -643,7 +643,7 @@ public class MainController extends BaseController {
         }
     }
     
-    private class PassiveCollectionPredicate implements Utils.Predicate {
+    private static class PassiveCollectionPredicate implements Utils.Predicate {
         @Override public boolean eval() {
             return (App.get().isIdle() && App.get().allowingSleeping());
         }

@@ -17,7 +17,7 @@ import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
 import static org.noroomattheinn.utils.Utils.timeSince;
-import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
+import org.noroomattheinn.fxextensions.TrackedObject;
 
 /**
  * StatsStreamer: Generate a stream of statistics

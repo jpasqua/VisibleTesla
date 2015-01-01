@@ -8,7 +8,7 @@ package org.noroomattheinn.visibletesla;
 
 import java.io.File;
 import java.io.IOException;
-import org.noroomattheinn.visibletesla.fxextensions.MultiGauge;
+import org.noroomattheinn.fxextensions.MultiGauge;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;

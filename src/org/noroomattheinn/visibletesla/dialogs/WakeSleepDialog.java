@@ -6,7 +6,7 @@
 
 package org.noroomattheinn.visibletesla.dialogs;
 
-import org.noroomattheinn.visibletesla.fxextensions.VTDialog;
+import org.noroomattheinn.fxextensions.VTDialog;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

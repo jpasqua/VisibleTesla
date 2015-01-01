@@ -31,9 +31,9 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.visibletesla.fxextensions.VTLineChart;
-import org.noroomattheinn.visibletesla.fxextensions.TimeBasedChart;
-import org.noroomattheinn.visibletesla.fxextensions.VTSeries;
+import org.noroomattheinn.fxextensions.VTLineChart;
+import org.noroomattheinn.fxextensions.TimeBasedChart;
+import org.noroomattheinn.fxextensions.VTSeries;
 
 /**
  * GraphController: Handles the capture and display of vehicle statistics
