@@ -17,6 +17,7 @@ import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
 import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.
@@ -39,15 +40,15 @@ public class RestStore extends CycleStore<RestCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public RestStore(AppContext appContext) throws FileNotFoundException {
-        super(appContext, "rest", RestCycle.class);
+    public RestStore() throws FileNotFoundException {
+        super("rest", RestCycle.class);
         this.flushOnEachWrite = true;
-        this.exporter = new RestCycleExporter(ac);
+        this.exporter = new RestCycleExporter();
                 
-        ac.lastRestCycle.addTracker(false, new Runnable() {
+        VTData.get().lastRestCycle.addTracker(false, new Runnable() {
             @Override public void run() {
-                cycleWriter.println(ac.lastRestCycle.get().toJSONString());
-                exporter.submitData(ac.lastRestCycle.get());
+                cycleWriter.println(VTData.get().lastRestCycle.get().toJSONString());
+                exporter.submitData(VTData.get().lastRestCycle.get());
                 if (flushOnEachWrite) cycleWriter.flush();
             }
         });
@@ -64,9 +65,9 @@ public class RestStore extends CycleStore<RestCycle> {
  * 
  *----------------------------------------------------------------------------*/
     
-    public static boolean requiresInitialLoad(AppContext ac) {
+    public static boolean requiresInitialLoad() {
         File f = new File(
-                ac.appFileFolder(),
+                AppContext.get().appFileFolder(),
                 VTVehicle.get().getVehicle().getVIN()+".rest.json");
         return !f.exists();
     }
@@ -74,10 +75,10 @@ public class RestStore extends CycleStore<RestCycle> {
     public void doIntialLoad() {
         // Create a rest file based on existing data. This is a one time thing.
         logger.info("Synthesizing RestCycle data - one time only");
-        final RestMonitor rm = new RestMonitor(ac);
+        final RestMonitor rm = new RestMonitor();
         try {
             flushOnEachWrite = false;
-            ac.statsCollector.getFullTimeSeries().streamRows(null, new RowCollector() {
+            VTData.get().statsCollector.getFullTimeSeries().streamRows(null, new RowCollector() {
                 @Override public boolean collect(Row r) {
                     rm.handleNewData(r);
                     return true;
@@ -104,8 +105,8 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
             "Start Date/Time", "Ending Date/Time", "Start Range", "End Range",
             "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Loss/Hr"};
 
-    RestCycleExporter(AppContext appContext) {
-        super(appContext, "Rest", labels, Prefs.get().submitAnonRest);
+    RestCycleExporter() {
+        super("Rest", labels, Prefs.get().submitAnonRest);
     }
     
     @Override protected void emitRow(

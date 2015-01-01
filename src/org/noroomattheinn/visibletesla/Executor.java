@@ -143,7 +143,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
         public final ProgressIndicator pi;
         private int             nRetries;
 
-        Request(ProgressIndicator pi) {
+        public Request(ProgressIndicator pi) {
             this.timeOfRequest = System.currentTimeMillis();
             this.pi = pi;
             this.nRetries = 0;

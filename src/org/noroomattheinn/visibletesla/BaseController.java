@@ -21,6 +21,7 @@ import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
@@ -173,7 +174,7 @@ abstract class BaseController {
     }
     
     protected final void updateState(Vehicle.StateType whichState) {
-        ac.stateProducer.produce(whichState, progressIndicator);
+        VTData.get().stateProducer.produce(whichState, progressIndicator);
     }
 
     protected final void updateStateLater(final Vehicle.StateType whichState, long delay) {

@@ -39,6 +39,7 @@ import org.noroomattheinn.tesla.StreamState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 
 public class LocationController extends BaseController {
@@ -110,13 +111,13 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void refresh() {
-        ac.streamProducer.produce(false);
+        VTData.get().streamProducer.produce(false);
     }
 
     @Override protected void initializeState() {
         useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
-        ac.streamProducer.produce(false);
+        VTData.get().streamProducer.produce(false);
         vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,

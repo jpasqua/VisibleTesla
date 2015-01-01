@@ -3,10 +3,13 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Apr 27, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.data;
 
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Streamer;
+import org.noroomattheinn.visibletesla.Executor;
+import org.noroomattheinn.visibletesla.ThreadManager;
+import org.noroomattheinn.visibletesla.VTVehicle;
 import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**

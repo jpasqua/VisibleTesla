@@ -5,15 +5,8 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.cycles.ChargeCycle;
-import org.noroomattheinn.visibletesla.cycles.RestStore;
-import org.noroomattheinn.visibletesla.cycles.ChargeStore;
-import org.noroomattheinn.visibletesla.cycles.RestMonitor;
-import org.noroomattheinn.visibletesla.cycles.RestCycle;
-import org.noroomattheinn.visibletesla.cycles.ChargeMonitor;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -53,14 +46,7 @@ public class AppContext {
     public final AppMode appMode;
     public final AppState appState;
     public final MailGun mailer;
-    public StatsCollector statsCollector;
-    public ChargeStore chargeStore;
-    public RestStore restStore;
-    public StreamProducer streamProducer;
-    public StateProducer stateProducer;
     public CommandIssuer issuer;
-    public final TrackedObject<ChargeCycle> lastChargeCycle;
-    public final TrackedObject<RestCycle> lastRestCycle;
     public final TrackedObject<String> schedulerActivity;
 
 /*------------------------------------------------------------------------------
@@ -72,9 +58,6 @@ public class AppContext {
     private static AppContext instance = null;
             
     private final File appFilesFolder;
-    private StatsStreamer statsStreamer;
-    private ChargeMonitor chargeMonitor;
-    private RestMonitor restMonitor;
 
 /*==============================================================================
  * -------                                                               -------
@@ -89,22 +72,10 @@ public class AppContext {
     
     public static AppContext get() { return instance; }
     
-    public boolean lockAppInstance() {
+    public boolean lock() {
         return (Utils.obtainLock(VTVehicle.get().getVehicle().getVIN() + ".lck", appFilesFolder));
     }
                         
-    public void prepForVehicle(Vehicle v) throws IOException {
-        statsCollector = new StatsCollector(this);
-        initChargeStore();
-        initRestStore();
-        
-        streamProducer = new StreamProducer();
-        stateProducer = new StateProducer();
-        statsStreamer = new StatsStreamer();
-        
-        RESTServer.get().launch();
-    }
-
     public final String vinKey(String key) { return VTVehicle.get().getVehicle().getVIN() + "_" + key; }
     
     public File appFileFolder() { return appFilesFolder; }
@@ -129,32 +100,11 @@ public class AppContext {
         tesla = (prefs.enableProxy.get()) ?
             new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
         
-        this.lastChargeCycle = new TrackedObject<>(null);
-        this.lastRestCycle = new TrackedObject<>(null);
         this.schedulerActivity = new TrackedObject<>("");
         
         mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : Prefs.MailGunKey);
         issuer = new CommandIssuer();
     }
-
-/*------------------------------------------------------------------------------
- *
- * Private Utility Methods
- * 
- *----------------------------------------------------------------------------*/
-
-    private void initRestStore() throws FileNotFoundException {
-        boolean needsInitialLoad = RestStore.requiresInitialLoad(this);
-        restStore = new RestStore(this);
-        restMonitor = new RestMonitor(this);
-        if (needsInitialLoad) { restStore.doIntialLoad(); }
-    }
-    
-    private void initChargeStore() throws FileNotFoundException {
-        chargeStore = new ChargeStore(this);
-        chargeMonitor = new ChargeMonitor(this);
-    }
-    
 
 }

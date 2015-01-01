@@ -28,12 +28,12 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Vehicle.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.Options;
-import org.noroomattheinn.tesla.Options.Model;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 
 public class OverviewController extends BaseController {
@@ -255,7 +255,7 @@ public class OverviewController extends BaseController {
         });
         
         updateOdometer();   // Show at least an old reading to start
-        ac.streamProducer.produce(false);   // Update it at some point
+        VTData.get().streamProducer.produce(false);   // Update it at some point
 
         updateWheelView();  // Make sure we display the right wheels from the get-go
         updateRoofView();   // Make sure we display the right roof from the get-go

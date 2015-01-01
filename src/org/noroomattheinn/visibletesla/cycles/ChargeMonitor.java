@@ -9,8 +9,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.
@@ -24,7 +24,6 @@ public class ChargeMonitor {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final AppContext ac;
     private ChargeCycle cycleInProgress = null;
     
 /*==============================================================================
@@ -33,8 +32,7 @@ public class ChargeMonitor {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeMonitor(AppContext appContext) {
-        this.ac = appContext;
+    public ChargeMonitor() {
         this.cycleInProgress = null;
         VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
@@ -98,7 +96,7 @@ public class ChargeMonitor {
             }
         }
 
-        ac.lastChargeCycle.set(cycleInProgress);
+        VTData.get().lastChargeCycle.set(cycleInProgress);
         cycleInProgress = null;        
     }
     

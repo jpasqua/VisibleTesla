@@ -30,6 +30,7 @@ import org.noroomattheinn.utils.LRUMap;
 import org.noroomattheinn.visibletesla.AppMode;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * RESTServer: Provide minimal external services.
@@ -57,11 +58,11 @@ public class RESTServer implements ThreadManager.Stoppable {
     
     private static RESTServer instance = null;
     
-    private AppContext ac;
     private HttpServer server;
     private PWUtils pwUtils = new PWUtils();
     private byte[] encPW, salt;
-
+    private boolean launched = false;
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -69,37 +70,13 @@ public class RESTServer implements ThreadManager.Stoppable {
  *============================================================================*/
     
     public static RESTServer create() {
-        return (instance = new RESTServer());
+        instance = new RESTServer();
+        instance.watchVehicle();
+        return instance;
     }
     
     public static RESTServer get() { return instance; }
     
-    public synchronized void launch() {
-        this.ac = AppContext.get();
-        if (!Prefs.get().enableRest.get()) {
-            logger.info("REST Services are disabled");
-            return;
-        }
-        internalizePW(Prefs.get().authCode.get());
-        int restPort = Prefs.get().restPort.get();
-        try {
-            server = HttpServer.create(new InetSocketAddress(restPort), 0);
-            
-            HttpContext cc;
-            cc = server.createContext("/v1/action/activity", activityRequest);
-            cc.setAuthenticator(authenticator);
-            cc = server.createContext("/v1/action/info", infoRequest);
-            cc.setAuthenticator(authenticator);
-            cc = server.createContext("/", staticPageRequest);
-            cc.setAuthenticator(authenticator);
-
-            server.setExecutor(null); // creates a default executor
-            server.start();
-        } catch (IOException ex) {
-            logger.severe("Unable to start RESTServer: " + ex.getMessage());
-        }
-    }
-
     @Override public synchronized void stop() {
         if (server != null) {
             server.stop(0);
@@ -133,6 +110,39 @@ public class RESTServer implements ThreadManager.Stoppable {
     private RESTServer() {
         server = null;
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
+    }
+    
+    private void watchVehicle() {
+        VTVehicle.get().vehicle.addTracker(false, new Runnable() {
+            @Override public void run() {
+                if (VTVehicle.get().vehicle.get() != null && !launched) { launch(); }
+            }
+        });
+    }
+    
+    private synchronized void launch() {
+        if (!Prefs.get().enableRest.get()) {
+            logger.info("REST Services are disabled");
+            return;
+        }
+        internalizePW(Prefs.get().authCode.get());
+        int restPort = Prefs.get().restPort.get();
+        try {
+            server = HttpServer.create(new InetSocketAddress(restPort), 0);
+            
+            HttpContext cc;
+            cc = server.createContext("/v1/action/activity", activityRequest);
+            cc.setAuthenticator(authenticator);
+            cc = server.createContext("/v1/action/info", infoRequest);
+            cc.setAuthenticator(authenticator);
+            cc = server.createContext("/", staticPageRequest);
+            cc.setAuthenticator(authenticator);
+
+            server.setExecutor(null); // creates a default executor
+            server.start();
+        } catch (IOException ex) {
+            logger.severe("Unable to start RESTServer: " + ex.getMessage());
+        }
     }
 
     /**
@@ -173,8 +183,8 @@ public class RESTServer implements ThreadManager.Stoppable {
                 return;
             }
             logger.info("Requested app mode: " + mode);
-            if (requestedMode == AppMode.Mode.AllowSleeping) ac.appMode.allowSleeping();
-            else ac.appMode.stayAwake();
+            if (requestedMode == AppMode.Mode.AllowSleeping) AppContext.get().appMode.allowSleeping();
+            else AppContext.get().appMode.stayAwake();
 
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
         }
@@ -202,12 +212,12 @@ public class RESTServer implements ThreadManager.Stoppable {
                     response = CarInfo.carDetailsAsJSON();
                     break;
                 case "inactivity_mode":
-                    response = String.format("{ \"mode\": \"%s\" }", ac.appMode);
+                    response = String.format("{ \"mode\": \"%s\" }", AppContext.get().appMode);
                     break;
                 case "dbg_sar":
                     Map<String,String> params = getParams(exchange.getRequestURI().getQuery());
                     response = params.get("p1");
-                    ac.schedulerActivity.set(response == null ? "DBG_SAR" : response);
+                    AppContext.get().schedulerActivity.set(response == null ? "DBG_SAR" : response);
                     break;
                 default:
                     logger.warning("Unknown info request: " + infoType + "\n");
@@ -266,7 +276,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 
                 String type = getMimeType(StringUtils.substringAfterLast(path, "."));
                 if (type.equalsIgnoreCase("text/html")) {
-                    MessageTemplate mt = new MessageTemplate(ac, new String(content, "UTF-8"));
+                    MessageTemplate mt = new MessageTemplate(AppContext.get(), new String(content, "UTF-8"));
                     content = mt.getMessage(null).getBytes();
                 } else if (cacheOnClient(type)) {
                     exchange.getResponseHeaders().add("Cache-Control", "max-age=2592000");

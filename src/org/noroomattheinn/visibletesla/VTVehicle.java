@@ -21,6 +21,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
  * VTVehicle: These methods are logically an extension to the Vehicle object.
@@ -70,7 +71,6 @@ public class VTVehicle {
  *----------------------------------------------------------------------------*/
    
     private static VTVehicle instance = null;
-    private Vehicle vehicle;
 
 /*==============================================================================
  * -------                                                               -------
@@ -84,6 +84,7 @@ public class VTVehicle {
     public final ObjectProperty<HVACState> hvacState;
     public final ObjectProperty<GUIState> guiState;
     public final ObjectProperty<StreamState> streamState;
+    public final TrackedObject<Vehicle> vehicle;
     
     public static VTVehicle create() {
         if (instance != null) return instance;
@@ -93,22 +94,22 @@ public class VTVehicle {
     public static VTVehicle get() { return instance; }
     
     public void setVehicle(Vehicle v) {
-        vehicle = v;
+        vehicle.set(v);
         streamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
     }
     
-    public Vehicle getVehicle() { return vehicle; }
+    public Vehicle getVehicle() { return vehicle.get(); }
     
     public Options.RoofType roofType() {
         Options.RoofType roof = overrideRoof.get(Prefs.get().overideRoofTo.get());
         if (Prefs.get().overideRoofActive.get() && roof != null) return roof;
-        return (vehicle.getOptions().roofType());
+        return (getVehicle().getOptions().roofType());
     }
     
     public Options.PaintColor paintColor() {
         Options.PaintColor color = overrideColor.get(Prefs.get().overideColorTo.get());
         if (Prefs.get().overideColorActive.get() && color != null) return color;
-        return (vehicle.getOptions().paintColor());
+        return (getVehicle().getOptions().paintColor());
     }
     
     
@@ -141,7 +142,7 @@ public class VTVehicle {
         Options.WheelType wt = overrideWheels.get(Prefs.get().overideWheelsTo.get());
         if (Prefs.get().overideWheelsActive.get() && wt != null) return wt;
 
-        wt = vehicle.getOptions().wheelType();
+        wt = getVehicle().getOptions().wheelType();
         VehicleState vs = vehicleState.get();
         if (vs.wheelType != null) {
             // Check for known override wheel types, right now that's just Aero19
@@ -166,7 +167,7 @@ public class VTVehicle {
 
         Runnable poller = new Runnable() {
             @Override public void run() {
-                while (vehicle.isAsleep()) {
+                while (getVehicle().isAsleep()) {
                     Utils.sleep(TestSleepInterval, p);
                     if (ThreadManager.get().shuttingDown()) return;
                     if (forceWakeup != null && forceWakeup.get()) {
@@ -183,17 +184,17 @@ public class VTVehicle {
     public boolean forceWakeup() {
         ChargeState charge;
         for (int i = 0; i < 15; i++) {
-            if ((charge = vehicle.queryCharge()).valid) {
+            if ((charge = getVehicle().queryCharge()).valid) {
                 noteUpdatedState(charge);
                 return true;
             }
-            vehicle.wakeUp();
+            getVehicle().wakeUp();
             ThreadManager.get().sleep(5 * 1000);
         }
         return false;
     }
     
-    public final String vinKey(String key) { return vehicle.getVIN() + "_" + key; }
+    public final String vinKey(String key) { return getVehicle().getVIN() + "_" + key; }
     
     public void noteUpdatedState(final BaseState state) {
         if (Platform.isFxApplicationThread()) {
@@ -221,6 +222,7 @@ public class VTVehicle {
         this.hvacState = new SimpleObjectProperty<>();
         this.streamState = new SimpleObjectProperty<>(new StreamState());
         this.vehicleState = new SimpleObjectProperty<>();
+        this.vehicle = new TrackedObject<>(null);
     }
 
     private void noteUpdatedStateInternal(BaseState state) {

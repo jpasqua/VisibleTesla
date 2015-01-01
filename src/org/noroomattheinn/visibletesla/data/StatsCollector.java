@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 30, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.data;
 
 import com.google.common.collect.Range;
 import java.io.File;
@@ -25,6 +25,11 @@ import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.DBConverter;
+import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.ThreadManager;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * StatsCollector: Collect stats as they are generated, store them in
@@ -99,11 +104,11 @@ public class StatsCollector implements ThreadManager.Stoppable {
      *                      other contextual information.
      * @throws IOException  If the underlying persistent store has a problem.
      */
-    public StatsCollector(AppContext appContext)
+    public StatsCollector()
             throws IOException {
-        this.ac = appContext;
+        this.ac = AppContext.get();
 
-        upgradeIfNeeded(appContext.appFileFolder(), VTVehicle.get().getVehicle().getVIN());
+        upgradeIfNeeded(ac.appFileFolder(), VTVehicle.get().getVehicle().getVIN());
         
         this.ts = new CachedTimeSeries(
                 ac.appFileFolder(), VTVehicle.get().getVehicle().getVIN(),

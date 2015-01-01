@@ -221,7 +221,7 @@ public class Prefs {
     }
     
     
-    protected final Range<Long> getLoadPeriod() {
+    public final Range<Long> getLoadPeriod() {
         Range<Long> range = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
 
         long now = System.currentTimeMillis();

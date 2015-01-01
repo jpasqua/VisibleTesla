@@ -11,10 +11,10 @@ import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.CalTime;
-import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
-import org.noroomattheinn.visibletesla.StatsCollector;
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * RestMonitor - Monitor and store data about Rest Cycles.
@@ -36,7 +36,6 @@ public class RestMonitor {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final AppContext    ac;
     private final Calendar      fromLimit, toLimit;
     private final boolean       stradles;
     private RestCycle           cycleInProgress = null;
@@ -47,9 +46,7 @@ public class RestMonitor {
  * -------                                                               -------
  *============================================================================*/
 
-    public RestMonitor(AppContext appContext) {
-        this.ac = appContext;
-        
+    public RestMonitor() {
         if (Prefs.get().vsLimitEnabled.get()) {
             fromLimit = Prefs.get().vsFrom.get();
             toLimit = Prefs.get().vsTo.get();
@@ -63,7 +60,7 @@ public class RestMonitor {
         VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov, ChargeState old, ChargeState cur) {
                 handleNewData(
-                        ac.statsCollector.rowFromStates(cur, VTVehicle.get().streamState.get()));
+                        VTData.get().statsCollector.rowFromStates(cur, VTVehicle.get().streamState.get()));
             }
         });
     }
@@ -118,7 +115,7 @@ public class RestMonitor {
             // power instead of losing power. In that case just toss
             // the rest period. It will skew the data.
             if (cycleInProgress.endRange <= cycleInProgress.startRange) {
-                ac.lastRestCycle.set(cycleInProgress);
+                VTData.get().lastRestCycle.set(cycleInProgress);
             }
         }
         cycleInProgress = null;        

@@ -3,13 +3,15 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Aug 8, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.data;
 
 import java.util.Map;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.Executor;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 
 /**

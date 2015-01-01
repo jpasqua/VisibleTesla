@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.cycles.KMLExporter;
 import org.noroomattheinn.visibletesla.cycles.Trip;
 import org.noroomattheinn.visibletesla.cycles.WayPoint;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * TripController: Manage the recording, selection and display of Trips
@@ -280,7 +282,7 @@ public class TripController extends BaseController {
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        NavigableMap<Long,Row> rows = ac.statsCollector.getRangeOfLoadedRows(startTime, endTime);
+        NavigableMap<Long,Row> rows = VTData.get().statsCollector.getRangeOfLoadedRows(startTime, endTime);
 
         double startValue = rows.firstEntry().getValue().get(StatsCollector.schema, statType);
         double endValue = rows.lastEntry().getValue().get(StatsCollector.schema, statType);
@@ -385,7 +387,7 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void readTrips() {
-        Map<Long,Row> rows = ac.statsCollector.getLoadedTimeSeries().getIndex();
+        Map<Long,Row> rows = VTData.get().statsCollector.getLoadedTimeSeries().getIndex();
         for (Row r : rows.values()) {
             WayPoint wp = new WayPoint(r);
             handleNewWayPoint(wp);
@@ -394,11 +396,11 @@ public class TripController extends BaseController {
         endCurrentTrip();
         
         // Start listening for new WayPoints
-        ac.statsCollector.lastStoredStreamState.addTracker(false, new Runnable() {
+        VTData.get().statsCollector.lastStoredStreamState.addTracker(false, new Runnable() {
             @Override public void run() {
                 handleNewWayPoint(new WayPoint(
-                        ac.statsCollector.lastStoredStreamState.get(),
-                        ac.statsCollector.lastStoredChargeState.get()));
+                        VTData.get().statsCollector.lastStoredStreamState.get(),
+                        VTData.get().statsCollector.lastStoredChargeState.get()));
             }
         });
         

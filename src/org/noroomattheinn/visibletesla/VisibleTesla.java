@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Dialogs;
 import javafx.stage.Stage;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 /**
@@ -57,6 +58,7 @@ public class VisibleTesla extends Application {
         RESTServer.create();
         AppContext.create(this, stage);
         VTVehicle.create();
+        VTData.create();
         mainController = Utils.cast(root.getUserData());
         mainController.start();
     }

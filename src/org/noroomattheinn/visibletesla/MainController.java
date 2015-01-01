@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.IOException;
 import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
+import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
@@ -224,7 +226,20 @@ public class MainController extends BaseController {
             } else {
                 Vehicle v = SelectVehicleDialog.select(ac);
                 VTVehicle.get().setVehicle(v);
-                if (!ac.lockAppInstance()) {
+                try {
+                    VTData.get().setVehicle(v);
+                } catch (IOException e) {
+                    logger.severe("Unable to establish VTData: " + e.getMessage());
+                    Dialogs.showErrorDialog(ac.stage,
+                            "VisibleTesla has encountered a severe error\n"
+                            + "while trying to access its data files. Another\n"
+                            + "copy of VisibleTesla may already be writing to them\n"
+                            + "or they may be missing.\n\n"
+                            + "VisibleTesla will close when you close this window.",
+                            "Problem accessing data files", "Problem launching application");
+                    Platform.exit();
+                }
+                if (!ac.lock()) {
                     showLockError();
                     Platform.exit();
                 }
@@ -257,20 +272,10 @@ public class MainController extends BaseController {
             
             ac.appState.trackInactivity(
                     Arrays.asList(overviewTab, hvacTab, locationTab, chargeTab));
-            try {
-                VTVehicle.get().setVehicle(VTVehicle.get().getVehicle());
-                ac.prepForVehicle(VTVehicle.get().getVehicle());
-            } catch (IOException e) {
-                logger.severe("Unable to establish repository: " + e.getMessage());
-                Dialogs.showErrorDialog(ac.stage,
-                        "VisibleTesla has encountered a severe error\n"
-                        + "while trying to access its data files. Another\n"
-                        + "copy of VisibleTesla may already be writing to them\n"
-                        + "or they may be missing.\n\n"
-                        + "VisibleTesla will close when you close this window.",
-                        "Problem accessing data files", "Problem launching application");
-                Platform.exit();
-            }
+
+            // TO DO: Isn't the following line redundant?
+            VTVehicle.get().setVehicle(VTVehicle.get().getVehicle());
+
             refreshTitle();
             
             // Start the Scheduler and the Notifier
@@ -398,15 +403,15 @@ public class MainController extends BaseController {
     @FXML void exportHandler(ActionEvent event) {
         MenuItem mi = (MenuItem)event.getSource();
         if (mi == exportStatsMenuItem) {
-            ac.statsCollector.export(statsColumns);
+            VTData.get().statsCollector.export(statsColumns);
         } else if (mi == exportLocMenuItem) {
-            ac.statsCollector.export(locColumns);
+            VTData.get().statsCollector.export(locColumns);
         } else if (mi == exportAllMenuItem) {
-            ac.statsCollector.export(StatsCollector.Columns);
+            VTData.get().statsCollector.export(StatsCollector.Columns);
         } else if (mi == exportChargeMenuItem) {
-            ac.chargeStore.export();
+            VTData.get().chargeStore.export();
         } else if (mi == exportRestMenuItem) {
-            ac.restStore.export();
+            VTData.get().restStore.export();
         } else if (mi == this.vampireLossMenuItem) {
             vampireStats.showStats();
         }

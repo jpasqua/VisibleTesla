@@ -10,9 +10,9 @@ import java.util.Date;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
-import org.noroomattheinn.visibletesla.AppContext;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.data.VTData;
 
 
 
@@ -36,14 +36,14 @@ public class ChargeStore extends CycleStore<ChargeCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore(AppContext appContext) throws FileNotFoundException {
-        super(appContext, "charge", ChargeCycle.class);
-        this.exporter = new ChargeCycleExporter(ac);
+    public ChargeStore() throws FileNotFoundException {
+        super("charge", ChargeCycle.class);
+        this.exporter = new ChargeCycleExporter();
         
-        ac.lastChargeCycle.addTracker(false, new Runnable() {
+        VTData.get().lastChargeCycle.addTracker(false, new Runnable() {
             @Override public void run() {
-                cycleWriter.println(ac.lastChargeCycle.get().toJSONString());
-                exporter.submitData(ac.lastChargeCycle.get());
+                cycleWriter.println(VTData.get().lastChargeCycle.get().toJSONString());
+                exporter.submitData(VTData.get().lastChargeCycle.get());
             }
         });
     }
@@ -63,8 +63,8 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
             "End Range", "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Odometer",
             "Peak V", "Avg V", "Peak I", "Avg I", "Energy"};
 
-    ChargeCycleExporter(AppContext appContext) { 
-        super(appContext, "Charge", labels, Prefs.get().submitAnonCharge);
+    ChargeCycleExporter() { 
+        super("Charge", labels, Prefs.get().submitAnonCharge);
     }
     
     @Override protected void emitRow(

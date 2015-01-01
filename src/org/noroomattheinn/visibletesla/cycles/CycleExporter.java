@@ -12,6 +12,7 @@ import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.Dialogs;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import jxl.Workbook;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
@@ -19,7 +20,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import org.noroomattheinn.visibletesla.AppContext;
-import org.noroomattheinn.visibletesla.StatsCollector;
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
@@ -67,7 +68,6 @@ public abstract class CycleExporter<C extends BaseCycle> {
  * 
  *----------------------------------------------------------------------------*/
     
-    protected final AppContext ac;
     protected final String cycleType;
     protected final String[] columns;
     protected final BooleanProperty submitData;
@@ -80,15 +80,12 @@ public abstract class CycleExporter<C extends BaseCycle> {
     
     /**
      * Create a new CycleExporter
-     * @param appContext    The application context
      * @param cycleType     The name of this type of Cycle (eg Charge or Rest)
      * @param columns       The names of the columns of data being exported
      * @param submitData    A property that indicates whether to submit anonymous
      *                      data for this cycle type
      */
-    public CycleExporter(AppContext appContext, String cycleType, String[] columns,
-                         BooleanProperty submitData) {
-        this.ac = appContext;
+    public CycleExporter(String cycleType, String[] columns, BooleanProperty submitData) {
         this.cycleType = cycleType;
         this.columns = columns;
         this.submitData = submitData;
@@ -106,22 +103,23 @@ public abstract class CycleExporter<C extends BaseCycle> {
         fileChooser.setTitle("Export " + cycleType + " Data");
         fileChooser.setInitialDirectory(new File(initialDir));
 
-        File file = fileChooser.showSaveDialog(ac.stage);
+        Stage stage = AppContext.get().stage;
+        File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
                 Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
-            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage);
+            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(stage);
             if (exportPeriod == null)
                 return;
             List<C> cycles = provider.getCycles(exportPeriod);
             if (doExport(file, cycles)) {
                 Dialogs.showInformationDialog(
-                        ac.stage, "Your data has been exported",
+                        stage, "Your data has been exported",
                         "Data Export Process" , "Export Complete");
             } else {
                 Dialogs.showErrorDialog(
-                        ac.stage, "Unable to save to: " + file,
+                        stage, "Unable to save to: " + file,
                         "Data Export Process" , "Export Failed");
             }
         }
@@ -140,7 +138,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
         
         // Send the notification and log the body
         String subject = cycleType + " Data Submission";
-        ac.mailer.send(VTDataAddress, subject, jsonRep);
+        AppContext.get().mailer.send(VTDataAddress, subject, jsonRep);
         logger.info(subject + ": " + jsonRep);
     }
     

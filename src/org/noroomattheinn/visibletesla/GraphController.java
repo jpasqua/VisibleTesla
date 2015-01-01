@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,6 +30,7 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.fxextensions.VTLineChart;
 import org.noroomattheinn.visibletesla.fxextensions.TimeBasedChart;
 import org.noroomattheinn.visibletesla.fxextensions.VTSeries;
@@ -194,8 +196,8 @@ public class GraphController extends BaseController {
         prepSeries();
         loadExistingData();
         // Register for additions to the data
-        ac.statsCollector.lastStoredChargeState.addTracker(false, chargeHandler);
-        ac.statsCollector.lastStoredStreamState.addTracker(false, streamHandler);
+        VTData.get().statsCollector.lastStoredChargeState.addTracker(false, chargeHandler);
+        VTData.get().statsCollector.lastStoredStreamState.addTracker(false, streamHandler);
         
         setGap();
         Prefs.get().ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
@@ -308,7 +310,7 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
         
     private void loadExistingData() {
-        Map<Long,Row> rows = ac.statsCollector.getAllLoadedRows();
+        Map<Long,Row> rows = VTData.get().statsCollector.getAllLoadedRows();
         Map<String,ObservableList<XYChart.Data<Number,Number>>> typeToList = new HashMap<>();
         
         for (String type : typeToSeries.keySet()) {
@@ -372,7 +374,7 @@ public class GraphController extends BaseController {
     
     private final Runnable chargeHandler = new Runnable() {
         @Override public void run() {
-            ChargeState cs = ac.statsCollector.lastStoredChargeState.get();
+            ChargeState cs = VTData.get().statsCollector.lastStoredChargeState.get();
             addElement(typeToSeries.get(StatsCollector.VoltageKey), cs.timestamp, cs.chargerVoltage);
             addElement(typeToSeries.get(StatsCollector.CurrentKey), cs.timestamp, cs.chargerActualCurrent);
             addElement(typeToSeries.get(StatsCollector.EstRangeKey), cs.timestamp, cs.range);
@@ -384,7 +386,7 @@ public class GraphController extends BaseController {
     
     private final Runnable streamHandler = new Runnable() {
         @Override public void run() {
-            StreamState ss = ac.statsCollector.lastStoredStreamState.get();
+            StreamState ss = VTData.get().statsCollector.lastStoredStreamState.get();
             addElement(typeToSeries.get(StatsCollector.SpeedKey), ss.timestamp, ss.speed);
             addElement(typeToSeries.get(StatsCollector.PowerKey), ss.timestamp, ss.power);
         }

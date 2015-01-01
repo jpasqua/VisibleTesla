@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.VampireLossResults;
 
@@ -50,7 +51,7 @@ public class VampireStats {
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null) { return; }
         
-        final List<RestCycle> rests = ac.restStore.getCycles(exportPeriod);
+        final List<RestCycle> rests = VTData.get().restStore.getCycles(exportPeriod);
 
         displayResults(rests);
     }
@@ -84,7 +85,7 @@ public class VampireStats {
     
     
     private Range<Long> getExportPeriod() {
-        NavigableMap<Long,Row> rows = ac.statsCollector.getAllLoadedRows();
+        NavigableMap<Long,Row> rows = VTData.get().statsCollector.getAllLoadedRows();
         long timestamp = rows.firstKey(); 
         Calendar start = Calendar.getInstance();
         start.setTimeInMillis(timestamp);
@@ -98,7 +99,7 @@ public class VampireStats {
     }
     
     private Map<String,Object> genProps() {
-        NavigableMap<Long,Row> rows = ac.statsCollector.getAllLoadedRows();
+        NavigableMap<Long,Row> rows = VTData.get().statsCollector.getAllLoadedRows();
         
         Map<String,Object> props = new HashMap<>();
         long timestamp = rows.firstKey(); 

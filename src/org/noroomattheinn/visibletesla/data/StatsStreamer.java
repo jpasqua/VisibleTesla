@@ -4,7 +4,7 @@
  * Created: Nov 26, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.data;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,6 +12,10 @@ import org.noroomattheinn.tesla.BaseState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.AppContext;
+import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.ThreadManager;
+import org.noroomattheinn.visibletesla.VTVehicle;
 import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
@@ -127,8 +131,8 @@ public class StatsStreamer implements Runnable {
                 return;
             }
         }
-        ac.streamProducer.produce(Prefs.get().streamWhenPossible.get());
-        ac.stateProducer.produce(Vehicle.StateType.Charge, null);
+        VTData.get().streamProducer.produce(Prefs.get().streamWhenPossible.get());
+        VTData.get().stateProducer.produce(Vehicle.StateType.Charge, null);
     }
     
 /*------------------------------------------------------------------------------

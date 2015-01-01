@@ -11,7 +11,7 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.StatsCollector;
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 
 /**
  * WayPoint: Describes a point on a trip

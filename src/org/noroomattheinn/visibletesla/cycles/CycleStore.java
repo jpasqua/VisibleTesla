@@ -34,7 +34,6 @@ public abstract class CycleStore<C extends BaseCycle>
  * 
  *----------------------------------------------------------------------------*/
     
-    protected final AppContext ac;
     protected final File cycleFile;
     protected final PrintStream cycleWriter;
     protected final Class<C> theClass;
@@ -46,13 +45,12 @@ public abstract class CycleStore<C extends BaseCycle>
  * -------                                                               -------
  *============================================================================*/
     
-    public CycleStore(AppContext appContext, String cycleType, Class<C> theClass)
+    public CycleStore(String cycleType, Class<C> theClass)
             throws FileNotFoundException {
-        this.ac = appContext;
         this.theClass = theClass;
         this.cycleType = cycleType;
         this.cycleFile = new File(
-                ac.appFileFolder(),
+                AppContext.get().appFileFolder(),
                 VTVehicle.get().getVehicle().getVIN()+"." + cycleType + ".json");
         
         FileOutputStream fos = new FileOutputStream(cycleFile, true);
