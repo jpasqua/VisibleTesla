@@ -258,7 +258,7 @@ public class MainController extends BaseController {
                             "Problem accessing data files", "Problem launching application");
                     Platform.exit();
                 }
-                if (!app.lock()) {
+                if (!app.lock(v.getVIN())) {
                     showLockError();
                     Platform.exit();
                 }
@@ -291,7 +291,7 @@ public class MainController extends BaseController {
             boolean remoteStartEnabled = VTVehicle.get().getVehicle().remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
-            app.trackInactivity(
+            app.watchForUserActivity(
                     Arrays.asList(overviewTab, hvacTab, locationTab, chargeTab));
 
             // TO DO: Isn't the following line redundant?

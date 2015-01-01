@@ -365,42 +365,42 @@ public class NotifierController extends BaseController {
             lastOdoCheck = Prefs.store().getDouble(OdoCheckKey, 0);
                     
             socHitsTrigger = new GenericTrigger<>(
-                app, socHits.selectedProperty(), bdHelper,
+                socHits.selectedProperty(), bdHelper,
                 "SOC", NotifySOCHitsKey,  GenericTrigger.Predicate.HitsOrExceeds,
                 socHitsField.numberProperty(), new BigDecimal(88.0), TypicalDebounce);
             socHitsMessageTarget = new MessageTarget(
                     app, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
             
             socFallsTrigger = new GenericTrigger<>(
-                app, socFalls.selectedProperty(), bdHelper,
+                socFalls.selectedProperty(), bdHelper,
                 "SOC", NotifySOCFallsKey, GenericTrigger.Predicate.FallsBelow,
                 socFallsField.numberProperty(), new BigDecimal(50.0), TypicalDebounce);
             socFallsMessageTarget = new MessageTarget(
                     app, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
             
             speedHitsTrigger = new GenericTrigger<>(
-                app, speedHits.selectedProperty(), bdHelper,
+                speedHits.selectedProperty(), bdHelper,
                 "Speed", NotifySpeedKey, GenericTrigger.Predicate.HitsOrExceeds,
                 speedHitsField.numberProperty(), new BigDecimal(70.0), SpeedDebounce);
             shMessageTarget = new MessageTarget(
                     app, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
             
             odoHitsTrigger = new GenericTrigger<>(
-                app, odoHits.selectedProperty(), bdHelper,
+                odoHits.selectedProperty(), bdHelper,
                 "Odometer", NotifyOdoKey, GenericTrigger.Predicate.GT,
                 odoHitsField.numberProperty(), new BigDecimal(14325), TypicalDebounce);
             ohMessageTarget = new MessageTarget(
                     app, NotifyOdoKey, OdoHitsSubj, OdoHitsMsg);
             
             seTrigger = new GenericTrigger<>(
-                app, schedulerEvent.selectedProperty(), stringHelper,
+                schedulerEvent.selectedProperty(), stringHelper,
                 "Scheduler", NotifySEKey, GenericTrigger.Predicate.AnyChange,
                 new SimpleObjectProperty<>("Anything"), "Anything", 0L);
             seMessageTarget = new MessageTarget(
                     app, NotifySEKey, SchedEventSubj, SchedEventMsg);
             
             csTrigger = new GenericTrigger<>(
-                app, chargeState.selectedProperty(), stringListHelper,
+                chargeState.selectedProperty(), stringListHelper,
                 "Charge State", NotifyCSKey, GenericTrigger.Predicate.Becomes,
                 csSelectProp, new StringList("Anything"), 0L);
             csMessageTarget = new MessageTarget(
@@ -409,7 +409,7 @@ public class NotifierController extends BaseController {
             for (int i = 0; i < 4; i++) {
                 GeoTrigger gt = geoTriggers[i];
                 gt.trigger = new GenericTrigger<>(
-                    app, gt.enabled.selectedProperty(), areaHelper,
+                    gt.enabled.selectedProperty(), areaHelper,
                     "Enter Area", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
                     gt.prop, new Area(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
@@ -418,7 +418,7 @@ public class NotifierController extends BaseController {
             for (int i = 4; i < 8; i++) {
                 GeoTrigger gt = geoTriggers[i];
                 gt.trigger = new GenericTrigger<>(
-                    app, gt.enabled.selectedProperty(), areaHelper,
+                    gt.enabled.selectedProperty(), areaHelper,
                     "Left Area", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
                     gt.prop, new Area(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(

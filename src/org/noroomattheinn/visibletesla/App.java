@@ -22,8 +22,8 @@ import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 /**
- * App - Stores application-wide state for use by all of the individual
- * Tabs and provides a number of utility methods.
+ * App - Stores state about the app for use across the app. This is a singleton
+ * that is created at app startup.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -71,19 +71,47 @@ public class App {
  * -------                                                               -------
  *============================================================================*/
     
-    public static App create(Application app, Stage stage) {
+    /**
+     * Called once when the app starts in order to create the singleton. This is
+     * logically a separate factory, but it is here for convenience.
+     * @param fxApp
+     * @param stage
+     * @return  The newly created singleton or the existing singleton if already
+     *          created.
+     */
+    public static App create(Application fxApp, Stage stage) {
         if (instance != null) { return instance; }
-        return (instance = new App(app, stage));
+        return (instance = new App(fxApp, stage));
     }
 
+    /**
+     * Fetch the singleton App instance.
+     * @return  The singleton App instance
+     */
     public static App get() { return instance; }
 
-    public boolean lock() {
-        return (Utils.obtainLock(VTVehicle.get().getVehicle().getVIN() + ".lck", appFilesFolder));
+    /**
+     * Establish ourselves as the only running instance of the app for
+     * a particular vehicle id.
+     * @return  true is we got the lock
+     *          false if another instance is already running
+     */
+    public boolean lock(String vin) {
+        return (Utils.obtainLock(vin + ".lck", appFilesFolder));
     }
 
+    /**
+     * Convenience function to return a Prefs key that is prefixed by the VIN
+     * of the current vehicle.
+     * @param key   The raw Prefs key
+     * @return      The Prefs key prefixed by the VIN
+     */
     public final String vinKey(String key) { return VTVehicle.get().vinKey(key); }
 
+    /**
+     * Get the system folder in which app related files are to be stored.
+     * @return  The folder in which app related files are to be stored
+     */
     public File appFileFolder() { return appFilesFolder; }
 
 /*------------------------------------------------------------------------------
@@ -92,12 +120,33 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
+    /**
+     * Change the app mode to AllowSleeping
+     */
     public void allowSleeping() { mode.set(Mode.AllowSleeping); }
+    
+    /**
+     * Determine whether we are in AllowSleeping mode
+     * @return  true if we are in AllowSleeping mode
+     *          false otherwise
+     */
     public boolean allowingSleeping() { return mode.get() == Mode.AllowSleeping; }
 
+    /**
+     * Change the app mode to StayAwake
+     */
     public void stayAwake() { mode.set(Mode.StayAwake); }
+    
+    /**
+     * Determine whether we are in StayAwake mode
+     * @return  true if we are in StayAwake mode
+     *          false otherwise
+     */
     public boolean stayingAwake() { return mode.get() == Mode.StayAwake; }
 
+    /**
+     * Set the mode based on the value in the persistent store
+     */
     public void restoreMode() {
         String modeName = Prefs.store().get(vinKey("InactivityMode"), Mode.StayAwake.name());
         // Handle obsolete values or changed names
@@ -116,13 +165,36 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    public void setActive() { state.set(State.Active); }
+    /**
+     * Determine whether the app is in the Active state
+     * @return  true if we are in Active state
+     *          false otherwise
+     */
     public boolean isActive() { return state.get() == State.Active; }
-
-    public void setIdle() { state.set(State.Idle); }
+    
+    /**
+     * Put the app into the Active state
+     */
+    public void setActive() { state.set(State.Active); }
+    
+    /**
+     * Determine whether the app is in the Idle state
+     * @return  true if we are in Active state
+     *          false otherwise
+     */
     public boolean isIdle() { return state.get() == State.Idle; }
+    
+    /**
+     * Put the app into the Idle state
+     */
+    public void setIdle() { state.set(State.Idle); }
 
-    public void trackInactivity(List<Tab> tabs) {
+    /**
+     * Begin watching for user inactivity (keyboard input, mouse movements, etc.)
+     * on any of the specified Tabs.
+     * @param tabs  Watch for user activity targeted to any of these tabs.
+     */
+    public void watchForUserActivity(List<Tab> tabs) {
         for (Tab t : tabs) {
             Node n = t.getContent();
             n.addEventFilter(KeyEvent.ANY, new EventPassThrough());
@@ -138,9 +210,14 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    private App(Application app, Stage stage) {
+    /**
+     * Create an App object
+     * @param fxApp The JavaFX Application object
+     * @param stage The JavaFX stage of the main window
+     */
+    private App(Application fxApp, Stage stage) {
         Prefs prefs = Prefs.get();
-        this.fxApp = app;
+        this.fxApp = fxApp;
         this.stage = stage;
         this.lastEventTime = System.currentTimeMillis();
 
@@ -148,11 +225,8 @@ public class App {
         this.mode.addTracker(false, new Runnable() {
             @Override public void run() {
                 logger.finest("App Mode changed to " + mode.get());
-                Prefs.store().put(
-                        vinKey("InactivityMode"), mode.get().name());
-                if (mode.get() == Mode.StayAwake) {
-                    setActive();
-                }
+                Prefs.store().put(vinKey("InactivityMode"), mode.get().name());
+                if (mode.get() == Mode.StayAwake) { setActive(); }
             }
         });
 
