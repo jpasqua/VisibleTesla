@@ -3,14 +3,13 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 22, 2014
  */
-package org.noroomattheinn.visibletesla.cycles;
+package org.noroomattheinn.visibletesla.data;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.visibletesla.VTVehicle;
-import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.

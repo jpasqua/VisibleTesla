@@ -17,7 +17,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.noroomattheinn.tesla.Tesla;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
@@ -48,14 +47,12 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    public final Application fxApp;
-    public final Tesla tesla;
-    public final Stage stage;
-    public final MailGun mailer;
-    public CommandIssuer issuer;
-    public final TrackedObject<String> schedulerActivity;
-    public final TrackedObject<Mode> mode;
-    public final TrackedObject<State> state;
+    public final Application            fxApp;
+    public final Tesla                  tesla;
+    public final Stage                  stage;
+    public final TrackedObject<String>  schedulerActivity;
+    public final TrackedObject<Mode>    mode;
+    public final TrackedObject<State>   state;
 
 /*------------------------------------------------------------------------------
  *
@@ -63,9 +60,10 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    private static App instance = null;
-    private final File appFilesFolder;
-    private long lastEventTime = System.currentTimeMillis();
+    private static App  instance = null;
+    
+    private final File  appFilesFolder;
+    private long        lastEventTime;
 
 /*==============================================================================
  * -------                                                               -------
@@ -144,6 +142,7 @@ public class App {
         Prefs prefs = Prefs.get();
         this.fxApp = app;
         this.stage = stage;
+        this.lastEventTime = System.currentTimeMillis();
 
         this.mode = new TrackedObject<>(Mode.StayAwake);
         this.mode.addTracker(false, new Runnable() {
@@ -175,10 +174,6 @@ public class App {
                 ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
 
         this.schedulerActivity = new TrackedObject<>("");
-
-        mailer = new MailGun("api", prefs.useCustomMailGunKey.get()
-                ? prefs.mailGunKey.get() : Prefs.MailGunKey);
-        issuer = new CommandIssuer();
     }
 
 /*------------------------------------------------------------------------------

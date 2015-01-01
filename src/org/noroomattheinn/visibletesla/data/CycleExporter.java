@@ -3,27 +3,22 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 23, 2014
  */
-package org.noroomattheinn.visibletesla.cycles;
+package org.noroomattheinn.visibletesla.data;
 
 import com.google.common.collect.Range;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
-import javafx.scene.control.Dialogs;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import jxl.Workbook;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import org.noroomattheinn.visibletesla.App;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import static org.noroomattheinn.tesla.Tesla.logger;
+import org.noroomattheinn.visibletesla.Mailer;
 import org.noroomattheinn.visibletesla.Prefs;
-import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 
 /**
  * CycleExporter: Does most of the heavy lifting of exporting Cycles. Subclasses
@@ -96,33 +91,9 @@ public abstract class CycleExporter<C extends BaseCycle> {
      * @param provider  An object that can provide a list of Cycles for a 
      *                  specified range of times.
      */
-    public void export(CycleStore<C> provider) {        
-        String initialDir = Prefs.store().get(
-                StatsCollector.LastExportDirKey, System.getProperty("user.home"));
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export " + cycleType + " Data");
-        fileChooser.setInitialDirectory(new File(initialDir));
-
-        Stage stage = App.get().stage;
-        File file = fileChooser.showSaveDialog(stage);
-        if (file != null) {
-            String enclosingDirectory = file.getParent();
-            if (enclosingDirectory != null)
-                Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
-            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(stage);
-            if (exportPeriod == null)
-                return;
+    public boolean export(CycleStore<C> provider, File file, Range<Long> exportPeriod) {        
             List<C> cycles = provider.getCycles(exportPeriod);
-            if (doExport(file, cycles)) {
-                Dialogs.showInformationDialog(
-                        stage, "Your data has been exported",
-                        "Data Export Process" , "Export Complete");
-            } else {
-                Dialogs.showErrorDialog(
-                        stage, "Unable to save to: " + file,
-                        "Data Export Process" , "Export Failed");
-            }
-        }
+            return doExport(file, cycles);
     }
     
     /**
@@ -138,7 +109,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
         
         // Send the notification and log the body
         String subject = cycleType + " Data Submission";
-        App.get().mailer.send(VTDataAddress, subject, jsonRep);
+        Mailer.get().send(VTDataAddress, subject, jsonRep);
         logger.info(subject + ": " + jsonRep);
     }
     

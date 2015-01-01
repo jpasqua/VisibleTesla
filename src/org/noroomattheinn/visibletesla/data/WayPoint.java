@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 27, 2013
  */
-package org.noroomattheinn.visibletesla.cycles;
+package org.noroomattheinn.visibletesla.data;
 
 import java.util.Date;
 import org.noroomattheinn.tesla.ChargeState;

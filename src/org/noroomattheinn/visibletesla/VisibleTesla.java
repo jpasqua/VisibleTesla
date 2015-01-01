@@ -54,10 +54,11 @@ public class VisibleTesla extends Application {
         // complete and that it can start the mainline activity of the App.
         Dialogs.useNativeChrome(true);
         Prefs.create();
+        Mailer.create(Prefs.get());
         ThreadManager.create();
         App.create(this, stage);
         VTVehicle.create();
-        VTData.create();
+        VTData.create(App.get().appFileFolder());
         RESTServer.create(VTVehicle.get());
         mainController = Utils.cast(root.getUserData());
         mainController.start();

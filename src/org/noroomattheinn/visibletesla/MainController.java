@@ -6,6 +6,8 @@
 
 package org.noroomattheinn.visibletesla;
 
+import com.google.common.collect.Range;
+import java.io.File;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.IOException;
 import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
@@ -33,6 +35,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.ChargeState;
@@ -43,7 +46,9 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
+import static org.noroomattheinn.visibletesla.data.StatsCollector.LastExportDirKey;
 import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.DisclaimerDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
@@ -227,7 +232,22 @@ public class MainController extends BaseController {
                 Vehicle v = SelectVehicleDialog.select(app);
                 VTVehicle.get().setVehicle(v);
                 try {
-                    VTData.get().setVehicle(v);
+                    VTData data = VTData.get();
+                    data.setVehicle(v);
+                    data.setWakeEarly(new WakeEarlyPredicate());
+                    data.setPassiveCollection(new PassiveCollectionPredicate());
+                    data.setCollectNow(new CollectNowPredicate());
+                    if (data.upgradeRequired()) {
+                        Dialogs.showInformationDialog(
+                            app.stage,
+                            "Your data files must be upgraded\nPress OK to begin the process.",
+                            "Data Upgrade Process" , "Data File Upgrade");
+                        data.doUpgrade();
+                        Dialogs.showInformationDialog(
+                            app.stage,
+                            "Your data files have been upgraded\nPress OK to continue.",
+                            "Data Upgrade Process" , "Process Complete");
+                    }
                 } catch (IOException e) {
                     logger.severe("Unable to establish VTData: " + e.getMessage());
                     Dialogs.showErrorDialog(app.stage,
@@ -402,21 +422,15 @@ public class MainController extends BaseController {
     
     @FXML void exportHandler(ActionEvent event) {
         MenuItem mi = (MenuItem)event.getSource();
-        if (mi == exportStatsMenuItem) {
-            VTData.get().statsCollector.export(statsColumns);
-        } else if (mi == exportLocMenuItem) {
-            VTData.get().statsCollector.export(locColumns);
-        } else if (mi == exportAllMenuItem) {
-            VTData.get().statsCollector.export(StatsCollector.Columns);
-        } else if (mi == exportChargeMenuItem) {
-            VTData.get().chargeStore.export();
-        } else if (mi == exportRestMenuItem) {
-            VTData.get().restStore.export();
-        } else if (mi == this.vampireLossMenuItem) {
-            vampireStats.showStats();
-        }
+        if (mi == exportStatsMenuItem) { exportStats(statsColumns); }
+        else if (mi == exportLocMenuItem) { exportStats(locColumns); }
+        else if (mi == exportAllMenuItem) { exportStats(StatsCollector.Columns); }
+        else if (mi == exportChargeMenuItem) { exportCycles("Charge"); }
+        else if (mi == exportRestMenuItem) { exportCycles("Rest"); }
+        else if (mi == this.vampireLossMenuItem) { vampireStats.showStats(); }
     }
     
+
     // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
         if (event.getTarget() == allowSleepMenuItem) app.allowSleeping();
@@ -463,7 +477,7 @@ public class MainController extends BaseController {
             Dialogs.showErrorDialog(app.stage, "You must enter a password");
             return;
         }
-        app.issuer.issueCommand(new Callable<Result>() {
+        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
             @Override public Result call() { 
                 return VTVehicle.get().getVehicle().remoteStart(unp[1]); 
             } }, true, null, "Remote Start");
@@ -472,22 +486,89 @@ public class MainController extends BaseController {
     // Options->Action_>{Honk,Flsh,Wakeup}
     
     @FXML private void honk(ActionEvent e) {
-        app.issuer.issueCommand(new Callable<Result>() {
+        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().honk(); }
         }, true, null, "Honk");
     }
     @FXML private void flash(ActionEvent e) {
-        app.issuer.issueCommand(new Callable<Result>() {
+        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().flashLights(); }
         }, true, null, "Flash Lights");
     }
     @FXML private void wakeup(ActionEvent e) {
-        app.issuer.issueCommand(new Callable<Result>() {
+        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().wakeUp(); }
         }, true, null, "Wake up");
     }
     
+/*------------------------------------------------------------------------------
+ *
+ * Export Handling Methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private void exportCycles(String cycleType) {
+        String initialDir = Prefs.store().get(
+                StatsCollector.LastExportDirKey, System.getProperty("user.home"));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export " + cycleType + " Data");
+        fileChooser.setInitialDirectory(new File(initialDir));
 
+        Stage stage = App.get().stage;
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            String enclosingDirectory = file.getParent();
+            if (enclosingDirectory != null)
+                Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
+            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(stage);
+            if (exportPeriod == null)
+                return;
+            boolean exported;
+            if (cycleType.equals("Charge")) {
+                exported = VTData.get().exportCharges(file, exportPeriod);
+            } else {
+                exported = VTData.get().exportRests(file, exportPeriod);
+            }
+            if (exported) {
+                Dialogs.showInformationDialog(
+                        stage, "Your data has been exported",
+                        "Data Export Process" , "Export Complete");
+            } else {
+                Dialogs.showErrorDialog(
+                        stage, "Unable to save to: " + file,
+                        "Data Export Process" , "Export Failed");
+            }
+        }
+    }
+    
+    private void exportStats(String[] columns) {
+        String initialDir = Prefs.store().get(
+                LastExportDirKey, System.getProperty("user.home"));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Data");
+        fileChooser.setInitialDirectory(new File(initialDir));
+
+        File file = fileChooser.showSaveDialog(app.stage);
+        if (file != null) {
+            String enclosingDirectory = file.getParent();
+            if (enclosingDirectory != null)
+                Prefs.store().put(LastExportDirKey, enclosingDirectory);
+            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(app.stage);
+            if (exportPeriod == null)
+                return;
+            if (VTData.get().statsCollector.export(
+                    file, exportPeriod, columns)) {
+                Dialogs.showInformationDialog(
+                    app.stage, "Your data has been exported",
+                    "Data Export Process" , "Export Complete");
+            } else {
+                Dialogs.showErrorDialog(
+                    app.stage, "Unable to save to: " + file,
+                    "Data Export Process" , "Export Failed");
+            }
+        }
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Other UI Handlers and utilities
@@ -536,6 +617,35 @@ public class MainController extends BaseController {
         }
     }
     
+    private class WakeEarlyPredicate implements Utils.Predicate {
+        private long lastEval  = System.currentTimeMillis();
+
+        @Override public boolean eval() {
+            try {
+                if (App.get().mode.lastSet() > lastEval && App.get().stayingAwake()) return true;
+                return ThreadManager.get().shuttingDown();
+            } finally {
+                lastEval = System.currentTimeMillis();
+            }
+        }
+    }
+    
+    private class CollectNowPredicate implements VTData.TimeBasedPredicate {
+        private long last = Long.MAX_VALUE;
+        
+        @Override public void setTime(long time) { last = time; }
+
+        @Override public boolean eval() {
+            return (App.get().isActive() && App.get().state.lastSet() > last);
+        }
+    }
+    
+    private class PassiveCollectionPredicate implements Utils.Predicate {
+        @Override public boolean eval() {
+            return (App.get().isIdle() && App.get().allowingSleeping());
+        }
+    }
+
 /*------------------------------------------------------------------------------
  *
  * Display various info and warning dialogs

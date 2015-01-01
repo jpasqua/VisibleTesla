@@ -3,8 +3,9 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 23, 2014
  */
-package org.noroomattheinn.visibletesla.cycles;
+package org.noroomattheinn.visibletesla.data;
 
+import com.google.common.collect.Range;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -14,10 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
-import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.VTVehicle;
-import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.
@@ -40,8 +39,8 @@ public class RestStore extends CycleStore<RestCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public RestStore() throws FileNotFoundException {
-        super("rest", RestCycle.class);
+    public RestStore(File container) throws FileNotFoundException {
+        super("rest", RestCycle.class, container);
         this.flushOnEachWrite = true;
         this.exporter = new RestCycleExporter();
                 
@@ -54,7 +53,9 @@ public class RestStore extends CycleStore<RestCycle> {
         });
     }
    
-    public void export() { exporter.export(this); }
+    public boolean export(File toFile, Range<Long> exportPeriod) {
+        return exporter.export(this, toFile, exportPeriod);
+    }
     
     
 /*------------------------------------------------------------------------------
@@ -65,9 +66,9 @@ public class RestStore extends CycleStore<RestCycle> {
  * 
  *----------------------------------------------------------------------------*/
     
-    public static boolean requiresInitialLoad() {
+    public static boolean requiresInitialLoad(File container) {
         File f = new File(
-                App.get().appFileFolder(),
+                container,
                 VTVehicle.get().getVehicle().getVIN()+".rest.json");
         return !f.exists();
     }

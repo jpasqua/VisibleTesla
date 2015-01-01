@@ -639,7 +639,7 @@ public class NotifierController extends BaseController {
         } else {
             MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(target.getActiveSubj());
-            app.mailer.send(
+            Mailer.get().send(
                 addr, st.getMessage(contextSpecific), mt.getMessage(contextSpecific));
         }
     }

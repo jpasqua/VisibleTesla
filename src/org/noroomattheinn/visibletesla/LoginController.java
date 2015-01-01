@@ -162,7 +162,7 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void attemptLogin(String username, String password) {
-        app.issuer.issueCommand(
+        ThreadManager.get().issuer().issueCommand(
                 new AttemptLogin(username, password), false, progressIndicator, "Attempt Login");
     }
 

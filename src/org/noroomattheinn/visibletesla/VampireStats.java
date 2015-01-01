@@ -5,7 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.cycles.RestCycle;
+import org.noroomattheinn.visibletesla.data.RestCycle;
 import com.google.common.collect.Range;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class VampireStats {
         Range<Long> exportPeriod = getExportPeriod();
         if (exportPeriod == null) { return; }
         
-        final List<RestCycle> rests = VTData.get().restStore.getCycles(exportPeriod);
+        final List<RestCycle> rests = VTData.get().getRestCycles(exportPeriod);
 
         displayResults(rests);
     }

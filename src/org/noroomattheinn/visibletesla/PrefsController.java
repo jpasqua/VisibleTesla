@@ -132,7 +132,7 @@ public class PrefsController extends BaseController {
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!app.mailer.send(addr, msg + date)) {
+        if (!Mailer.get().send(addr, msg + date)) {
             Dialogs.showWarningDialog(app.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +

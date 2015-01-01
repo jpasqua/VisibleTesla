@@ -12,7 +12,7 @@ import org.noroomattheinn.tesla.BaseState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.App;
+import org.noroomattheinn.utils.Utils.Predicate;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
@@ -42,8 +42,9 @@ public class StatsStreamer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final App    ac;
     private final TrackedObject<CarState> carState;
+    private Predicate wakeEarly = Utils.alwaysFalse;
+    private Predicate passiveCollection = Utils.alwaysFalse;
     
 /*==============================================================================
  * -------                                                               -------
@@ -52,7 +53,6 @@ public class StatsStreamer implements Runnable {
  *============================================================================*/
     
     public StatsStreamer() {
-        this.ac = App.get();
         this.carState = new TrackedObject<>(CarState.Idle);
         
         // The following two changeListeners look similar, but the order of
@@ -85,7 +85,15 @@ public class StatsStreamer implements Runnable {
         });
         ThreadManager.get().launch((Runnable)this, "CollectStats");
     }
-        
+    
+    public void setWakeEarly(Predicate wakeEarly) {
+        this.wakeEarly = wakeEarly;
+    }
+    
+    public void setPassiveCollection(Predicate pc) {
+        this.passiveCollection = pc;
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - The main body of the production thread
@@ -93,16 +101,14 @@ public class StatsStreamer implements Runnable {
  *----------------------------------------------------------------------------*/
     
     @Override public void run() {
-        WakeEarlyPredicate wakeEarly = new WakeEarlyPredicate();
-
         try {
             while (!ThreadManager.get().shuttingDown()) {
-                String theState = String.format(
-                        "App State: %s, App Mode: %s, Car State: %s",
-                        ac.state, ac.mode.get().name(), carState.get());
-                logger.finer(theState);
+//                String theState = String.format(
+//                        "App State: %s, App Mode: %s, Car State: %s",
+//                        App.get().state, App.get().mode.get().name(), carState.get());
+//                logger.finer(theState);
                 boolean produce = true;
-                if (ac.isIdle() && ac.allowingSleeping()) {
+                if (passiveCollection.eval()) {
                     if (carState.get() == CarState.Idle) {
                         if (timeSince(carState.lastSet()) < AllowSleepInterval) {
                             produce = false;
@@ -131,8 +137,8 @@ public class StatsStreamer implements Runnable {
                 return;
             }
         }
-        VTData.get().streamProducer.produce(Prefs.get().streamWhenPossible.get());
-        VTData.get().stateProducer.produce(Vehicle.StateType.Charge, null);
+        VTData.get().produceStream(Prefs.get().streamWhenPossible.get());
+        VTData.get().produceState(Vehicle.StateType.Charge, null);
     }
     
 /*------------------------------------------------------------------------------
@@ -152,19 +158,6 @@ public class StatsStreamer implements Runnable {
         return (carState.get() == CarState.Moving || carState.get() == CarState.Charging);
     }
     
-    private class WakeEarlyPredicate implements Utils.Predicate {
-        private long lastEval  = System.currentTimeMillis();
-
-        @Override public boolean eval() {
-            try {
-                if (ac.mode.lastSet() > lastEval && ac.stayingAwake()) return true;
-                return ThreadManager.get().shuttingDown();
-            } finally {
-                lastEval = System.currentTimeMillis();
-            }
-        }
-    }
-
     private boolean wakeupVehicle() {
         if (VTVehicle.get().forceWakeup()) { carState.set(CarState.Idle); return true; }
         return false;

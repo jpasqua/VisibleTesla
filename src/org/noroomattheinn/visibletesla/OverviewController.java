@@ -255,7 +255,7 @@ public class OverviewController extends BaseController {
         });
         
         updateOdometer();   // Show at least an old reading to start
-        VTData.get().streamProducer.produce(false);   // Update it at some point
+        VTData.get().produceStream(false);   // Update it at some point
 
         updateWheelView();  // Make sure we display the right wheels from the get-go
         updateRoofView();   // Make sure we display the right roof from the get-go

@@ -3,8 +3,10 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 23, 2014
  */
-package org.noroomattheinn.visibletesla.cycles;
+package org.noroomattheinn.visibletesla.data;
 
+import com.google.common.collect.Range;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
 import jxl.write.WritableSheet;
@@ -12,8 +14,6 @@ import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.VTVehicle;
-import org.noroomattheinn.visibletesla.data.VTData;
-
 
 
 /**
@@ -36,8 +36,8 @@ public class ChargeStore extends CycleStore<ChargeCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore() throws FileNotFoundException {
-        super("charge", ChargeCycle.class);
+    public ChargeStore(File container) throws FileNotFoundException {
+        super("charge", ChargeCycle.class, container);
         this.exporter = new ChargeCycleExporter();
         
         VTData.get().lastChargeCycle.addTracker(false, new Runnable() {
@@ -48,7 +48,9 @@ public class ChargeStore extends CycleStore<ChargeCycle> {
         });
     }
     
-    public void export() { exporter.export(this); }
+    public boolean export(File toFile, Range<Long> exportPeriod) {
+        return exporter.export(this, toFile, exportPeriod);
+    }
 }
 
 /*------------------------------------------------------------------------------

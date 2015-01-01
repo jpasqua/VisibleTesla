@@ -7,12 +7,6 @@
 package org.noroomattheinn.visibletesla;
 
 import java.io.IOException;
-import static java.lang.Thread.State.BLOCKED;
-import static java.lang.Thread.State.NEW;
-import static java.lang.Thread.State.RUNNABLE;
-import static java.lang.Thread.State.TERMINATED;
-import static java.lang.Thread.State.TIMED_WAITING;
-import static java.lang.Thread.State.WAITING;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,25 +33,22 @@ public class ThreadManager {
     
     private int threadID = 0;
     
-    private final ArrayList<Thread> threads = new ArrayList<>();
+    private final ArrayList<Thread> threads;
     private final List<Stoppable>   stopList;
-    private final Timer timer = new Timer();
-    private boolean shuttingDown;
-    
-    private ThreadManager() {
-        this.stopList = new ArrayList<>();
-        this.shuttingDown = false;
-    }
-    
+    private final Timer             timer;
+    private boolean                 shuttingDown;
+    private CommandIssuer           issuer;
+
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
     
+
     public static ThreadManager create() {
-        instance = new ThreadManager();
-        return instance;
+        if (instance != null) return instance;
+        return (instance = new ThreadManager());
     }
     
     public static ThreadManager get() { return instance; }
@@ -65,6 +56,11 @@ public class ThreadManager {
     public interface Stoppable { public void stop(); }
     
     public boolean shuttingDown() { return shuttingDown; }
+    
+    public CommandIssuer issuer() {
+        if (issuer == null) issuer = new CommandIssuer();
+        return issuer;
+    }
     
     public synchronized Thread launch(Runnable r, String name) {
         if (shuttingDown) return null;
@@ -131,7 +127,17 @@ public class ThreadManager {
             }
         } while (nActive > 0);
     }
+    
+    public void sleep(long timeInMillis) { Utils.sleep(timeInMillis,  sdPredicate); }
 
+    private Utils.Predicate sdPredicate = new Utils.Predicate() {
+            @Override public boolean eval() { return shuttingDown; } };
+    
+/*------------------------------------------------------------------------------
+ *
+ * Launch and manage external processes
+ * 
+ *----------------------------------------------------------------------------*/
     
     public Process launchExternal(String command, String args, String input, long timeout) {
         String fullCommand = command + " " + (args == null ? "" : args);
@@ -149,11 +155,6 @@ public class ThreadManager {
             return null;
         }
     }
-    
-    public void sleep(long timeInMillis) { Utils.sleep(timeInMillis,  sdPredicate); }
-
-    private Utils.Predicate sdPredicate = new Utils.Predicate() {
-            @Override public boolean eval() { return shuttingDown; } };
     
     private int wdID = 0;
     private void watch(final String name, final Process p, final long timeout) {
@@ -185,6 +186,21 @@ public class ThreadManager {
             return false;
         }
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Hide the constructor
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private ThreadManager() {
+        this.threads = new ArrayList<>();
+        this.stopList = new ArrayList<>();
+        this.timer = new Timer();
+        this.shuttingDown = false;
+    }
+    
+
     
 }
 

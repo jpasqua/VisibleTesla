@@ -133,7 +133,7 @@ public class SchedulerController extends BaseController
     
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
-            app.mailer.send(
+            Mailer.get().send(
                 Prefs.get().notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
@@ -141,7 +141,7 @@ public class SchedulerController extends BaseController
         }
         MessageTemplate body = new MessageTemplate(messageTarget.getActiveMsg());
         MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
-        boolean sent = app.mailer.send(
+        boolean sent = Mailer.get().send(
             messageTarget.getActiveEmail(),
             subj.getMessage(null),
             body.getMessage(null));
@@ -189,12 +189,12 @@ public class SchedulerController extends BaseController
         ChargeState charge = vtVehicle.chargeState.get();
         ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
-            app.mailer.send(
+            Mailer.get().send(
                 Prefs.get().notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (status == ChargeState.Status.Unknown) {
-            app.mailer.send(
+            Mailer.get().send(
                 Prefs.get().notificationAddress.get(),
                 "Can't determine if your car is plugged in. Please check");
             return new Result(true, "Can't tell if car is plugged in. Warning sent");

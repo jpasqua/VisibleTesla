@@ -5,7 +5,6 @@
  */
 package org.noroomattheinn.visibletesla.data;
 
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

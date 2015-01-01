@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 23, 2014
  */
-package org.noroomattheinn.visibletesla.cycles;
+package org.noroomattheinn.visibletesla.data;
 
 import com.google.common.collect.Range;
 import java.io.BufferedReader;
@@ -16,7 +16,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
 
@@ -45,12 +44,12 @@ public abstract class CycleStore<C extends BaseCycle>
  * -------                                                               -------
  *============================================================================*/
     
-    public CycleStore(String cycleType, Class<C> theClass)
+    public CycleStore(String cycleType, Class<C> theClass, File container)
             throws FileNotFoundException {
         this.theClass = theClass;
         this.cycleType = cycleType;
         this.cycleFile = new File(
-                App.get().appFileFolder(),
+                container,
                 VTVehicle.get().getVehicle().getVIN()+"." + cycleType + ".json");
         
         FileOutputStream fos = new FileOutputStream(cycleFile, true);

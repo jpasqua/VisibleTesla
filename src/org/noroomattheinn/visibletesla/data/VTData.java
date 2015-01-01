@@ -5,15 +5,14 @@
  */
 package org.noroomattheinn.visibletesla.data;
 
+import com.google.common.collect.Range;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
+import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.visibletesla.cycles.ChargeCycle;
-import org.noroomattheinn.visibletesla.cycles.ChargeMonitor;
-import org.noroomattheinn.visibletesla.cycles.ChargeStore;
-import org.noroomattheinn.visibletesla.cycles.RestCycle;
-import org.noroomattheinn.visibletesla.cycles.RestMonitor;
-import org.noroomattheinn.visibletesla.cycles.RestStore;
+import org.noroomattheinn.utils.Utils.Predicate;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 
 
@@ -31,43 +30,117 @@ public class VTData {
    
     private static VTData instance = null;
     
-    public StatsCollector statsCollector;
-    public StreamProducer streamProducer;
-    public StateProducer stateProducer;
-    public StatsStreamer statsStreamer;
-    private ChargeMonitor chargeMonitor;
-    private RestMonitor restMonitor;
-
+    private final File              container;
+    private       StreamProducer    streamProducer;
+    private       StateProducer     stateProducer;
+    private       StatsStreamer     statsStreamer;
+    private       RestStore         restStore;
+    private       ChargeStore       chargeStore;
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore chargeStore;
-    public RestStore restStore;
-    public final TrackedObject<ChargeCycle> lastChargeCycle;
-    public final TrackedObject<RestCycle> lastRestCycle;
+    public final TrackedObject<ChargeCycle>     lastChargeCycle;
+    public final TrackedObject<RestCycle>       lastRestCycle;
+    public       StatsCollector                 statsCollector;
 
-    public static VTData create() {
+    public static VTData create(File container) {
         if (instance != null) return instance;
-        return (instance = new VTData());
+        return (instance = new VTData(container));
     }
     
     public static VTData get() { return instance; }
     
+/*------------------------------------------------------------------------------
+ *
+ * Set parameters of the VTData object
+ * 
+ *----------------------------------------------------------------------------*/
+    
     public void setVehicle(Vehicle v) throws IOException {
-        statsCollector = new StatsCollector();
+        statsCollector = new StatsCollector(container);
         streamProducer = new StreamProducer();
         stateProducer = new StateProducer();
         statsStreamer = new StatsStreamer();
         initChargeStore();
         initRestStore();
     }
+    
+    public void setWakeEarly(Predicate wakeEarly) {
+        statsStreamer.setWakeEarly(wakeEarly);
+    }
 
-    private VTData() {
-        lastChargeCycle = new TrackedObject<>(null);
-        lastRestCycle = new TrackedObject<>(null);
+    public void setPassiveCollection(Predicate pc) {
+        statsStreamer.setPassiveCollection(pc);
+    }
+
+    public void setCollectNow(TimeBasedPredicate p) {
+        statsCollector.setCollectNow(p);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Upgrade related methods
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public boolean upgradeRequired() {
+        return statsCollector.upgradeRequired();
+    }
+    
+    public boolean doUpgrade() {
+        return statsCollector.doUpgrade();
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Producing States and Streams
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public void produceStream(boolean stream) {
+        streamProducer.produce(stream);
+    }
+    
+    public void produceState(Vehicle.StateType whichState, ProgressIndicator pi) {
+        stateProducer.produce(whichState, pi);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Getting and Exporting Cycle information
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public boolean exportRests(File toFile, Range<Long> exportPeriod) {
+        return restStore.export(toFile, exportPeriod);
+    }
+    
+    public boolean exportCharges(File toFile, Range<Long> exportPeriod) {
+        return chargeStore.export(toFile, exportPeriod);
+    }
+    
+    public List<RestCycle> getRestCycles(Range<Long> period) {
+        return restStore.getCycles(period);
+    }
+    
+    public List<ChargeCycle> getChargeCycles(Range<Long> period) {
+        return chargeStore.getCycles(period);
+    }
+    
+/*------------------------------------------------------------------------------
+ *
+ * Hide the constructor
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private VTData(File container) {
+        this.container = container;
+        this.lastChargeCycle = new TrackedObject<>(null);
+        this.lastRestCycle = new TrackedObject<>(null);
     }
     
 /*------------------------------------------------------------------------------
@@ -77,15 +150,24 @@ public class VTData {
  *----------------------------------------------------------------------------*/
 
     private void initRestStore() throws FileNotFoundException {
-        boolean needsInitialLoad = RestStore.requiresInitialLoad();
-        restStore = new RestStore();
-        restMonitor = new RestMonitor();
+        boolean needsInitialLoad = RestStore.requiresInitialLoad(container);
+        restStore = new RestStore(container);
+        RestMonitor r = new RestMonitor();
         if (needsInitialLoad) { restStore.doIntialLoad(); }
     }
     
     private void initChargeStore() throws FileNotFoundException {
-        chargeStore = new ChargeStore();
-        chargeMonitor = new ChargeMonitor();
+        chargeStore = new ChargeStore(container);
+        ChargeMonitor c = new ChargeMonitor();
     }
     
+/*------------------------------------------------------------------------------
+ *
+ * Helper Classes
+ * 
+ *----------------------------------------------------------------------------*/
+
+    public static interface TimeBasedPredicate extends Predicate {
+        void setTime(long time);
+    }
 }

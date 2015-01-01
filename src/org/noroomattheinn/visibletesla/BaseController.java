@@ -170,11 +170,11 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/    
 
     protected final void issueCommand(Callable<Result> c, String commandName) {
-        app.issuer.issueCommand(c, true, progressIndicator, commandName);
+        ThreadManager.get().issuer().issueCommand(c, true, progressIndicator, commandName);
     }
     
     protected final void updateState(Vehicle.StateType whichState) {
-        VTData.get().stateProducer.produce(whichState, progressIndicator);
+        VTData.get().produceState(whichState, progressIndicator);
     }
 
     protected final void updateStateLater(final Vehicle.StateType whichState, long delay) {

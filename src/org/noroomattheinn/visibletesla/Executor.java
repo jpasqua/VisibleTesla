@@ -29,7 +29,6 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *----------------------------------------------------------------------------*/
     
     protected final ArrayBlockingQueue<R>   queue;
-    protected final App              ac;
     protected final String                  name;
     protected final TreeMap<Integer,Integer> histogram;
     protected       int                     nRequestsExecuted;
@@ -42,7 +41,6 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
  *============================================================================*/
     
     public Executor(String name) {
-        this.ac = App.get();
         this.queue = new ArrayBlockingQueue<>(20);
         this.name = name;
         this.histogram = new TreeMap<>();
@@ -180,7 +178,7 @@ public abstract class Executor<R extends Executor.Request> implements Runnable {
         logger.info(sb.toString());
         if (Prefs.get().submitAnonFailure.get() && timeSince(lastReport) > ReportingInterval) {
             logger.info("Sending api stats report: " + sb.toString());
-            ac.mailer.send(
+            Mailer.get().send(
                 ReportAddress,
                 "API Stats for " + VTVehicle.get().getVehicle().getUUID(),
                 sb.toString());

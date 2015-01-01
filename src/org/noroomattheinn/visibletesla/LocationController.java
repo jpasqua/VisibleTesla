@@ -111,13 +111,13 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void refresh() {
-        VTData.get().streamProducer.produce(false);
+        VTData.get().produceStream(false);
     }
 
     @Override protected void initializeState() {
         useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
-        VTData.get().streamProducer.produce(false);
+        VTData.get().produceStream(false);
         vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,

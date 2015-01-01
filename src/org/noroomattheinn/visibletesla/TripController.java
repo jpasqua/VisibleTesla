@@ -43,9 +43,9 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.cycles.KMLExporter;
-import org.noroomattheinn.visibletesla.cycles.Trip;
-import org.noroomattheinn.visibletesla.cycles.WayPoint;
+import org.noroomattheinn.visibletesla.data.KMLExporter;
+import org.noroomattheinn.visibletesla.data.Trip;
+import org.noroomattheinn.visibletesla.data.WayPoint;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 /**

@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.NavigableMap;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Dialogs;
-import javafx.stage.FileChooser;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.CachedTimeSeries;
@@ -22,13 +20,13 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.utils.GeoUtils;
-import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.fxextensions.TrackedObject;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.visibletesla.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
+import static org.noroomattheinn.tesla.Tesla.logger;
+import org.noroomattheinn.visibletesla.data.VTData.TimeBasedPredicate;
 
 /**
  * StatsCollector: Collect stats as they are generated, store them in
@@ -72,9 +70,14 @@ public class StatsCollector implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private final App ac;
     private final CachedTimeSeries ts;
-            
+    private final File container;
+    private DBConverter converter;
+    private TimeBasedPredicate collectNow = new TimeBasedPredicate() {
+        @Override public void setTime(long time) { }
+        @Override public boolean eval() { return false; }
+    };
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
@@ -99,18 +102,13 @@ public class StatsCollector implements ThreadManager.Stoppable {
      * constructor might result in upgrading the underlying repository if its
      * format has changed.
      * 
-     * @param appContext    Describes where app files are to be stored and provides
-     *                      other contextual information.
      * @throws IOException  If the underlying persistent store has a problem.
      */
-    public StatsCollector()
-            throws IOException {
-        this.ac = App.get();
-
-        upgradeIfNeeded(ac.appFileFolder(), VTVehicle.get().getVehicle().getVIN());
+    public StatsCollector(File container) throws IOException {
+        this.container = container;
         
         this.ts = new CachedTimeSeries(
-                ac.appFileFolder(), VTVehicle.get().getVehicle().getVIN(),
+                container, VTVehicle.get().getVehicle().getVIN(),
                 schema, Prefs.get().getLoadPeriod());
 
         this.lastStoredStreamState = new TrackedObject<>(new StreamState());
@@ -194,43 +192,34 @@ public class StatsCollector implements ThreadManager.Stoppable {
         return getLoadedTimeSeries().getIndex();
     }
     
-    /**
-     * Export selected columns to an Excel file
-     * @param columns   A list of the columns to export. The columns must 
-     *                  correspond to entries in StatsCollector.Columns
-     */
-    public void export(String[] columns) {
-        String initialDir = Prefs.store().get(
-                LastExportDirKey, System.getProperty("user.home"));
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export Data");
-        fileChooser.setInitialDirectory(new File(initialDir));
-
-        File file = fileChooser.showSaveDialog(ac.stage);
-        if (file != null) {
-            String enclosingDirectory = file.getParent();
-            if (enclosingDirectory != null)
-                Prefs.store().put(LastExportDirKey, enclosingDirectory);
-            Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(ac.stage);
-            if (exportPeriod == null)
-                return;
-            if (ts.export(file, exportPeriod, Arrays.asList(columns), true)) {
-                Dialogs.showInformationDialog(
-                    ac.stage, "Your data has been exported",
-                    "Data Export Process" , "Export Complete");
-            } else {
-                Dialogs.showErrorDialog(
-                    ac.stage, "Unable to save to: " + file,
-                    "Data Export Process" , "Export Failed");
-            }
-        }
+    public boolean export(File file, Range<Long> exportPeriod, String[] columns) {
+        return ts.export(file, exportPeriod, Arrays.asList(columns), true);
     }
     
     /**
      * Shut down the StatsCollector.
      */
     @Override public void stop() { ts.close(); }
-
+    
+    public boolean upgradeRequired() {
+        converter = new DBConverter(container, VTVehicle.get().getVehicle().getVIN());
+        return converter.conversionRequired();
+    }
+    
+    public boolean doUpgrade() {
+        try {
+            converter.convert();
+        } catch (IOException e) {
+            logger.severe("Unable to upgrade database: " + e);
+            return false;
+        }
+        return true;
+    }
+    
+    public void setCollectNow(VTData.TimeBasedPredicate p) {
+        collectNow = p;
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Methods related to storing new samples
@@ -265,7 +254,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
             ts.storeRow(r);
 
             if (state.odometer - lastStoredStreamState.get().odometer >= 1.0) {
-                Prefs.store().putDouble(ac.vinKey("odometer"), state.odometer);
+                Prefs.store().putDouble(VTVehicle.get().vinKey("odometer"), state.odometer);
             }
             lastStoredStreamState.set(state);
         }
@@ -275,7 +264,8 @@ public class StatsCollector implements ThreadManager.Stoppable {
         double meters = GeoUtils.distance(cur.estLat, cur.estLng, last.estLat, last.estLng);
         
         // The app becoming active makes it worth recording
-        if (ac.isActive() && ac.state.lastSet() > last.timestamp) return true;
+        collectNow.setTime(last.timestamp);
+        if (collectNow.eval()) return true;
         
         // A big turn makes it worth recording. Note that heading changes can be
         // spurious. They can happen when the car is sitting still. Ignore those.
@@ -297,19 +287,4 @@ public class StatsCollector implements ThreadManager.Stoppable {
     }
 
     private boolean moving(StreamState state) { return state.speed > 0.1; }
-    
-    private boolean upgradeIfNeeded(File container, String baseName) throws IOException {
-        DBConverter converter = new DBConverter(container, baseName);
-        if (!converter.conversionRequired()) return false;
-        Dialogs.showInformationDialog(
-            ac.stage,
-            "Your data files must be upgraded\nPress OK to begin the process.",
-            "Data Upgrade Process" , "Data File Upgrade");
-        converter.convert();
-        Dialogs.showInformationDialog(
-            ac.stage,
-            "Your data files have been upgraded\nPress OK to continue.",
-            "Data Upgrade Process" , "Process Complete");
-        return true;
-    }
 }

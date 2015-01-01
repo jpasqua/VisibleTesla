@@ -25,7 +25,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.TimeStringConverter;
-import org.noroomattheinn.visibletesla.cycles.RestCycle;
+import org.noroomattheinn.visibletesla.data.RestCycle;
 
 /**
  * VampireLossResults: Display statistics about vampire loss.
