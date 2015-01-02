@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * CycleStore: Bases class for classes that provide persistent storage for 

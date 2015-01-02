@@ -16,7 +16,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * ChargeStore: Manage persistent storage for Charge Cycle information.

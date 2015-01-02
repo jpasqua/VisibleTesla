@@ -13,7 +13,7 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
-import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 /**

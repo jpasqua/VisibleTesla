@@ -29,7 +29,7 @@ import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.utils.LRUMap;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * RESTServer: Provide minimal external services.

@@ -13,7 +13,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
 /**

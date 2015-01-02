@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import java.util.prefs.Preferences;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import javafx.application.Application;

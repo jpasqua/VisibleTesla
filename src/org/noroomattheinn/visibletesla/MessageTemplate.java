@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

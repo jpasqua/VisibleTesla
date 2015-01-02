@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import org.noroomattheinn.visibletesla.data.RestCycle;
 import com.google.common.collect.Range;
 import java.util.Calendar;

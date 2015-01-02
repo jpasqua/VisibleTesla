@@ -11,7 +11,7 @@ import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.Executor;
-import org.noroomattheinn.visibletesla.VTVehicle;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
 /**
