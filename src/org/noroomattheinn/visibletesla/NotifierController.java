@@ -4,11 +4,8 @@
  * Created: Dec 6, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.ui.App;
-import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -37,8 +34,8 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
+import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.Area;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;

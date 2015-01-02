@@ -7,9 +7,9 @@ package org.noroomattheinn.visibletesla.data;
 
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Streamer;
-import org.noroomattheinn.visibletesla.ui.Executor;
+import org.noroomattheinn.visibletesla.Executor;
 import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.VTVehicle;
 import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**

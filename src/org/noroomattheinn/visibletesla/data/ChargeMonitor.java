@@ -9,7 +9,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * ChargeMonitor - Monitor and store data about Charging Cycles.

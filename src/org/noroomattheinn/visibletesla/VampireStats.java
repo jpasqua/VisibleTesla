@@ -3,10 +3,8 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Apr 05, 2014
  */
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.ui.App;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import org.noroomattheinn.visibletesla.data.RestCycle;
 import com.google.common.collect.Range;
 import java.util.Calendar;

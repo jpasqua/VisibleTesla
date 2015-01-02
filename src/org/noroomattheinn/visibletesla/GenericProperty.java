@@ -4,7 +4,7 @@
  * Created: Nov 29, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
 import javafx.beans.property.SimpleStringProperty;
 

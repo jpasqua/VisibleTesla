@@ -4,12 +4,8 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.ui.App;
-import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -25,7 +21,7 @@ import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.visibletesla.CommandIssuer;
+import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
@@ -88,7 +84,6 @@ abstract class BaseController {
 
     @FXML final void initialize() {
         root.setUserData(this);
-        if (issuer == null) { issuer = new CommandIssuer(); }
         prepCommonElements();
         fxInitialize();     // This is an initialization hook for subclasses
     }
@@ -112,6 +107,7 @@ abstract class BaseController {
      */
     public final void activate() {
         vtVehicle = VTVehicle.get();
+        if (issuer == null) issuer = new CommandIssuer();
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();

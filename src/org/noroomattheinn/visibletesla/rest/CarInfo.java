@@ -10,7 +10,7 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * CarInfo

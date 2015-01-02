@@ -4,12 +4,8 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.ui.App;
-import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import com.google.common.collect.Range;
 import java.io.File;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
@@ -57,7 +53,7 @@ import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
 import org.noroomattheinn.fxextensions.TrackedObject;
-import static org.noroomattheinn.visibletesla.dialogs.VersionUpdater.checkForNewerVersion;
+import org.noroomattheinn.utils.ThreadManager;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -294,7 +290,7 @@ public class MainController extends BaseController {
         long lastVersionCheck = Prefs.store().getLong(key, 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
-            checkForNewerVersion(
+            VersionUpdater.checkForNewerVersion(
                     App.ProductVersion, app.stage, app.fxApp.getHostServices(),
                     Prefs.get().offerExperimental.get());
             Prefs.store().putLong(key, now);

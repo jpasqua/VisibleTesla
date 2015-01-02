@@ -3,9 +3,8 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 20, 2014
  */
-package org.noroomattheinn.visibletesla.vehicle;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;

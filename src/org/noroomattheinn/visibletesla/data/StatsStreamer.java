@@ -13,9 +13,9 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Utils.Predicate;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.VTVehicle;
 import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.fxextensions.TrackedObject;
 

@@ -3,9 +3,8 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 31, 2013
  */
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Date;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -30,6 +29,7 @@ import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.utils.MailGun;
+import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public class PrefsController extends BaseController {
     //
     @FXML void setAuthCode(ActionEvent event) {
         String code = authCode.getText();
-	String externalForm = app.setPW(code);
+	String externalForm = RESTServer.get().setPW(code);
         prefs.authCode.set(externalForm);
     }
     

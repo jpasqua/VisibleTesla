@@ -4,11 +4,8 @@
  * Created: Sep 7, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.ui.App;
-import org.noroomattheinn.utils.ThreadManager;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,8 +24,9 @@ import org.noroomattheinn.tesla.Result;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.MailGun;
-import org.noroomattheinn.visibletesla.ui.ScheduleItem.Command;
+import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.ThreadManager.Stoppable;
+import org.noroomattheinn.visibletesla.ScheduleItem.Command;
 
 /**
  * FXML Controller class

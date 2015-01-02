@@ -3,9 +3,8 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 22, 2013
  */
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.net.URL;
 import java.util.HashMap;

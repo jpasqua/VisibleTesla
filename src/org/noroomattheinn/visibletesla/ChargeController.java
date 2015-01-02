@@ -4,7 +4,7 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

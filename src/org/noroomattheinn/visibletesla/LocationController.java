@@ -4,9 +4,8 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla.ui;
+package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.io.File;
 import java.io.IOException;
 import org.noroomattheinn.fxextensions.MultiGauge;
