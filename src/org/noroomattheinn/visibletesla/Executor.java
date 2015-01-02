@@ -5,8 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
@@ -14,9 +12,12 @@ import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 import static org.noroomattheinn.utils.Utils.timeSince;
 
 /**

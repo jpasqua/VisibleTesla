@@ -5,12 +5,12 @@
  */
 package org.noroomattheinn.visibletesla.vehicle;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.noroomattheinn.fxextensions.TrackedObject;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DriveState;
@@ -18,12 +18,13 @@ import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.HVACState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.StreamState;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
-import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.fxextensions.TrackedObject;
 import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * VTVehicle: These methods are logically an extension to the Vehicle object.
