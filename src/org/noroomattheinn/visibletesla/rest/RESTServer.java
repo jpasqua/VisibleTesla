@@ -27,7 +27,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
 import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.utils.LRUMap;
-import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
 

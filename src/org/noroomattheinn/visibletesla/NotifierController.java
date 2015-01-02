@@ -30,7 +30,6 @@ import jfxtras.labs.scene.control.BigDecimalField;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
@@ -38,9 +37,12 @@ import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
 import org.noroomattheinn.visibletesla.trigger.GenericTrigger;
 import org.noroomattheinn.visibletesla.trigger.StationaryTrigger;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * NotifierController

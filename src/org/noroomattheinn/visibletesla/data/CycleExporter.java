@@ -18,7 +18,7 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.MailGun;
-import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * CycleExporter: Does most of the heavy lifting of exporting Cycles. Subclasses

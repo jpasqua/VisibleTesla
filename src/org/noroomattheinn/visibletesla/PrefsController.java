@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Date;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;

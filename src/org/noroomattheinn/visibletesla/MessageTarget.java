@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 

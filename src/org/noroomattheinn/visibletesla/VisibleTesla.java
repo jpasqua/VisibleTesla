@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

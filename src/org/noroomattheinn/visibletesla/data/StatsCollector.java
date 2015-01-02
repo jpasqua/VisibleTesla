@@ -22,7 +22,7 @@ import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.fxextensions.TrackedObject;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.VTVehicle;
 import static org.noroomattheinn.tesla.Tesla.logger;

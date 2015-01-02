@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 17, 2013
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.prefs;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

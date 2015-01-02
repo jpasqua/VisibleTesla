@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
