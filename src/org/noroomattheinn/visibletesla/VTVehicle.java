@@ -97,7 +97,9 @@ public class VTVehicle {
     
     public void setVehicle(Vehicle v) {
         vehicle.set(v);
-        streamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
+        if (v != null) {
+            streamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
+        }
     }
     
     public Vehicle getVehicle() { return vehicle.get(); }

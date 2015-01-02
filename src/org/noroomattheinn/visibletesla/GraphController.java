@@ -5,8 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,20 +19,22 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
+import org.noroomattheinn.fxextensions.TimeBasedChart;
+import org.noroomattheinn.fxextensions.VTLineChart;
+import org.noroomattheinn.fxextensions.VTSeries;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.fxextensions.VTLineChart;
-import org.noroomattheinn.fxextensions.TimeBasedChart;
-import org.noroomattheinn.fxextensions.VTSeries;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * GraphController: Handles the capture and display of vehicle statistics

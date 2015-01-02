@@ -69,8 +69,8 @@ public class Prefs {
  * -------                                                               -------
  *============================================================================*/
     
-    public static Prefs create() {
-        instance = new Prefs();
+    public static Prefs create(Preferences underlyingStore) {
+        instance = new Prefs(underlyingStore);
         return instance;
     }
     
@@ -78,8 +78,8 @@ public class Prefs {
     
     public static Preferences store() { return instance.persistentState; }
     
-    private Prefs() {
-        this.persistentState = Preferences.userNodeForPackage(this.getClass());
+    private Prefs(Preferences underlyingStore) {
+        this.persistentState = underlyingStore;
         loadGeneralPrefs();
         loadGraphPrefs();
         loadSchedulerPrefs();

@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
+import java.util.prefs.Preferences;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -56,7 +57,7 @@ public class VisibleTesla extends Application {
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
         Dialogs.useNativeChrome(true);
-        Prefs prefs = Prefs.create();
+        Prefs prefs = Prefs.create(Preferences.userNodeForPackage(this.getClass()));
         MailGun.createDefaultInstance("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : Prefs.MailGunKey);
         ThreadManager.create();
