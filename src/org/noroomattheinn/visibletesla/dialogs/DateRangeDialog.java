@@ -14,7 +14,6 @@ import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
-import org.noroomattheinn.visibletesla.Prefs;
 
 
 public class DateRangeDialog extends VTDialog.Controller {
@@ -131,39 +130,38 @@ public class DateRangeDialog extends VTDialog.Controller {
         @Override public void changed(
                 ObservableValue<? extends String> ov, String t, String t1) {
             Calendar now = Calendar.getInstance();
-            Prefs.LoadPeriod period = Prefs.nameToLoadPeriod.get(t1);
             start = null;
             end = null;
 
-            switch (period) {
-                case Last7:
+            switch (t1) {
+                case "Last 7 days":
                     end = now;
                     start = Calendar.getInstance();
                     start.add(Calendar.DAY_OF_YEAR, -6);
                     break;
-                case Last14:
+                case "Last 14 days":
                     end = now;
                     start = Calendar.getInstance();
                     start.add(Calendar.DAY_OF_YEAR, -13);
                     break;
-                case Last30:
+                case "Last 30 days":
                     end = now;
                     start = Calendar.getInstance();
                     start.add(Calendar.DAY_OF_YEAR, -29);
                     break;                        
-                case ThisWeek:
+                case "This week":
                     end = now;
                     start = Calendar.getInstance();
                     start.set(Calendar.DAY_OF_WEEK,
                             now.getActualMinimum(Calendar.DAY_OF_WEEK));
                     break;                        
-                case ThisMonth:
+                case "This month":
                     end = now;
                     start = Calendar.getInstance();
                     start.set(Calendar.DAY_OF_MONTH,
                             now.getActualMinimum(Calendar.DAY_OF_MONTH));
                     break;
-                case None:
+                case "None":
                 default: break;
             }
             

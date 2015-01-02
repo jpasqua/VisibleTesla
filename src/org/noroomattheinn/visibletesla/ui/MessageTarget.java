@@ -4,8 +4,11 @@
  * Created: Jun 12, 2014
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 

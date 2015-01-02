@@ -4,8 +4,10 @@
  * Created: Sep 7, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
 import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
 import com.google.common.collect.BiMap;

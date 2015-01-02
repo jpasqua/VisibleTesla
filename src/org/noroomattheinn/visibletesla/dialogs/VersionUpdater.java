@@ -20,7 +20,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Versions;
 import org.noroomattheinn.utils.Versions.Release;
-import org.noroomattheinn.visibletesla.Prefs;
 
 
 /**
@@ -48,18 +47,10 @@ public class VersionUpdater {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void conditionalCheckVersion(
-            String key, String thisVersion, Stage stage, HostServices svcs) {
-        long lastVersionCheck = Prefs.store().getLong(key, 0);
-        long now = System.currentTimeMillis();
-        if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
-            checkForNewerVersion(key, thisVersion, stage, svcs);
-        }
-    }
     
     public static boolean checkForNewerVersion(
-            String key, String thisVersion, Stage stage, final HostServices svcs) {
-        Prefs.store().putLong(key, System.currentTimeMillis());
+            String thisVersion, Stage stage,
+            final HostServices svcs, boolean experimentalOK) {
         
         final Versions versions = Versions.getVersionInfo(VersionsFile);
         if (versions == null) return false; // Missing, empty, or corrupt versions file
@@ -70,7 +61,7 @@ public class VersionUpdater {
             Release lastRelease = null;
             for (Release cur : releases) {
                 if (cur.getInvisible()) continue;
-                if (cur.getExperimental() && !Prefs.get().offerExperimental.get())
+                if (cur.getExperimental() && !experimentalOK)
                     continue;
                 lastRelease = cur;
                 break;

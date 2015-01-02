@@ -3,8 +3,9 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 20, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.vehicle;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -22,6 +23,7 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.ThreadManager;
 
 /**
  * VTVehicle: These methods are logically an extension to the Vehicle object.

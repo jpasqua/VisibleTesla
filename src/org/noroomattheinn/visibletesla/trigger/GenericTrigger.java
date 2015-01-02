@@ -12,8 +12,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.visibletesla.Prefs;
-import org.noroomattheinn.visibletesla.VTVehicle;
 
 /**
  * GenericTrigger: A generic trigger mechanism that handles a number of different
@@ -34,6 +32,8 @@ public class GenericTrigger<T> {
         public T fromExternal(String external);
         public String formatted(T value);
         public boolean isAny(T value);
+        public void persist(String key, String value);
+        public String load(String key, String dflt);
     }
     
 /*------------------------------------------------------------------------------
@@ -101,6 +101,8 @@ public class GenericTrigger<T> {
         }
         return predicate.name();
     }
+    
+    public String getKey() { return key; }
     
     public String getCurrentVal() {
         return curVal == null ? "" : th.formatted(curVal);
@@ -197,18 +199,16 @@ public class GenericTrigger<T> {
  * 
  *----------------------------------------------------------------------------*/
     
-    private String fullKey() { return VTVehicle.get().getVehicle().getVIN()+"_"+key; }
     private String onOff(boolean b) { return b ? "1" : "0"; }
-    
     
     private void externalize() {
         String encoded = String.format("%s_%s", onOff(isEnabled.get()), th.toExternal(targetProperty.get()));
-        Prefs.store().put(fullKey(), encoded);
+        th.persist(key, encoded);
     }
     
     private void internalize() {
         String dfltEncoded = th.toExternal(targetDefault);
-        String encoded = Prefs.store().get(fullKey(), "0_" + dfltEncoded);
+        String encoded = th.load(key, dfltEncoded);
         String[] elements = encoded.split("_");
         if (elements.length >= 2) {
             isEnabled.set(elements[0].equals("1"));

@@ -17,8 +17,8 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.visibletesla.Mailer;
-import org.noroomattheinn.visibletesla.Prefs;
+import org.noroomattheinn.utils.MailGun;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * CycleExporter: Does most of the heavy lifting of exporting Cycles. Subclasses
@@ -109,7 +109,7 @@ public abstract class CycleExporter<C extends BaseCycle> {
         
         // Send the notification and log the body
         String subject = cycleType + " Data Submission";
-        Mailer.get().send(VTDataAddress, subject, jsonRep);
+        MailGun.get().send(VTDataAddress, subject, jsonRep);
         logger.info(subject + ": " + jsonRep);
     }
     

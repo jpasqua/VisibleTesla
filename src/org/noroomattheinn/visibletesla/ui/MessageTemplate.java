@@ -3,8 +3,10 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: May 31, 2014
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

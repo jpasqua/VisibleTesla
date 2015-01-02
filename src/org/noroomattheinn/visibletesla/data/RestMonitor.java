@@ -11,10 +11,8 @@ import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.CalTime;
-import org.noroomattheinn.visibletesla.Prefs;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
-import org.noroomattheinn.visibletesla.VTVehicle;
-import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * RestMonitor - Monitor and store data about Rest Cycles.

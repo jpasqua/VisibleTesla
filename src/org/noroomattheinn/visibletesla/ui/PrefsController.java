@@ -3,8 +3,9 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Oct 31, 2013
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Date;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -28,7 +29,7 @@ import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.fxextensions.TimeSelector;
-import org.noroomattheinn.visibletesla.rest.RESTServer;
+import org.noroomattheinn.utils.MailGun;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
@@ -94,7 +95,7 @@ public class PrefsController extends BaseController {
     //
     @FXML void setAuthCode(ActionEvent event) {
         String code = authCode.getText();
-	String externalForm = RESTServer.get().setPW(code);
+	String externalForm = app.setPW(code);
         prefs.authCode.set(externalForm);
     }
     
@@ -132,7 +133,7 @@ public class PrefsController extends BaseController {
                     "Test Problem");
         }
         String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", new Date());
-        if (!Mailer.get().send(addr, msg + date)) {
+        if (!MailGun.get().send(addr, msg + date)) {
             Dialogs.showWarningDialog(app.stage,
                     "Error delivering your test message.\n" +
                     "Please check your email address.\n" +

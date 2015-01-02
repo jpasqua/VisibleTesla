@@ -4,8 +4,10 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -162,7 +164,7 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void attemptLogin(String username, String password) {
-        ThreadManager.get().issuer().issueCommand(
+        issuer.issueCommand(
                 new AttemptLogin(username, password), false, progressIndicator, "Attempt Login");
     }
 

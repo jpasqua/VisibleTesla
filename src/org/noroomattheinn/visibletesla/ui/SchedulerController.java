@@ -4,8 +4,11 @@
  * Created: Sep 7, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,8 +26,9 @@ import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.visibletesla.ScheduleItem.Command;
-import org.noroomattheinn.visibletesla.ThreadManager.Stoppable;
+import org.noroomattheinn.utils.MailGun;
+import org.noroomattheinn.visibletesla.ui.ScheduleItem.Command;
+import org.noroomattheinn.utils.ThreadManager.Stoppable;
 
 /**
  * FXML Controller class
@@ -133,7 +137,7 @@ public class SchedulerController extends BaseController
     
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
-            Mailer.get().send(
+            MailGun.get().send(
                 Prefs.get().notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
@@ -141,7 +145,7 @@ public class SchedulerController extends BaseController
         }
         MessageTemplate body = new MessageTemplate(messageTarget.getActiveMsg());
         MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
-        boolean sent = Mailer.get().send(
+        boolean sent = MailGun.get().send(
             messageTarget.getActiveEmail(),
             subj.getMessage(null),
             body.getMessage(null));
@@ -189,12 +193,12 @@ public class SchedulerController extends BaseController
         ChargeState charge = vtVehicle.chargeState.get();
         ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
-            Mailer.get().send(
+            MailGun.get().send(
                 Prefs.get().notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (status == ChargeState.Status.Unknown) {
-            Mailer.get().send(
+            MailGun.get().send(
                 Prefs.get().notificationAddress.get(),
                 "Can't determine if your car is plugged in. Please check");
             return new Result(true, "Can't tell if car is plugged in. Warning sent");

@@ -3,8 +3,9 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 27, 2013
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.File;
 import java.io.IOException;

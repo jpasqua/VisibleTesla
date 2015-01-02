@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.ui.Executor;
 import java.util.concurrent.Callable;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Result;

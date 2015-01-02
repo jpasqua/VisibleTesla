@@ -4,8 +4,12 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -21,6 +25,7 @@ import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.visibletesla.CommandIssuer;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
@@ -57,6 +62,7 @@ abstract class BaseController {
 
     private static BaseController activeController = null;
     private static long lastRefreshTime;
+    protected static CommandIssuer issuer = null;
     
     protected boolean   initialized = false;    // Has this controller been init'd?
     protected App       app;                    // The overall app context
@@ -82,6 +88,7 @@ abstract class BaseController {
 
     @FXML final void initialize() {
         root.setUserData(this);
+        if (issuer == null) { issuer = new CommandIssuer(); }
         prepCommonElements();
         fxInitialize();     // This is an initialization hook for subclasses
     }
@@ -171,7 +178,7 @@ abstract class BaseController {
  *----------------------------------------------------------------------------*/    
 
     protected final void issueCommand(Callable<Result> c, String commandName) {
-        ThreadManager.get().issuer().issueCommand(c, true, progressIndicator, commandName);
+        issuer.issueCommand(c, true, progressIndicator, commandName);
     }
     
     protected final void updateState(Vehicle.StateType whichState) {

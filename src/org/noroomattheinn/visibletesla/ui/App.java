@@ -3,8 +3,12 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Aug 30, 2013
  */
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import com.sun.net.httpserver.BasicAuthenticator;
 import java.io.File;
 import java.util.List;
 import javafx.application.Application;
@@ -20,6 +24,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
 import org.noroomattheinn.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.PWUtils;
 
 /**
  * App - Stores state about the app for use across the app. This is a singleton
@@ -64,6 +69,8 @@ public class App {
     
     private final File  appFilesFolder;
     private long        lastEventTime;
+    private PWUtils     pwUtils = new PWUtils();
+    private byte[]      encPW, salt;
 
 /*==============================================================================
  * -------                                                               -------
@@ -248,6 +255,7 @@ public class App {
                 ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
 
         this.schedulerActivity = new TrackedObject<>("");
+        internalizePW(Prefs.get().authCode.get());
     }
 
 /*------------------------------------------------------------------------------
@@ -277,4 +285,49 @@ public class App {
             state.update(State.Active);
         }
     }
+
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Methods & classes for authenticating connections to the REST Server
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    public BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
+        @Override public boolean checkCredentials(String user, String pwd) {
+            if (!user.equals("VT")) return false;
+            if (encPW == null || salt == null) return false;
+            return pwUtils.authenticate(pwd, encPW, salt);
+        }
+    };
+    
+    /**
+     * Set the password used by the REST Server. If no password is supplied, 
+     * a random one will be chosen meaning there is effectively no access to
+     * the server.
+     * @param   pw  The new password
+     * @return  An external representation of the salted password that can be
+     *          stored safely in a data file.
+     */
+    public String setPW(String pw) {
+        if (pw == null || pw.isEmpty()) { // Choose a random value!
+            pw = String.valueOf(Math.floor(Math.random()*100000));   
+        }
+        salt = pwUtils.generateSalt();
+        encPW = pwUtils.getEncryptedPassword(pw, salt);
+        return pwUtils.externalRep(salt, encPW);
+    }
+    
+    /**
+     * Initialize the password and salt from previously generated values.
+     * @param externalForm  An external representation of the password and
+     *                      salt that was previously returned by an invocation
+     *                      of setPW()
+     */
+    private void internalizePW(String externalForm) {
+        // Break down the external representation into the salt and password
+        List<byte[]> internalForm = (new PWUtils()).internalRep(externalForm);
+        salt = internalForm.get(0);
+        encPW = internalForm.get(1);
+    }
+
 }

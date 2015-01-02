@@ -4,8 +4,11 @@
  * Created: Dec 6, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -33,7 +36,9 @@ import org.noroomattheinn.tesla.StreamState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
+import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.Area;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
@@ -639,7 +644,7 @@ public class NotifierController extends BaseController {
         } else {
             MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(target.getActiveSubj());
-            Mailer.get().send(
+            MailGun.get().send(
                 addr, st.getMessage(contextSpecific), mt.getMessage(contextSpecific));
         }
     }
@@ -719,7 +724,18 @@ public class NotifierController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private GenericTrigger.RW<StringList> stringListHelper = new GenericTrigger.RW<StringList>() {
+    private static abstract class Persistence<T> implements GenericTrigger.RW<T> {
+        @Override public void persist(String key, String value) {
+            Prefs.store().put(App.get().vinKey(key), value);
+        }
+
+        @Override public String load(String key, String dflt) {
+            return Prefs.store().get(App.get().vinKey(key), "0_" + dflt);
+        }
+    }
+    
+    private GenericTrigger.RW<StringList> stringListHelper = new StringListRW();
+    private class StringListRW extends Persistence<StringList> {
         @Override public int compare(StringList value, StringList candidates) {
             if (value == null || value.isEmpty()) return -1;
             if (candidates == null || candidates.isEmpty()) return -1;
@@ -767,7 +783,8 @@ public class NotifierController extends BaseController {
         }
     };
     
-    private GenericTrigger.RW<BigDecimal> bdHelper = new GenericTrigger.RW<BigDecimal>() {
+    private GenericTrigger.RW<BigDecimal> bdHelper = new BigDecimalRW();
+    private class BigDecimalRW extends Persistence<BigDecimal> {
         @Override public String toExternal(BigDecimal value) {
             return String.format(Locale.US, "%3.1f", value.doubleValue());
         }
@@ -790,9 +807,18 @@ public class NotifierController extends BaseController {
         }
 
         @Override public boolean isAny(BigDecimal value) { return false; }
+        
+        @Override public void persist(String key, String value) {
+            Prefs.store().put(app.vinKey(key), value);
+        }
+
+        @Override public String load(String key, String dflt) {
+            return Prefs.store().get(app.vinKey(key), "0_" + dflt);
+        }
     };
     
-    private GenericTrigger.RW<String> stringHelper = new GenericTrigger.RW<String>() {
+    private GenericTrigger.RW<String> stringHelper = new StringRW();
+    private class StringRW extends Persistence<String> {
         @Override public String toExternal(String value) { return value; }
         @Override public String fromExternal(String external) { return external; }
         @Override public String formatted(String value) { return value; }
@@ -800,9 +826,17 @@ public class NotifierController extends BaseController {
             return o1.compareTo(o2);
         }
         @Override public boolean isAny(String value) { return false; }
+        @Override public void persist(String key, String value) {
+            Prefs.store().put(app.vinKey(key), value);
+        }
+
+        @Override public String load(String key, String dflt) {
+            return Prefs.store().get(app.vinKey(key), "0_" + dflt);
+        }
     };
     
-    private GenericTrigger.RW<Area> areaHelper = new GenericTrigger.RW<Area>() {
+    private GenericTrigger.RW<Area> areaHelper = new AreaRW();
+    private class AreaRW extends Persistence<Area> {
         @Override public String toExternal(Area value) {
             return String.format(Locale.US, "%3.5f^%3.5f^%2.1f^%s",
                     value.lat, value.lng, value.radius, value.name);
@@ -835,5 +869,12 @@ public class NotifierController extends BaseController {
         }
 
         @Override public boolean isAny(Area value) { return false; }
+        @Override public void persist(String key, String value) {
+            Prefs.store().put(app.vinKey(key), value);
+        }
+
+        @Override public String load(String key, String dflt) {
+            return Prefs.store().get(app.vinKey(key), "0_" + dflt);
+        }
     };
 }

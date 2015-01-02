@@ -6,12 +6,18 @@
 
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.visibletesla.ui.MainController;
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialogs;
 import javafx.stage.Stage;
+import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
@@ -53,13 +59,15 @@ public class VisibleTesla extends Application {
         // is out of the ordinary is telling the MainController that startup is
         // complete and that it can start the mainline activity of the App.
         Dialogs.useNativeChrome(true);
-        Prefs.create();
-        Mailer.create(Prefs.get());
+        Prefs prefs = Prefs.create();
+        MailGun.createDefaultInstance(
+                "api", prefs.useCustomMailGunKey.get() ?
+                       prefs.mailGunKey.get() : Prefs.MailGunKey);
         ThreadManager.create();
         App.create(this, stage);
         VTVehicle.create();
         VTData.create(App.get().appFileFolder());
-        RESTServer.create(VTVehicle.get());
+        RESTServer.create(VTVehicle.get(), App.get().authenticator);
         mainController = Utils.cast(root.getUserData());
         mainController.start();
     }

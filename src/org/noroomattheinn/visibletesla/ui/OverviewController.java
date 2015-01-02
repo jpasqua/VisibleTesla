@@ -4,8 +4,10 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -33,6 +35,7 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.Firmware;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 

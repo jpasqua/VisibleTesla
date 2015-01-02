@@ -4,8 +4,12 @@
  * Created: Jul 22, 2013
  */
 
-package org.noroomattheinn.visibletesla;
+package org.noroomattheinn.visibletesla.ui;
 
+import org.noroomattheinn.visibletesla.ui.App;
+import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import com.google.common.collect.Range;
 import java.io.File;
 import org.noroomattheinn.visibletesla.data.StatsCollector;
@@ -53,6 +57,7 @@ import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
 import org.noroomattheinn.fxextensions.TrackedObject;
+import static org.noroomattheinn.visibletesla.dialogs.VersionUpdater.checkForNewerVersion;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -278,14 +283,24 @@ public class MainController extends BaseController {
             }
                 
             showDisclaimer();
-            VersionUpdater.conditionalCheckVersion(
-                    app.vinKey("LastVersionCheck"), App.ProductVersion,
-                    app.stage, app.fxApp.getHostServices());
+            conditionalCheckVersion();
             app.restoreMode();
             fetchInitialCarState();
         }
     }
     
+    private void conditionalCheckVersion() {
+        String key = app.vinKey("LastVersionCheck");
+        long lastVersionCheck = Prefs.store().getLong(key, 0);
+        long now = System.currentTimeMillis();
+        if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
+            checkForNewerVersion(
+                    App.ProductVersion, app.stage, app.fxApp.getHostServices(),
+                    Prefs.get().offerExperimental.get());
+            Prefs.store().putLong(key, now);
+        }
+    }
+
     private Runnable finishAppStartup = new Runnable() {
         @Override public void run() {
             boolean remoteStartEnabled = VTVehicle.get().getVehicle().remoteStartEnabled();
@@ -464,12 +479,14 @@ public class MainController extends BaseController {
     // Help->Check for Updates
     @FXML private void updatesHandler(ActionEvent event) {
         if (!VersionUpdater.checkForNewerVersion(
-                app.vinKey("LastVersionCheck"), App.ProductVersion,
-                app.stage, app.fxApp.getHostServices()))
+                App.ProductVersion,
+                app.stage, app.fxApp.getHostServices(),
+                Prefs.get().offerExperimental.get())) {
             Dialogs.showInformationDialog(
                     app.stage,
                     "You already have the latest release.",
                     "Update Check Results", "Checking for Updates");
+        }
     }
     
     @FXML private void remoteStart(ActionEvent e) {
@@ -480,7 +497,7 @@ public class MainController extends BaseController {
             Dialogs.showErrorDialog(app.stage, "You must enter a password");
             return;
         }
-        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
+        issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { 
                 return VTVehicle.get().getVehicle().remoteStart(unp[1]); 
             } }, true, null, "Remote Start");
@@ -489,17 +506,17 @@ public class MainController extends BaseController {
     // Options->Action_>{Honk,Flsh,Wakeup}
     
     @FXML private void honk(ActionEvent e) {
-        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
+        issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().honk(); }
         }, true, null, "Honk");
     }
     @FXML private void flash(ActionEvent e) {
-        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
+        issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().flashLights(); }
         }, true, null, "Flash Lights");
     }
     @FXML private void wakeup(ActionEvent e) {
-        ThreadManager.get().issuer().issueCommand(new Callable<Result>() {
+        issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { return VTVehicle.get().getVehicle().wakeUp(); }
         }, true, null, "Wake up");
     }
