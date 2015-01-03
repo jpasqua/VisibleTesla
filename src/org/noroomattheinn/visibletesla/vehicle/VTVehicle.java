@@ -10,7 +10,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.noroomattheinn.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.DriveState;
@@ -212,6 +212,14 @@ public class VTVehicle {
                 }
             });
         }
+    }
+    
+    public String carDetailsAsJSON() {
+        return CarInfo.carDetailsAsJSON(this);
+    }
+    
+    public String carStateAsJSON() {
+        return CarInfo.carStateAsJSON(this);
     }
     
 /*------------------------------------------------------------------------------

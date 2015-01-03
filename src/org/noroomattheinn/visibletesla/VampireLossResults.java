@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Apr 05, 2014
  */
-package org.noroomattheinn.visibletesla.dialogs;
+package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.fxextensions.VTDialog;
 import java.net.URL;
@@ -32,7 +32,7 @@ import org.noroomattheinn.visibletesla.data.RestCycle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VampireLossResults  extends VTDialog.Controller {
+class VampireLossResults  extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Internal State

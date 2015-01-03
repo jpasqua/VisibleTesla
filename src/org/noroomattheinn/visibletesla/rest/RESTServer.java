@@ -17,12 +17,10 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
 import org.noroomattheinn.visibletesla.App;
@@ -58,9 +56,8 @@ public class RESTServer implements ThreadManager.Stoppable {
     private static RESTServer instance = null;
     
     private HttpServer server;
-    private PWUtils pwUtils = new PWUtils();
-    private byte[] encPW, salt;
     private boolean launched = false;
+    private BasicAuthenticator authenticator;
     
 /*==============================================================================
  * -------                                                               -------
@@ -68,8 +65,8 @@ public class RESTServer implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    public static RESTServer create(VTVehicle v) {
-        instance = new RESTServer();
+    public static RESTServer create(VTVehicle v, BasicAuthenticator authenticator) {
+        instance = new RESTServer(authenticator);
         instance.watch(v);
         return instance;
     }
@@ -83,22 +80,6 @@ public class RESTServer implements ThreadManager.Stoppable {
         }
     }
     
-    /**
-     * Set the password used by the RESTServer. If no password is supplied, 
-     * a random one will be chosen meaning there is effectively no access to
-     * the server.
-     * @param   pw  The new password
-     * @return  An external representation of the salted password that can be
-     *          stored safely in a data file.
-     */
-    public String setPW(String pw) {
-        if (pw == null || pw.isEmpty()) { // Choose a random value!
-            pw = String.valueOf(Math.floor(Math.random()*100000));   
-        }
-        salt = pwUtils.generateSalt();
-        encPW = pwUtils.getEncryptedPassword(pw, salt);
-        return pwUtils.externalRep(salt, encPW);
-    }
 
 /*------------------------------------------------------------------------------
  *
@@ -106,13 +87,14 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private RESTServer() {
-        server = null;
+    private RESTServer(BasicAuthenticator authenticator) {
+        this.server = null;
+        this.authenticator = authenticator;
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
     private void watch(final VTVehicle v) {
-        v.vehicle.addTracker(false, new Runnable() {
+        v.vehicle.addTracker(new Runnable() {
             @Override public void run() {
                 if (v.vehicle.get() != null && !launched) {
                     launch();
@@ -127,7 +109,6 @@ public class RESTServer implements ThreadManager.Stoppable {
             logger.info("REST Services are disabled");
             return;
         }
-        internalizePW(Prefs.get().authCode.get());
         int restPort = Prefs.get().restPort.get();
         try {
             server = HttpServer.create(new InetSocketAddress(restPort), 0);
@@ -147,18 +128,6 @@ public class RESTServer implements ThreadManager.Stoppable {
         }
     }
 
-    /**
-     * Initialize the password and salt from previously generated values.
-     * @param externalForm  An external representation of the password and
-     *                      salt that was previously returned by an invocation
-     *                      of setPW()
-     */
-    public void internalizePW(String externalForm) {
-        // Break down the external representation into the salt and password
-        List<byte[]> internalForm = (new PWUtils()).internalRep(externalForm);
-        salt = internalForm.get(0);
-        encPW = internalForm.get(1);
-    }
 
 /*------------------------------------------------------------------------------
  *
@@ -208,10 +177,10 @@ public class RESTServer implements ThreadManager.Stoppable {
             String response;
             switch (infoType) {
                 case "car_state":
-                    response = CarInfo.carStateAsJSON();
+                    response = VTVehicle.get().carStateAsJSON();
                     break;
                 case "car_details":
-                    response = CarInfo.carDetailsAsJSON();
+                    response = VTVehicle.get().carDetailsAsJSON();
                     break;
                 case "inactivity_mode":
                     response = String.format("{ \"mode\": \"%s\" }", App.get().mode.get().name());
@@ -303,14 +272,6 @@ public class RESTServer implements ThreadManager.Stoppable {
     private boolean cacheOnClient(String type) {
         return (!type.equals("text/html"));
     }
-    
-    private BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
-        @Override public boolean checkCredentials(String user, String pwd) {
-            if (!user.equals("VT")) return false;
-            if (encPW == null || salt == null) return false;
-            return pwUtils.authenticate(pwd, encPW, salt);
-        }
-    };
     
     private void sendResponse(HttpExchange exchange, int code, String response) throws IOException {
         exchange.sendResponseHeaders(code, response.length());

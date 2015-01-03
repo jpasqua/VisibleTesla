@@ -20,7 +20,7 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.utils.GeoUtils;
-import org.noroomattheinn.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;

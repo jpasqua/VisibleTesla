@@ -17,14 +17,13 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import org.noroomattheinn.visibletesla.dialogs.VampireLossResults;
 
 /**
  * VampireStats: Collect and display statistics about vampire loss.
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VampireStats {
+class VampireStats {
     
     
 /*------------------------------------------------------------------------------
@@ -33,8 +32,8 @@ public class VampireStats {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final App ac;
-    private boolean         useMiles;
+    private final   App     ac;
+    private         boolean useMiles;
     
     
 /*==============================================================================

@@ -78,6 +78,10 @@ public class Prefs {
     
     public static Preferences store() { return instance.persistentState; }
     
+    public void persist(String key, String value) {
+        persistentState.put(key, value);
+    }
+    
     private Prefs(Preferences underlyingStore) {
         this.persistentState = underlyingStore;
         loadGeneralPrefs();

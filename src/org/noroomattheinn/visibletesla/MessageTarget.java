@@ -11,7 +11,7 @@ import org.noroomattheinn.visibletesla.prefs.Prefs;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 
-public class MessageTarget {
+class MessageTarget {
     private String address;
     private String subject, dfltSubj;
     private String message, dfltMsg;

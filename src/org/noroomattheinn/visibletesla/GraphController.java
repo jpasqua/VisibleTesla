@@ -52,7 +52,7 @@ import org.noroomattheinn.visibletesla.prefs.Prefs;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class GraphController extends BaseController {
+class GraphController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
@@ -197,8 +197,8 @@ public class GraphController extends BaseController {
         prepSeries();
         loadExistingData();
         // Register for additions to the data
-        VTData.get().statsCollector.lastStoredChargeState.addTracker(false, chargeHandler);
-        VTData.get().statsCollector.lastStoredStreamState.addTracker(false, streamHandler);
+        VTData.get().statsCollector.lastStoredChargeState.addTracker(chargeHandler);
+        VTData.get().statsCollector.lastStoredStreamState.addTracker(streamHandler);
         
         setGap();
         Prefs.get().ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {

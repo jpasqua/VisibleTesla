@@ -7,7 +7,7 @@ package org.noroomattheinn.visibletesla.data;
 
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Streamer;
-import org.noroomattheinn.visibletesla.Executor;
+import org.noroomattheinn.utils.Executor;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import static org.noroomattheinn.tesla.Tesla.logger;
@@ -43,8 +43,8 @@ public class StreamProducer extends Executor<StreamProducer.Request>
  * -------                                                               -------
  *============================================================================*/
     
-    public StreamProducer() {
-        super("StreamProducer");
+    public StreamProducer(FeedbackListener feedbackListener) {
+        super("StreamProducer", feedbackListener);
         this.streamer = VTVehicle.get().getVehicle().getStreamer();
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }

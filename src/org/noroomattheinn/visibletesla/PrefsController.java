@@ -26,20 +26,17 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.converter.NumberStringConverter;
-import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.utils.MailGun;
-import org.noroomattheinn.visibletesla.rest.RESTServer;
 
-public class PrefsController extends BaseController {
+class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
     
-    private PWUtils pwUtils = new PWUtils();
     private Prefs prefs;
     
 /*------------------------------------------------------------------------------
@@ -96,7 +93,7 @@ public class PrefsController extends BaseController {
     //
     @FXML void setAuthCode(ActionEvent event) {
         String code = authCode.getText();
-	String externalForm = RESTServer.get().setPW(code);
+	String externalForm = App.get().setPW(code);
         prefs.authCode.set(externalForm);
     }
     

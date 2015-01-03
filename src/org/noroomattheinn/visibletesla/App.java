@@ -5,11 +5,13 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import com.sun.net.httpserver.BasicAuthenticator;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.io.File;
 import java.util.List;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -18,10 +20,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.noroomattheinn.tesla.Tesla;
+import org.noroomattheinn.utils.PWUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 import static org.noroomattheinn.utils.Utils.timeSince;
-import org.noroomattheinn.fxextensions.TrackedObject;
+
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.ThreadManager;
 
 /**
@@ -50,13 +54,15 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    public final Application            fxApp;
-    public final Tesla                  tesla;
-    public final Stage                  stage;
+    final Application       fxApp;
+    final Tesla             tesla;
+    final Stage             stage;
+    final ProgressListener  progressListener;
+    
     public final TrackedObject<String>  schedulerActivity;
     public final TrackedObject<Mode>    mode;
     public final TrackedObject<State>   state;
-
+    
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -79,12 +85,13 @@ public class App {
      * logically a separate factory, but it is here for convenience.
      * @param fxApp
      * @param stage
+     * @param prefs
      * @return  The newly created singleton or the existing singleton if already
      *          created.
      */
-    public static App create(Application fxApp, Stage stage) {
+    public static App create(Application fxApp, Stage stage, Prefs prefs) {
         if (instance != null) { return instance; }
-        return (instance = new App(fxApp, stage));
+        return (instance = new App(fxApp, stage, prefs));
     }
 
     /**
@@ -117,6 +124,20 @@ public class App {
      */
     public File appFileFolder() { return appFilesFolder; }
 
+    /**
+     * Add a tracker to a TrackedObject, but ensure it will run on the
+     * FX Application Thread.
+     * @param t The tracked object
+     * @param r The Runnable to execute on the FXApplicationThread
+     */
+    public static void addTracker(TrackedObject t, final Runnable r) {
+        t.addTracker(new Runnable() {
+            @Override public void run() {
+                Platform.runLater(r);
+            }
+        });
+    }
+    
 /*------------------------------------------------------------------------------
  *
  * Methods related to the App Mode
@@ -218,23 +239,22 @@ public class App {
      * @param fxApp The JavaFX Application object
      * @param stage The JavaFX stage of the main window
      */
-    private App(Application fxApp, Stage stage) {
-        Prefs prefs = Prefs.get();
+    private App(Application fxApp, Stage stage, final Prefs prefs) {
         this.fxApp = fxApp;
         this.stage = stage;
         this.lastEventTime = System.currentTimeMillis();
 
         this.mode = new TrackedObject<>(Mode.StayAwake);
-        this.mode.addTracker(false, new Runnable() {
+        this.mode.addTracker(new Runnable() {
             @Override public void run() {
                 logger.finest("App Mode changed to " + mode.get());
-                Prefs.store().put(vinKey("InactivityMode"), mode.get().name());
+                prefs.persist(vinKey("InactivityMode"), mode.get().name());
                 if (mode.get() == Mode.StayAwake) { setActive(); }
             }
         });
 
         this.state = new TrackedObject<>(State.Active);
-        this.state.addTracker(false, new Runnable() {
+        this.state.addTracker(new Runnable() {
             @Override public void run() {
                 logger.finest("App State changed to " + state.get());
                 if (state.get() == State.Active) {
@@ -251,7 +271,57 @@ public class App {
                 ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
 
         this.schedulerActivity = new TrackedObject<>("");
+        this.progressListener = new ProgressListener();
+        
+        internalizePW(prefs.authCode.get());
     }
+    
+/*------------------------------------------------------------------------------
+ *
+ * PRIVATE - Support for authenticating to web services
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private PWUtils pwUtils = new PWUtils();
+    private byte[] encPW, salt;
+    
+    /**
+     * Set the password used by the RESTServer. If no password is supplied, 
+     * a random one will be chosen meaning there is effectively no access to
+     * the server.
+     * @param   pw  The new password
+     * @return  An external representation of the salted password that can be
+     *          stored safely in a data file.
+     */
+    final String setPW(String pw) {
+        if (pw == null || pw.isEmpty()) { // Choose a random value!
+            pw = String.valueOf(Math.floor(Math.random()*100000));   
+        }
+        salt = pwUtils.generateSalt();
+        encPW = pwUtils.getEncryptedPassword(pw, salt);
+        return pwUtils.externalRep(salt, encPW);
+    }
+
+    /**
+     * Initialize the password and salt from previously generated values.
+     * @param externalForm  An external representation of the password and
+     *                      salt that was previously returned by an invocation
+     *                      of setPW()
+     */
+    final void internalizePW(String externalForm) {
+        // Break down the external representation into the salt and password
+        List<byte[]> internalForm = (new PWUtils()).internalRep(externalForm);
+        salt = internalForm.get(0);
+        encPW = internalForm.get(1);
+    }
+
+    BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
+        @Override public boolean checkCredentials(String user, String pwd) {
+            if (!user.equals("VT")) return false;
+            if (encPW == null || salt == null) return false;
+            return pwUtils.authenticate(pwd, encPW, salt);
+        }
+    };
 
 /*------------------------------------------------------------------------------
  *

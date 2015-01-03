@@ -40,7 +40,7 @@ public class ChargeStore extends CycleStore<ChargeCycle> {
         super("charge", ChargeCycle.class, container);
         this.exporter = new ChargeCycleExporter();
         
-        VTData.get().lastChargeCycle.addTracker(false, new Runnable() {
+        VTData.get().lastChargeCycle.addTracker(new Runnable() {
             @Override public void run() {
                 cycleWriter.println(VTData.get().lastChargeCycle.get().toJSONString());
                 exporter.submitData(VTData.get().lastChargeCycle.get());

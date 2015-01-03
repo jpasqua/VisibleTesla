@@ -54,7 +54,7 @@ import org.noroomattheinn.visibletesla.data.VTData;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class TripController extends BaseController {
+class TripController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
@@ -397,7 +397,7 @@ public class TripController extends BaseController {
         endCurrentTrip();
         
         // Start listening for new WayPoints
-        VTData.get().statsCollector.lastStoredStreamState.addTracker(false, new Runnable() {
+        VTData.get().statsCollector.lastStoredStreamState.addTracker(new Runnable() {
             @Override public void run() {
                 handleNewWayPoint(new WayPoint(
                         VTData.get().statsCollector.lastStoredStreamState.get(),

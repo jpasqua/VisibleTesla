@@ -17,7 +17,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.SimpleTemplate;
-import org.noroomattheinn.visibletesla.Area;
+import org.noroomattheinn.utils.GeoUtils;
 
 
 public class ChooseLocationDialog extends VTDialog.Controller {
@@ -33,7 +33,7 @@ public class ChooseLocationDialog extends VTDialog.Controller {
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
-    private Area area = null;
+    private GeoUtils.CircularArea area = null;
     private WebEngine engine;
     private boolean cancelled = true;
     private boolean loaded = false;
@@ -69,7 +69,7 @@ public class ChooseLocationDialog extends VTDialog.Controller {
                     locationName = String.format("(%f, %f)", lat, lng);
                 }
             }
-            area = new Area(lat, lng, radius, locationName);
+            area = new GeoUtils.CircularArea(lat, lng, radius, locationName);
             cancelled = false;
             dialogStage.close();
         } else if (b == cancelButton) {
@@ -87,7 +87,8 @@ public class ChooseLocationDialog extends VTDialog.Controller {
  * -------                                                               -------
  *============================================================================*/
     
-    public static ChooseLocationDialog show(Stage stage, Area area, String apiKey) {
+    public static ChooseLocationDialog show(
+            Stage stage, GeoUtils.CircularArea area, String apiKey) {
         ChooseLocationDialog cld = VTDialog.<ChooseLocationDialog>load(
             ChooseLocationDialog.class.getResource("ChooseLocation.fxml"),
             "Select an Area", stage);
@@ -96,7 +97,7 @@ public class ChooseLocationDialog extends VTDialog.Controller {
         return cld;
     }
 
-    public Area getArea() { return area; }
+    public GeoUtils.CircularArea getArea() { return area; }
     
     public boolean cancelled() { return !loaded || cancelled; }
     
@@ -106,7 +107,7 @@ public class ChooseLocationDialog extends VTDialog.Controller {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void setInitialValues(Area area, String apiKey) {
+    private void setInitialValues(GeoUtils.CircularArea area, String apiKey) {
         if (apiKey == null) {
             logger.severe("API_KEY must be provided to ChooseLocationDialog!");
             dialogStage.close();
@@ -114,7 +115,7 @@ public class ChooseLocationDialog extends VTDialog.Controller {
         }
         
         if (area == null || (area.lat == 0 && area.lng == 0)) {
-            area = new Area(37.3941542, -122.1498701, 20.0, ""); // Tesla HQ
+            area = new GeoUtils.CircularArea(37.3941542, -122.1498701, 20.0, ""); // Tesla HQ
         } else {
             if (area.name != null) nickname.setText(area.name);
         }

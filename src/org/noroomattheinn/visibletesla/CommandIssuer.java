@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import org.noroomattheinn.utils.Executor;
 import java.util.concurrent.Callable;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Result;
@@ -15,7 +16,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class CommandIssuer extends Executor<CommandIssuer.Request> {
+class CommandIssuer extends Executor<CommandIssuer.Request> {
     
 /*==============================================================================
  * -------                                                               -------
@@ -24,7 +25,7 @@ public class CommandIssuer extends Executor<CommandIssuer.Request> {
  *============================================================================*/
     
     public CommandIssuer() {
-        super("CommandIssuer");
+        super("CommandIssuer", App.get().progressListener);
     }
     
     public void issueCommand(Callable<Result> command, boolean retry,

@@ -13,7 +13,8 @@ import java.util.List;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils.Predicate;
-import org.noroomattheinn.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.TrackedObject;
+import org.noroomattheinn.utils.Executor.FeedbackListener;
 
 
 /**
@@ -31,6 +32,7 @@ public class VTData {
     private static VTData instance = null;
     
     private final File              container;
+    private final FeedbackListener  feedbackListener;
     private       StreamProducer    streamProducer;
     private       StateProducer     stateProducer;
     private       StatsStreamer     statsStreamer;
@@ -47,9 +49,9 @@ public class VTData {
     public final TrackedObject<RestCycle>       lastRestCycle;
     public       StatsCollector                 statsCollector;
 
-    public static VTData create(File container) {
+    public static VTData create(File container, FeedbackListener feedbackListener) {
         if (instance != null) return instance;
-        return (instance = new VTData(container));
+        return (instance = new VTData(container, feedbackListener));
     }
     
     public static VTData get() { return instance; }
@@ -62,8 +64,8 @@ public class VTData {
     
     public void setVehicle(Vehicle v) throws IOException {
         statsCollector = new StatsCollector(container);
-        streamProducer = new StreamProducer();
-        stateProducer = new StateProducer();
+        streamProducer = new StreamProducer(feedbackListener);
+        stateProducer = new StateProducer(feedbackListener);
         statsStreamer = new StatsStreamer();
         initChargeStore();
         initRestStore();
@@ -137,10 +139,11 @@ public class VTData {
  * 
  *----------------------------------------------------------------------------*/
     
-    private VTData(File container) {
+    private VTData(File container, FeedbackListener feedbackListener) {
         this.container = container;
         this.lastChargeCycle = new TrackedObject<>(null);
         this.lastRestCycle = new TrackedObject<>(null);
+        this.feedbackListener = feedbackListener;
     }
     
 /*------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
 import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
 import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
 import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
-import org.noroomattheinn.fxextensions.TrackedObject;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.ThreadManager;
 
 /**
@@ -65,7 +65,7 @@ import org.noroomattheinn.utils.ThreadManager;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class MainController extends BaseController {
+class MainController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
@@ -166,18 +166,16 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        app.mode.addTracker(true, new Runnable() {
+        App.addTracker(app.mode, new Runnable() {
             @Override public void run() { setAppModeMenu(); } } );
-        app.state.addTracker(true, new Runnable() {
+        App.addTracker(app.state, new Runnable() {
             @Override public void run() { refreshTitle(); } });
 
         // Kick off the login process
         LoginController lc = Utils.cast(controllerFromTab(loginTab));
-        lc.loggedIn.addTracker(true, new LoginStateChange(lc.loggedIn, false));
+        App.addTracker(lc.loggedIn, new LoginStateChange(lc.loggedIn, false));
         lc.activate();
     }
-    
-    public void stop() { ThreadManager.get().shutDown(); }
     
 /*------------------------------------------------------------------------------
  *

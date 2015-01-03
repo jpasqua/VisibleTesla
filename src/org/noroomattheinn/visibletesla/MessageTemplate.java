@@ -13,7 +13,6 @@ import java.util.Map;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.rest.CarInfo;
 
 /**
  * MessageTemplate
@@ -213,7 +212,7 @@ public class MessageTemplate {
                         val = genSpeedo();
                         break;
                     case "HT_CARVIEW":
-                        val = CarInfo.genCarView();
+                        val = genCarView();
                         break;
                     case "ODO":
                         val = String.format(
@@ -239,6 +238,25 @@ public class MessageTemplate {
                 double speed = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().speed);
                 double power = VTVehicle.get().inProperUnits(VTVehicle.get().streamState.get().power);
                 return String.format(SpeedoTemplate, speed, power);
+            }
+            
+            private static final String CarViewFormat = 
+                "<div class=\"carview\">\n"+
+                "   <canvas id=\"cb\" width=\"540\" height=\"330\"> </canvas>\n" +
+                "   <script src=\"../scripts/CarView.js\" type=\"text/javascript\"></script>\n" +
+                "   <script>\n" +
+                "       var ctx = document.getElementById(\"cb\").getContext(\"2d\");\n" +
+                "       var carDetails = %s;\n"+
+                "       var carState = %s;\n" +
+                "       carView(ctx, carDetails, carState);\n" +
+                "   </script>"+
+                "</div>";
+    
+            private String genCarView() {
+                return String.format(
+                        CarViewFormat, 
+                        VTVehicle.get().carDetailsAsJSON(),
+                        VTVehicle.get().carStateAsJSON());
             }
             
             private static final String SOCGaugeTemplate = 

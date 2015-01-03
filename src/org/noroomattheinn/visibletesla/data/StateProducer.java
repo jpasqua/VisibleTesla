@@ -6,11 +6,10 @@
 package org.noroomattheinn.visibletesla.data;
 
 import java.util.Map;
-import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.Executor;
+import org.noroomattheinn.utils.Executor;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
@@ -39,12 +38,12 @@ public class StateProducer extends Executor<StateProducer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public StateProducer() {
-        super("StateProducer");
+    public StateProducer(FeedbackListener  feedbackListener) {
+        super("StateProducer",  feedbackListener);
     }
     
-    public void produce(Vehicle.StateType whichState, ProgressIndicator pi) {
-        super.produce(new Request(whichState, pi));
+    public void produce(Vehicle.StateType whichState, Object progressContext) {
+        super.produce(new Request(whichState, progressContext));
     }
         
 /*------------------------------------------------------------------------------
@@ -70,13 +69,12 @@ public class StateProducer extends Executor<StateProducer.Request> {
     public static class Request extends Executor.Request {
         public Vehicle.StateType stateType;
 
-        Request(Vehicle.StateType stateType, ProgressIndicator pi) {
-            super(pi);
+        Request(Vehicle.StateType stateType, Object progressContext) {
+            super(progressContext);
             this.stateType = stateType;
         }
         
         @Override protected String getRequestName() { return stateType.name(); }
-        
     }
 }
 

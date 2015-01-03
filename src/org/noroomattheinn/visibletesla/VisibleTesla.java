@@ -23,18 +23,8 @@ import org.noroomattheinn.visibletesla.rest.RESTServer;
 
 /**
  * This is the main class for the VisibleTesla application.
- * In addition to loading the FXML and starting it off, this class maintains
- * global application state that is available to all of the individual tabs
- * which implement the various functions.
- * <P>
- * This is a singleton class which can be accessed via <code>VisibleTesla.getInstance()</code>.
- * With the instance in hand, the individual tabs can access the selected vehicle
- * which is the primary object they need to perform all activities.
- * <P>
- * The AgreggatorConnector doesn't do much, but it does give access to the underlying
- * Tabs. This is necessary so that this class can access the LoginConnector
- * and attempt an automatic login (based on previously set cookies). None of the
- * other tabs are available until a successful login occurs.
+ * In addition to loading the FXML and launching the MainController, it creates
+ * all of the primary application services in the form of singletons.
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -49,29 +39,54 @@ public class VisibleTesla extends Application {
      * @throws Exception
      */
     @Override public void start(Stage stage) throws Exception {
+        // The following is basically JavaFX boilerplate to get the main
+        // application UI loaded and displayed
         Parent root = FXMLLoader.load(getClass().getResource("MainUI.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
         
-        // Everything above is boilerplate. The only thing this method does that
-        // is out of the ordinary is telling the MainController that startup is
-        // complete and that it can start the mainline activity of the App.
-        Dialogs.useNativeChrome(true);
+        Dialogs.useNativeChrome(true);  // Tell Dialogs to use the native look
+
+        //
+        // Create the various application services (in the form of singletons)
+        // in the appropriate order of dependency.
+        //
+        
+        // Create a ThreadManager singleton. This coul
+        ThreadManager.create();
+
+        // Create the Prefs singleton early since we need preference information
+        // in other parts of the initialization process
         Prefs prefs = Prefs.create(Preferences.userNodeForPackage(this.getClass()));
+        
+        // Create a default instance of the Mail sending class (MailGun)
+        // based on stored preferences
         MailGun.createDefaultInstance("api", prefs.useCustomMailGunKey.get()
                 ? prefs.mailGunKey.get() : Prefs.MailGunKey);
-        ThreadManager.create();
-        App.create(this, stage);
-        VTVehicle.create();
-        VTData.create(App.get().appFileFolder());
-        RESTServer.create(VTVehicle.get());
+        
+        // The App object depends on Prefs, so create it now
+        App app = App.create(this, stage, prefs);
+        
+        // The object representing the vehicle we're monitoring
+        VTVehicle v = VTVehicle.create();
+        
+        // Even though it's not represented in the parameters, VTData
+        // depends on VTVehicle, so now you can create it
+        VTData.create(app.appFileFolder(), app.progressListener);
+        
+        // The RESTServer depends on the App object and the Vehicle
+        RESTServer.create(v, app.authenticator);
+        
+        // OK, that's done. Now launch the MainController and let's get started!
         mainController = Utils.cast(root.getUserData());
         mainController.start();
     }
     
     @Override public void stop() {
-        mainController.stop();
+        // Shut the app down cleanly. All threads and components are tied into
+        // the ThreadManager's shutDown mechanism.
+        ThreadManager.get().shutDown();
     }
     
     /**

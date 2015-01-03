@@ -19,8 +19,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import org.noroomattheinn.tesla.Result;
-import org.noroomattheinn.fxextensions.TrackedObject;
-import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.utils.TrackedObject;
 
 /**
  * This controller allows the user to login and logout. The "logged-in" state
@@ -38,7 +37,7 @@ import org.noroomattheinn.utils.ThreadManager;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class LoginController extends BaseController {
+class LoginController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
@@ -99,8 +98,8 @@ public class LoginController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     @Override protected void fxInitialize() {
-        loggedIn.addTracker(true, 
-                new Runnable() { @Override public void run() { reflectLoginState(); } });        
+        App.addTracker(loggedIn, new Runnable() {
+            @Override public void run() { reflectLoginState(); } });        
     }
     
     @Override protected void refresh() { }

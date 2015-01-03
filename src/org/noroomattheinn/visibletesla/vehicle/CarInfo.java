@@ -3,21 +3,20 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Jul 27, 2014
  */
-package org.noroomattheinn.visibletesla.rest;
+package org.noroomattheinn.visibletesla.vehicle;
 
 import java.util.Map;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * CarInfo
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class CarInfo {
+class CarInfo {
     
 /*------------------------------------------------------------------------------
  *
@@ -72,17 +71,6 @@ public class CarInfo {
         "   \"panoPct\": \"%d\", " +
         "   \"chargePort\": \"%s\", \"charging\": %b, " +
         "   \"locked\": %b }";
-    private static final String CarViewFormat = 
-        "<div class=\"carview\">\n"+
-        "   <canvas id=\"cb\" width=\"540\" height=\"330\"> </canvas>\n" +
-        "   <script src=\"../scripts/CarView.js\" type=\"text/javascript\"></script>\n" +
-        "   <script>\n" +
-        "       var ctx = document.getElementById(\"cb\").getContext(\"2d\");\n" +
-        "       var carDetails = %s;\n"+
-        "       var carState = %s;\n" +
-        "       carView(ctx, carDetails, carState);\n" +
-        "   </script>"+
-        "</div>";
     
 /*==============================================================================
  * -------                                                               -------
@@ -90,9 +78,9 @@ public class CarInfo {
  * -------                                                               -------
  *============================================================================*/
     
-    public static String carDetailsAsJSON() {
-        Options options = VTVehicle.get().getVehicle().getOptions();
-        VehicleState vs = VTVehicle.get().vehicleState.get();
+    public static String carDetailsAsJSON(VTVehicle v) {
+        Options options = v.getVehicle().getOptions();
+        VehicleState vs = v.vehicleState.get();
         return String.format(DetailsFormat,
                 ColorMap.get(options.paintColor()),
                 SeatMap.get(options.seatType().getColor()),
@@ -102,9 +90,9 @@ public class CarInfo {
 
     }
     
-    public static String carStateAsJSON() {
-        VehicleState vs = VTVehicle.get().vehicleState.get();
-        ChargeState cs = VTVehicle.get().chargeState.get();
+    public static String carStateAsJSON(VTVehicle v) {
+        VehicleState vs = v.vehicleState.get();
+        ChargeState cs = v.chargeState.get();
         return String.format(CarStateFormat,
                 ooc(vs.isPFOpen), ooc(vs.isPROpen), ooc(vs.isDFOpen), ooc(vs.isDROpen),
                 ooc(vs.isFTOpen), ooc(vs.isRTOpen), vs.panoPercent,
@@ -112,9 +100,6 @@ public class CarInfo {
                 vs.locked);
     }
     
-    public static String genCarView() {
-        return String.format(CarViewFormat, carDetailsAsJSON(), carStateAsJSON());
-    }
 
 /*------------------------------------------------------------------------------
  *

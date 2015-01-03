@@ -35,6 +35,7 @@ import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
@@ -50,7 +51,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-public class NotifierController extends BaseController {
+class NotifierController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
@@ -59,9 +60,10 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static class GeoTrigger {
-        public GenericTrigger<Area> trigger;
+        public GenericTrigger<GeoUtils.CircularArea> trigger;
         public MessageTarget        messageTarget;
-        public ObjectProperty<Area> prop = new SimpleObjectProperty<>(new Area());
+        public ObjectProperty<GeoUtils.CircularArea> prop =
+                        new SimpleObjectProperty<>(new GeoUtils.CircularArea());
         public Button               defineArea;
         public Button               optionsButton;
         public CheckBox             enabled;
@@ -414,8 +416,8 @@ public class NotifierController extends BaseController {
                 GeoTrigger gt = geoTriggers[i];
                 gt.trigger = new GenericTrigger<>(
                     gt.enabled.selectedProperty(), areaHelper,
-                    "Enter Area", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
-                    gt.prop, new Area(), GeoDebounce);
+                    "Enter GeoUtils.CircularArea", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
+                    gt.prop, new GeoUtils.CircularArea(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
                         app, NotifyEnterKey+i, EnterAreaSubj, EnterAreaMsg);
             }
@@ -423,16 +425,16 @@ public class NotifierController extends BaseController {
                 GeoTrigger gt = geoTriggers[i];
                 gt.trigger = new GenericTrigger<>(
                     gt.enabled.selectedProperty(), areaHelper,
-                    "Left Area", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
-                    gt.prop, new Area(), GeoDebounce);
+                    "Left GeoUtils.CircularArea", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
+                    gt.prop, new GeoUtils.CircularArea(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
                         app, NotifyLeftKey+i, LeftAreaSubj, LeftAreaMsg);
             }
             for (final GeoTrigger g : geoTriggers) {
                 String name = g.prop.get().name;
                 if (name != null && !name.isEmpty()) { g.enabled.setText(name); }
-                g.prop.addListener(new ChangeListener<Area>() {
-                    @Override public void changed(ObservableValue<? extends Area> ov, Area t, Area t1) {
+                g.prop.addListener(new ChangeListener<GeoUtils.CircularArea>() {
+                    @Override public void changed(ObservableValue<? extends GeoUtils.CircularArea> ov, GeoUtils.CircularArea t, GeoUtils.CircularArea t1) {
                         if (t1.name != null && !t1.name.isEmpty()) {
                             g.enabled.setText(t1.name);
                         }
@@ -491,7 +493,7 @@ public class NotifierController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private void showAreaDialog(ObjectProperty<Area> areaProp) {
+    private void showAreaDialog(ObjectProperty<GeoUtils.CircularArea> areaProp) {
         String apiKey = Prefs.get().useCustomGoogleAPIKey.get() ?
                     Prefs.get().googleAPIKey.get() :
                     Prefs.GoogleMapsAPIKey;
@@ -529,7 +531,7 @@ public class NotifierController extends BaseController {
         vtVehicle.chargeState.addListener(csListener);
         vtVehicle.streamState.addListener(ssListener);
         vtVehicle.vehicleState.addListener(vsListener);
-        app.schedulerActivity.addTracker(false, schedListener);
+        app.schedulerActivity.addTracker(schedListener);
     }
     
     private Runnable schedListener = new Runnable() {
@@ -595,7 +597,7 @@ public class NotifierController extends BaseController {
                 }
             }
             
-            Area curLoc = new Area(cur.estLat, cur.estLng, 0, "Current Location");
+            GeoUtils.CircularArea curLoc = new GeoUtils.CircularArea(cur.estLat, cur.estLng, 0, "Current Location");
             for (GeoTrigger g : geoTriggers) {
                 if (g.trigger.evalPredicate(curLoc)) {
                     notifyUser(g.trigger, g.messageTarget);
@@ -834,40 +836,40 @@ public class NotifierController extends BaseController {
         }
     };
     
-    private GenericTrigger.RW<Area> areaHelper = new AreaRW();
-    private class AreaRW extends Persistence<Area> {
-        @Override public String toExternal(Area value) {
+    private GenericTrigger.RW<GeoUtils.CircularArea> areaHelper = new AreaRW();
+    private class AreaRW extends Persistence<GeoUtils.CircularArea> {
+        @Override public String toExternal(GeoUtils.CircularArea value) {
             return String.format(Locale.US, "%3.5f^%3.5f^%2.1f^%s",
                     value.lat, value.lng, value.radius, value.name);
         }
 
-        @Override public Area fromExternal(String external) {
+        @Override public GeoUtils.CircularArea fromExternal(String external) {
             String[] elements = external.split("\\^");
             if (elements.length != 4) {
-                logger.severe("Malformed Area String: " + external);
-                return new Area();
+                logger.severe("Malformed GeoUtils.CircularArea String: " + external);
+                return new GeoUtils.CircularArea();
             }
             double lat, lng, radius;
             try {
                 lat = Double.valueOf(elements[0]);
                 lng = Double.valueOf(elements[1]);
                 radius = Double.valueOf(elements[2]);
-                return new Area(lat, lng, radius, elements[3]);
+                return new GeoUtils.CircularArea(lat, lng, radius, elements[3]);
             } catch (NumberFormatException e) {
-                logger.severe("Malformed Area String: " + external);
-                return new Area();
+                logger.severe("Malformed GeoUtils.CircularArea String: " + external);
+                return new GeoUtils.CircularArea();
             }
         }
 
-        @Override public String formatted(Area value) {
+        @Override public String formatted(GeoUtils.CircularArea value) {
             return String.format("[%s] within %2.1f meters", value.name, value.radius);
         }
 
-        @Override public int compare(Area o1, Area o2) {
+        @Override public int compare(GeoUtils.CircularArea o1, GeoUtils.CircularArea o2) {
             return o1.compareTo(o2);
         }
 
-        @Override public boolean isAny(Area value) { return false; }
+        @Override public boolean isAny(GeoUtils.CircularArea value) { return false; }
         @Override public void persist(String key, String value) {
             Prefs.store().put(app.vinKey(key), value);
         }

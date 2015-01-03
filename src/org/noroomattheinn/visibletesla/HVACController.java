@@ -26,7 +26,7 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
-public class HVACController extends BaseController {
+class HVACController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *

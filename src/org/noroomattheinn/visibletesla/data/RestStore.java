@@ -44,7 +44,7 @@ public class RestStore extends CycleStore<RestCycle> {
         this.flushOnEachWrite = true;
         this.exporter = new RestCycleExporter();
                 
-        VTData.get().lastRestCycle.addTracker(false, new Runnable() {
+        VTData.get().lastRestCycle.addTracker(new Runnable() {
             @Override public void run() {
                 cycleWriter.println(VTData.get().lastRestCycle.get().toJSONString());
                 exporter.submitData(VTData.get().lastRestCycle.get());

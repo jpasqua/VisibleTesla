@@ -17,7 +17,8 @@ import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import static org.noroomattheinn.utils.Utils.timeSince;
-import org.noroomattheinn.fxextensions.TrackedObject;
+
+import org.noroomattheinn.utils.TrackedObject;
 
 /**
  * StatsStreamer: Generate a stream of statistics
@@ -78,7 +79,7 @@ public class StatsStreamer implements Runnable {
             }
         });
         
-        carState.addTracker(false, new Runnable() {
+        carState.addTracker(new Runnable() {
             @Override public void run() {
                 logger.finest("Car State changed to: " + carState.get());
             }
