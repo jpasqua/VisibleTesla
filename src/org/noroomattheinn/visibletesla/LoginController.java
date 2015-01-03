@@ -37,7 +37,7 @@ import org.noroomattheinn.utils.TrackedObject;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class LoginController extends BaseController {
+public class LoginController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *

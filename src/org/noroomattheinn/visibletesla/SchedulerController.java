@@ -34,7 +34,7 @@ import org.noroomattheinn.visibletesla.ScheduleItem.Command;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class SchedulerController extends BaseController
+public class SchedulerController extends BaseController
     implements ScheduleItem.ScheduleOwner, Stoppable {
 
     private static final int Safe_Threshold = 25;

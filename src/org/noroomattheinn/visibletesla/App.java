@@ -44,6 +44,14 @@ public class App {
     
     public static final String ProductName = "VisibleTesla";
     public static final String ProductVersion = "0.32.00";
+    
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ *
+ *----------------------------------------------------------------------------*/
+    
+    public static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
 
     public enum Mode { AllowSleeping, StayAwake };
     public enum State { Idle, Active };

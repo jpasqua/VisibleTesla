@@ -54,7 +54,7 @@ import org.noroomattheinn.visibletesla.data.VTData;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class TripController extends BaseController {
+public class TripController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *
@@ -130,7 +130,7 @@ class TripController extends BaseController {
     
     @FXML void exportItHandler(ActionEvent event) {
         String initialDir = Prefs.store().get(
-                StatsCollector.LastExportDirKey, System.getProperty("user.home"));
+                App.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Trip as KMZ");
         fileChooser.setInitialDirectory(new File(initialDir));
@@ -139,7 +139,7 @@ class TripController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
+                Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
             KMLExporter ke = new KMLExporter();
             if (ke.export(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(

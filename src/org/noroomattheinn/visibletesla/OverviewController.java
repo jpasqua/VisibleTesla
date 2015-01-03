@@ -38,7 +38,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 
-class OverviewController extends BaseController {
+public class OverviewController extends BaseController {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums

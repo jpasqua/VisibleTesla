@@ -6,13 +6,9 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import com.google.common.collect.Range;
 import java.io.File;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.IOException;
-import org.noroomattheinn.visibletesla.dialogs.WakeSleepDialog;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -26,12 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Dialogs;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -43,19 +34,19 @@ import org.apache.commons.lang3.SystemUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
-import org.noroomattheinn.utils.Utils;
-import static org.noroomattheinn.utils.Utils.timeSince;
-import static org.noroomattheinn.visibletesla.data.StatsCollector.LastExportDirKey;
-import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
-import org.noroomattheinn.visibletesla.dialogs.PasswordDialog;
-import org.noroomattheinn.visibletesla.dialogs.SelectVehicleDialog;
-import org.noroomattheinn.visibletesla.dialogs.VersionUpdater;
-import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.utils.TrackedObject;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.StatsCollector;
+import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.dialogs.*;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
+import static org.noroomattheinn.utils.Utils.timeSince;
 
 /**
  * This is the main application code for VisibleTesla. It does not contain
@@ -65,7 +56,7 @@ import org.noroomattheinn.utils.ThreadManager;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class MainController extends BaseController {
+public class MainController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
@@ -525,7 +516,7 @@ class MainController extends BaseController {
     
     private void exportCycles(String cycleType) {
         String initialDir = Prefs.store().get(
-                StatsCollector.LastExportDirKey, System.getProperty("user.home"));
+                App.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export " + cycleType + " Data");
         fileChooser.setInitialDirectory(new File(initialDir));
@@ -535,7 +526,7 @@ class MainController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                Prefs.store().put(StatsCollector.LastExportDirKey, enclosingDirectory);
+                Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(stage);
             if (exportPeriod == null)
                 return;
@@ -559,7 +550,7 @@ class MainController extends BaseController {
     
     private void exportStats(String[] columns) {
         String initialDir = Prefs.store().get(
-                LastExportDirKey, System.getProperty("user.home"));
+                App.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Data");
         fileChooser.setInitialDirectory(new File(initialDir));
@@ -568,7 +559,7 @@ class MainController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                Prefs.store().put(LastExportDirKey, enclosingDirectory);
+                Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(app.stage);
             if (exportPeriod == null)
                 return;

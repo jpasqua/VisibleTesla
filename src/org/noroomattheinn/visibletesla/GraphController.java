@@ -52,7 +52,7 @@ import org.noroomattheinn.visibletesla.prefs.Prefs;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class GraphController extends BaseController {
+public class GraphController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *

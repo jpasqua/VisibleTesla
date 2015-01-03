@@ -51,7 +51,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 
-class NotifierController extends BaseController {
+public class NotifierController extends BaseController {
 
 /*------------------------------------------------------------------------------
  *

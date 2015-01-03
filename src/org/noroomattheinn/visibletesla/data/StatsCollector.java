@@ -35,12 +35,6 @@ import org.noroomattheinn.visibletesla.data.VTData.TimeBasedPredicate;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class StatsCollector implements ThreadManager.Stoppable {
-/*------------------------------------------------------------------------------
- *
- * Constants and Enums
- * 
- *----------------------------------------------------------------------------*/
-    public static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
     private static final long TenMinutes = 10 * 60 * 1000;
     
     // Data that comes from the ChargeState

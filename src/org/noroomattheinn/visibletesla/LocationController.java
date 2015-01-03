@@ -43,7 +43,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
 
 
-class LocationController extends BaseController {
+public class LocationController extends BaseController {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums

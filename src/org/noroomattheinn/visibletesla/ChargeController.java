@@ -32,7 +32,7 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 
-class ChargeController extends BaseController {
+public class ChargeController extends BaseController {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums

@@ -30,7 +30,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.utils.MailGun;
 
-class PrefsController extends BaseController {
+public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------
  *
  * Internal State
