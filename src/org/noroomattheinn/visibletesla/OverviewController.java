@@ -108,7 +108,7 @@ public class OverviewController extends BaseController {
     @FXML private Button vinButton;
     
     // Emblem Images
-    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg;
+    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg, p85dImg;
     
     //
     // Controls
@@ -363,7 +363,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateWheelView() {
-        updateImages(vtVehicle.computedWheelType(), wheelImages, wheelEquivs);
+        updateImages(vtVehicle.wheelType(), wheelImages, wheelEquivs);
     }
     
     private void updateChargePort() {
@@ -398,12 +398,13 @@ public class OverviewController extends BaseController {
         s85Img.setVisible(false);
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
-        switch (VTVehicle.get().getVehicle().getOptions().model()) {
+        p85dImg.setVisible(false);
+        switch (VTVehicle.get().model()) {
             case S60: s60Img.setVisible(true); break;
             case S85: s85Img.setVisible(true); break;
-            case P85: p85pImg.setVisible(true); break;
+            case P85: p85Img.setVisible(true); break;
             case P85Plus: p85pImg.setVisible(true); break;
-            case P85D: p85pImg.setVisible(true); break; // TO DO: Add emblem for P85D
+            case P85D: p85dImg.setVisible(true); break;
             default: s85Img.setVisible(true); break;
         }
     }

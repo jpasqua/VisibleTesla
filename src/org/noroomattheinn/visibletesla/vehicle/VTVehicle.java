@@ -44,6 +44,12 @@ public class VTVehicle {
         "Body Color", Options.RoofType.RFBC,
         "Black", Options.RoofType.RFBK,
         "Pano", Options.RoofType.RFPO);
+    private static final Map<String,Options.Model> overrideModel = Utils.newHashMap(
+        "P85+", Options.Model.S60,
+        "P85D", Options.Model.S85,
+        "P85D", Options.Model.P85,
+        "P85+", Options.Model.P85Plus,
+        "P85D", Options.Model.P85D);
     private static final Map<String,Options.PaintColor> overrideColor = Utils.newHashMap(
         "White", Options.PaintColor.PBCW,
         "Black", Options.PaintColor.PBSB,
@@ -64,8 +70,8 @@ public class VTVehicle {
         "21\" Silver", Options.WheelType.WT21,
         "21\" Grey", Options.WheelType.WTSP);
     private static final Map<String,Utils.UnitType> overrideUnits = Utils.newHashMap(
-            "Imperial", Utils.UnitType.Imperial,
-            "Metric", Utils.UnitType.Metric);
+        "Imperial", Utils.UnitType.Imperial,
+        "Metric", Utils.UnitType.Metric);
 
 /*------------------------------------------------------------------------------
  *
@@ -105,6 +111,12 @@ public class VTVehicle {
     
     public Vehicle getVehicle() { return vehicle.get(); }
     
+    public Options.Model model() {
+        Options.Model model = overrideModel.get(Prefs.get().overideModelTo.get());
+        if (Prefs.get().overideModelActive.get() && model != null) return model;
+        return (getVehicle().getOptions().model());
+    }
+    
     public Options.RoofType roofType() {
         Options.RoofType roof = overrideRoof.get(Prefs.get().overideRoofTo.get());
         if (Prefs.get().overideRoofActive.get() && roof != null) return roof;
@@ -143,7 +155,7 @@ public class VTVehicle {
         return Utils.milesToKm(val);
     }
 
-    public Options.WheelType computedWheelType() {
+    public Options.WheelType wheelType() {
         Options.WheelType wt = overrideWheels.get(Prefs.get().overideWheelsTo.get());
         if (Prefs.get().overideWheelsActive.get() && wt != null) return wt;
 

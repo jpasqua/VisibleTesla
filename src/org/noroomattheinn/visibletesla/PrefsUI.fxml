@@ -314,14 +314,18 @@
                       <items>
                         <FXCollections fx:factory="observableArrayList">
                           <String fx:value="From Car" />
-                          <String fx:value="Force P85+" />
+                          <String fx:value="S60" />
+                          <String fx:value="S85" />
+                          <String fx:value="P85" />
+                          <String fx:value="P85+" />
+                          <String fx:value="P85D" />
                         </FXCollections>
                       </items>
                     </ComboBox>
                     <Label alignment="CENTER_RIGHT" contentDisplay="CENTER" prefWidth="58.0" text="Wheels" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                     <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Color" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Units" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="P85+?" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label alignment="CENTER_RIGHT" prefWidth="58.0" text="Model" textAlignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                     <Label font="$x1" text="Item" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
                     <Label font="$x1" text="Value" textFill="WHITE" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0" />
                     <Label font="$x1" text="Active" textFill="WHITE" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0" />

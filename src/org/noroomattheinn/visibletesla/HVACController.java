@@ -260,7 +260,7 @@ public class HVACController extends BaseController {
     private static final String ImagePrefix = "org/noroomattheinn/TeslaResources/";
     private void getAppropriateBody() {
         ClassLoader cl = getClass().getClassLoader();
-        Options.WheelType wt = vtVehicle.computedWheelType();
+        Options.WheelType wt = vtVehicle.wheelType();
         String image;
         
         switch (wt) {

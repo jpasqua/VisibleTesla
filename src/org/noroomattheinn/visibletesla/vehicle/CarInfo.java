@@ -84,7 +84,7 @@ class CarInfo {
         return String.format(DetailsFormat,
                 ColorMap.get(options.paintColor()),
                 SeatMap.get(options.seatType().getColor()),
-                WheelMap.get(VTVehicle.get().computedWheelType()),
+                WheelMap.get(VTVehicle.get().wheelType()),
                 vs.hasSpoiler, vs.hasPano,
                 getModel(options));
 
