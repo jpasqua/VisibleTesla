@@ -5,10 +5,11 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.utils.Executor;
 import java.util.concurrent.Callable;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Result;
+import org.noroomattheinn.utils.Executor;
+
 import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**

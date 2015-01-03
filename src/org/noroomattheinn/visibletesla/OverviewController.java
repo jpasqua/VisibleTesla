@@ -6,8 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -27,15 +25,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.Vehicle.PanoCommand;
-import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
+import org.noroomattheinn.tesla.Vehicle.PanoCommand;
+import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
 public class OverviewController extends BaseController {

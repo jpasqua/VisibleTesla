@@ -6,7 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,12 +21,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.Result;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.ThreadManager.Stoppable;
 import org.noroomattheinn.visibletesla.ScheduleItem.Command;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * FXML Controller class

@@ -6,7 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.concurrent.Callable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -25,6 +24,7 @@ import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 public class HVACController extends BaseController {
     

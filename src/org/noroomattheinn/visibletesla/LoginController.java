@@ -6,7 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.concurrent.Callable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -20,6 +19,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.utils.TrackedObject;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * This controller allows the user to login and logout. The "logged-in" state

@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.util.List;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.utils.Utils.Predicate;
-import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Executor.FeedbackListener;
+import org.noroomattheinn.utils.TrackedObject;
+import org.noroomattheinn.utils.Utils.Predicate;
 
 
 /**

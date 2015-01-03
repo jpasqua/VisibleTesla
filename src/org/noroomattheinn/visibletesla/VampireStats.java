@@ -5,8 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.data.RestCycle;
 import com.google.common.collect.Range;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -15,8 +13,10 @@ import java.util.Map;
 import java.util.NavigableMap;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.RestCycle;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.DateRangeDialog;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * VampireStats: Collect and display statistics about vampire loss.

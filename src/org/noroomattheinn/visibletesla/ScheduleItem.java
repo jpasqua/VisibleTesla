@@ -6,9 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
-import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import it.sauronsoftware.cron4j.Scheduler;
@@ -25,10 +22,14 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
-import static org.noroomattheinn.tesla.Tesla.logger;
+import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
-import org.noroomattheinn.fxextensions.TimeSelector;
+import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
+import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 
 

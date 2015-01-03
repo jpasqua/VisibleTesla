@@ -5,14 +5,15 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * MessageTemplate

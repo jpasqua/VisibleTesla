@@ -6,10 +6,8 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.io.File;
 import java.io.IOException;
-import org.noroomattheinn.fxextensions.MultiGauge;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -36,11 +34,14 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
+import org.noroomattheinn.fxextensions.MultiGauge;
 import org.noroomattheinn.tesla.StreamState;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 
 public class LocationController extends BaseController {

@@ -6,8 +6,6 @@
 package org.noroomattheinn.visibletesla;
 
 import com.sun.net.httpserver.BasicAuthenticator;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.io.File;
 import java.util.List;
 import javafx.application.Application;
@@ -21,12 +19,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.PWUtils;
-import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.utils.Utils;
-import static org.noroomattheinn.utils.Utils.timeSince;
-
-import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.utils.TrackedObject;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
+import static org.noroomattheinn.utils.Utils.timeSince;
 
 /**
  * App - Stores state about the app for use across the app. This is a singleton

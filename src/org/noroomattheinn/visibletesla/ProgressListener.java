@@ -5,11 +5,11 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.utils.Executor;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.scene.control.ProgressIndicator;
+import org.noroomattheinn.utils.Executor;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;

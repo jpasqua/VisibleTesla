@@ -5,8 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,15 +37,18 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.KMLExporter;
+import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.data.Trip;
-import org.noroomattheinn.visibletesla.data.WayPoint;
 import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.data.WayPoint;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * TripController: Manage the recording, selection and display of Trips

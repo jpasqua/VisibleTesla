@@ -6,9 +6,7 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import java.util.prefs.Preferences;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,7 +17,9 @@ import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * This is the main class for the VisibleTesla application.

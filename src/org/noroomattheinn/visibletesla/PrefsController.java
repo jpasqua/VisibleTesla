@@ -5,7 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.util.Date;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -26,9 +25,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.converter.NumberStringConverter;
-import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.utils.MailGun;
+import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 public class PrefsController extends BaseController {
 /*------------------------------------------------------------------------------

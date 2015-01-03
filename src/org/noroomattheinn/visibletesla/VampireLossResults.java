@@ -5,7 +5,6 @@
  */
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.fxextensions.VTDialog;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +24,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.TimeStringConverter;
+import org.noroomattheinn.fxextensions.VTDialog;
 import org.noroomattheinn.visibletesla.data.RestCycle;
 
 /**

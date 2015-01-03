@@ -6,10 +6,11 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 class MessageTarget {
     private String address;

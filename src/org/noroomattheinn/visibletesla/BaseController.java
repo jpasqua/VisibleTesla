@@ -6,8 +6,6 @@
 
 package org.noroomattheinn.visibletesla;
 
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -21,10 +19,13 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import org.noroomattheinn.tesla.Result;
-import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
  * BaseController: This superclass implements most of the common mechanisms used
