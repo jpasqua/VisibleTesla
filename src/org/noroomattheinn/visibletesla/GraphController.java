@@ -32,7 +32,6 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 
@@ -138,21 +137,21 @@ public class GraphController extends BaseController {
         lineChart.clearSeries();
 
         cbToSeries.put(voltageCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.VoltageKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(VTData.VoltageKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(currentCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.CurrentKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(VTData.CurrentKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(rangeCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.EstRangeKey, VTSeries.millisToSeconds, distTransform)));
+                new VTSeries(VTData.EstRangeKey, VTSeries.millisToSeconds, distTransform)));
         cbToSeries.put(socCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.SOCKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(VTData.SOCKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(rocCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.ROCKey, VTSeries.millisToSeconds, distTransform)));
+                new VTSeries(VTData.ROCKey, VTSeries.millisToSeconds, distTransform)));
         cbToSeries.put(powerCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.PowerKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(VTData.PowerKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         cbToSeries.put(speedCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.SpeedKey, VTSeries.millisToSeconds, distTransform)));
+                new VTSeries(VTData.SpeedKey, VTSeries.millisToSeconds, distTransform)));
         cbToSeries.put(batteryCurrentCheckbox, lineChart.register(
-                new VTSeries(StatsCollector.BatteryAmpsKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
+                new VTSeries(VTData.BatteryAmpsKey, VTSeries.millisToSeconds, VTSeries.idTransform)));
         
         // Make the checkbox colors match the series colors
         int seriesNumber = 0;
@@ -197,8 +196,8 @@ public class GraphController extends BaseController {
         prepSeries();
         loadExistingData();
         // Register for additions to the data
-        VTData.get().statsCollector.lastStoredChargeState.addTracker(chargeHandler);
-        VTData.get().statsCollector.lastStoredStreamState.addTracker(streamHandler);
+        VTData.get().lastStoredChargeState.addTracker(chargeHandler);
+        VTData.get().lastStoredStreamState.addTracker(streamHandler);
         
         setGap();
         Prefs.get().ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
@@ -311,7 +310,7 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
         
     private void loadExistingData() {
-        Map<Long,Row> rows = VTData.get().statsCollector.getAllLoadedRows();
+        Map<Long,Row> rows = VTData.get().getAllLoadedRows();
         Map<String,ObservableList<XYChart.Data<Number,Number>>> typeToList = new HashMap<>();
         
         for (String type : typeToSeries.keySet()) {
@@ -328,7 +327,7 @@ public class GraphController extends BaseController {
             long bit = 1;
             for (int i = 0; i < row.values.length; i++) {
                 if (row.includes(bit)) {
-                    String type = StatsCollector.schema.columnNames[i];
+                    String type = VTData.schema.columnNames[i];
                     VTSeries vts = typeToSeries.get(type);
                     if (vts != null) {  // It's a column that we're graphing
                         double value = row.values[i];
@@ -375,21 +374,21 @@ public class GraphController extends BaseController {
     
     private final Runnable chargeHandler = new Runnable() {
         @Override public void run() {
-            ChargeState cs = VTData.get().statsCollector.lastStoredChargeState.get();
-            addElement(typeToSeries.get(StatsCollector.VoltageKey), cs.timestamp, cs.chargerVoltage);
-            addElement(typeToSeries.get(StatsCollector.CurrentKey), cs.timestamp, cs.chargerActualCurrent);
-            addElement(typeToSeries.get(StatsCollector.EstRangeKey), cs.timestamp, cs.range);
-            addElement(typeToSeries.get(StatsCollector.SOCKey), cs.timestamp, cs.batteryPercent);
-            addElement(typeToSeries.get(StatsCollector.ROCKey), cs.timestamp, cs.chargeRate);
-            addElement(typeToSeries.get(StatsCollector.BatteryAmpsKey), cs.timestamp, cs.batteryCurrent);
+            ChargeState cs = VTData.get().lastStoredChargeState.get();
+            addElement(typeToSeries.get(VTData.VoltageKey), cs.timestamp, cs.chargerVoltage);
+            addElement(typeToSeries.get(VTData.CurrentKey), cs.timestamp, cs.chargerActualCurrent);
+            addElement(typeToSeries.get(VTData.EstRangeKey), cs.timestamp, cs.range);
+            addElement(typeToSeries.get(VTData.SOCKey), cs.timestamp, cs.batteryPercent);
+            addElement(typeToSeries.get(VTData.ROCKey), cs.timestamp, cs.chargeRate);
+            addElement(typeToSeries.get(VTData.BatteryAmpsKey), cs.timestamp, cs.batteryCurrent);
         }
     };
     
     private final Runnable streamHandler = new Runnable() {
         @Override public void run() {
-            StreamState ss = VTData.get().statsCollector.lastStoredStreamState.get();
-            addElement(typeToSeries.get(StatsCollector.SpeedKey), ss.timestamp, ss.speed);
-            addElement(typeToSeries.get(StatsCollector.PowerKey), ss.timestamp, ss.power);
+            StreamState ss = VTData.get().lastStoredStreamState.get();
+            addElement(typeToSeries.get(VTData.SpeedKey), ss.timestamp, ss.speed);
+            addElement(typeToSeries.get(VTData.PowerKey), ss.timestamp, ss.power);
         }
     };
 

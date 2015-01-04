@@ -39,7 +39,6 @@ import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.*;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
@@ -412,22 +411,22 @@ public class MainController extends BaseController {
     
     // File->Export * Data...
     private static final String[] statsColumns = new String[] {
-        StatsCollector.VoltageKey, StatsCollector.CurrentKey,
-        StatsCollector.EstRangeKey, StatsCollector.SOCKey,
-        StatsCollector.ROCKey, StatsCollector.BatteryAmpsKey,
-        StatsCollector.SpeedKey, StatsCollector.PowerKey,
+        VTData.VoltageKey, VTData.CurrentKey,
+        VTData.EstRangeKey, VTData.SOCKey,
+        VTData.ROCKey, VTData.BatteryAmpsKey,
+        VTData.SpeedKey, VTData.PowerKey,
     };
     private static final String[] locColumns = new String[] {
-        StatsCollector.LatitudeKey, StatsCollector.LongitudeKey,
-        StatsCollector.HeadingKey, StatsCollector.SpeedKey,
-        StatsCollector.OdometerKey, StatsCollector.PowerKey
+        VTData.LatitudeKey, VTData.LongitudeKey,
+        VTData.HeadingKey, VTData.SpeedKey,
+        VTData.OdometerKey, VTData.PowerKey
     };
     
     @FXML void exportHandler(ActionEvent event) {
         MenuItem mi = (MenuItem)event.getSource();
         if (mi == exportStatsMenuItem) { exportStats(statsColumns); }
         else if (mi == exportLocMenuItem) { exportStats(locColumns); }
-        else if (mi == exportAllMenuItem) { exportStats(StatsCollector.Columns); }
+        else if (mi == exportAllMenuItem) { exportStats(VTData.schema.columnNames); }
         else if (mi == exportChargeMenuItem) { exportCycles("Charge"); }
         else if (mi == exportRestMenuItem) { exportCycles("Rest"); }
         else if (mi == this.vampireLossMenuItem) { vampireStats.showStats(); }
@@ -494,17 +493,17 @@ public class MainController extends BaseController {
     
     @FXML private void honk(ActionEvent e) {
         issuer.issueCommand(new Callable<Result>() {
-            @Override public Result call() { return VTVehicle.get().getVehicle().honk(); }
+            @Override public Result call() { return vtVehicle.getVehicle().honk(); }
         }, true, null, "Honk");
     }
     @FXML private void flash(ActionEvent e) {
         issuer.issueCommand(new Callable<Result>() {
-            @Override public Result call() { return VTVehicle.get().getVehicle().flashLights(); }
+            @Override public Result call() { return vtVehicle.getVehicle().flashLights(); }
         }, true, null, "Flash Lights");
     }
     @FXML private void wakeup(ActionEvent e) {
         issuer.issueCommand(new Callable<Result>() {
-            @Override public Result call() { return VTVehicle.get().getVehicle().wakeUp(); }
+            @Override public Result call() { return vtVehicle.getVehicle().wakeUp(); }
         }, true, null, "Wake up");
     }
     
@@ -563,8 +562,7 @@ public class MainController extends BaseController {
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(app.stage);
             if (exportPeriod == null)
                 return;
-            if (VTData.get().statsCollector.export(
-                    file, exportPeriod, columns)) {
+            if (VTData.get().export(file, exportPeriod, columns)) {
                 Dialogs.showInformationDialog(
                     app.stage, "Your data has been exported",
                     "Data Export Process" , "Export Complete");
@@ -595,7 +593,8 @@ public class MainController extends BaseController {
     }
     
     private void refreshTitle() {
-        String carName = (VTVehicle.get().getVehicle() != null) ? VTVehicle.get().getVehicle().getDisplayName() : null;
+        Vehicle v = VTVehicle.get().getVehicle();
+        String carName = (v != null) ? v.getDisplayName() : null;
         String title = App.ProductName + " " + App.ProductVersion;
         if (carName != null) title = title + " for " + carName;
         if (app.isIdle()) {

@@ -9,6 +9,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
@@ -16,13 +17,15 @@ import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class ChargeMonitor {
+class ChargeMonitor {
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
-
+    
+    private final VTVehicle vtVehicle;
+    private final TrackedObject<ChargeCycle> lastChargeCycle;
     private ChargeCycle cycleInProgress = null;
     
 /*==============================================================================
@@ -31,9 +34,11 @@ public class ChargeMonitor {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeMonitor() {
+    public ChargeMonitor(VTVehicle vehicle, TrackedObject<ChargeCycle> lastCycle) {
+        this.vtVehicle = vehicle;
+        this.lastChargeCycle = lastCycle;
         this.cycleInProgress = null;
-        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
+        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState chargeState) {
                 boolean charging = chargeState.isCharging();
@@ -60,11 +65,11 @@ public class ChargeMonitor {
         cycleInProgress.startTime = chargeState.timestamp;
         cycleInProgress.startRange = chargeState.range;
         cycleInProgress.startSOC = chargeState.batteryPercent;
-        cycleInProgress.odometer = VTVehicle.get().streamState.get().odometer;
+        cycleInProgress.odometer = vtVehicle.streamState.get().odometer;
         updateRunningTotals(chargeState);
 
         // It's possible that a charge began before we got any location information
-        StreamState ss = VTVehicle.get().streamState.get();
+        StreamState ss = vtVehicle.streamState.get();
         if (ss != null) {
             cycleInProgress.lat = ss.estLat;
             cycleInProgress.lng = ss.estLng;
@@ -88,14 +93,14 @@ public class ChargeMonitor {
 
         // If we didn't have location information at startup, see if we've got it now
         if (cycleInProgress.lat == 0 && cycleInProgress.lng == 0) {
-            StreamState ss = VTVehicle.get().streamState.get();
+            StreamState ss = vtVehicle.streamState.get();
             if (ss != null) {
                 cycleInProgress.lat = ss.estLat;
                 cycleInProgress.lng = ss.estLng;
             }
         }
 
-        VTData.get().lastChargeCycle.set(cycleInProgress);
+        lastChargeCycle.set(cycleInProgress);
         cycleInProgress = null;        
     }
     

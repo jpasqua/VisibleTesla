@@ -73,7 +73,7 @@ public class VisibleTesla extends Application {
         
         // Even though it's not represented in the parameters, VTData
         // depends on VTVehicle, so now you can create it
-        VTData.create(app.appFileFolder(), app.progressListener);
+        VTData.create(app.appFileFolder(), v, app.progressListener);
         
         // The RESTServer depends on the App object and the Vehicle
         RESTServer.create(v, app.authenticator);

@@ -24,8 +24,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-
-public class KMLExporter {
+class KMLExporter {
     private static final String CarIconFileName = "car.png";
     private static final String CarIconResource = "org/noroomattheinn/TeslaResources/02_loc_arrow@2x.png";
     private final String[] pathColors = {

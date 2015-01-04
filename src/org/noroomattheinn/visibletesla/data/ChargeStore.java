@@ -12,6 +12,8 @@ import java.util.Date;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
+import org.noroomattheinn.tesla.Options;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
@@ -21,7 +23,7 @@ import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class ChargeStore extends CycleStore<ChargeCycle> {
+class ChargeStore extends CycleStore<ChargeCycle> {
 /*------------------------------------------------------------------------------
  *
  * Internal  State
@@ -29,6 +31,7 @@ public class ChargeStore extends CycleStore<ChargeCycle> {
  *----------------------------------------------------------------------------*/
     
     private final ChargeCycleExporter exporter;
+    private final TrackedObject<ChargeCycle> lastChargeCycle;
     
 /*==============================================================================
  * -------                                                               -------
@@ -36,14 +39,18 @@ public class ChargeStore extends CycleStore<ChargeCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore(File container) throws FileNotFoundException {
-        super("charge", ChargeCycle.class, container);
-        this.exporter = new ChargeCycleExporter();
+    public ChargeStore(File container, VTVehicle v, TrackedObject<ChargeCycle> lastCycle)
+            throws FileNotFoundException {
+        super("charge", ChargeCycle.class, container, v);
+        this.lastChargeCycle = lastCycle;
+        this.exporter = new ChargeCycleExporter(
+                v.getVehicle().getOptions().batteryType(),
+                v.getVehicle().getUUID());
         
-        VTData.get().lastChargeCycle.addTracker(new Runnable() {
+        lastChargeCycle.addTracker(new Runnable() {
             @Override public void run() {
-                cycleWriter.println(VTData.get().lastChargeCycle.get().toJSONString());
-                exporter.submitData(VTData.get().lastChargeCycle.get());
+                cycleWriter.println(lastChargeCycle.get().toJSONString());
+                exporter.submitData(lastChargeCycle.get());
             }
         });
     }
@@ -65,8 +72,13 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
             "End Range", "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Odometer",
             "Peak V", "Avg V", "Peak I", "Avg I", "Energy"};
 
-    ChargeCycleExporter() { 
+    private final Options.BatteryType batteryType;
+    private final String uuid;
+    
+    ChargeCycleExporter(Options.BatteryType batteryType, String uuid) { 
         super("Charge", labels, Prefs.get().submitAnonCharge);
+        this.batteryType = batteryType;
+        this.uuid = uuid;
     }
     
     @Override protected void emitRow(
@@ -96,8 +108,7 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
         jsonRep = StringUtils.substringBefore(jsonRep, "}");
         // Concatenate the extra fields and put back the closing curly
         return String.format("%s, \"battery\": \"%s\", \"uuid\": \"%s\" }", 
-                jsonRep, VTVehicle.get().getVehicle().getOptions().batteryType(),
-                VTVehicle.get().getVehicle().getUUID());
+                jsonRep, batteryType, uuid);
     }
     
     @Override protected void ditherLocation(ChargeCycle cycle) {

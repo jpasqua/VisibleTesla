@@ -399,7 +399,7 @@ public class OverviewController extends BaseController {
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
         p85dImg.setVisible(false);
-        switch (VTVehicle.get().model()) {
+        switch (vtVehicle.model()) {
             case S60: s60Img.setVisible(true); break;
             case S85: s85Img.setVisible(true); break;
             case P85: p85Img.setVisible(true); break;
@@ -410,8 +410,7 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading =  vtVehicle.streamState.get().odometer;
-        if (odometerReading == 0) return;   // The reading isn't ready yet
+        double odometerReading = vtVehicle.odometer();
         
         boolean useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";

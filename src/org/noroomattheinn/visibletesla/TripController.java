@@ -41,8 +41,6 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.data.KMLExporter;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.data.Trip;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.data.WayPoint;
@@ -141,8 +139,7 @@ public class TripController extends BaseController {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
                 Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
-            KMLExporter ke = new KMLExporter();
-            if (ke.export(getSelectedTrips(), file)) {
+            if (VTData.get().exportTripsAsKML(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(
                         app.stage, "Your data has been exported",
                         "Data Export Process" , "Export Complete");
@@ -266,10 +263,10 @@ public class TripController extends BaseController {
         
         double cvt = useMiles ? 1.0 : Utils.KilometersPerMile;
         updateStartEndProps(
-                StatsCollector.EstRangeKey, start.getTime(), end.getTime(), 
+                VTData.EstRangeKey, start.getTime(), end.getTime(), 
                 rangeRow, cvt);
         updateStartEndProps(
-                StatsCollector.SOCKey, start.getTime(), end.getTime(),
+                VTData.SOCKey, start.getTime(), end.getTime(),
                 socRow, 1.0);
         
         updateStartEndProps(odoRow, start.getOdo(), end.getOdo(), cvt);
@@ -284,10 +281,10 @@ public class TripController extends BaseController {
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        NavigableMap<Long,Row> rows = VTData.get().statsCollector.getRangeOfLoadedRows(startTime, endTime);
+        NavigableMap<Long,Row> rows = VTData.get().getRangeOfLoadedRows(startTime, endTime);
 
-        double startValue = rows.firstEntry().getValue().get(StatsCollector.schema, statType);
-        double endValue = rows.lastEntry().getValue().get(StatsCollector.schema, statType);
+        double startValue = rows.firstEntry().getValue().get(VTData.schema, statType);
+        double endValue = rows.lastEntry().getValue().get(VTData.schema, statType);
         prop.setValue(String.format("%.1f", startValue * conversionFactor));
         prop.setUnits(String.format("%.1f", endValue * conversionFactor));
     }
@@ -389,7 +386,7 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void readTrips() {
-        Map<Long,Row> rows = VTData.get().statsCollector.getLoadedTimeSeries().getIndex();
+        Map<Long,Row> rows = VTData.get().getAllLoadedRows();
         for (Row r : rows.values()) {
             WayPoint wp = new WayPoint(r);
             handleNewWayPoint(wp);
@@ -398,11 +395,11 @@ public class TripController extends BaseController {
         endCurrentTrip();
         
         // Start listening for new WayPoints
-        VTData.get().statsCollector.lastStoredStreamState.addTracker(new Runnable() {
+        VTData.get().lastStoredStreamState.addTracker(new Runnable() {
             @Override public void run() {
                 handleNewWayPoint(new WayPoint(
-                        VTData.get().statsCollector.lastStoredStreamState.get(),
-                        VTData.get().statsCollector.lastStoredChargeState.get()));
+                        VTData.get().lastStoredStreamState.get(),
+                        VTData.get().lastStoredChargeState.get()));
             }
         });
         

@@ -30,7 +30,7 @@ import org.noroomattheinn.visibletesla.stats.StatsRepository;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class DBConverter {
+class DBConverter {
 /*------------------------------------------------------------------------------
  *
  * Internal State & types
@@ -77,7 +77,7 @@ public class DBConverter {
         repos.add(new StatsRepository(new File(container, baseName+".locs.log")));
         repos.add(new StatsRepository(new File(container, baseName+".stats.log")));
         
-        TimeSeries ts = new PersistentTS(container, baseName, StatsCollector.schema, true);
+        TimeSeries ts = new PersistentTS(container, baseName, VTData.schema, true);
         
         // Load each Repo into a separate MapTable
         MapTable[] tableForRepo = new MapTable[repos.size()];

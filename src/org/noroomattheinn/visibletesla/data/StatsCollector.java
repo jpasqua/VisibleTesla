@@ -17,10 +17,8 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.CachedTimeSeries;
 import org.noroomattheinn.timeseries.IndexedTimeSeries;
 import org.noroomattheinn.timeseries.Row;
-import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.utils.GeoUtils;
-import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
@@ -34,29 +32,8 @@ import org.noroomattheinn.visibletesla.data.VTData.TimeBasedPredicate;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StatsCollector implements ThreadManager.Stoppable {
+class StatsCollector implements ThreadManager.Stoppable {
     private static final long TenMinutes = 10 * 60 * 1000;
-    
-    // Data that comes from the ChargeState
-    public static final String VoltageKey =     "C_VLT";
-    public static final String CurrentKey =     "C_AMP";
-    public static final String EstRangeKey =    "C_EST";
-    public static final String SOCKey =         "C_SOC";
-    public static final String ROCKey =         "C_ROC";
-    public static final String BatteryAmpsKey = "C_BAM";
-    
-    // Data that comes from the StreamState
-    public static final String LatitudeKey =    "L_LAT";
-    public static final String LongitudeKey =   "L_LNG";
-    public static final String HeadingKey =     "L_HDG";
-    public static final String SpeedKey =       "L_SPD";
-    public static final String OdometerKey =    "L_ODO";
-    public static final String PowerKey =       "L_PWR";
-    
-    public static final String[] Columns = {
-        VoltageKey, CurrentKey, EstRangeKey, SOCKey, ROCKey, BatteryAmpsKey,
-        LatitudeKey, LongitudeKey, HeadingKey, SpeedKey, OdometerKey, PowerKey};
-    public static final RowDescriptor schema = new RowDescriptor(Columns);
 
 /*------------------------------------------------------------------------------
  *
@@ -64,6 +41,8 @@ public class StatsCollector implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
+    private final VTData vtData;
+    private final VTVehicle vtVehicle;
     private final CachedTimeSeries ts;
     private final File container;
     private DBConverter converter;
@@ -78,16 +57,6 @@ public class StatsCollector implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    /** 
-     * The last StreamState that was persisted
-     */
-    public final TrackedObject<StreamState> lastStoredStreamState;
-    
-    /** 
-     * The last ChargeState that was persisted
-     */
-    public final TrackedObject<ChargeState> lastStoredChargeState;
-
     /**
      * Create a new StatsCollector that will monitor new states being generated
      * by the StatsStreamer and persist them as appropriate. Not every state will
@@ -98,17 +67,15 @@ public class StatsCollector implements ThreadManager.Stoppable {
      * 
      * @throws IOException  If the underlying persistent store has a problem.
      */
-    public StatsCollector(File container) throws IOException {
+    StatsCollector(File container, VTData vtData, VTVehicle v) throws IOException {
         this.container = container;
+        this.vtData = vtData;
+        this.vtVehicle = v;
         
         this.ts = new CachedTimeSeries(
-                container, VTVehicle.get().getVehicle().getVIN(),
-                schema, Prefs.get().getLoadPeriod());
-
-        this.lastStoredStreamState = new TrackedObject<>(new StreamState());
-        this.lastStoredChargeState = new TrackedObject<>(null);
+                container, vtVehicle.getVehicle().getVIN(), VTData.schema, Prefs.get().getLoadPeriod());
         
-        VTVehicle.get().streamState.addListener(new ChangeListener<StreamState>() {
+        vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, StreamState cur) {
@@ -116,7 +83,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
             }
         });
         
-        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
+        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(
                     ObservableValue<? extends ChargeState> ov,
                     ChargeState old, ChargeState cur) {
@@ -134,21 +101,21 @@ public class StatsCollector implements ThreadManager.Stoppable {
      * @param ss    The StreamState from which various column values will be pulled
      * @return      The newly created and initialized Row
      */
-    public Row rowFromStates(ChargeState cs, StreamState ss) {
-        Row r = new Row(Math.max(cs.timestamp, ss.timestamp), 0L, schema.nColumns);
+    static Row rowFromStates(ChargeState cs, StreamState ss) {
+        Row r = new Row(Math.max(cs.timestamp, ss.timestamp), 0L, VTData.schema.nColumns);
         
-        r.set(schema, VoltageKey, cs.chargerVoltage);
-        r.set(schema, CurrentKey, cs.chargerActualCurrent);
-        r.set(schema, EstRangeKey, cs.range);
-        r.set(schema, SOCKey, cs.batteryPercent);
-        r.set(schema, ROCKey, cs.chargeRate);
-        r.set(schema, BatteryAmpsKey, cs.batteryCurrent);
-        r.set(schema, LatitudeKey, ss.estLat);
-        r.set(schema, LongitudeKey, ss.estLng);
-        r.set(schema, HeadingKey, ss.heading);
-        r.set(schema, SpeedKey, ss.speed);
-        r.set(schema, OdometerKey, ss.odometer);
-        r.set(schema, PowerKey, ss.power);
+        r.set(VTData.schema, VTData.VoltageKey, cs.chargerVoltage);
+        r.set(VTData.schema, VTData.CurrentKey, cs.chargerActualCurrent);
+        r.set(VTData.schema, VTData.EstRangeKey, cs.range);
+        r.set(VTData.schema, VTData.SOCKey, cs.batteryPercent);
+        r.set(VTData.schema, VTData.ROCKey, cs.chargeRate);
+        r.set(VTData.schema, VTData.BatteryAmpsKey, cs.batteryCurrent);
+        r.set(VTData.schema, VTData.LatitudeKey, ss.estLat);
+        r.set(VTData.schema, VTData.LongitudeKey, ss.estLng);
+        r.set(VTData.schema, VTData.HeadingKey, ss.heading);
+        r.set(VTData.schema, VTData.SpeedKey, ss.speed);
+        r.set(VTData.schema, VTData.OdometerKey, ss.odometer);
+        r.set(VTData.schema, VTData.PowerKey, ss.power);
         
         return r;
     }
@@ -157,14 +124,14 @@ public class StatsCollector implements ThreadManager.Stoppable {
      * Return a TimeSeries for all of the collected data. 
      * @return The TimeSeries
      */
-    public TimeSeries getFullTimeSeries() { return ts; }
+    TimeSeries getFullTimeSeries() { return ts; }
     
     /**
      * Return an IndexedTimeSeries for only the data loaded into memory. The
      * range of data loaded is controlled by a preference.
      * @return The IndexedTimeSeries
      */
-    public IndexedTimeSeries getLoadedTimeSeries() { return ts.getCachedSeries(); }
+    IndexedTimeSeries getLoadedTimeSeries() { return ts.getCachedSeries(); }
     
     /**
      * Return an index on a set of rows covered by the period [startTime..endTime].
@@ -173,7 +140,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
      * @param endTime   Ending time for the period
      * @return A map from time -> Row for all rows in the time range
      */
-    public NavigableMap<Long,Row> getRangeOfLoadedRows(long startTime, long endTime) {
+    NavigableMap<Long,Row> getRangeOfLoadedRows(long startTime, long endTime) {
         return getLoadedTimeSeries().getIndex(Range.open(startTime, endTime));
     }
     
@@ -182,11 +149,11 @@ public class StatsCollector implements ThreadManager.Stoppable {
      *
      * @return A map from time -> Row for all rows in the store
      */
-    public NavigableMap<Long,Row> getAllLoadedRows() {
+    NavigableMap<Long,Row> getAllLoadedRows() {
         return getLoadedTimeSeries().getIndex();
     }
     
-    public boolean export(File file, Range<Long> exportPeriod, String[] columns) {
+    boolean export(File file, Range<Long> exportPeriod, String[] columns) {
         return ts.export(file, exportPeriod, Arrays.asList(columns), true);
     }
     
@@ -195,12 +162,12 @@ public class StatsCollector implements ThreadManager.Stoppable {
      */
     @Override public void stop() { ts.close(); }
     
-    public boolean upgradeRequired() {
-        converter = new DBConverter(container, VTVehicle.get().getVehicle().getVIN());
+    boolean upgradeRequired() {
+        converter = new DBConverter(container, vtVehicle.getVehicle().getVIN());
         return converter.conversionRequired();
     }
     
-    public boolean doUpgrade() {
+    boolean doUpgrade() {
         try {
             converter.convert();
         } catch (IOException e) {
@@ -210,7 +177,7 @@ public class StatsCollector implements ThreadManager.Stoppable {
         return true;
     }
     
-    public void setCollectNow(VTData.TimeBasedPredicate p) {
+    void setCollectNow(VTData.TimeBasedPredicate p) {
         collectNow = p;
     }
     
@@ -221,36 +188,36 @@ public class StatsCollector implements ThreadManager.Stoppable {
  *----------------------------------------------------------------------------*/
     
     private synchronized void handleChargeState(ChargeState state) {
-        Row r = new Row(state.timestamp, 0L, schema.nColumns);
+        Row r = new Row(state.timestamp, 0L, VTData.schema.nColumns);
         
-        r.set(schema, VoltageKey, state.chargerVoltage);
-        r.set(schema, CurrentKey, state.chargerActualCurrent);
-        r.set(schema, EstRangeKey, state.range);
-        r.set(schema, SOCKey, state.batteryPercent);
-        r.set(schema, ROCKey, state.chargeRate);
-        r.set(schema, BatteryAmpsKey, state.batteryCurrent);
+        r.set(VTData.schema, VTData.VoltageKey, state.chargerVoltage);
+        r.set(VTData.schema, VTData.CurrentKey, state.chargerActualCurrent);
+        r.set(VTData.schema, VTData.EstRangeKey, state.range);
+        r.set(VTData.schema, VTData.SOCKey, state.batteryPercent);
+        r.set(VTData.schema, VTData.ROCKey, state.chargeRate);
+        r.set(VTData.schema, VTData.BatteryAmpsKey, state.batteryCurrent);
         ts.storeRow(r);
         
-        lastStoredChargeState.set(state);
+        vtData.lastStoredChargeState.set(state);
     }
     
     private synchronized void handleStreamState(StreamState state) {
-        StreamState lastRecorded = lastStoredStreamState.get();
+        StreamState lastRecorded = vtData.lastStoredStreamState.get();
         if (worthRecording(state, lastRecorded)) {
-            Row r = new Row(state.timestamp, 0L, schema.nColumns);
+            Row r = new Row(state.timestamp, 0L, VTData.schema.nColumns);
 
-            r.set(schema, LatitudeKey, state.estLat);
-            r.set(schema, LongitudeKey, state.estLng);
-            r.set(schema, HeadingKey, state.heading);
-            r.set(schema, SpeedKey, Utils.round(state.speed, 1));
-            r.set(schema, OdometerKey, state.odometer);
-            r.set(schema, PowerKey, state.power);
+            r.set(VTData.schema, VTData.LatitudeKey, state.estLat);
+            r.set(VTData.schema, VTData.LongitudeKey, state.estLng);
+            r.set(VTData.schema, VTData.HeadingKey, state.heading);
+            r.set(VTData.schema, VTData.SpeedKey, Utils.round(state.speed, 1));
+            r.set(VTData.schema, VTData.OdometerKey, state.odometer);
+            r.set(VTData.schema, VTData.PowerKey, state.power);
             ts.storeRow(r);
 
-            if (state.odometer - lastStoredStreamState.get().odometer >= 1.0) {
-                Prefs.store().putDouble(VTVehicle.get().vinKey("odometer"), state.odometer);
+            if (state.odometer - vtData.lastStoredStreamState.get().odometer >= 1.0) {
+                Prefs.store().putDouble(vtVehicle.vinKey("odometer"), state.odometer);
             }
-            lastStoredStreamState.set(state);
+            vtData.lastStoredStreamState.set(state);
         }
     }
     

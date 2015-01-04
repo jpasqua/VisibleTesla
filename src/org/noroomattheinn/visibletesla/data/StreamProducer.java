@@ -17,7 +17,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StreamProducer extends Executor<StreamProducer.Request>
+class StreamProducer extends Executor<StreamProducer.Request>
                             implements ThreadManager.Stoppable {
     
 /*------------------------------------------------------------------------------
@@ -34,8 +34,9 @@ public class StreamProducer extends Executor<StreamProducer.Request>
  * 
  *----------------------------------------------------------------------------*/
     
-    private final  Streamer streamer;
-    private        long     lastSnapshotTime = 0;
+    private final  Streamer  streamer;
+    private final  VTVehicle vtVehicle;
+    private        long      lastSnapshotTime = 0;
     
 /*==============================================================================
  * -------                                                               -------
@@ -43,9 +44,10 @@ public class StreamProducer extends Executor<StreamProducer.Request>
  * -------                                                               -------
  *============================================================================*/
     
-    public StreamProducer(FeedbackListener feedbackListener) {
+    public StreamProducer(VTVehicle v, FeedbackListener feedbackListener) {
         super("StreamProducer", feedbackListener);
-        this.streamer = VTVehicle.get().getVehicle().getStreamer();
+        this.vtVehicle = v;
+        this.streamer = v.getVehicle().getStreamer();
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
@@ -71,7 +73,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
         
         if (!r.continuation || snapshot.timestamp - lastSnapshotTime > StreamingThreshold) {
             lastSnapshotTime = snapshot.timestamp;
-            VTVehicle.get().streamState.set(snapshot);
+            vtVehicle.streamState.set(snapshot);
         }
         
         if (r.stream) super.produce(new Request(true, true));
@@ -91,7 +93,7 @@ public class StreamProducer extends Executor<StreamProducer.Request>
     }
             
     private boolean isInMotion() {
-        return VTVehicle.get().streamState.get().isInMotion();
+        return vtVehicle.streamState.get().isInMotion();
     }
 
     @Override protected void addToHistogram(Executor.Request r) {

@@ -25,7 +25,7 @@ import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public abstract class CycleStore<C extends BaseCycle>
+abstract class CycleStore<C extends BaseCycle>
     implements ThreadManager.Stoppable {
 /*------------------------------------------------------------------------------
  *
@@ -33,6 +33,7 @@ public abstract class CycleStore<C extends BaseCycle>
  * 
  *----------------------------------------------------------------------------*/
     
+    protected final VTVehicle vtVehicle;
     protected final File cycleFile;
     protected final PrintStream cycleWriter;
     protected final Class<C> theClass;
@@ -44,13 +45,13 @@ public abstract class CycleStore<C extends BaseCycle>
  * -------                                                               -------
  *============================================================================*/
     
-    public CycleStore(String cycleType, Class<C> theClass, File container)
+    public CycleStore(String cycleType, Class<C> theClass, File container, VTVehicle v)
             throws FileNotFoundException {
         this.theClass = theClass;
+        this.vtVehicle = v;
         this.cycleType = cycleType;
         this.cycleFile = new File(
-                container,
-                VTVehicle.get().getVehicle().getVIN()+"." + cycleType + ".json");
+                container, v.getVehicle().getVIN()+"." + cycleType + ".json");
         
         FileOutputStream fos = new FileOutputStream(cycleFile, true);
         cycleWriter = new PrintStream(fos);

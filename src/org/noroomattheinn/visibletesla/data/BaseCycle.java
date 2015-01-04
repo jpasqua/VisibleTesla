@@ -15,7 +15,7 @@ import us.monoid.json.JSONObject;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public abstract class BaseCycle {
+abstract class BaseCycle {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums

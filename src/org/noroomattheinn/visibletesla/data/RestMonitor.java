@@ -10,18 +10,18 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.timeseries.Row;
+import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.utils.CalTime;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
-import org.noroomattheinn.visibletesla.data.VTData;
 
 /**
  * RestMonitor - Monitor and store data about Rest Cycles.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class RestMonitor {
+class RestMonitor {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums
@@ -36,6 +36,9 @@ public class RestMonitor {
  * 
  *----------------------------------------------------------------------------*/
     
+    private final VTVehicle     vtVehicle;
+    private final TrackedObject<RestCycle> lastRestCycle;
+    private final RowDescriptor schema;
     private final Calendar      fromLimit, toLimit;
     private final boolean       stradles;
     private RestCycle           cycleInProgress = null;
@@ -46,7 +49,10 @@ public class RestMonitor {
  * -------                                                               -------
  *============================================================================*/
 
-    public RestMonitor() {
+    RestMonitor(VTVehicle v, TrackedObject<RestCycle> lastRestCycle) {
+        this.vtVehicle = v;
+        this.lastRestCycle = lastRestCycle;
+        this.schema = VTData.schema;
         if (Prefs.get().vsLimitEnabled.get()) {
             fromLimit = Prefs.get().vsFrom.get();
             toLimit = Prefs.get().vsTo.get();
@@ -57,10 +63,10 @@ public class RestMonitor {
         }
               
         this.cycleInProgress = null;
-        VTVehicle.get().chargeState.addListener(new ChangeListener<ChargeState>() {
+        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
             @Override public void changed(ObservableValue<? extends ChargeState> ov, ChargeState old, ChargeState cur) {
                 handleNewData(
-                        VTData.get().statsCollector.rowFromStates(cur, VTVehicle.get().streamState.get()));
+                        StatsCollector.rowFromStates(cur, vtVehicle.streamState.get()));
             }
         });
     }
@@ -73,8 +79,8 @@ public class RestMonitor {
             return;
         }
 
-        double speed = r.get(StatsCollector.schema, StatsCollector.SpeedKey);
-        double voltage = r.get(StatsCollector.schema, StatsCollector.VoltageKey);
+        double speed = r.get(schema, VTData.SpeedKey);
+        double voltage = r.get(schema, VTData.VoltageKey);
         boolean idle = (speed == 0 && voltage < 100);
         
         if (cycleInProgress == null ) { // Not in a cycle
@@ -94,16 +100,16 @@ public class RestMonitor {
     private void startCycle(Row r) {
         cycleInProgress = new RestCycle();
         cycleInProgress.startTime = r.timestamp;
-        cycleInProgress.startRange = r.get(StatsCollector.schema, StatsCollector.EstRangeKey);
-        cycleInProgress.startSOC = r.get(StatsCollector.schema, StatsCollector.SOCKey);
+        cycleInProgress.startRange = r.get(schema, VTData.EstRangeKey);
+        cycleInProgress.startSOC = r.get(schema, VTData.SOCKey);
     }
 
     private void updateCycle(Row r) {
         cycleInProgress.endTime = r.timestamp;
-        cycleInProgress.endRange = r.get(StatsCollector.schema, StatsCollector.EstRangeKey);
-        cycleInProgress.endSOC = r.get(StatsCollector.schema, StatsCollector.SOCKey);
-        cycleInProgress.lat = r.get(StatsCollector.schema, StatsCollector.LatitudeKey);
-        cycleInProgress.lng = r.get(StatsCollector.schema, StatsCollector.LongitudeKey);
+        cycleInProgress.endRange = r.get(schema, VTData.EstRangeKey);
+        cycleInProgress.endSOC = r.get(schema, VTData.SOCKey);
+        cycleInProgress.lat = r.get(schema, VTData.LatitudeKey);
+        cycleInProgress.lng = r.get(schema, VTData.LongitudeKey);
     }
     
     private void completeCycle(Row r) {
@@ -115,7 +121,7 @@ public class RestMonitor {
             // power instead of losing power. In that case just toss
             // the rest period. It will skew the data.
             if (cycleInProgress.endRange <= cycleInProgress.startRange) {
-                VTData.get().lastRestCycle.set(cycleInProgress);
+                lastRestCycle.set(cycleInProgress);
             }
         }
         cycleInProgress = null;        

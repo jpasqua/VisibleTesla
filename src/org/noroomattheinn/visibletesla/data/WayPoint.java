@@ -11,7 +11,6 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.data.StatsCollector;
 
 /**
  * WayPoint: Describes a point on a trip
@@ -39,21 +38,21 @@ public class WayPoint implements GeoUtils.LocationSource {
     }
 
     public WayPoint() {
-        this(new Row(StatsCollector.schema));
+        this(new Row(VTData.schema));
         row.timestamp = Long.MAX_VALUE;
     }
 
     public WayPoint(StreamState ss, ChargeState cs) {
-        this(new Row(StatsCollector.schema));
+        this(new Row(VTData.schema));
         row.timestamp = ss.timestamp;
 
-        set(StatsCollector.LatitudeKey, ss.estLat);
-        set(StatsCollector.LongitudeKey, ss.estLng);
-        set(StatsCollector.HeadingKey, ss.estHeading);
-        set(StatsCollector.SpeedKey, ss.speed);
-        set(StatsCollector.OdometerKey, ss.odometer);
-        set(StatsCollector.PowerKey, ss.power);
-        set(StatsCollector.SOCKey, cs.batteryPercent);
+        set(VTData.LatitudeKey, ss.estLat);
+        set(VTData.LongitudeKey, ss.estLng);
+        set(VTData.HeadingKey, ss.estHeading);
+        set(VTData.SpeedKey, ss.speed);
+        set(VTData.OdometerKey, ss.odometer);
+        set(VTData.PowerKey, ss.power);
+        set(VTData.SOCKey, cs.batteryPercent);
     }
     
     public String asJSON() { return asJSON(true); }
@@ -62,12 +61,12 @@ public class WayPoint implements GeoUtils.LocationSource {
         double adjustedSpeed, adjustedOdo, adjustedElevation;
 
         if (useMiles) {
-            adjustedSpeed = get(StatsCollector.SpeedKey);
-            adjustedOdo = get(StatsCollector.OdometerKey);
+            adjustedSpeed = get(VTData.SpeedKey);
+            adjustedOdo = get(VTData.OdometerKey);
             adjustedElevation = Utils.round(Utils.metersToFeet(elevation), 0);
         } else {
-            adjustedSpeed = Utils.milesToKm(get(StatsCollector.SpeedKey));
-            adjustedOdo = Utils.milesToKm(get(StatsCollector.OdometerKey));
+            adjustedSpeed = Utils.milesToKm(get(VTData.SpeedKey));
+            adjustedOdo = Utils.milesToKm(get(VTData.OdometerKey));
             adjustedElevation = Utils.round(elevation, 1);
         }
 
@@ -92,14 +91,14 @@ public class WayPoint implements GeoUtils.LocationSource {
 
     public long   getTime()         { return row.timestamp; }
     public double getElevation()    { return elevation; }
-    public double getOdo()          { return get(StatsCollector.OdometerKey); }
-    public double getHeading()      { return get(StatsCollector.HeadingKey); }
-    public double getPower()        { return get(StatsCollector.PowerKey); }
-    public double getSOC()          { return get(StatsCollector.SOCKey); }
+    public double getOdo()          { return get(VTData.OdometerKey); }
+    public double getHeading()      { return get(VTData.HeadingKey); }
+    public double getPower()        { return get(VTData.PowerKey); }
+    public double getSOC()          { return get(VTData.SOCKey); }
     
     // The following getters are also part of the GeoUtils.LocationSource interface
-    @Override public double getLat() { return get(StatsCollector.LatitudeKey); }
-    @Override public double getLng() { return get(StatsCollector.LongitudeKey); }
+    @Override public double getLat() { return get(VTData.LatitudeKey); }
+    @Override public double getLng() { return get(VTData.LongitudeKey); }
 
     // Elevation is the only field that can be set after the WayPoint is created
     // This is done so that it can be added lazily only when needed
@@ -111,9 +110,9 @@ public class WayPoint implements GeoUtils.LocationSource {
  * 
  *----------------------------------------------------------------------------*/
     
-    private double get(String column) { return row.get(StatsCollector.schema, column); }
+    private double get(String column) { return row.get(VTData.schema, column); }
     
     private void set(String column, double value) {
-        row.set(StatsCollector.schema, column, value);
+        row.set(VTData.schema, column, value);
     }
 }

@@ -85,7 +85,7 @@ class VampireStats {
     
     
     private Range<Long> getExportPeriod() {
-        NavigableMap<Long,Row> rows = VTData.get().statsCollector.getAllLoadedRows();
+        NavigableMap<Long,Row> rows = VTData.get().getAllLoadedRows();
         long timestamp = rows.firstKey(); 
         Calendar start = Calendar.getInstance();
         start.setTimeInMillis(timestamp);
@@ -99,7 +99,7 @@ class VampireStats {
     }
     
     private Map<String,Object> genProps() {
-        NavigableMap<Long,Row> rows = VTData.get().statsCollector.getAllLoadedRows();
+        NavigableMap<Long,Row> rows = VTData.get().getAllLoadedRows();
         
         Map<String,Object> props = new HashMap<>();
         long timestamp = rows.firstKey(); 

@@ -8,21 +8,17 @@ package org.noroomattheinn.visibletesla;
 
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 
 class MessageTarget {
-    private String address;
-    private String subject, dfltSubj;
-    private String message, dfltMsg;
+    private String address, subject, message;
 
-    private App ac;
-    private String theKey;
-
+    private final String theKey;
+    private final String dfltSubj, dfltMsg;
+    
     MessageTarget(App ac, String baseKey, String dfltSubj, String dfltMsg) {
-        this.ac = ac;
-        this.theKey = key(baseKey);
+        this.theKey = ac.vinKey("MT_"+baseKey);
         this.dfltSubj = dfltSubj;
         this.dfltMsg = dfltMsg;
         this.internalize();
@@ -42,12 +38,6 @@ class MessageTarget {
 
     String getMessage() { return message; }
     void setMessage(String msg) { this.message = msg; }
-
-    String getDfltSubj() { return dfltSubj; }
-    void setDfltSubj(String subject) { this.dfltSubj = subject; }
-
-    String getDfltMsg() { return dfltMsg; }
-    void setDfltMsg(String msg) { this.dfltMsg = msg; }
 
     final void externalize() {
         String encoded = String.format("%s_%s_%s",
@@ -81,10 +71,6 @@ class MessageTarget {
 
     private String decodeUnderscore(String input) {
         return input.replace("&#95;", "_");
-    }
-
-    private String key(String base) {
-        return VTVehicle.get().getVehicle().getVIN()+"_MT_"+base;
     }
 
 }

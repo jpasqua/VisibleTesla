@@ -32,12 +32,13 @@ import org.noroomattheinn.visibletesla.data.RestCycle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class VampireLossResults  extends VTDialog.Controller {
+public class VampireLossResults  extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
+    
     private String units;
     
 /*------------------------------------------------------------------------------
@@ -45,6 +46,7 @@ class VampireLossResults  extends VTDialog.Controller {
  * Internal State - UI Components
  * 
  *----------------------------------------------------------------------------*/
+    
     @FXML private LineChart<Number, Number> chart;
     @FXML private LineChart<Number, Number> sequenceChart;
     

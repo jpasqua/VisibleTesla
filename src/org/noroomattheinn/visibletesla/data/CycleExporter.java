@@ -31,7 +31,7 @@ import org.noroomattheinn.visibletesla.prefs.Prefs;
  *   created at each doExport() call.
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public abstract class CycleExporter<C extends BaseCycle> {
+abstract class CycleExporter<C extends BaseCycle> {
 /*------------------------------------------------------------------------------
  *
  * Constants, Enums, and Types

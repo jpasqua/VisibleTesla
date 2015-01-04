@@ -18,19 +18,21 @@ import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StateProducer extends Executor<StateProducer.Request> {
+class StateProducer extends Executor<StateProducer.Request> {
     
 /*------------------------------------------------------------------------------
  *
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
+    
     private Map<Vehicle.StateType,Long> lastProduced = Utils.newHashMap(
         Vehicle.StateType.Charge,   0L,
         Vehicle.StateType.Drive,    0L,
         Vehicle.StateType.GUI,      0L,
         Vehicle.StateType.HVAC,     0L,
         Vehicle.StateType.Vehicle,  0L);
+    private final VTVehicle vtVehicle;
     
 /*==============================================================================
  * -------                                                               -------
@@ -38,8 +40,9 @@ public class StateProducer extends Executor<StateProducer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public StateProducer(FeedbackListener  feedbackListener) {
+    public StateProducer(VTVehicle v, FeedbackListener feedbackListener) {
         super("StateProducer",  feedbackListener);
+        this.vtVehicle = v;
     }
     
     public void produce(Vehicle.StateType whichState, Object progressContext) {
@@ -57,10 +60,10 @@ public class StateProducer extends Executor<StateProducer.Request> {
     }
     
     @Override protected boolean execRequest(Request r) {
-        final BaseState state = VTVehicle.get().getVehicle().query(r.stateType);
+        final BaseState state = vtVehicle.getVehicle().query(r.stateType);
         if (state.valid) {
             lastProduced.put(r.stateType, System.currentTimeMillis());
-            VTVehicle.get().noteUpdatedState(state);
+            vtVehicle.noteUpdatedState(state);
             return true;
         }
         return false;

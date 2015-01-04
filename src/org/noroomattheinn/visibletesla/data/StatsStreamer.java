@@ -25,7 +25,7 @@ import org.noroomattheinn.utils.TrackedObject;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class StatsStreamer implements Runnable {
+class StatsStreamer implements Runnable {
 
 /*------------------------------------------------------------------------------
  *
@@ -43,6 +43,8 @@ public class StatsStreamer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
+    private final VTData vtData;
+    private final VTVehicle vtVehicle;
     private final TrackedObject<CarState> carState;
     private Predicate wakeEarly = Utils.alwaysFalse;
     private Predicate passiveCollection = Utils.alwaysFalse;
@@ -53,13 +55,15 @@ public class StatsStreamer implements Runnable {
  * -------                                                               -------
  *============================================================================*/
     
-    public StatsStreamer() {
+    public StatsStreamer(VTData data, VTVehicle vehicle) {
+        this.vtData = data;
+        this.vtVehicle = vehicle;
         this.carState = new TrackedObject<>(CarState.Idle);
         
         // The following two changeListeners look similar, but the order of
         // the if statements is different and significant. Always check the
         // one that changed, then test the other (older) value.
-        VTVehicle.get().chargeState.addListener(new ChangeListener<BaseState>() {
+        vtVehicle.chargeState.addListener(new ChangeListener<BaseState>() {
             @Override public void changed(
                     ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
                 if (isCharging()) carState.update(CarState.Charging);
@@ -69,7 +73,7 @@ public class StatsStreamer implements Runnable {
             }
         });
 
-        VTVehicle.get().streamState.addListener(new ChangeListener<BaseState>() {
+        vtVehicle.streamState.addListener(new ChangeListener<BaseState>() {
             @Override public void changed(
                     ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
                 if (isInMotion()) carState.update(CarState.Moving);
@@ -138,8 +142,8 @@ public class StatsStreamer implements Runnable {
                 return;
             }
         }
-        VTData.get().produceStream(Prefs.get().streamWhenPossible.get());
-        VTData.get().produceState(Vehicle.StateType.Charge, null);
+        vtData.produceStream(Prefs.get().streamWhenPossible.get());
+        vtData.produceState(Vehicle.StateType.Charge, null);
     }
     
 /*------------------------------------------------------------------------------
@@ -148,11 +152,11 @@ public class StatsStreamer implements Runnable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean isCharging() { return VTVehicle.get().chargeState.get().isCharging(); }
-    private boolean isInMotion() { return  VTVehicle.get().streamState.get().isInMotion(); }
+    private boolean isCharging() { return vtVehicle.chargeState.get().isCharging(); }
+    private boolean isInMotion() { return  vtVehicle.streamState.get().isInMotion(); }
     
     private boolean carIsAsleep() { return !carIsAwake(); }
-    private boolean carIsAwake() { return  VTVehicle.get().getVehicle().isAwake(); }
+    private boolean carIsAwake() { return  vtVehicle.getVehicle().isAwake(); }
 
     private boolean carIsInactive() { return !carIsActive(); }
     private boolean carIsActive() {
@@ -160,7 +164,7 @@ public class StatsStreamer implements Runnable {
     }
     
     private boolean wakeupVehicle() {
-        if (VTVehicle.get().forceWakeup()) { carState.set(CarState.Idle); return true; }
+        if (vtVehicle.forceWakeup()) { carState.set(CarState.Idle); return true; }
         return false;
     }
     

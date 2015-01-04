@@ -104,12 +104,14 @@ public class VTVehicle {
     
     public void setVehicle(Vehicle v) {
         vehicle.set(v);
-        if (v != null) {
-            streamState.get().odometer = Prefs.store().getDouble(vinKey("odometer"), 0);
-        }
     }
     
     public Vehicle getVehicle() { return vehicle.get(); }
+    
+    public double odometer() {
+        if (streamState.get().valid) return streamState.get().odometer;
+        return Prefs.store().getDouble(vinKey("odometer"), 0);
+    }
     
     public Options.Model model() {
         Options.Model model = overrideModel.get(Prefs.get().overideModelTo.get());
@@ -142,12 +144,8 @@ public class VTVehicle {
         Utils.UnitType units = overrideUnits.get(Prefs.get().overideUnitsTo.get());
         if (Prefs.get().overideUnitsActive.get() && units != null) return units;
 
-        GUIState gs = guiState.get();
-        if (gs != null) {
-            return gs.distanceUnits.equalsIgnoreCase("mi/hr")
-                    ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
-        }
-        return Utils.UnitType.Imperial;
+        return guiState.get().distanceUnits.equalsIgnoreCase("mi/hr")
+                ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
     }
 
     public double inProperUnits(double val) {

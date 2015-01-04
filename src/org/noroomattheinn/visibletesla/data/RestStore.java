@@ -14,7 +14,9 @@ import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.timeseries.Row;
+import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
+import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
@@ -23,15 +25,16 @@ import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class RestStore extends CycleStore<RestCycle> {
+class RestStore extends CycleStore<RestCycle> {
 /*------------------------------------------------------------------------------
  *
  * Internal  State
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean flushOnEachWrite;
     private final RestCycleExporter exporter;
+    private final TrackedObject<RestCycle> lastRestCycle;
+    private boolean doingInitialLoad;
     
 /*==============================================================================
  * -------                                                               -------
@@ -39,16 +42,20 @@ public class RestStore extends CycleStore<RestCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public RestStore(File container) throws FileNotFoundException {
-        super("rest", RestCycle.class, container);
-        this.flushOnEachWrite = true;
-        this.exporter = new RestCycleExporter();
+    public RestStore(File container, VTVehicle v, TrackedObject<RestCycle> lastCycle)
+            throws FileNotFoundException {
+        super("rest", RestCycle.class, container, v);
+        this.lastRestCycle = lastCycle;
+        this.doingInitialLoad = false;
+        this.exporter = new RestCycleExporter(v.getVehicle().getUUID());
                 
-        VTData.get().lastRestCycle.addTracker(new Runnable() {
+        lastRestCycle.addTracker(new Runnable() {
             @Override public void run() {
-                cycleWriter.println(VTData.get().lastRestCycle.get().toJSONString());
-                exporter.submitData(VTData.get().lastRestCycle.get());
-                if (flushOnEachWrite) cycleWriter.flush();
+                cycleWriter.println(lastRestCycle.get().toJSONString());
+                if (!doingInitialLoad) {
+                    exporter.submitData(lastRestCycle.get());
+                    cycleWriter.flush();
+                }
             }
         });
     }
@@ -66,20 +73,17 @@ public class RestStore extends CycleStore<RestCycle> {
  * 
  *----------------------------------------------------------------------------*/
     
-    public static boolean requiresInitialLoad(File container) {
-        File f = new File(
-                container,
-                VTVehicle.get().getVehicle().getVIN()+".rest.json");
+    static boolean requiresInitialLoad(File container, String baseName) {
+        File f = new File(container, baseName+".rest.json");
         return !f.exists();
     }
     
-    public void doIntialLoad() {
+    public void doIntialLoad(final RestMonitor rm, TimeSeries ts) {
         // Create a rest file based on existing data. This is a one time thing.
         logger.info("Synthesizing RestCycle data - one time only");
-        final RestMonitor rm = new RestMonitor();
         try {
-            flushOnEachWrite = false;
-            VTData.get().statsCollector.getFullTimeSeries().streamRows(null, new RowCollector() {
+            doingInitialLoad = true;
+            ts.streamRows(null, new RowCollector() {
                 @Override public boolean collect(Row r) {
                     rm.handleNewData(r);
                     return true;
@@ -88,7 +92,7 @@ public class RestStore extends CycleStore<RestCycle> {
         } catch (Exception e) {
             logger.warning("Error during intial load of Rest Cycles: " + e);
         }
-        flushOnEachWrite = true;
+        doingInitialLoad = false;
         cycleWriter.flush();
     }
     
@@ -105,9 +109,11 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
     private static final String[] labels = {
             "Start Date/Time", "Ending Date/Time", "Start Range", "End Range",
             "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Loss/Hr"};
-
-    RestCycleExporter() {
+    private final String uuid;
+    
+    RestCycleExporter(String uuid) {
         super("Rest", labels, Prefs.get().submitAnonRest);
+        this.uuid = uuid;
     }
     
     @Override protected void emitRow(
@@ -131,6 +137,6 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
         // Strip the closing curly to prepare to add more fields
         jsonRep = StringUtils.substringBefore(jsonRep, "}");
         // Concatenate the extra fields and put back the closing curly
-        return String.format("%s, \"uuid\": \"%s\" }", jsonRep, VTVehicle.get().getVehicle().getUUID());
+        return String.format("%s, \"uuid\": \"%s\" }", jsonRep, uuid);
     }
 }
