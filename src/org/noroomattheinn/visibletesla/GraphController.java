@@ -195,9 +195,11 @@ public class GraphController extends BaseController {
         
         prepSeries();
         loadExistingData();
-        // Register for additions to the data
-        VTData.get().lastStoredChargeState.addTracker(chargeHandler);
-        VTData.get().lastStoredStreamState.addTracker(streamHandler);
+        // Register for additions to the data - Handle the new data on the JFX
+        // thread to avoid ConcurrentModificationExceptions in the series data
+        App.addTracker(VTData.get().lastStoredChargeState, chargeHandler);
+        App.addTracker(VTData.get().lastStoredStreamState, streamHandler);
+
         
         setGap();
         Prefs.get().ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
