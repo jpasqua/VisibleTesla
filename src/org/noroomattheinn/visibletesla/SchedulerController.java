@@ -86,7 +86,7 @@ public class SchedulerController extends BaseController
                 logActivity("Can't wake vehicle - aborting", true);
                 return;
             }
-            app.setActive();
+            app.api.setActive();
         }
         if (!safeToRun(command)) return;
         
@@ -125,8 +125,8 @@ public class SchedulerController extends BaseController
                 r = v.startAC();
                 break;
             case HVAC_OFF: r = v.stopAC();break;
-            case AWAKE: app.stayAwake(); break;
-            case SLEEP: app.allowSleeping(); break;
+            case AWAKE: app.api.stayAwake(); break;
+            case SLEEP: app.api.allowSleeping(); break;
             case UNPLUGGED: r = unpluggedTrigger(); reportActvity = false; break;
             case MESSAGE: r = sendMessage(messageTarget); reportActvity = false; break;
         }
@@ -149,8 +149,8 @@ public class SchedulerController extends BaseController
         MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
         boolean sent = MailGun.get().send(
             messageTarget.getActiveEmail(),             // To
-            subj.getMessage(app, vtVehicle, null),      // Subject
-            body.getMessage(app, vtVehicle, null));     // Body
+            subj.getMessage(app.api, vtVehicle, null),      // Subject
+            body.getMessage(app.api, vtVehicle, null));     // Body
         return sent ? Result.Succeeded : Result.Failed;
     } 
     

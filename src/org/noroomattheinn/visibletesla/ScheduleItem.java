@@ -198,7 +198,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private MessageTarget loadMessageTarget() {
         String baseKey = String.format("%s%02d", SchedulerMsgKey, id);
         return new MessageTarget(
-                owner.app(), owner.prefs(),
+                owner.prefs(),
                 owner.getExternalKey()+"_MT_"+baseKey,
                 DefaultSubject, DefaultMessage);
     }

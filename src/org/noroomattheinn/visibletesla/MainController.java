@@ -163,9 +163,9 @@ public class MainController extends BaseController {
         }
         
         // Watch for changes to the inactivity mode and state in order to update the UI
-        App.addTracker(app.mode, new Runnable() {
+        App.addTracker(app.api.mode, new Runnable() {
             @Override public void run() { setAppModeMenu(); } } );
-        App.addTracker(app.state, new Runnable() {
+        App.addTracker(app.api.state, new Runnable() {
             @Override public void run() { refreshTitle(); } });
 
         // Kick off the login process
@@ -287,7 +287,7 @@ public class MainController extends BaseController {
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
             VersionUpdater.checkForNewerVersion(
-                    App.ProductVersion, app.stage, app.fxApp.getHostServices(),
+                    App.ProductVersion, app.stage, app.getHostServices(),
                     prefs.offerExperimental.get());
             prefs.storage().putLong(key, now);
         }
@@ -440,18 +440,18 @@ public class MainController extends BaseController {
     
     // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
-        if (event.getTarget() == allowSleepMenuItem) app.allowSleeping();
-        else app.stayAwake();
+        if (event.getTarget() == allowSleepMenuItem) app.api.allowSleeping();
+        else app.api.stayAwake();
     }
     
     // Help->Documentation
     @FXML private void helpHandler(ActionEvent event) {
-        app.fxApp.getHostServices().showDocument(DocumentationURL);
+        app.showDocument(DocumentationURL);
     }
     
     // Help->What's New
     @FXML private void whatsNewHandler(ActionEvent event) {
-        app.fxApp.getHostServices().showDocument(ReleaseNotesURL);
+        app.showDocument(ReleaseNotesURL);
     }
     
     // Help->About
@@ -471,7 +471,7 @@ public class MainController extends BaseController {
     @FXML private void updatesHandler(ActionEvent event) {
         if (!VersionUpdater.checkForNewerVersion(
                 App.ProductVersion,
-                app.stage, app.fxApp.getHostServices(),
+                app.stage, app.getHostServices(),
                 prefs.offerExperimental.get())) {
             Dialogs.showInformationDialog(
                     app.stage,
@@ -622,7 +622,7 @@ public class MainController extends BaseController {
         String carName = (v != null) ? v.getDisplayName() : null;
         String title = App.ProductName + " " + App.ProductVersion;
         if (carName != null) title = title + " for " + carName;
-        if (app.isIdle()) {
+        if (app.api.isIdle()) {
             String time = String.format("%1$tH:%1$tM", new Date());
             title = title + " [sleeping at " + time + "]";
         }
@@ -630,7 +630,7 @@ public class MainController extends BaseController {
     }
 
     private void setAppModeMenu() {
-        if (app.allowingSleeping()) allowSleepMenuItem.setSelected(true);
+        if (app.api.allowingSleeping()) allowSleepMenuItem.setSelected(true);
         else stayAwakeMenuItem.setSelected(true);
     }
 
@@ -653,7 +653,7 @@ public class MainController extends BaseController {
 
         @Override public boolean eval() {
             try {
-                if (app.mode.lastSet() > lastEval && app.stayingAwake()) return true;
+                if (app.api.mode.lastSet() > lastEval && app.api.stayingAwake()) return true;
                 return ThreadManager.get().shuttingDown();
             } finally {
                 lastEval = System.currentTimeMillis();
@@ -667,13 +667,13 @@ public class MainController extends BaseController {
         @Override public void setTime(long time) { last = time; }
 
         @Override public boolean eval() {
-            return (app.isActive() && app.state.lastSet() > last);
+            return (app.api.isActive() && app.api.state.lastSet() > last);
         }
     }
     
     private class PassiveCollectionPredicate implements Utils.Predicate {
         @Override public boolean eval() {
-            return (app.isIdle() && app.allowingSleeping());
+            return (app.api.isIdle() && app.api.allowingSleeping());
         }
     }
 

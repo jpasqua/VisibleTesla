@@ -18,7 +18,7 @@ class MessageTarget {
     private final String dfltSubj, dfltMsg;
     private final Prefs prefs;
     
-    MessageTarget(App ac, Prefs prefs, String theKey, String dfltSubj, String dfltMsg) {
+    MessageTarget(Prefs prefs, String theKey, String dfltSubj, String dfltMsg) {
         this.prefs = prefs;
         this.theKey = theKey;
         this.dfltSubj = dfltSubj;

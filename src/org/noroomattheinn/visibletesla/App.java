@@ -13,6 +13,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -38,42 +39,16 @@ import static org.noroomattheinn.utils.Utils.timeSince;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class App {
-
+class App {
 /*------------------------------------------------------------------------------
  *
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
     
-    public static final String ProductName = "VisibleTesla";
-    public static final String ProductVersion = "0.32.00";
-    
-/*------------------------------------------------------------------------------
- *
- * Constants and Enums
- *
- *----------------------------------------------------------------------------*/
-    
-    public static String LastExportDirKey = "APP_LAST_EXPORT_DIR";
-
-    public enum Mode { AllowSleeping, StayAwake };
-    public enum State { Idle, Active };
-    
-/*------------------------------------------------------------------------------
- *
- * PUBLIC - Application State
- * 
- *----------------------------------------------------------------------------*/
-    
-    final Application       fxApp;
-    final Tesla             tesla;
-    final Stage             stage;
-    final ProgressListener  progressListener;
-    
-    public final TrackedObject<String>  schedulerActivity;
-    public final TrackedObject<Mode>    mode;
-    public final TrackedObject<State>   state;
+    static final String ProductName = "VisibleTesla";
+    static final String ProductVersion = "0.32.00";
+    static final String LastExportDirKey = "APP_LAST_EXPORT_DIR";
     
 /*------------------------------------------------------------------------------
  *
@@ -81,13 +56,29 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final File  appFilesFolder;
-    private final Prefs prefs;
-    private long        lastEventTime;
-
+    private final File          appFilesFolder;
+    private final Prefs         prefs;
+    private final Application   fxApp;
+    private final PWUtils       pwUtils = new PWUtils();
+    private       byte[]        encPW, salt;
+    private       long          lastEventTime;    
+    
+/*------------------------------------------------------------------------------
+ *
+ * Package-wide State
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    final AppAPI            api;
+    final Tesla             tesla;
+    final Stage             stage;
+    final ProgressListener  progressListener;
+    final TrackedObject<String>  schedulerActivity;
+    
+    
 /*==============================================================================
  * -------                                                               -------
- * -------              Public Interface To This Class                   ------- 
+ * -------         Package Internal Interface To This Class              ------- 
  * -------                                                               -------
  *============================================================================*/
     
@@ -102,22 +93,22 @@ public class App {
         this.fxApp = fxApp;
         this.stage = stage;
         this.prefs = prefs;
+        this.schedulerActivity = new TrackedObject<>("");
+        this.api = new AppAPI(schedulerActivity);
         this.lastEventTime = System.currentTimeMillis();
 
-        this.mode = new TrackedObject<>(Mode.StayAwake);
-        this.mode.addTracker(new Runnable() {
+        api.mode.addTracker(new Runnable() {
             @Override public void run() {
-                logger.finest("App Mode changed to " + mode.get());
-                prefs.persist("InactivityMode", mode.get().name());
-                if (mode.get() == Mode.StayAwake) { setActive(); }
+                logger.finest("App Mode changed to " + api.mode.get());
+                prefs.persist("InactivityMode", api.mode.get().name());
+                if (api.mode.get() == AppAPI.Mode.StayAwake) { api.setActive(); }
             }
         });
 
-        this.state = new TrackedObject<>(State.Active);
-        this.state.addTracker(new Runnable() {
+        api.state.addTracker(new Runnable() {
             @Override public void run() {
-                logger.finest("App State changed to " + state.get());
-                if (state.get() == State.Active) {
+                logger.finest("App State changed to " + api.state.get());
+                if (api.state.get() == AppAPI.State.Active) {
                     logger.info("Resetting Idle start time to now");
                     lastEventTime = System.currentTimeMillis();
                 }
@@ -130,20 +121,21 @@ public class App {
         tesla = (prefs.enableProxy.get())
                 ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
 
-        this.schedulerActivity = new TrackedObject<>("");
-        this.progressListener = new ProgressListener(
-                prefs.submitAnonFailure, getAppID());
+        this.progressListener = new ProgressListener(prefs.submitAnonFailure, getAppID());
         
         internalizePW(prefs.authCode.get());
     }
-
+    
+    void showDocument(String doc) { fxApp.getHostServices().showDocument(doc); }
+    HostServices getHostServices() { return fxApp.getHostServices(); }
+    
     /**
      * Establish ourselves as the only running instance of the app for
      * a particular vehicle id.
      * @return  true is we got the lock
      *          false if another instance is already running
      */
-    public boolean lock(String vin) {
+    boolean lock(String vin) {
         return (Utils.obtainLock(vin + ".lck", appFilesFolder));
     }
     
@@ -151,7 +143,7 @@ public class App {
      * Get the system folder in which app related files are to be stored.
      * @return  The folder in which app related files are to be stored
      */
-    public File appFileFolder() { return appFilesFolder; }
+    File appFileFolder() { return appFilesFolder; }
 
     /**
      * Add a tracker to a TrackedObject, but ensure it will run on the
@@ -159,7 +151,7 @@ public class App {
      * @param t The tracked object
      * @param r The Runnable to execute on the FXApplicationThread
      */
-    public static void addTracker(TrackedObject t, final Runnable r) {
+    static void addTracker(TrackedObject t, final Runnable r) {
         t.addTracker(new Runnable() {
             @Override public void run() {
                 Platform.runLater(r);
@@ -167,42 +159,12 @@ public class App {
         });
     }
     
-/*------------------------------------------------------------------------------
- *
- * Methods related to the App Mode
- * 
- *----------------------------------------------------------------------------*/
-    
-    /**
-     * Change the app mode to AllowSleeping
-     */
-    public void allowSleeping() { mode.set(Mode.AllowSleeping); }
-    
-    /**
-     * Determine whether we are in AllowSleeping mode
-     * @return  true if we are in AllowSleeping mode
-     *          false otherwise
-     */
-    public boolean allowingSleeping() { return mode.get() == Mode.AllowSleeping; }
-
-    /**
-     * Change the app mode to StayAwake
-     */
-    public void stayAwake() { mode.set(Mode.StayAwake); }
-    
-    /**
-     * Determine whether we are in StayAwake mode
-     * @return  true if we are in StayAwake mode
-     *          false otherwise
-     */
-    public boolean stayingAwake() { return mode.get() == Mode.StayAwake; }
-
     /**
      * Set the mode based on the value in the persistent store
      */
-    public void restoreMode() {
+    void restoreMode() {
         String modeName = prefs.storage().get(
-                "InactivityMode", Mode.StayAwake.name());
+                "InactivityMode", AppAPI.Mode.StayAwake.name());
         // Handle obsolete values or changed names
         switch (modeName) {
             case "Sleep": modeName = "AllowSleeping"; break;    // Name Changed
@@ -210,64 +172,14 @@ public class App {
             case "AllowDaydreaming": modeName = "Awake"; break; // Obsolete
             case "Daydream": modeName = "Awake"; break;         // Obsolete
             }
-        mode.set(Mode.valueOf(modeName));
+        api.mode.set(AppAPI.Mode.valueOf(modeName));
     }
     
 /*------------------------------------------------------------------------------
  *
- * Methods related to the App State
+ * Support for authenticating to web services
  * 
  *----------------------------------------------------------------------------*/
-    
-    /**
-     * Determine whether the app is in the Active state
-     * @return  true if we are in Active state
-     *          false otherwise
-     */
-    public boolean isActive() { return state.get() == State.Active; }
-    
-    /**
-     * Put the app into the Active state
-     */
-    public void setActive() { state.set(State.Active); }
-    
-    /**
-     * Determine whether the app is in the Idle state
-     * @return  true if we are in Active state
-     *          false otherwise
-     */
-    public boolean isIdle() { return state.get() == State.Idle; }
-    
-    /**
-     * Put the app into the Idle state
-     */
-    public void setIdle() { state.set(State.Idle); }
-
-    /**
-     * Begin watching for user inactivity (keyboard input, mouse movements, etc.)
-     * on any of the specified Tabs.
-     * @param tabs  Watch for user activity targeted to any of these tabs.
-     */
-    public void watchForUserActivity(List<Tab> tabs) {
-        for (Tab t : tabs) {
-            Node n = t.getContent();
-            n.addEventFilter(KeyEvent.ANY, new EventPassThrough());
-            n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
-            n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
-        }
-        ThreadManager.get().launch(
-                new InactivityThread(prefs.idleThresholdInMinutes.get() * 60 * 1000),
-                "Inactivity");
-    }
-
-/*------------------------------------------------------------------------------
- *
- * PRIVATE - Support for authenticating to web services
- * 
- *----------------------------------------------------------------------------*/
-    
-    private PWUtils pwUtils = new PWUtils();
-    private byte[] encPW, salt;
     
     /**
      * Set the password used by the RESTServer. If no password is supplied, 
@@ -286,19 +198,6 @@ public class App {
         return pwUtils.externalRep(salt, encPW);
     }
 
-    /**
-     * Initialize the password and salt from previously generated values.
-     * @param externalForm  An external representation of the password and
-     *                      salt that was previously returned by an invocation
-     *                      of setPW()
-     */
-    final void internalizePW(String externalForm) {
-        // Break down the external representation into the salt and password
-        List<byte[]> internalForm = (new PWUtils()).internalRep(externalForm);
-        salt = internalForm.get(0);
-        encPW = internalForm.get(1);
-    }
-
     BasicAuthenticator authenticator = new BasicAuthenticator("VisibleTesla") {
         @Override public boolean checkCredentials(String user, String pwd) {
             if (!user.equals("VT")) return false;
@@ -306,6 +205,19 @@ public class App {
             return pwUtils.authenticate(pwd, encPW, salt);
         }
     };
+    
+    /**
+     * Initialize the password and salt from previously generated values.
+     * @param externalForm  An external representation of the password and
+     *                      salt that was previously returned by an invocation
+     *                      of setPW()
+     */
+    private void internalizePW(String externalForm) {
+        // Break down the external representation into the salt and password
+        List<byte[]> internalForm = (new PWUtils()).internalRep(externalForm);
+        salt = internalForm.get(0);
+        encPW = internalForm.get(1);
+    }
 
 /*------------------------------------------------------------------------------
  *
@@ -313,7 +225,24 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    class InactivityThread implements Runnable {
+    /**
+     * Begin watching for user inactivity (keyboard input, mouse movements, etc.)
+     * on any of the specified Tabs.
+     * @param tabs  Watch for user activity targeted to any of these tabs.
+     */
+    void watchForUserActivity(List<Tab> tabs) {
+        for (Tab t : tabs) {
+            Node n = t.getContent();
+            n.addEventFilter(KeyEvent.ANY, new EventPassThrough());
+            n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
+            n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
+        }
+        ThreadManager.get().launch(
+                new InactivityThread(prefs.idleThresholdInMinutes.get() * 60 * 1000),
+                "Inactivity");
+    }
+
+    private class InactivityThread implements Runnable {
         long idleThreshold;
         
         InactivityThread(long threshold) { this.idleThreshold = threshold; }
@@ -324,21 +253,21 @@ public class App {
                 if (ThreadManager.get().shuttingDown()) {
                     return;
                 }
-                if (timeSince(lastEventTime) > idleThreshold && allowingSleeping()) {
-                    state.update(State.Idle);
+                if (timeSince(lastEventTime) > idleThreshold && api.allowingSleeping()) {
+                    api.state.update(AppAPI.State.Idle);
                 }
             }
         }
     }
 
-    class EventPassThrough implements EventHandler<InputEvent> {
+    private class EventPassThrough implements EventHandler<InputEvent> {
         @Override public void handle(InputEvent ie) {
             lastEventTime = System.currentTimeMillis();
-            state.update(State.Active);
+            api.state.update(AppAPI.State.Active);
         }
     }
 
-    static String getAppID() {
+    private String getAppID() {
         try {
             InetAddress ip = InetAddress.getLocalHost();
             NetworkInterface network = NetworkInterface.getByInetAddress(ip);

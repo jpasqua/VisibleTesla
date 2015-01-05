@@ -45,10 +45,10 @@ public class MessageTemplate {
         parse(format);
     }
 
-    public String getMessage(App app, VTVehicle v, Map<String,String> contextSpecific) {
+    public String getMessage(AppAPI api, VTVehicle v, Map<String,String> contextSpecific) {
         StringBuilder sb = new StringBuilder();
         for (MsgComponent mc : components) {
-            sb.append(mc.asString(app, v, contextSpecific));
+            sb.append(mc.asString(api, v, contextSpecific));
         }
         return sb.toString();
     }
@@ -102,7 +102,7 @@ public class MessageTemplate {
  *----------------------------------------------------------------------------*/
     
     private static abstract class MsgComponent {
-        abstract String asString(App app, VTVehicle v, Map<String,String> contextSpecific);
+        abstract String asString(AppAPI api, VTVehicle v, Map<String,String> contextSpecific);
 
         // A String component is very simple - it's just a literal String
         static class StrComponent extends MsgComponent {
@@ -110,7 +110,7 @@ public class MessageTemplate {
             
             StrComponent(String s) { this.string = s; }
             
-            @Override String asString(App app, VTVehicle v, Map<String,String> cs) {
+            @Override String asString(AppAPI api, VTVehicle v, Map<String,String> cs) {
                 return string;
             }
         }
@@ -122,7 +122,7 @@ public class MessageTemplate {
             VarComponent(String v) { this.varName = v; }
 
             @Override String asString(
-                    App app, VTVehicle v, Map<String,String> contextSpecific) {
+                    AppAPI api, VTVehicle v, Map<String,String> contextSpecific) {
                 String val;
                 switch (varName) {
                     case "SPEED":
@@ -178,10 +178,10 @@ public class MessageTemplate {
                         }
                         break;
                     case "I_STATE":
-                        val = app.state.get().name();
+                        val = api.state.get().name();
                         break;
                     case "I_MODE":
-                        val = app.mode.get().name();
+                        val = api.mode.get().name();
                         break;
                     case "P_CURRENT":
                         val = String.valueOf(v.chargeState.get().chargerPilotCurrent);

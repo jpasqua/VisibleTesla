@@ -78,7 +78,10 @@ public class VisibleTesla extends Application {
                 app.appFileFolder(), prefs, v, app.progressListener);
         
         // The RESTServer depends on the App object and the Vehicle
-        RESTServer rs = new RESTServer(prefs, app, v, app.authenticator);
+        RESTServer rs = new RESTServer(
+                app.api, v, app.authenticator,
+                prefs.enableRest, prefs.restPort,
+                prefs.customURLSource);
         
         // OK, that's done. Now launch the MainController and let's get started!
         mainController = Utils.cast(root.getUserData());

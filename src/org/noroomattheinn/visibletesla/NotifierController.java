@@ -375,42 +375,42 @@ public class NotifierController extends BaseController {
                 "SOC", NotifySOCHitsKey,  GenericTrigger.Predicate.HitsOrExceeds,
                 socHitsField.numberProperty(), new BigDecimal(88.0), TypicalDebounce);
             socHitsMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifySOCHitsKey), SOCHitSubj, SOCHitMsg);
+                    prefs, vinKey("MT_"+NotifySOCHitsKey), SOCHitSubj, SOCHitMsg);
             
             socFallsTrigger = new GenericTrigger<>(
                 socFalls.selectedProperty(), bdHelper,
                 "SOC", NotifySOCFallsKey, GenericTrigger.Predicate.FallsBelow,
                 socFallsField.numberProperty(), new BigDecimal(50.0), TypicalDebounce);
             socFallsMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifySOCFallsKey), SOCFellSubj, SOCFellMsg);
+                    prefs, vinKey("MT_"+NotifySOCFallsKey), SOCFellSubj, SOCFellMsg);
             
             speedHitsTrigger = new GenericTrigger<>(
                 speedHits.selectedProperty(), bdHelper,
                 "Speed", NotifySpeedKey, GenericTrigger.Predicate.HitsOrExceeds,
                 speedHitsField.numberProperty(), new BigDecimal(70.0), SpeedDebounce);
             shMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifySpeedKey), SpeedHitSubj, SpeedHitMsg);
+                    prefs, vinKey("MT_"+NotifySpeedKey), SpeedHitSubj, SpeedHitMsg);
             
             odoHitsTrigger = new GenericTrigger<>(
                 odoHits.selectedProperty(), bdHelper,
                 "Odometer", NotifyOdoKey, GenericTrigger.Predicate.GT,
                 odoHitsField.numberProperty(), new BigDecimal(14325), TypicalDebounce);
             ohMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifyOdoKey), OdoHitsSubj, OdoHitsMsg);
+                    prefs, vinKey("MT_"+NotifyOdoKey), OdoHitsSubj, OdoHitsMsg);
             
             seTrigger = new GenericTrigger<>(
                 schedulerEvent.selectedProperty(), stringHelper,
                 "Scheduler", NotifySEKey, GenericTrigger.Predicate.AnyChange,
                 new SimpleObjectProperty<>("Anything"), "Anything", 0L);
             seMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifySEKey), SchedEventSubj, SchedEventMsg);
+                    prefs, vinKey("MT_"+NotifySEKey), SchedEventSubj, SchedEventMsg);
             
             csTrigger = new GenericTrigger<>(
                 chargeState.selectedProperty(), stringListHelper,
                 "Charge State", NotifyCSKey, GenericTrigger.Predicate.Becomes,
                 csSelectProp, new StringList("Anything"), 0L);
             csMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifyCSKey), ChargeStateSubj, ChargeStateMsg);
+                    prefs, vinKey("MT_"+NotifyCSKey), ChargeStateSubj, ChargeStateMsg);
             
             for (int i = 0; i < 4; i++) {
                 GeoTrigger gt = geoTriggers[i];
@@ -419,7 +419,7 @@ public class NotifierController extends BaseController {
                     "Enter GeoUtils.CircularArea", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
                     gt.prop, new GeoUtils.CircularArea(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
-                        app, prefs, vinKey("MT_"+NotifyEnterKey+i), EnterAreaSubj, EnterAreaMsg);
+                        prefs, vinKey("MT_"+NotifyEnterKey+i), EnterAreaSubj, EnterAreaMsg);
             }
             for (int i = 4; i < 8; i++) {
                 GeoTrigger gt = geoTriggers[i];
@@ -428,7 +428,7 @@ public class NotifierController extends BaseController {
                     "Left GeoUtils.CircularArea", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
                     gt.prop, new GeoUtils.CircularArea(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
-                        app, prefs, vinKey("MT_"+NotifyLeftKey+i), LeftAreaSubj, LeftAreaMsg);
+                        prefs, vinKey("MT_"+NotifyLeftKey+i), LeftAreaSubj, LeftAreaMsg);
             }
             for (final GeoTrigger g : geoTriggers) {
                 String name = g.prop.get().name;
@@ -446,7 +446,7 @@ public class NotifierController extends BaseController {
             ccTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             pcTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             caMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifyCAKey), ChargeAnomalySubj, ChargeAnomalyMsg);
+                    prefs, vinKey("MT_"+NotifyCAKey), ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
                     prefs.storage().getBoolean(vinKey(NotifyCAKey),
                     false));
@@ -455,7 +455,7 @@ public class NotifierController extends BaseController {
                     unlocked.selectedProperty(),
                     unlockedDoorsField.numberProperty());
             ulMessageTarget = new MessageTarget(
-                    app, prefs, vinKey("MT_"+NotifyULKey), UnlockedSubj, UnlockedMsg);
+                    prefs, vinKey("MT_"+NotifyULKey), UnlockedSubj, UnlockedMsg);
             unlocked.setSelected(
                     prefs.storage().getBoolean(vinKey(NotifyULKey),
                     false));
@@ -638,18 +638,18 @@ public class NotifierController extends BaseController {
             String command = StringUtils.remove(addr, "command:");
             String args = target.getSubject();
             if (args != null) args = (new MessageTemplate(args)).getMessage(
-                    app, vtVehicle, contextSpecific);
+                    app.api, vtVehicle, contextSpecific);
             String stdin = target.getMessage();
             if (stdin != null) stdin = (new MessageTemplate(stdin)).getMessage(
-                    app, vtVehicle, contextSpecific);
+                    app.api, vtVehicle, contextSpecific);
             ThreadManager.get().launchExternal(command, args, stdin, 60 * 1000);
             logger.info("Executing external command for notification: " + command);
         } else {
             MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(target.getActiveSubj());
             MailGun.get().send(
-                addr, st.getMessage(app, vtVehicle, contextSpecific),
-                mt.getMessage(app, vtVehicle, contextSpecific));
+                addr, st.getMessage(app.api, vtVehicle, contextSpecific),
+                mt.getMessage(app.api, vtVehicle, contextSpecific));
         }
     }
     

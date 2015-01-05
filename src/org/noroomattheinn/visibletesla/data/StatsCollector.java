@@ -24,7 +24,6 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import static org.noroomattheinn.tesla.Tesla.logger;
-import org.noroomattheinn.visibletesla.data.VTData.TimeBasedPredicate;
 
 /**
  * StatsCollector: Collect stats as they are generated, store them in
@@ -48,7 +47,7 @@ class StatsCollector implements ThreadManager.Stoppable {
     private final IntegerProperty minDist;
     private final File container;
     private DBConverter converter;
-    private TimeBasedPredicate collectNow = new TimeBasedPredicate() {
+    private VTData.TimeBasedPredicate collectNow = new VTData.TimeBasedPredicate() {
         @Override public void setTime(long time) { }
         @Override public boolean eval() { return false; }
     };

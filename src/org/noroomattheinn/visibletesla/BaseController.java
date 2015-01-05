@@ -104,19 +104,19 @@ abstract class BaseController {
         this.vtVehicle = v;
         this.vtData = data;
         this.prefs = p;
+        if (issuer == null) issuer = new CommandIssuer(app.progressListener);
     }
     
     /**
      * Called whenever the tab associated with this controller is activated.
      */
     public final void activate() {
-        if (issuer == null) issuer = new CommandIssuer(app.progressListener);
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
-        if (app.isIdle()) {
+        if (app.api.isIdle()) {
             if (prefs.wakeOnTabChange.get()) {
-                app.setActive();
+                app.api.setActive();
                 doRefresh();
             }
         } else {

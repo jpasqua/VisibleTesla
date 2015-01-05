@@ -18,15 +18,17 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.MessageTemplate;
-import org.noroomattheinn.visibletesla.App;
 import org.noroomattheinn.utils.LRUMap;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
+import org.noroomattheinn.visibletesla.AppAPI;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
@@ -42,10 +44,10 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
 
-    private static final Map<String,App.Mode> toAppMode = 
-            Utils.newHashMap("sleep", App.Mode.AllowSleeping,
-                             "wakeup", App.Mode.StayAwake,
-                             "produce", App.Mode.StayAwake);
+    private static final Map<String,AppAPI.Mode> toAppMode = 
+            Utils.newHashMap("sleep",   AppAPI.Mode.AllowSleeping,
+                             "wakeup",  AppAPI.Mode.StayAwake,
+                             "produce", AppAPI.Mode.StayAwake);
 
 /*------------------------------------------------------------------------------
  *
@@ -53,10 +55,12 @@ public class RESTServer implements ThreadManager.Stoppable {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final App app;
-    private final Prefs prefs;
+    private final AppAPI api;
     private final VTVehicle vtVehicle;
     private final BasicAuthenticator authenticator;
+    private final BooleanProperty restEnabled;
+    private final IntegerProperty restPort;
+    private final StringProperty urlSource;
     
     private HttpServer server;
     private boolean launched = false;
@@ -67,11 +71,16 @@ public class RESTServer implements ThreadManager.Stoppable {
  * -------                                                               -------
  *============================================================================*/
     
-    public RESTServer(Prefs prefs, App app, VTVehicle v, BasicAuthenticator authenticator) {
+    public RESTServer(
+            AppAPI api, VTVehicle v, BasicAuthenticator authenticator,
+            BooleanProperty restEnabled, IntegerProperty restPort,
+            StringProperty urlSource) {
         this.server = null;
-        this.app = app;
+        this.api = api;
         this.vtVehicle = v;
-        this.prefs = prefs;
+        this.restEnabled = restEnabled;
+        this.urlSource = urlSource;
+        this.restPort = restPort;
         this.authenticator = authenticator;
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
         watch(v);
@@ -102,13 +111,12 @@ public class RESTServer implements ThreadManager.Stoppable {
     }
     
     private synchronized void launch() {
-        if (!prefs.enableRest.get()) {
+        if (!restEnabled.get()) {
             logger.info("REST Services are disabled");
             return;
         }
-        int restPort = prefs.restPort.get();
         try {
-            server = HttpServer.create(new InetSocketAddress(restPort), 0);
+            server = HttpServer.create(new InetSocketAddress(restPort.get()), 0);
             
             HttpContext cc;
             cc = server.createContext("/v1/action/activity", activityRequest);
@@ -144,15 +152,15 @@ public class RESTServer implements ThreadManager.Stoppable {
                 sendResponse(exchange, 403, "403 (Forbidden)\n");
                 return;
             }
-            App.Mode requestedMode = toAppMode.get(mode);
+            AppAPI.Mode requestedMode = toAppMode.get(mode);
             if (requestedMode == null) {
                 logger.warning("Unknown app mode: " + mode + "\n");
                 sendResponse(exchange, 400, "Unknown app mode");
                 return;
             }
             logger.info("Requested app mode: " + mode);
-            if (requestedMode == App.Mode.AllowSleeping) app.allowSleeping();
-            else app.stayAwake();
+            if (requestedMode == AppAPI.Mode.AllowSleeping) api.allowSleeping();
+            else api.stayAwake();
 
             sendResponse(exchange, 200,  "Requested mode: " + mode + "\n");
         }
@@ -180,12 +188,13 @@ public class RESTServer implements ThreadManager.Stoppable {
                     response = vtVehicle.carDetailsAsJSON();
                     break;
                 case "inactivity_mode":
-                    response = String.format("{ \"mode\": \"%s\" }", app.mode.get().name());
+                    response = String.format("{ \"mode\": \"%s\" }", api.mode.get().name());
                     break;
                 case "dbg_sar":
                     Map<String,String> params = getParams(exchange.getRequestURI().getQuery());
                     response = params.get("p1");
-                    app.schedulerActivity.set(response == null ? "DBG_SAR" : response);
+                    if (response == null) { response = "DBG_SAR"; }
+                    api.fakeSchedulerActivity(response);
                     break;
                 default:
                     logger.warning("Unknown info request: " + infoType + "\n");
@@ -224,7 +233,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                     InputStream is;
                     if (path.startsWith("custom/")) {
                         String cPath = path.substring(7);
-                        is = new URL(prefs.customURLSource.get()+cPath).openStream();
+                        is = new URL(urlSource.get()+cPath).openStream();
                     } else if (path.startsWith("TeslaResources/")) {
                         path = "org/noroomattheinn/" + path;
                         is = getClass().getClassLoader().getResourceAsStream(path);
@@ -245,7 +254,7 @@ public class RESTServer implements ThreadManager.Stoppable {
                 String type = getMimeType(StringUtils.substringAfterLast(path, "."));
                 if (type.equalsIgnoreCase("text/html")) {
                     MessageTemplate mt = new MessageTemplate(new String(content, "UTF-8"));
-                    content = mt.getMessage(app, vtVehicle, null).getBytes();
+                    content = mt.getMessage(api, vtVehicle, null).getBytes();
                 } else if (cacheOnClient(type)) {
                     exchange.getResponseHeaders().add("Cache-Control", "max-age=2592000");
                 }
