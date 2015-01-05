@@ -28,17 +28,8 @@ import javafx.util.converter.NumberStringConverter;
 import org.noroomattheinn.fxextensions.TimeSelector;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
-public class PrefsController extends BaseController {
-/*------------------------------------------------------------------------------
- *
- * Internal State
- * 
- *----------------------------------------------------------------------------*/
-    
-    private Prefs prefs;
-    
+public class PrefsController extends BaseController {    
 /*------------------------------------------------------------------------------
  *
  * General Application Preferences
@@ -93,7 +84,7 @@ public class PrefsController extends BaseController {
     //
     @FXML void setAuthCode(ActionEvent event) {
         String code = authCode.getText();
-	String externalForm = App.get().setPW(code);
+	String externalForm = app.setPW(code);
         prefs.authCode.set(externalForm);
     }
     
@@ -286,7 +277,6 @@ public class PrefsController extends BaseController {
     @Override protected void fxInitialize() { }
 
     @Override protected void initializeState() {
-        prefs = Prefs.get();
         initGeneralPrefsUI();
         initSchedulerPrefsUI();
         initLocationPrefsUI();

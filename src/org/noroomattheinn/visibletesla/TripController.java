@@ -128,7 +128,7 @@ public class TripController extends BaseController {
     }
     
     @FXML void exportItHandler(ActionEvent event) {
-        String initialDir = Prefs.store().get(
+        String initialDir = prefs.storage().get(
                 App.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Trip as KMZ");
@@ -138,8 +138,8 @@ public class TripController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
-            if (VTData.get().exportTripsAsKML(getSelectedTrips(), file)) {
+                prefs.storage().put(App.LastExportDirKey, enclosingDirectory);
+            if (vtData.exportTripsAsKML(getSelectedTrips(), file)) {
                 Dialogs.showInformationDialog(
                         app.stage, "Your data has been exported",
                         "Data Export Process" , "Export Complete");
@@ -215,13 +215,13 @@ public class TripController extends BaseController {
         
         includeGraph.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                Prefs.store().putBoolean(IncludeGraphKey, t1);
+                prefs.storage().putBoolean(IncludeGraphKey, t1);
             }
         });
         
         snapToRoad.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                Prefs.store().putBoolean(SnapToRoadKey, t1);
+                prefs.storage().putBoolean(SnapToRoadKey, t1);
             }
         });
         
@@ -241,9 +241,9 @@ public class TripController extends BaseController {
     
     @Override protected void initializeState() {
         includeGraph.setSelected(
-                Prefs.store().getBoolean(IncludeGraphKey, false));
+                prefs.storage().getBoolean(IncludeGraphKey, false));
         snapToRoad.setSelected(
-                Prefs.store().getBoolean(SnapToRoadKey, false));
+                prefs.storage().getBoolean(SnapToRoadKey, false));
         readTrips();
     }
 
@@ -281,7 +281,7 @@ public class TripController extends BaseController {
     private void updateStartEndProps(
             String statType, long startTime, long endTime,
             GenericProperty prop, double conversionFactor) {
-        NavigableMap<Long,Row> rows = VTData.get().getRangeOfLoadedRows(startTime, endTime);
+        NavigableMap<Long,Row> rows = vtData.getRangeOfLoadedRows(startTime, endTime);
 
         double startValue = rows.firstEntry().getValue().get(VTData.schema, statType);
         double endValue = rows.lastEntry().getValue().get(VTData.schema, statType);
@@ -358,8 +358,8 @@ public class TripController extends BaseController {
                 "SP_UNITS", useMiles ? "mph" : "km/h",
                 "INCLUDE_GRAPH", includeGraph.isSelected() ? "true" : "false",
                 "SNAP", snapToRoad.isSelected() ? "true" : "false",
-                "GMAP_API_KEY", Prefs.get().useCustomGoogleAPIKey.get() ?
-                    Prefs.get().googleAPIKey.get() :
+                "GMAP_API_KEY", prefs.useCustomGoogleAPIKey.get() ?
+                    prefs.googleAPIKey.get() :
                     Prefs.GoogleMapsAPIKey);
     }
     
@@ -386,7 +386,7 @@ public class TripController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void readTrips() {
-        Map<Long,Row> rows = VTData.get().getAllLoadedRows();
+        Map<Long,Row> rows = vtData.getAllLoadedRows();
         for (Row r : rows.values()) {
             WayPoint wp = new WayPoint(r);
             handleNewWayPoint(wp);
@@ -395,11 +395,11 @@ public class TripController extends BaseController {
         endCurrentTrip();
         
         // Start listening for new WayPoints
-        VTData.get().lastStoredStreamState.addTracker(new Runnable() {
+        vtData.lastStoredStreamState.addTracker(new Runnable() {
             @Override public void run() {
                 handleNewWayPoint(new WayPoint(
-                        VTData.get().lastStoredStreamState.get(),
-                        VTData.get().lastStoredChargeState.get()));
+                        vtData.lastStoredStreamState.get(),
+                        vtData.lastStoredChargeState.get()));
             }
         });
         

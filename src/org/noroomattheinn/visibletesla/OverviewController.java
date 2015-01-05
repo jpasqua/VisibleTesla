@@ -33,9 +33,6 @@ import org.noroomattheinn.tesla.Vehicle.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
 public class OverviewController extends BaseController {
@@ -217,13 +214,13 @@ public class OverviewController extends BaseController {
     @Override protected void initializeState() {
         final Vehicle v = vtVehicle.getVehicle();
         getAppropriateImages(v);
-        Prefs.get().overideColorTo.addListener(new ChangeListener<String>() {
+        prefs.overideColorTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateImages(v);
             }
         });
-        Prefs.get().overideColorActive.addListener(new ChangeListener<Boolean>() {
+        prefs.overideColorActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateImages(v);
@@ -251,13 +248,16 @@ public class OverviewController extends BaseController {
                     ObservableValue<? extends StreamState> ov,
                     StreamState old, final StreamState cur) {
                 Platform.runLater(new Runnable() {
-                    @Override public void run() { updateOdometer(); updateShiftState(); }
+                    @Override public void run() {
+                        updateOdometer();
+                        updateShiftState();
+                    }
                 });
             }
         });
         
         updateOdometer();   // Show at least an old reading to start
-        VTData.get().produceStream(false);   // Update it at some point
+        vtData.produceStream(false);   // Update it at some point
 
         updateWheelView();  // Make sure we display the right wheels from the get-go
         updateRoofView();   // Make sure we display the right roof from the get-go
@@ -293,7 +293,7 @@ public class OverviewController extends BaseController {
     private void updateRange() {
         ChargeState cs = vtVehicle.chargeState.get();
         double range = 0;
-        String rangeType = Prefs.get().overviewRange.get();
+        String rangeType = prefs.overviewRange.get();
         switch (rangeType) {
             case "Estimated": range = cs.estimatedRange; break;
             case "Ideal": range = cs.idealRange; break;
@@ -410,7 +410,14 @@ public class OverviewController extends BaseController {
     }
     
     private void updateOdometer() {
-        double odometerReading = vtVehicle.odometer();
+        double odometerReading;
+        if (vtVehicle.streamState.get().valid) {
+            odometerReading = vtVehicle.streamState.get().odometer;
+            prefs.storage().putDouble(vinKey("odometer"), odometerReading);
+        } else {
+            odometerReading = prefs.storage().getDouble(vinKey("odometer"), 0);
+        }
+                
         
         boolean useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? "mi" : "km";
@@ -428,12 +435,12 @@ public class OverviewController extends BaseController {
     }
     
     private boolean displayVIN() {
-        return Prefs.store().getBoolean(app.vinKey("DISP_VIN"), true);
+        return prefs.storage().getBoolean(vinKey("DISP_VIN"), true);
     }
     
     private void toggleDisplayVIN() {
-        boolean displayVIN = Prefs.store().getBoolean(app.vinKey("DISP_VIN"), true);
-        Prefs.store().putBoolean(app.vinKey("DISP_VIN"), !displayVIN);
+        boolean displayVIN = prefs.storage().getBoolean(vinKey("DISP_VIN"), true);
+        prefs.storage().putBoolean(vinKey("DISP_VIN"), !displayVIN);
     }
 
 /*------------------------------------------------------------------------------

@@ -45,10 +45,10 @@ public class MessageTemplate {
         parse(format);
     }
 
-    public String getMessage(Map<String,String> contextSpecific) {
+    public String getMessage(App app, VTVehicle v, Map<String,String> contextSpecific) {
         StringBuilder sb = new StringBuilder();
         for (MsgComponent mc : components) {
-            sb.append(mc.asString(contextSpecific));
+            sb.append(mc.asString(app, v, contextSpecific));
         }
         return sb.toString();
     }
@@ -102,7 +102,7 @@ public class MessageTemplate {
  *----------------------------------------------------------------------------*/
     
     private static abstract class MsgComponent {
-        abstract String asString(Map<String,String> contextSpecific);
+        abstract String asString(App app, VTVehicle v, Map<String,String> contextSpecific);
 
         // A String component is very simple - it's just a literal String
         static class StrComponent extends MsgComponent {
@@ -110,7 +110,9 @@ public class MessageTemplate {
             
             StrComponent(String s) { this.string = s; }
             
-            @Override String asString(Map<String,String> cs) { return string; }
+            @Override String asString(App app, VTVehicle v, Map<String,String> cs) {
+                return string;
+            }
         }
 
         // A Variable component represents a formatted reading from the car
@@ -119,29 +121,37 @@ public class MessageTemplate {
 
             VarComponent(String v) { this.varName = v; }
 
-            @Override String asString(Map<String,String> contextSpecific) {
-                VTVehicle v = VTVehicle.get();
+            @Override String asString(
+                    App app, VTVehicle v, Map<String,String> contextSpecific) {
                 String val;
                 switch (varName) {
-                    case "SPEED": val = String.format(
-                            "%3.1f", v.inProperUnits(v.streamState.get().speed));
+                    case "SPEED":
+                        val = String.format(
+                                "%3.1f", v.inProperUnits(v.streamState.get().speed));
                         break;
-                    case "SOC": val = String.valueOf(v.streamState.get().soc);
+                    case "SOC":
+                        val = String.valueOf(v.streamState.get().soc);
                         break;
-                    case "IDEAL": val = String.format(
-                            "%3.1f", v.inProperUnits(v.chargeState.get().idealRange));
+                    case "IDEAL":
+                        val = String.format(
+                                "%3.1f", v.inProperUnits(v.chargeState.get().idealRange));
                         break;
-                    case "RATED": val = String.format(
-                            "%3.1f", v.inProperUnits(v.chargeState.get().range));
+                    case "RATED":
+                        val = String.format(
+                                "%3.1f", v.inProperUnits(v.chargeState.get().range));
                         break;
-                    case "ESTIMATED": val = String.format(
-                            "%3.1f", v.inProperUnits(v.chargeState.get().estimatedRange));
+                    case "ESTIMATED":
+                        val = String.format(
+                                "%3.1f", v.inProperUnits(v.chargeState.get().estimatedRange));
                         break;
-                    case "CHARGE_STATE": val = v.chargeState.get().chargingState.name();
+                    case "CHARGE_STATE":
+                        val = v.chargeState.get().chargingState.name();
                         break;
-                    case "D_UNITS": val = v.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
+                    case "D_UNITS":
+                        val = v.unitType() == Utils.UnitType.Imperial ? "mi" : "km";
                         break;
-                    case "S_UNITS": val = v.unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
+                    case "S_UNITS":
+                        val = v.unitType() == Utils.UnitType.Imperial ? "mph" : "km/h";
                         break;
                     case "DATE":
                         val = String.format("%1$tY-%1$tm-%1$td", new Date());
@@ -159,35 +169,33 @@ public class MessageTemplate {
                         }
                         if (varName.equals("HT_LOC")) {
                             try {
-                            val = String.format(
-                                "<a href='http://maps.google.com/maps?z=12&t=m&q=@%s,%s'>%s</a>",
-                                lat, lng, val);
+                                val = String.format(
+                                        "<a href='http://maps.google.com/maps?z=12&t=m&q=@%s,%s'>%s</a>",
+                                        lat, lng, val);
                             } catch (Exception e) { // In case something goes wrong with the format
                                 logger.severe(e.getMessage());
                             }
                         }
                         break;
                     case "I_STATE":
-                        val = App.get().state.get().name();
+                        val = app.state.get().name();
                         break;
                     case "I_MODE":
-                        val = App.get().mode.get().name();
+                        val = app.mode.get().name();
                         break;
                     case "P_CURRENT":
-                        val = String.valueOf(
-                                v.chargeState.get().chargerPilotCurrent);
+                        val = String.valueOf(v.chargeState.get().chargerPilotCurrent);
                         break;
                     case "TIME_TO_FULL":
                         val = ChargeController.getDurationString(
-                            v.chargeState.get().timeToFullCharge); 
+                                v.chargeState.get().timeToFullCharge);
                         break;
                     case "C_RATE":
                         val = String.format(
-                            "%.1f", v.inProperUnits(v.chargeState.get().chargeRate));
+                                "%.1f", v.inProperUnits(v.chargeState.get().chargeRate));
                         break;
                     case "C_AMP":
-                        val = String.format(
-                            "%.1f", v.chargeState.get().batteryCurrent);
+                        val = String.format("%.1f", v.chargeState.get().batteryCurrent);
                         break;
                     case "C_VLT":
                         val = String.valueOf(v.chargeState.get().chargerVoltage);
@@ -217,11 +225,13 @@ public class MessageTemplate {
                         val = genCarView(v);
                         break;
                     case "ODO":
-                        val = String.format("%.1f", v.inProperUnits(v.odometer()));
+                        val = String.format("%.1f", v.inProperUnits(v.streamState.get().odometer));
                         break;
                     default:
                         val = (contextSpecific == null) ? null : contextSpecific.get(varName);
-                        if (val == null) val = "Unknown variable: " + varName;
+                        if (val == null) {
+                            val = "Unknown variable: " + varName;
+                        }
                         break;
                 }
                 return val;
@@ -281,7 +291,7 @@ public class MessageTemplate {
             private static String genODO(VTVehicle v) {
                 String punc = v.unitType() == Utils.UnitType.Imperial ? "," : ".";
                 StringBuilder sb = new StringBuilder();
-                double odo = v.inProperUnits(v.odometer());
+                double odo = v.inProperUnits(v.streamState.get().odometer);
                 double modulus = 100000;
                 for (int i = 0; i < 6; i++) {
                     int digit = (int)(odo / modulus);

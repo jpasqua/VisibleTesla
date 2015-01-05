@@ -24,7 +24,6 @@ import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 public class HVACController extends BaseController {
     
@@ -128,13 +127,13 @@ public class HVACController extends BaseController {
         });
         
         getAppropriateBody();   // Get the body image that matches the wheels
-        Prefs.get().overideWheelsTo.addListener(new ChangeListener<String>() {
+        prefs.overideWheelsTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        Prefs.get().overideWheelsActive.addListener(new ChangeListener<Boolean>() {
+        prefs.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels

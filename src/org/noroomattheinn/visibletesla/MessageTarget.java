@@ -16,16 +16,18 @@ class MessageTarget {
 
     private final String theKey;
     private final String dfltSubj, dfltMsg;
+    private final Prefs prefs;
     
-    MessageTarget(App ac, String baseKey, String dfltSubj, String dfltMsg) {
-        this.theKey = ac.vinKey("MT_"+baseKey);
+    MessageTarget(App ac, Prefs prefs, String theKey, String dfltSubj, String dfltMsg) {
+        this.prefs = prefs;
+        this.theKey = theKey;
         this.dfltSubj = dfltSubj;
         this.dfltMsg = dfltMsg;
         this.internalize();
     }
 
     String getActiveEmail() {
-        return address != null ? address : Prefs.get().notificationAddress.get();
+        return address != null ? address : prefs.notificationAddress.get();
     }
     String getActiveSubj() { return subject != null ? subject : dfltSubj; }
     String getActiveMsg() { return message != null ? message : dfltMsg; }
@@ -44,13 +46,13 @@ class MessageTarget {
                 address == null ? "null" : encodeUnderscore(address),
                 subject == null ? "null" : encodeUnderscore(subject),
                 message == null ? "null" : Utils.toB64(message.getBytes()));
-        Prefs.store().put(theKey, encoded);
+        prefs.storage().put(theKey, encoded);
     }
 
     final void internalize() {
         address = subject = message = null;
 
-        String encoded = Prefs.store().get(theKey, "");
+        String encoded = prefs.storage().get(theKey, "");
         if (encoded.isEmpty()) return;
 
         String[] elements = encoded.split("_");

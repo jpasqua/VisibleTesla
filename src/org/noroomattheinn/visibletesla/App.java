@@ -7,6 +7,10 @@ package org.noroomattheinn.visibletesla;
 
 import com.sun.net.httpserver.BasicAuthenticator;
 import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.List;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -17,13 +21,13 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 import static org.noroomattheinn.utils.Utils.timeSince;
@@ -77,9 +81,8 @@ public class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    private static App  instance = null;
-    
     private final File  appFilesFolder;
+    private final Prefs prefs;
     private long        lastEventTime;
 
 /*==============================================================================
@@ -89,24 +92,50 @@ public class App {
  *============================================================================*/
     
     /**
-     * Called once when the app starts in order to create the singleton. This is
-     * logically a separate factory, but it is here for convenience.
-     * @param fxApp
-     * @param stage
-     * @param prefs
-     * @return  The newly created singleton or the existing singleton if already
-     *          created.
+     * Called once when the app starts in order to create the singleton. 
+     * @param fxApp The JavaFX Application object
+     * @param stage The JavaFX stage corresponding to our base window
+     * @param prefs The application preferences
+     * @return      The newly created singleton.
      */
-    public static App create(Application fxApp, Stage stage, Prefs prefs) {
-        if (instance != null) { return instance; }
-        return (instance = new App(fxApp, stage, prefs));
-    }
+    App(Application fxApp, Stage stage, final Prefs prefs) {
+        this.fxApp = fxApp;
+        this.stage = stage;
+        this.prefs = prefs;
+        this.lastEventTime = System.currentTimeMillis();
 
-    /**
-     * Fetch the singleton App instance.
-     * @return  The singleton App instance
-     */
-    public static App get() { return instance; }
+        this.mode = new TrackedObject<>(Mode.StayAwake);
+        this.mode.addTracker(new Runnable() {
+            @Override public void run() {
+                logger.finest("App Mode changed to " + mode.get());
+                prefs.persist("InactivityMode", mode.get().name());
+                if (mode.get() == Mode.StayAwake) { setActive(); }
+            }
+        });
+
+        this.state = new TrackedObject<>(State.Active);
+        this.state.addTracker(new Runnable() {
+            @Override public void run() {
+                logger.finest("App State changed to " + state.get());
+                if (state.get() == State.Active) {
+                    logger.info("Resetting Idle start time to now");
+                    lastEventTime = System.currentTimeMillis();
+                }
+            }
+        });
+
+        appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
+        Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
+
+        tesla = (prefs.enableProxy.get())
+                ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
+
+        this.schedulerActivity = new TrackedObject<>("");
+        this.progressListener = new ProgressListener(
+                prefs.submitAnonFailure, getAppID());
+        
+        internalizePW(prefs.authCode.get());
+    }
 
     /**
      * Establish ourselves as the only running instance of the app for
@@ -117,15 +146,7 @@ public class App {
     public boolean lock(String vin) {
         return (Utils.obtainLock(vin + ".lck", appFilesFolder));
     }
-
-    /**
-     * Convenience function to return a Prefs key that is prefixed by the VIN
-     * of the current vehicle.
-     * @param key   The raw Prefs key
-     * @return      The Prefs key prefixed by the VIN
-     */
-    public final String vinKey(String key) { return VTVehicle.get().vinKey(key); }
-
+    
     /**
      * Get the system folder in which app related files are to be stored.
      * @return  The folder in which app related files are to be stored
@@ -180,7 +201,8 @@ public class App {
      * Set the mode based on the value in the persistent store
      */
     public void restoreMode() {
-        String modeName = Prefs.store().get(vinKey("InactivityMode"), Mode.StayAwake.name());
+        String modeName = prefs.storage().get(
+                "InactivityMode", Mode.StayAwake.name());
         // Handle obsolete values or changed names
         switch (modeName) {
             case "Sleep": modeName = "AllowSleeping"; break;    // Name Changed
@@ -233,57 +255,11 @@ public class App {
             n.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventPassThrough());
             n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
         }
-        ThreadManager.get().launch(new InactivityThread(), "Inactivity");
+        ThreadManager.get().launch(
+                new InactivityThread(prefs.idleThresholdInMinutes.get() * 60 * 1000),
+                "Inactivity");
     }
 
-/*------------------------------------------------------------------------------
- *
- * Hide the constructor for the singleton
- * 
- *----------------------------------------------------------------------------*/
-    
-    /**
-     * Create an App object
-     * @param fxApp The JavaFX Application object
-     * @param stage The JavaFX stage of the main window
-     */
-    private App(Application fxApp, Stage stage, final Prefs prefs) {
-        this.fxApp = fxApp;
-        this.stage = stage;
-        this.lastEventTime = System.currentTimeMillis();
-
-        this.mode = new TrackedObject<>(Mode.StayAwake);
-        this.mode.addTracker(new Runnable() {
-            @Override public void run() {
-                logger.finest("App Mode changed to " + mode.get());
-                prefs.persist(vinKey("InactivityMode"), mode.get().name());
-                if (mode.get() == Mode.StayAwake) { setActive(); }
-            }
-        });
-
-        this.state = new TrackedObject<>(State.Active);
-        this.state.addTracker(new Runnable() {
-            @Override public void run() {
-                logger.finest("App State changed to " + state.get());
-                if (state.get() == State.Active) {
-                    logger.info("Resetting Idle start time to now");
-                    lastEventTime = System.currentTimeMillis();
-                }
-            }
-        });
-
-        appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
-        Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
-
-        tesla = (prefs.enableProxy.get())
-                ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
-
-        this.schedulerActivity = new TrackedObject<>("");
-        this.progressListener = new ProgressListener();
-        
-        internalizePW(prefs.authCode.get());
-    }
-    
 /*------------------------------------------------------------------------------
  *
  * PRIVATE - Support for authenticating to web services
@@ -338,13 +314,16 @@ public class App {
  *----------------------------------------------------------------------------*/
     
     class InactivityThread implements Runnable {
+        long idleThreshold;
+        
+        InactivityThread(long threshold) { this.idleThreshold = threshold; }
+        
         @Override public void run() {
             while (true) {
                 ThreadManager.get().sleep(60 * 1000);
                 if (ThreadManager.get().shuttingDown()) {
                     return;
                 }
-                long idleThreshold = Prefs.get().idleThresholdInMinutes.get() * 60 * 1000;
                 if (timeSince(lastEventTime) > idleThreshold && allowingSleeping()) {
                     state.update(State.Idle);
                 }
@@ -356,6 +335,17 @@ public class App {
         @Override public void handle(InputEvent ie) {
             lastEventTime = System.currentTimeMillis();
             state.update(State.Active);
+        }
+    }
+
+    static String getAppID() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+            byte[] mac = network.getHardwareAddress();
+            return DigestUtils.sha256Hex(mac);
+        } catch (UnknownHostException | SocketException e) {
+            return "Unidentified";
         }
     }
 }

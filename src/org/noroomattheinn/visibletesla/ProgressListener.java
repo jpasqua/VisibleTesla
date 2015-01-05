@@ -8,11 +8,10 @@ package org.noroomattheinn.visibletesla;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.utils.Executor;
 import org.noroomattheinn.utils.MailGun;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 import static org.noroomattheinn.utils.Utils.timeSince;
@@ -38,6 +37,9 @@ class ProgressListener implements Executor.FeedbackListener {
      */
     private static Map<ProgressIndicator,Integer> refCount = new HashMap<>();
     
+    private final BooleanProperty submitStats;
+    private final String submissionID;
+    
     /**
      * The last time we sent a report to the user. Only do that once a day
      */
@@ -53,8 +55,10 @@ class ProgressListener implements Executor.FeedbackListener {
      * Create a new ProgressListener. This is really a singleton. There should
      * only be one for the entire app.
      */
-    ProgressListener() {
+    ProgressListener(BooleanProperty submitStats, String submissionID) {
         this.lastReport = System.currentTimeMillis();
+        this.submitStats = submitStats;
+        this.submissionID = submissionID;
     }
     
     @Override public void requestStarted(Executor.Request r) {
@@ -79,12 +83,12 @@ class ProgressListener implements Executor.FeedbackListener {
             sb.append("("); sb.append(tries); sb.append(", "); sb.append(count); sb.append(") ");
         }
         logger.info(sb.toString());
-        if (Prefs.get().submitAnonFailure.get() && timeSince(lastReport) > ReportingInterval) {
+        if (submitStats.get() && timeSince(lastReport) > ReportingInterval) {
             logger.info("Sending api stats report: " + sb.toString());
             MailGun.get().send(
-                ReportAddress,
-                "API Stats for " + VTVehicle.get().getVehicle().getUUID(),
-                sb.toString());
+                    ReportAddress,                      // To
+                    "API Stats for " +  submissionID,   // Subject
+                    sb.toString());                     // Body
             lastReport = System.currentTimeMillis();
         }
     }

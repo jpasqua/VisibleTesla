@@ -29,7 +29,7 @@ import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
 
 /**
- * Prefs - Stores and Manages Preferences data for all of the tabs.
+ * Prefs - Stores and Manages Preferences data the app.
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
@@ -60,7 +60,6 @@ public class Prefs {
  * 
  *----------------------------------------------------------------------------*/
     
-    private static Prefs instance;
     private final Preferences persistentState;
     
 /*==============================================================================
@@ -68,21 +67,14 @@ public class Prefs {
  * -------              Public Interface To This Class                   ------- 
  * -------                                                               -------
  *============================================================================*/
-    
-    public static Prefs create(Preferences underlyingStore) {
-        instance = new Prefs(underlyingStore);
-        return instance;
-    }
-    
-    public static Prefs get() { return instance; }
-    
-    public static Preferences store() { return instance.persistentState; }
+        
+    public Preferences storage() { return persistentState; }
     
     public void persist(String key, String value) {
         persistentState.put(key, value);
     }
     
-    private Prefs(Preferences underlyingStore) {
+    public Prefs(Preferences underlyingStore) {
         this.persistentState = underlyingStore;
         loadGeneralPrefs();
         loadGraphPrefs();

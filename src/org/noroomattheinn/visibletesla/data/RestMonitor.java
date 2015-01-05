@@ -6,6 +6,8 @@
 package org.noroomattheinn.visibletesla.data;
 
 import java.util.Calendar;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
@@ -13,7 +15,6 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.TrackedObject;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
@@ -36,12 +37,13 @@ class RestMonitor {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final VTVehicle     vtVehicle;
+    private final VTVehicle         vtVehicle;
     private final TrackedObject<RestCycle> lastRestCycle;
-    private final RowDescriptor schema;
-    private final Calendar      fromLimit, toLimit;
-    private final boolean       stradles;
-    private RestCycle           cycleInProgress = null;
+    private final RowDescriptor     schema;
+    private final Calendar          fromLimit, toLimit;
+    private final boolean           stradles;
+    private final BooleanProperty   limitEnabled;
+    private RestCycle               cycleInProgress = null;
     
 /*==============================================================================
  * -------                                                               -------
@@ -49,13 +51,16 @@ class RestMonitor {
  * -------                                                               -------
  *============================================================================*/
 
-    RestMonitor(VTVehicle v, TrackedObject<RestCycle> lastRestCycle) {
+    RestMonitor(VTVehicle v, TrackedObject<RestCycle> lastRestCycle,
+            BooleanProperty limitEnabled, ObjectProperty<CalTime> limitFrom,
+            ObjectProperty<CalTime> limitTo) {
         this.vtVehicle = v;
         this.lastRestCycle = lastRestCycle;
         this.schema = VTData.schema;
-        if (Prefs.get().vsLimitEnabled.get()) {
-            fromLimit = Prefs.get().vsFrom.get();
-            toLimit = Prefs.get().vsTo.get();
+        this.limitEnabled = limitEnabled;
+        if (limitEnabled.get()) {
+            fromLimit = limitFrom.get();
+            toLimit = limitTo.get();
             stradles = (toLimit.before(fromLimit));
         } else {
             fromLimit = toLimit = null;
@@ -128,7 +133,7 @@ class RestMonitor {
     }
     
     private boolean outOfRange(long ts) {
-        if (!Prefs.get().vsLimitEnabled.get()) return false;
+        if (limitEnabled.get()) return false;
         CalTime c = new CalTime(ts);
         if (stradles) { return (c.after(toLimit) && c.before(fromLimit)); }
         else { return c.after(toLimit) || c.before(fromLimit); }

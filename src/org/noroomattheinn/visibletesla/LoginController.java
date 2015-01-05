@@ -87,8 +87,8 @@ public class LoginController extends BaseController {
     }
     
     @FXML void rememberMeHandler(ActionEvent event) {
-        Prefs.store().putBoolean(RememberMePrefKey, rememberMe.isSelected());
-        if (!rememberMe.isSelected()) { Prefs.store().remove(AuthTokenKey); }
+        prefs.storage().putBoolean(RememberMePrefKey, rememberMe.isSelected());
+        if (!rememberMe.isSelected()) { prefs.storage().remove(AuthTokenKey); }
     }
 
 /*------------------------------------------------------------------------------
@@ -105,10 +105,10 @@ public class LoginController extends BaseController {
     @Override protected void refresh() { }
     
     @Override protected void initializeState() {
-        Boolean rememberPref = Prefs.store().getBoolean(RememberMePrefKey, false);
+        Boolean rememberPref = prefs.storage().getBoolean(RememberMePrefKey, false);
         rememberMe.setSelected(rememberPref);
 
-        String username = rememberPref ? Prefs.store().get(UsernameKey, null) : null;
+        String username = rememberPref ? prefs.storage().get(UsernameKey, null) : null;
         if (username != null) usernameField.setText(username);
     }
     
@@ -179,7 +179,7 @@ public class LoginController extends BaseController {
             boolean succeeded;
             
             if (password == null) {  // Try auto login
-                String authToken = Prefs.store().get(AuthTokenKey, null);
+                String authToken = prefs.storage().get(AuthTokenKey, null);
                 succeeded = (authToken == null) ? false :
                         app.tesla.connectWithToken(username, authToken);
             } else {   // Login with the specified username and password
@@ -197,8 +197,8 @@ public class LoginController extends BaseController {
                 } else {
                     String authToken = app.tesla.getToken();
                     if (rememberMe.isSelected()) {
-                        Prefs.store().put(AuthTokenKey, authToken);
-                        Prefs.store().put(UsernameKey, username);
+                        prefs.storage().put(AuthTokenKey, authToken);
+                        prefs.storage().put(UsernameKey, username);
                     }
                 }
             }

@@ -33,7 +33,6 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.DefaultedHashMap;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * GraphController: Handles the capture and display of vehicle statistics
@@ -118,7 +117,7 @@ public class GraphController extends BaseController {
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
-        Prefs.store().putBoolean(app.vinKey(series.getName()), visible);
+        prefs.storage().putBoolean(vinKey(series.getName()), visible);
     }
 
 /*------------------------------------------------------------------------------
@@ -167,14 +166,14 @@ public class GraphController extends BaseController {
         // Restore the last settings of the checkboxes
         for (CheckBox cb : cbToSeries.keySet()) {
             VTSeries s = cbToSeries.get(cb);
-            boolean selected = Prefs.store().getBoolean(app.vinKey(s.getName()), true);
+            boolean selected = prefs.storage().getBoolean(vinKey(s.getName()), true);
             cb.setSelected(selected);
             lineChart.setVisible(s, selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
-        displayLines = Prefs.store().getBoolean(app.vinKey("DISPLAY_LINES"), true);
-        displayMarkers = Prefs.store().getBoolean(app.vinKey("DISPLAY_MARKERS"), true);
+        displayLines = prefs.storage().getBoolean(vinKey("DISPLAY_LINES"), true);
+        displayMarkers = prefs.storage().getBoolean(vinKey("DISPLAY_MARKERS"), true);
 
         reflectDisplayOptions();
     }
@@ -197,17 +196,17 @@ public class GraphController extends BaseController {
         loadExistingData();
         // Register for additions to the data - Handle the new data on the JFX
         // thread to avoid ConcurrentModificationExceptions in the series data
-        App.addTracker(VTData.get().lastStoredChargeState, chargeHandler);
-        App.addTracker(VTData.get().lastStoredStreamState, streamHandler);
+        App.addTracker(vtData.lastStoredChargeState, chargeHandler);
+        App.addTracker(vtData.lastStoredStreamState, streamHandler);
 
         
         setGap();
-        Prefs.get().ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
+        prefs.ignoreGraphGaps.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 setGap(); lineChart.refreshChart();
             }
         });
-        Prefs.get().graphGapTime.addListener(new ChangeListener<Number>() {
+        prefs.graphGapTime.addListener(new ChangeListener<Number>() {
             @Override public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
                 setGap(); lineChart.refreshChart();
             }
@@ -280,8 +279,8 @@ public class GraphController extends BaseController {
 
             reflectDisplayOptions();
 
-            Prefs.store().putBoolean(app.vinKey("DISPLAY_LINES"), displayLines);
-            Prefs.store().putBoolean(app.vinKey("DISPLAY_MARKERS"), displayMarkers);
+            prefs.storage().putBoolean(vinKey("DISPLAY_LINES"), displayLines);
+            prefs.storage().putBoolean(vinKey("DISPLAY_MARKERS"), displayMarkers);
         }
     };
 
@@ -301,8 +300,8 @@ public class GraphController extends BaseController {
     }
 
     private void setGap() {
-        lineChart.setIgnoreGap(Prefs.get().ignoreGraphGaps.get(),
-                               Prefs.get().graphGapTime.get());
+        lineChart.setIgnoreGap(prefs.ignoreGraphGaps.get(),
+                               prefs.graphGapTime.get());
     }
     
 /*------------------------------------------------------------------------------
@@ -312,7 +311,7 @@ public class GraphController extends BaseController {
  *----------------------------------------------------------------------------*/
         
     private void loadExistingData() {
-        Map<Long,Row> rows = VTData.get().getAllLoadedRows();
+        Map<Long,Row> rows = vtData.getAllLoadedRows();
         Map<String,ObservableList<XYChart.Data<Number,Number>>> typeToList = new HashMap<>();
         
         for (String type : typeToSeries.keySet()) {
@@ -376,7 +375,7 @@ public class GraphController extends BaseController {
     
     private final Runnable chargeHandler = new Runnable() {
         @Override public void run() {
-            ChargeState cs = VTData.get().lastStoredChargeState.get();
+            ChargeState cs = vtData.lastStoredChargeState.get();
             addElement(typeToSeries.get(VTData.VoltageKey), cs.timestamp, cs.chargerVoltage);
             addElement(typeToSeries.get(VTData.CurrentKey), cs.timestamp, cs.chargerActualCurrent);
             addElement(typeToSeries.get(VTData.EstRangeKey), cs.timestamp, cs.range);
@@ -388,7 +387,7 @@ public class GraphController extends BaseController {
     
     private final Runnable streamHandler = new Runnable() {
         @Override public void run() {
-            StreamState ss = VTData.get().lastStoredStreamState.get();
+            StreamState ss = vtData.lastStoredStreamState.get();
             addElement(typeToSeries.get(VTData.SpeedKey), ss.timestamp, ss.speed);
             addElement(typeToSeries.get(VTData.PowerKey), ss.timestamp, ss.power);
         }

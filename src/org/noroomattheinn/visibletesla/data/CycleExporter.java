@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import jxl.Workbook;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
@@ -18,7 +19,6 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.utils.MailGun;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * CycleExporter: Does most of the heavy lifting of exporting Cycles. Subclasses
@@ -66,6 +66,8 @@ abstract class CycleExporter<C extends BaseCycle> {
     protected final String cycleType;
     protected final String[] columns;
     protected final BooleanProperty submitData;
+    protected final BooleanProperty includeLoc;
+    protected final DoubleProperty ditherLocAmt;
     
 /*==============================================================================
  * -------                                                               -------
@@ -80,10 +82,14 @@ abstract class CycleExporter<C extends BaseCycle> {
      * @param submitData    A property that indicates whether to submit anonymous
      *                      data for this cycle type
      */
-    public CycleExporter(String cycleType, String[] columns, BooleanProperty submitData) {
+    public CycleExporter(String cycleType, String[] columns,
+            BooleanProperty submitData, BooleanProperty includeLoc,
+            DoubleProperty ditherLocAmt) {
         this.cycleType = cycleType;
         this.columns = columns;
         this.submitData = submitData;
+        this.includeLoc = includeLoc;
+        this.ditherLocAmt = ditherLocAmt;
     }
     
     /**
@@ -165,11 +171,11 @@ abstract class CycleExporter<C extends BaseCycle> {
      * @param cycle     The cycle whose location should be dithered.
      */
     protected void ditherLocation(C cycle) {
-        if (!Prefs.get().includeLocData.get()) { cycle.lat = cycle.lng = 0; return; }
+        if (!includeLoc.get()) { cycle.lat = cycle.lng = 0; return; }
         if (cycle.lat == 0 && cycle.lng == 0) return;
         
         double random, offset;
-        double ditherAmt = Prefs.get().ditherLocAmt.get();
+        double ditherAmt = ditherLocAmt.get();
         double pow = Math.pow(10, ditherAmt);       // 10^ditherAmt
         
         random = 0.5 + (Math.random()/2);           // value in [0.5, 1]

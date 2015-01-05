@@ -25,8 +25,8 @@ class CommandIssuer extends Executor<CommandIssuer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public CommandIssuer() {
-        super("CommandIssuer", App.get().progressListener);
+    public CommandIssuer(ProgressListener progressListener) {
+        super("CommandIssuer", progressListener);
     }
     
     public void issueCommand(Callable<Result> command, boolean retry,

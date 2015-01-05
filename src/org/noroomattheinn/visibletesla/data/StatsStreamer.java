@@ -6,6 +6,7 @@
 
 package org.noroomattheinn.visibletesla.data;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.BaseState;
@@ -46,6 +47,7 @@ class StatsStreamer implements Runnable {
     private final VTData vtData;
     private final VTVehicle vtVehicle;
     private final TrackedObject<CarState> carState;
+    private final BooleanProperty streamWhenPossible;
     private Predicate wakeEarly = Utils.alwaysFalse;
     private Predicate passiveCollection = Utils.alwaysFalse;
     
@@ -55,9 +57,10 @@ class StatsStreamer implements Runnable {
  * -------                                                               -------
  *============================================================================*/
     
-    public StatsStreamer(VTData data, VTVehicle vehicle) {
+    public StatsStreamer(VTData data, VTVehicle vehicle, BooleanProperty streamWhenPossible) {
         this.vtData = data;
         this.vtVehicle = vehicle;
+        this.streamWhenPossible = streamWhenPossible;
         this.carState = new TrackedObject<>(CarState.Idle);
         
         // The following two changeListeners look similar, but the order of
@@ -142,7 +145,7 @@ class StatsStreamer implements Runnable {
                 return;
             }
         }
-        vtData.produceStream(Prefs.get().streamWhenPossible.get());
+        vtData.produceStream(streamWhenPossible.get());
         vtData.produceState(Vehicle.StateType.Charge, null);
     }
     

@@ -322,21 +322,21 @@ public class NotifierController extends BaseController {
     private ChangeListener<Boolean> caListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            Prefs.store().putBoolean(app.vinKey(NotifyCAKey), cur);
+            prefs.storage().putBoolean(vinKey(NotifyCAKey), cur);
         }
     };
     
     private ChangeListener<Boolean> ulListener = new ChangeListener<Boolean>() {
         @Override public void changed(
                 ObservableValue<? extends Boolean> ov, Boolean old, Boolean cur) {
-            Prefs.store().putBoolean(app.vinKey(NotifyULKey), cur);
+            prefs.storage().putBoolean(vinKey(NotifyULKey), cur);
         }
     };
     
     private ChangeListener<BigDecimal> ulvListener = new ChangeListener<BigDecimal>() {
         @Override public void changed(
                 ObservableValue<? extends BigDecimal> ov, BigDecimal old, BigDecimal cur) {
-            Prefs.store().putLong(app.vinKey(NotifyULValKey), cur.longValue());
+            prefs.storage().putLong(vinKey(NotifyULValKey), cur.longValue());
         }
     };
     
@@ -368,49 +368,49 @@ public class NotifierController extends BaseController {
     }
 
     @Override protected void initializeState() {
-            lastOdoCheck = Prefs.store().getDouble(OdoCheckKey, 0);
+            lastOdoCheck = prefs.storage().getDouble(OdoCheckKey, 0);
                     
             socHitsTrigger = new GenericTrigger<>(
                 socHits.selectedProperty(), bdHelper,
                 "SOC", NotifySOCHitsKey,  GenericTrigger.Predicate.HitsOrExceeds,
                 socHitsField.numberProperty(), new BigDecimal(88.0), TypicalDebounce);
             socHitsMessageTarget = new MessageTarget(
-                    app, NotifySOCHitsKey, SOCHitSubj, SOCHitMsg);
+                    app, prefs, vinKey("MT_"+NotifySOCHitsKey), SOCHitSubj, SOCHitMsg);
             
             socFallsTrigger = new GenericTrigger<>(
                 socFalls.selectedProperty(), bdHelper,
                 "SOC", NotifySOCFallsKey, GenericTrigger.Predicate.FallsBelow,
                 socFallsField.numberProperty(), new BigDecimal(50.0), TypicalDebounce);
             socFallsMessageTarget = new MessageTarget(
-                    app, NotifySOCFallsKey, SOCFellSubj, SOCFellMsg);
+                    app, prefs, vinKey("MT_"+NotifySOCFallsKey), SOCFellSubj, SOCFellMsg);
             
             speedHitsTrigger = new GenericTrigger<>(
                 speedHits.selectedProperty(), bdHelper,
                 "Speed", NotifySpeedKey, GenericTrigger.Predicate.HitsOrExceeds,
                 speedHitsField.numberProperty(), new BigDecimal(70.0), SpeedDebounce);
             shMessageTarget = new MessageTarget(
-                    app, NotifySpeedKey, SpeedHitSubj, SpeedHitMsg);
+                    app, prefs, vinKey("MT_"+NotifySpeedKey), SpeedHitSubj, SpeedHitMsg);
             
             odoHitsTrigger = new GenericTrigger<>(
                 odoHits.selectedProperty(), bdHelper,
                 "Odometer", NotifyOdoKey, GenericTrigger.Predicate.GT,
                 odoHitsField.numberProperty(), new BigDecimal(14325), TypicalDebounce);
             ohMessageTarget = new MessageTarget(
-                    app, NotifyOdoKey, OdoHitsSubj, OdoHitsMsg);
+                    app, prefs, vinKey("MT_"+NotifyOdoKey), OdoHitsSubj, OdoHitsMsg);
             
             seTrigger = new GenericTrigger<>(
                 schedulerEvent.selectedProperty(), stringHelper,
                 "Scheduler", NotifySEKey, GenericTrigger.Predicate.AnyChange,
                 new SimpleObjectProperty<>("Anything"), "Anything", 0L);
             seMessageTarget = new MessageTarget(
-                    app, NotifySEKey, SchedEventSubj, SchedEventMsg);
+                    app, prefs, vinKey("MT_"+NotifySEKey), SchedEventSubj, SchedEventMsg);
             
             csTrigger = new GenericTrigger<>(
                 chargeState.selectedProperty(), stringListHelper,
                 "Charge State", NotifyCSKey, GenericTrigger.Predicate.Becomes,
                 csSelectProp, new StringList("Anything"), 0L);
             csMessageTarget = new MessageTarget(
-                    app, NotifyCSKey, ChargeStateSubj, ChargeStateMsg);
+                    app, prefs, vinKey("MT_"+NotifyCSKey), ChargeStateSubj, ChargeStateMsg);
             
             for (int i = 0; i < 4; i++) {
                 GeoTrigger gt = geoTriggers[i];
@@ -419,7 +419,7 @@ public class NotifierController extends BaseController {
                     "Enter GeoUtils.CircularArea", NotifyEnterKey+i, GenericTrigger.Predicate.HitsOrExceeds,
                     gt.prop, new GeoUtils.CircularArea(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
-                        app, NotifyEnterKey+i, EnterAreaSubj, EnterAreaMsg);
+                        app, prefs, vinKey("MT_"+NotifyEnterKey+i), EnterAreaSubj, EnterAreaMsg);
             }
             for (int i = 4; i < 8; i++) {
                 GeoTrigger gt = geoTriggers[i];
@@ -428,7 +428,7 @@ public class NotifierController extends BaseController {
                     "Left GeoUtils.CircularArea", NotifyLeftKey+i, GenericTrigger.Predicate.FallsBelow,
                     gt.prop, new GeoUtils.CircularArea(), GeoDebounce);
                 gt.messageTarget = new MessageTarget(
-                        app, NotifyLeftKey+i, LeftAreaSubj, LeftAreaMsg);
+                        app, prefs, vinKey("MT_"+NotifyLeftKey+i), LeftAreaSubj, LeftAreaMsg);
             }
             for (final GeoTrigger g : geoTriggers) {
                 String name = g.prop.get().name;
@@ -446,22 +446,22 @@ public class NotifierController extends BaseController {
             ccTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             pcTrigger = new DeviationTrigger(0.19, 5 * 60 * 1000);
             caMessageTarget = new MessageTarget(
-                    app, NotifyCAKey, ChargeAnomalySubj, ChargeAnomalyMsg);
+                    app, prefs, vinKey("MT_"+NotifyCAKey), ChargeAnomalySubj, ChargeAnomalyMsg);
             chargeAnomaly.setSelected(
-                    Prefs.store().getBoolean(app.vinKey(NotifyCAKey),
+                    prefs.storage().getBoolean(vinKey(NotifyCAKey),
                     false));
             
             unlockedTrigger = new StationaryTrigger(
                     unlocked.selectedProperty(),
                     unlockedDoorsField.numberProperty());
             ulMessageTarget = new MessageTarget(
-                    app, NotifyULKey, UnlockedSubj, UnlockedMsg);
+                    app, prefs, vinKey("MT_"+NotifyULKey), UnlockedSubj, UnlockedMsg);
             unlocked.setSelected(
-                    Prefs.store().getBoolean(app.vinKey(NotifyULKey),
+                    prefs.storage().getBoolean(vinKey(NotifyULKey),
                     false));
             unlockedDoorsField.numberProperty().set(
-                    new BigDecimal(Prefs.store().getLong(
-                        app.vinKey(NotifyULValKey), UnlockedThreshold)));
+                    new BigDecimal(prefs.storage().getLong(
+                        vinKey(NotifyULValKey), UnlockedThreshold)));
             checkForUnlocked = false;
             
             startListening();
@@ -494,8 +494,8 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void showAreaDialog(ObjectProperty<GeoUtils.CircularArea> areaProp) {
-        String apiKey = Prefs.get().useCustomGoogleAPIKey.get() ?
-                    Prefs.get().googleAPIKey.get() :
+        String apiKey = prefs.useCustomGoogleAPIKey.get() ?
+                    prefs.googleAPIKey.get() :
                     Prefs.GoogleMapsAPIKey;
 
         ChooseLocationDialog cld = ChooseLocationDialog.show(app.stage, areaProp.get(), apiKey);
@@ -592,7 +592,7 @@ public class NotifierController extends BaseController {
                 if (odoHitsTrigger.evalPredicate(new BigDecimal(odo))) {
                     notifyUser(odoHitsTrigger, ohMessageTarget);
                     // Store in miles, but convert & test relative to the GUI setting
-                    Prefs.store().putDouble(OdoCheckKey, cur.odometer);
+                    prefs.storage().putDouble(OdoCheckKey, cur.odometer);
                     lastOdoCheck = cur.odometer;
                 }
             }
@@ -637,16 +637,19 @@ public class NotifierController extends BaseController {
         } if (lower.startsWith("command:")) {
             String command = StringUtils.remove(addr, "command:");
             String args = target.getSubject();
-            if (args != null) args = (new MessageTemplate(args)).getMessage(contextSpecific);
+            if (args != null) args = (new MessageTemplate(args)).getMessage(
+                    app, vtVehicle, contextSpecific);
             String stdin = target.getMessage();
-            if (stdin != null) stdin = (new MessageTemplate(stdin)).getMessage(contextSpecific);
+            if (stdin != null) stdin = (new MessageTemplate(stdin)).getMessage(
+                    app, vtVehicle, contextSpecific);
             ThreadManager.get().launchExternal(command, args, stdin, 60 * 1000);
             logger.info("Executing external command for notification: " + command);
         } else {
             MessageTemplate mt = new MessageTemplate(target.getActiveMsg());
             MessageTemplate st = new MessageTemplate(target.getActiveSubj());
             MailGun.get().send(
-                addr, st.getMessage(contextSpecific), mt.getMessage(contextSpecific));
+                addr, st.getMessage(app, vtVehicle, contextSpecific),
+                mt.getMessage(app, vtVehicle, contextSpecific));
         }
     }
     
@@ -725,18 +728,18 @@ public class NotifierController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private static abstract class Persistence<T> implements GenericTrigger.RW<T> {
+    private abstract class Persistence<T> implements GenericTrigger.RW<T> {
         @Override public void persist(String key, String value) {
-            Prefs.store().put(App.get().vinKey(key), value);
+            prefs.storage().put(vinKey(key), value);
         }
 
         @Override public String load(String key, String dflt) {
-            return Prefs.store().get(App.get().vinKey(key), "0_" + dflt);
+            return prefs.storage().get(vinKey(key), "0_" + dflt);
         }
     }
     
     private GenericTrigger.RW<StringList> stringListHelper = new StringListRW();
-    private class StringListRW extends Persistence<StringList> {
+    private class StringListRW extends Persistence<StringList> {        
         @Override public int compare(StringList value, StringList candidates) {
             if (value == null || value.isEmpty()) return -1;
             if (candidates == null || candidates.isEmpty()) return -1;
@@ -810,16 +813,17 @@ public class NotifierController extends BaseController {
         @Override public boolean isAny(BigDecimal value) { return false; }
         
         @Override public void persist(String key, String value) {
-            Prefs.store().put(app.vinKey(key), value);
+            prefs.storage().put(vinKey(key), value);
         }
 
         @Override public String load(String key, String dflt) {
-            return Prefs.store().get(app.vinKey(key), "0_" + dflt);
+            return prefs.storage().get(vinKey(key), "0_" + dflt);
         }
     };
     
     private GenericTrigger.RW<String> stringHelper = new StringRW();
     private class StringRW extends Persistence<String> {
+        
         @Override public String toExternal(String value) { return value; }
         @Override public String fromExternal(String external) { return external; }
         @Override public String formatted(String value) { return value; }
@@ -828,11 +832,11 @@ public class NotifierController extends BaseController {
         }
         @Override public boolean isAny(String value) { return false; }
         @Override public void persist(String key, String value) {
-            Prefs.store().put(app.vinKey(key), value);
+            prefs.storage().put(vinKey(key), value);
         }
 
         @Override public String load(String key, String dflt) {
-            return Prefs.store().get(app.vinKey(key), "0_" + dflt);
+            return prefs.storage().get(vinKey(key), "0_" + dflt);
         }
     };
     
@@ -871,11 +875,11 @@ public class NotifierController extends BaseController {
 
         @Override public boolean isAny(GeoUtils.CircularArea value) { return false; }
         @Override public void persist(String key, String value) {
-            Prefs.store().put(app.vinKey(key), value);
+            prefs.storage().put(vinKey(key), value);
         }
 
         @Override public String load(String key, String dflt) {
-            return Prefs.store().get(app.vinKey(key), "0_" + dflt);
+            return prefs.storage().get(vinKey(key), "0_" + dflt);
         }
     };
 }

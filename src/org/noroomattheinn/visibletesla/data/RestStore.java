@@ -9,6 +9,8 @@ import com.google.common.collect.Range;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +19,6 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.timeseries.TimeSeries.RowCollector;
 import org.noroomattheinn.utils.TrackedObject;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
@@ -42,12 +43,15 @@ class RestStore extends CycleStore<RestCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public RestStore(File container, VTVehicle v, TrackedObject<RestCycle> lastCycle)
+    public RestStore(File container, VTVehicle v,
+            TrackedObject<RestCycle> lastCycle, BooleanProperty submitRests,
+            BooleanProperty includeLoc, DoubleProperty ditherAmt)
             throws FileNotFoundException {
         super("rest", RestCycle.class, container, v);
         this.lastRestCycle = lastCycle;
         this.doingInitialLoad = false;
-        this.exporter = new RestCycleExporter(v.getVehicle().getUUID());
+        this.exporter = new RestCycleExporter(
+                submitRests, includeLoc, ditherAmt, v.getVehicle().getUUID());
                 
         lastRestCycle.addTracker(new Runnable() {
             @Override public void run() {
@@ -111,8 +115,10 @@ class RestCycleExporter extends CycleExporter<RestCycle> {
             "Start SOC", "End SOC", "(Latitude, ", " Longitude)", "Loss/Hr"};
     private final String uuid;
     
-    RestCycleExporter(String uuid) {
-        super("Rest", labels, Prefs.get().submitAnonRest);
+    RestCycleExporter(
+            BooleanProperty submitRest,  BooleanProperty includeLoc,
+            DoubleProperty ditherAmt, String uuid) {
+        super("Rest", labels, submitRest, includeLoc, ditherAmt);
         this.uuid = uuid;
     }
     

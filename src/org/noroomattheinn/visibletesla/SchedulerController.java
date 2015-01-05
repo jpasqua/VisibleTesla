@@ -73,8 +73,10 @@ public class SchedulerController extends BaseController
  *----------------------------------------------------------------------------*/
     
     @Override public String getExternalKey() { return v.getVIN(); }
-    @Override public Preferences getPreferences() { return Prefs.store(); }
-    @Override public App getAppContext() { return app; }
+    @Override public Preferences getPreferences() { return prefs.storage(); }
+    @Override public App app() { return app; }
+    @Override public Prefs prefs() { return prefs; }
+    @Override public boolean useDegreesF() { return vtVehicle.useDegreesF(); }
     
     @Override public void runCommand(
             ScheduleItem.Command command, double value,
@@ -138,7 +140,7 @@ public class SchedulerController extends BaseController
     private Result sendMessage(MessageTarget messageTarget) {
         if (messageTarget == null) {
             MailGun.get().send(
-                Prefs.get().notificationAddress.get(),
+                prefs.notificationAddress.get(),
                 "No subject was specified",
                 "No body was specified");
             return Result.Succeeded;
@@ -146,9 +148,9 @@ public class SchedulerController extends BaseController
         MessageTemplate body = new MessageTemplate(messageTarget.getActiveMsg());
         MessageTemplate subj = new MessageTemplate(messageTarget.getActiveSubj());
         boolean sent = MailGun.get().send(
-            messageTarget.getActiveEmail(),
-            subj.getMessage(null),
-            body.getMessage(null));
+            messageTarget.getActiveEmail(),             // To
+            subj.getMessage(app, vtVehicle, null),      // Subject
+            body.getMessage(app, vtVehicle, null));     // Body
         return sent ? Result.Succeeded : Result.Failed;
     } 
     
@@ -160,7 +162,7 @@ public class SchedulerController extends BaseController
         if (!requiresSafeMode(command)) return true;
         
         String name = ScheduleItem.commandToName(command);
-        if (Prefs.get().safeIncludesMinCharge.get()) {
+        if (prefs.safeIncludesMinCharge.get()) {
             if (vtVehicle.chargeState.get().batteryPercent < Safe_Threshold) {
                 String entry = String.format(
                         "%s: Insufficient charge - aborted", name);
@@ -169,7 +171,7 @@ public class SchedulerController extends BaseController
             }
         }
 
-        if (Prefs.get().safeIncludesPluggedIn.get()) {
+        if (prefs.safeIncludesPluggedIn.get()) {
             String msg;
 
             switch (vtVehicle.chargeState.get().chargingState) {
@@ -194,12 +196,12 @@ public class SchedulerController extends BaseController
         ChargeState.Status status = charge.chargingState;
         if (status == ChargeState.Status.Disconnected) {
             MailGun.get().send(
-                Prefs.get().notificationAddress.get(),
+                prefs.notificationAddress.get(),
                 "Your car is not plugged in. Range = " + (int)charge.range);
             return new Result(true, "Vehicle is unplugged. Notification sent");
         } else if (status == ChargeState.Status.Unknown) {
             MailGun.get().send(
-                Prefs.get().notificationAddress.get(),
+                prefs.notificationAddress.get(),
                 "Can't determine if your car is plugged in. Please check");
             return new Result(true, "Can't tell if car is plugged in. Warning sent");
         }

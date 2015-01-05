@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.NavigableMap;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
@@ -20,7 +21,6 @@ import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.TimeSeries;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import static org.noroomattheinn.tesla.Tesla.logger;
@@ -44,6 +44,8 @@ class StatsCollector implements ThreadManager.Stoppable {
     private final VTData vtData;
     private final VTVehicle vtVehicle;
     private final CachedTimeSeries ts;
+    private final IntegerProperty minTime;
+    private final IntegerProperty minDist;
     private final File container;
     private DBConverter converter;
     private TimeBasedPredicate collectNow = new TimeBasedPredicate() {
@@ -67,13 +69,18 @@ class StatsCollector implements ThreadManager.Stoppable {
      * 
      * @throws IOException  If the underlying persistent store has a problem.
      */
-    StatsCollector(File container, VTData vtData, VTVehicle v) throws IOException {
+    StatsCollector(
+            File container, VTData vtData, VTVehicle v, Range<Long> loadPeriod,
+            IntegerProperty minTime, IntegerProperty minDist)
+            throws IOException {
         this.container = container;
         this.vtData = vtData;
+        this.minTime = minTime;
+        this.minDist = minDist;
         this.vtVehicle = v;
         
         this.ts = new CachedTimeSeries(
-                container, vtVehicle.getVehicle().getVIN(), VTData.schema, Prefs.get().getLoadPeriod());
+                container, vtVehicle.getVehicle().getVIN(), VTData.schema, loadPeriod);
         
         vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
@@ -214,9 +221,6 @@ class StatsCollector implements ThreadManager.Stoppable {
             r.set(VTData.schema, VTData.PowerKey, state.power);
             ts.storeRow(r);
 
-            if (state.odometer - vtData.lastStoredStreamState.get().odometer >= 1.0) {
-                Prefs.store().putDouble(vtVehicle.vinKey("odometer"), state.odometer);
-            }
             vtData.lastStoredStreamState.set(state);
         }
     }
@@ -241,8 +245,8 @@ class StatsCollector implements ThreadManager.Stoppable {
         if (moving(last) != moving(cur)) { return true; }
         
         // If you're moving and it's been a while since a reading, it's worth recording
-        if ((timeDelta >= Prefs.get().locMinTime.get() * 1000) &&
-            (meters >= Prefs.get().locMinDist.get())) return true;
+        if ((timeDelta >= minTime.get() * 1000) &&
+            (meters >= minDist.get())) return true;
         
         return false;
     }

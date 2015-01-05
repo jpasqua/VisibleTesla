@@ -20,6 +20,7 @@ import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.utils.Executor.FeedbackListener;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils.Predicate;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
@@ -63,11 +64,10 @@ public class VTData {
  * 
  *----------------------------------------------------------------------------*/
    
-    private static VTData instance = null;
-    
     private final File              container;
     private final FeedbackListener  feedbackListener;
     private final VTVehicle         vtVehicle;
+    private final Prefs             prefs;
     private       StatsCollector    statsCollector;
     private       StreamProducer    streamProducer;
     private       StateProducer     stateProducer;
@@ -86,14 +86,17 @@ public class VTData {
     public final TrackedObject<StreamState>     lastStoredStreamState;
     public final TrackedObject<ChargeState>     lastStoredChargeState;
 
-
-    public static VTData create(File container, VTVehicle v, FeedbackListener fl) {
-        if (instance != null) return instance;
-        return (instance = new VTData(container, fl, v));
+    public VTData(File container, Prefs prefs, VTVehicle v, FeedbackListener fl) {
+        this.container = container;
+        this.prefs = prefs;
+        this.vtVehicle = v;
+        this.lastChargeCycle = new TrackedObject<>(null);
+        this.lastRestCycle = new TrackedObject<>(null);
+        this.feedbackListener = fl;
+        this.lastStoredStreamState = new TrackedObject<>(new StreamState());
+        this.lastStoredChargeState = new TrackedObject<>(null);        
     }
     
-    public static VTData get() { return instance; }
-        
 /*------------------------------------------------------------------------------
  *
  * Set parameters of the VTData object
@@ -101,10 +104,12 @@ public class VTData {
  *----------------------------------------------------------------------------*/
     
     public void setVehicle(Vehicle v) throws IOException {
-        statsCollector = new StatsCollector(container, this, vtVehicle);
+        statsCollector = new StatsCollector(
+                container, this, vtVehicle, prefs.getLoadPeriod(),
+                prefs.locMinTime, prefs.locMinDist);
         streamProducer = new StreamProducer(vtVehicle, feedbackListener);
         stateProducer = new StateProducer(vtVehicle, feedbackListener);
-        statsStreamer = new StatsStreamer(this, vtVehicle);
+        statsStreamer = new StatsStreamer(this, vtVehicle, prefs.streamWhenPossible);
         initChargeStore();
         initRestStore();
     }
@@ -208,22 +213,6 @@ public class VTData {
     
 /*------------------------------------------------------------------------------
  *
- * Hide the constructor
- * 
- *----------------------------------------------------------------------------*/
-    
-    private VTData(File container, FeedbackListener feedbackListener, VTVehicle v) {
-        this.container = container;
-        this.vtVehicle = v;
-        this.lastChargeCycle = new TrackedObject<>(null);
-        this.lastRestCycle = new TrackedObject<>(null);
-        this.feedbackListener = feedbackListener;
-        this.lastStoredStreamState = new TrackedObject<>(new StreamState());
-        this.lastStoredChargeState = new TrackedObject<>(null);        
-    }
-    
-/*------------------------------------------------------------------------------
- *
  * Private Utility Methods
  * 
  *----------------------------------------------------------------------------*/
@@ -231,15 +220,25 @@ public class VTData {
     private void initRestStore() throws FileNotFoundException {
         boolean needsInitialLoad = RestStore.requiresInitialLoad(
                 container, vtVehicle.getVehicle().getVIN());
-        restStore = new RestStore(container, vtVehicle, lastRestCycle);
-        RestMonitor rm = new RestMonitor(vtVehicle, lastRestCycle);
+        restStore = new RestStore(
+                container, vtVehicle, lastRestCycle,
+                prefs.submitAnonRest,
+                prefs.includeLocData,
+                prefs.ditherLocAmt);
+        RestMonitor rm = new RestMonitor(
+                vtVehicle, lastRestCycle,
+                prefs.vsLimitEnabled,
+                prefs.vsFrom, prefs.vsTo);
         if (needsInitialLoad) {
             restStore.doIntialLoad(rm, statsCollector.getFullTimeSeries());
         }
     }
     
     private void initChargeStore() throws FileNotFoundException {
-        chargeStore = new ChargeStore(container, vtVehicle, lastChargeCycle);
+        chargeStore = new ChargeStore(
+                container, vtVehicle, lastChargeCycle,
+                prefs.submitAnonCharge, prefs.includeLocData,
+                prefs.ditherLocAmt);
         ChargeMonitor cm = new ChargeMonitor(vtVehicle, lastChargeCycle);
     }
     

@@ -10,8 +10,10 @@ import com.google.common.collect.Range;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.NavigableMap;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import javafx.application.Platform;
@@ -36,9 +38,11 @@ import org.noroomattheinn.tesla.GUIState;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
+import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.RestCycle;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.*;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
@@ -75,7 +79,6 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private final BooleanProperty   forceWakeup = new SimpleBooleanProperty(false);
-    private VampireStats vampireStats;
 
 /*------------------------------------------------------------------------------
  *
@@ -124,8 +127,12 @@ public class MainController extends BaseController {
      * fxApp context to all of the controllers, and (2) we set a listener for login
      * completion and try and automatic login.
      */
-    public void start() {
-        app = App.get();
+    public void start(App theApp, VTVehicle v, VTData data, Prefs prefs) {
+        this.app = theApp;
+        this.vtVehicle = v;  // This is defined in BaseController
+        this.vtData = data;  // This is defined in BaseController
+        this.prefs = prefs;  // This is defined in BaseController
+        
         logAppInfo();
         addSystemSpecificHandlers(app.stage);
 
@@ -133,8 +140,6 @@ public class MainController extends BaseController {
         app.stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream(
                 "org/noroomattheinn/TeslaResources/Icon-72@2x.png")));
         
-        vampireStats = new VampireStats(app);
-
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
                 BaseController c = controllerFromTab(t1);
@@ -144,10 +149,12 @@ public class MainController extends BaseController {
 
         tabs = Arrays.asList(prefsTab, loginTab, schedulerTab, graphTab, chargeTab,
                              hvacTab, locationTab, overviewTab, tripsTab, notifierTab);
-        for (Tab t : tabs) { controllerFromTab(t).setAppContext(this.app); }
+        for (Tab t : tabs) {
+            controllerFromTab(t).setAppContext(theApp, v, data, prefs);
+        }
         
         // Handle font scaling
-        int fontScale = Prefs.get().fontScale.get();
+        int fontScale = prefs.fontScale.get();
         if (fontScale != 100) {
             for (Tab t : tabs) { 
                 Node n = t.getContent();
@@ -211,7 +218,7 @@ public class MainController extends BaseController {
         
         @Override public void run() {
             if (!loggedIn.get()) {
-                VTVehicle.get().setVehicle(null);
+                vtVehicle.setVehicle(null);
                 setTabsEnabled(false);
                 return;
             }
@@ -220,19 +227,18 @@ public class MainController extends BaseController {
                 wakePane.setVisible(false);
             } else {
                 Vehicle v = SelectVehicleDialog.select(app.stage, app.tesla.getVehicles());
-                VTVehicle.get().setVehicle(v);
+                vtVehicle.setVehicle(v);
                 try {
-                    VTData data = VTData.get();
-                    data.setVehicle(v);
-                    data.setWakeEarly(new WakeEarlyPredicate());
-                    data.setPassiveCollection(new PassiveCollectionPredicate());
-                    data.setCollectNow(new CollectNowPredicate());
-                    if (data.upgradeRequired()) {
+                    vtData.setVehicle(v);
+                    vtData.setWakeEarly(new WakeEarlyPredicate());
+                    vtData.setPassiveCollection(new PassiveCollectionPredicate());
+                    vtData.setCollectNow(new CollectNowPredicate());
+                    if (vtData.upgradeRequired()) {
                         Dialogs.showInformationDialog(
                             app.stage,
                             "Your data files must be upgraded\nPress OK to begin the process.",
                             "Data Upgrade Process" , "Data File Upgrade");
-                        data.doUpgrade();
+                        vtData.doUpgrade();
                         Dialogs.showInformationDialog(
                             app.stage,
                             "Your data files have been upgraded\nPress OK to continue.",
@@ -253,13 +259,13 @@ public class MainController extends BaseController {
                     showLockError();
                     Platform.exit();
                 }
-                logger.info("Vehicle Info: " + VTVehicle.get().getVehicle().getUnderlyingValues());
+                logger.info("Vehicle Info: " + vtVehicle.getVehicle().getUnderlyingValues());
 
-                if (VTVehicle.get().getVehicle().status().equals("asleep")) {
+                if (vtVehicle.getVehicle().status().equals("asleep")) {
                     if (letItSleep()) {
                         logger.info("Allowing vehicle to remain in sleep mode");
                         wakePane.setVisible(true);
-                        VTVehicle.get().waitForWakeup(
+                        vtVehicle.waitForWakeup(
                                 new LoginStateChange(loggedIn, true), forceWakeup);
                         return;
                     } else {
@@ -276,27 +282,27 @@ public class MainController extends BaseController {
     }
     
     private void conditionalCheckVersion() {
-        String key = app.vinKey("LastVersionCheck");
-        long lastVersionCheck = Prefs.store().getLong(key, 0);
+        String key = vinKey("LastVersionCheck");
+        long lastVersionCheck = prefs.storage().getLong(key, 0);
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
             VersionUpdater.checkForNewerVersion(
                     App.ProductVersion, app.stage, app.fxApp.getHostServices(),
-                    Prefs.get().offerExperimental.get());
-            Prefs.store().putLong(key, now);
+                    prefs.offerExperimental.get());
+            prefs.storage().putLong(key, now);
         }
     }
 
     private Runnable finishAppStartup = new Runnable() {
         @Override public void run() {
-            boolean remoteStartEnabled = VTVehicle.get().getVehicle().remoteStartEnabled();
+            boolean remoteStartEnabled = vtVehicle.getVehicle().remoteStartEnabled();
             remoteStartMenuItem.setDisable(!remoteStartEnabled);
             
             app.watchForUserActivity(
                     Arrays.asList(overviewTab, hvacTab, locationTab, chargeTab));
 
             // TO DO: Isn't the following line redundant?
-            VTVehicle.get().setVehicle(VTVehicle.get().getVehicle());
+            vtVehicle.setVehicle(vtVehicle.getVehicle());
 
             refreshTitle();
             
@@ -322,7 +328,7 @@ public class MainController extends BaseController {
      * @return 
      */
     private Result establishContact() {
-        Vehicle v = VTVehicle.get().getVehicle();
+        Vehicle v = vtVehicle.getVehicle();
         
         long MaxWaitTime = 70 * 1000;
         long now = System.currentTimeMillis();
@@ -333,7 +339,7 @@ public class MainController extends BaseController {
                 if (gs.rawState.optString("reason").equals("mobile_access_disabled")) {
                     return new Result(false, "mobile_access_disabled");
                 }
-                VTVehicle.get().noteUpdatedState(gs);
+                vtVehicle.noteUpdatedState(gs);
                 return Result.Succeeded;
             } else {
                 String error = gs.rawState.optString("error");
@@ -350,7 +356,7 @@ public class MainController extends BaseController {
         if (!madeContact.success) return madeContact;
         
         // As part of establishing contact with the car we cached the GUIState
-        Vehicle         v = VTVehicle.get().getVehicle();
+        Vehicle         v = vtVehicle.getVehicle();
         VehicleState    vs = v.queryVehicle();
         ChargeState     cs = v.queryCharge();
         
@@ -363,8 +369,8 @@ public class MainController extends BaseController {
             if (!cs.valid) cs = v.queryCharge();
         }
         
-        VTVehicle.get().noteUpdatedState(vs);
-        VTVehicle.get().noteUpdatedState(cs);
+        vtVehicle.noteUpdatedState(vs);
+        vtVehicle.noteUpdatedState(cs);
         return Result.Succeeded;
     }
     
@@ -429,10 +435,9 @@ public class MainController extends BaseController {
         else if (mi == exportAllMenuItem) { exportStats(VTData.schema.columnNames); }
         else if (mi == exportChargeMenuItem) { exportCycles("Charge"); }
         else if (mi == exportRestMenuItem) { exportCycles("Rest"); }
-        else if (mi == this.vampireLossMenuItem) { vampireStats.showStats(); }
+        else if (mi == this.vampireLossMenuItem) { showVampireLoss(); }
     }
     
-
     // Options->"Inactivity Mode" menu items
     @FXML void inactivityOptionsHandler(ActionEvent event) {
         if (event.getTarget() == allowSleepMenuItem) app.allowSleeping();
@@ -467,7 +472,7 @@ public class MainController extends BaseController {
         if (!VersionUpdater.checkForNewerVersion(
                 App.ProductVersion,
                 app.stage, app.fxApp.getHostServices(),
-                Prefs.get().offerExperimental.get())) {
+                prefs.offerExperimental.get())) {
             Dialogs.showInformationDialog(
                     app.stage,
                     "You already have the latest release.",
@@ -485,7 +490,7 @@ public class MainController extends BaseController {
         }
         issuer.issueCommand(new Callable<Result>() {
             @Override public Result call() { 
-                return VTVehicle.get().getVehicle().remoteStart(unp[1]); 
+                return vtVehicle.getVehicle().remoteStart(unp[1]); 
             } }, true, null, "Remote Start");
     }
 
@@ -514,7 +519,7 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void exportCycles(String cycleType) {
-        String initialDir = Prefs.store().get(
+        String initialDir = prefs.storage().get(
                 App.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export " + cycleType + " Data");
@@ -525,15 +530,15 @@ public class MainController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
+                prefs.storage().put(App.LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(stage);
             if (exportPeriod == null)
                 return;
             boolean exported;
             if (cycleType.equals("Charge")) {
-                exported = VTData.get().exportCharges(file, exportPeriod);
+                exported = vtData.exportCharges(file, exportPeriod);
             } else {
-                exported = VTData.get().exportRests(file, exportPeriod);
+                exported = vtData.exportRests(file, exportPeriod);
             }
             if (exported) {
                 Dialogs.showInformationDialog(
@@ -548,7 +553,7 @@ public class MainController extends BaseController {
     }
     
     private void exportStats(String[] columns) {
-        String initialDir = Prefs.store().get(
+        String initialDir = prefs.storage().get(
                 App.LastExportDirKey, System.getProperty("user.home"));
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Data");
@@ -558,11 +563,11 @@ public class MainController extends BaseController {
         if (file != null) {
             String enclosingDirectory = file.getParent();
             if (enclosingDirectory != null)
-                Prefs.store().put(App.LastExportDirKey, enclosingDirectory);
+                prefs.storage().put(App.LastExportDirKey, enclosingDirectory);
             Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(app.stage);
             if (exportPeriod == null)
                 return;
-            if (VTData.get().export(file, exportPeriod, columns)) {
+            if (vtData.export(file, exportPeriod, columns)) {
                 Dialogs.showInformationDialog(
                     app.stage, "Your data has been exported",
                     "Data Export Process" , "Export Complete");
@@ -579,6 +584,26 @@ public class MainController extends BaseController {
  * Other UI Handlers and utilities
  * 
  *----------------------------------------------------------------------------*/
+    
+    private void showVampireLoss() {
+        Range<Long> exportPeriod = getExportPeriod();
+        if (exportPeriod != null) {
+            List<RestCycle> rests = vtData.getRestCycles(exportPeriod);
+            boolean useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
+
+            // Compute some stats and generate detail output
+            long totalRestTime = 0;
+            double totalLoss = 0;
+            for (RestCycle r : rests) {
+                totalRestTime += r.endTime - r.startTime;
+                totalLoss += r.startRange - r.endRange;
+            }
+
+            VampireLossResults.show(app.stage, rests, useMiles ? "mi" : "km", totalLoss/hours(totalRestTime));
+        }
+    }
+            
+    private double hours(long millis) {return ((double)(millis))/(60 * 60 * 1000); }
 
     private void addSystemSpecificHandlers(final Stage theStage) {
         if (SystemUtils.IS_OS_MAC) {    // Add a handler for Command-H
@@ -593,7 +618,7 @@ public class MainController extends BaseController {
     }
     
     private void refreshTitle() {
-        Vehicle v = VTVehicle.get().getVehicle();
+        Vehicle v = vtVehicle.getVehicle();
         String carName = (v != null) ? v.getDisplayName() : null;
         String title = App.ProductName + " " + App.ProductVersion;
         if (carName != null) title = title + " for " + carName;
@@ -623,12 +648,12 @@ public class MainController extends BaseController {
         }
     }
     
-    private static class WakeEarlyPredicate implements Utils.Predicate {
+    private class WakeEarlyPredicate implements Utils.Predicate {
         private long lastEval  = System.currentTimeMillis();
 
         @Override public boolean eval() {
             try {
-                if (App.get().mode.lastSet() > lastEval && App.get().stayingAwake()) return true;
+                if (app.mode.lastSet() > lastEval && app.stayingAwake()) return true;
                 return ThreadManager.get().shuttingDown();
             } finally {
                 lastEval = System.currentTimeMillis();
@@ -636,19 +661,19 @@ public class MainController extends BaseController {
         }
     }
     
-    private static class CollectNowPredicate implements VTData.TimeBasedPredicate {
+    private class CollectNowPredicate implements VTData.TimeBasedPredicate {
         private long last = Long.MAX_VALUE;
         
         @Override public void setTime(long time) { last = time; }
 
         @Override public boolean eval() {
-            return (App.get().isActive() && App.get().state.lastSet() > last);
+            return (app.isActive() && app.state.lastSet() > last);
         }
     }
     
-    private static class PassiveCollectionPredicate implements Utils.Predicate {
+    private class PassiveCollectionPredicate implements Utils.Predicate {
         @Override public boolean eval() {
-            return (App.get().isIdle() && App.get().allowingSleeping());
+            return (app.isIdle() && app.allowingSleeping());
         }
     }
 
@@ -705,8 +730,7 @@ public class MainController extends BaseController {
     }
     
     private void showDisclaimer() {
-        boolean disclaimer = Prefs.store().getBoolean(
-                app.vinKey("Disclaimer"), false);
+        boolean disclaimer = prefs.storage().getBoolean("Disclaimer", false);
         if (!disclaimer) {
             Dialogs.showInformationDialog(
                     app.stage,
@@ -721,6 +745,20 @@ public class MainController extends BaseController {
                     "reducing the available charge in the battery.",
                     "Please Read Carefully", "Disclaimer");
         }
-        Prefs.store().putBoolean(app.vinKey("Disclaimer"), true);                
+        prefs.storage().putBoolean("Disclaimer", true);                
+    }
+    
+    private Range<Long> getExportPeriod() {
+        NavigableMap<Long,Row> rows = vtData.getAllLoadedRows();
+        long timestamp = rows.firstKey(); 
+        Calendar start = Calendar.getInstance();
+        start.setTimeInMillis(timestamp);
+        
+        timestamp = rows.lastKey(); 
+        Calendar end = Calendar.getInstance();
+        end.setTimeInMillis(timestamp);
+        
+        Range<Long> exportPeriod = DateRangeDialog.getExportPeriod(app.stage, start, end);
+        return exportPeriod;
     }
 }

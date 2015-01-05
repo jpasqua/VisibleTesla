@@ -49,16 +49,17 @@ public class VisibleTesla extends Application {
         Dialogs.useNativeChrome(true);  // Tell Dialogs to use the native look
 
         //
-        // Create the various application services (in the form of singletons)
-        // in the appropriate order of dependency.
+        // Create the fundamental objects for the app in the appropriate order
+        // based on their dependencies.
         //
         
-        // Create a ThreadManager singleton. This coul
+        // Create a ThreadManager singleton. This is used by many parts
+        // of the app.
         ThreadManager.create();
 
         // Create the Prefs singleton early since we need preference information
         // in other parts of the initialization process
-        Prefs prefs = Prefs.create(Preferences.userNodeForPackage(this.getClass()));
+        Prefs prefs = new Prefs(Preferences.userNodeForPackage(this.getClass()));
         
         // Create a default instance of the Mail sending class (MailGun)
         // based on stored preferences
@@ -66,21 +67,22 @@ public class VisibleTesla extends Application {
                 ? prefs.mailGunKey.get() : Prefs.MailGunKey);
         
         // The App object depends on Prefs, so create it now
-        App app = App.create(this, stage, prefs);
+        App app = new App(this, stage, prefs);
         
         // The object representing the vehicle we're monitoring
-        VTVehicle v = VTVehicle.create();
+        VTVehicle v = new VTVehicle(prefs);
         
         // Even though it's not represented in the parameters, VTData
         // depends on VTVehicle, so now you can create it
-        VTData.create(app.appFileFolder(), v, app.progressListener);
+        VTData data = new VTData(
+                app.appFileFolder(), prefs, v, app.progressListener);
         
         // The RESTServer depends on the App object and the Vehicle
-        RESTServer.create(v, app.authenticator);
+        RESTServer rs = new RESTServer(prefs, app, v, app.authenticator);
         
         // OK, that's done. Now launch the MainController and let's get started!
         mainController = Utils.cast(root.getUserData());
-        mainController.start();
+        mainController.start(app, v, data, prefs);
     }
     
     @Override public void stop() {

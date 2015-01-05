@@ -27,7 +27,7 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
 import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
-import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 
@@ -84,11 +84,13 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private static final String DefaultSubject = "Scheduled Message";
     private static final String DefaultMessage = "SOC: {{SOC}}%\n{{LOC}}\n";
             
-    public interface ScheduleOwner {
-        public String getExternalKey();
-        public Preferences getPreferences();
-        public void runCommand(ScheduleItem.Command command, double value, MessageTarget mt);
-        public App getAppContext();
+    interface ScheduleOwner {
+        String getExternalKey();
+        Preferences getPreferences();
+        void runCommand(ScheduleItem.Command command, double value, MessageTarget mt);
+        App app();
+        Prefs prefs();
+        boolean useDegreesF();
     }
 
 /*------------------------------------------------------------------------------
@@ -196,7 +198,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     private MessageTarget loadMessageTarget() {
         String baseKey = String.format("%s%02d", SchedulerMsgKey, id);
         return new MessageTarget(
-            owner.getAppContext(), baseKey, DefaultSubject, DefaultMessage);
+                owner.app(), owner.prefs(),
+                owner.getExternalKey()+"_MT_"+baseKey,
+                DefaultSubject, DefaultMessage);
     }
     
     public static Command nameToCommand(String commandName) {
@@ -236,7 +240,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         @Override public void handle(ActionEvent t) {
             if (messageTarget == null) messageTarget = loadMessageTarget();
             NotifyOptionsDialog nod = NotifyOptionsDialog.show(
-                    "Message Options", owner.getAppContext().stage,
+                    "Message Options", owner.app().stage,
                     messageTarget.getEmail(), messageTarget.getSubject(), messageTarget.getMessage());
             if (!nod.cancelled()) {
                 if (!nod.useDefault()) {
@@ -256,7 +260,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     EventHandler<ActionEvent> getChargeOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
             SetChargeDialog scd = SetChargeDialog.show(
-                    owner.getAppContext().stage, targetValue);
+                    owner.app().stage, targetValue);
             if (!scd.cancelled()) {
                 if (!scd.useCarsValue()) {
                     targetValue = scd.getValue();
@@ -271,9 +275,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
     EventHandler<ActionEvent> getTempOptions = new EventHandler<ActionEvent>() {
         @Override public void handle(ActionEvent e) {
             SetTempDialog std = SetTempDialog.show(
-                    owner.getAppContext().stage,
-                    VTVehicle.get().useDegreesF(),
-                    targetValue);
+                    owner.app().stage, owner.useDegreesF(), targetValue);
 
             if (!std.cancelled()) {
                 if (!std.useCarsValue()) {

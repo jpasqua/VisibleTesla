@@ -38,7 +38,6 @@ import org.noroomattheinn.fxextensions.MultiGauge;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.utils.SimpleTemplate;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
@@ -113,13 +112,13 @@ public class LocationController extends BaseController {
     }
     
     @Override protected void refresh() {
-        VTData.get().produceStream(false);
+        vtData.produceStream(false);
     }
 
     @Override protected void initializeState() {
         useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         blipAnimation = animateBlip();
-        VTData.get().produceStream(false);
+        vtData.produceStream(false);
         vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
             @Override public void changed(
                     ObservableValue<? extends StreamState> ov,
@@ -211,8 +210,8 @@ public class LocationController extends BaseController {
         return template.fillIn(
                 "DIRECTION", heading, "LAT", lat, "LONG", lng,
                 "GMAP_API_KEY", 
-                Prefs.get().useCustomGoogleAPIKey.get() ?
-                    Prefs.get().googleAPIKey.get() :
+                prefs.useCustomGoogleAPIKey.get() ?
+                    prefs.googleAPIKey.get() :
                     Prefs.GoogleMapsAPIKey
                 );
     }

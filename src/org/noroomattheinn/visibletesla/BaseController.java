@@ -66,6 +66,8 @@ abstract class BaseController {
     protected boolean   initialized = false;    // Has this controller been init'd?
     protected App       app;                    // The overall app context
     protected VTVehicle vtVehicle = null;       // The current VTVehicle
+    protected VTData    vtData = null;          // The data service
+    protected Prefs     prefs = null;           // The Prefs object
     
 /*------------------------------------------------------------------------------
  *
@@ -92,30 +94,28 @@ abstract class BaseController {
     }
     
     /**
-     * This is called ONE TIME at startup to establish the ac
-     * in which we are running. In order to keep the lower level controller
-     * classes independent of the main application, we need to "inject" the fxApp
-     * context into the controllers rather than have them know about the top
-     * level fxApp class.
-     * 
-     * Subclasses may override appInitialize if they want to do something
-     * once the ac is set (not true at fxInitialize() time)
+     * This is called ONE TIME at startup to establish the context for each
+     * controller. The context includes the App object, the vehicle we're
+     * monitoring, the data service, and the Preferences.
      */
-    public final void setAppContext(App ctxt) {
+    public final void setAppContext(
+            App ctxt, VTVehicle v, VTData data, Prefs p) {
         this.app = ctxt;
+        this.vtVehicle = v;
+        this.vtData = data;
+        this.prefs = p;
     }
     
     /**
      * Called whenever the tab associated with this controller is activated.
      */
     public final void activate() {
-        vtVehicle = VTVehicle.get();
-        if (issuer == null) issuer = new CommandIssuer();
+        if (issuer == null) issuer = new CommandIssuer(app.progressListener);
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
         if (app.isIdle()) {
-            if (Prefs.get().wakeOnTabChange.get()) {
+            if (prefs.wakeOnTabChange.get()) {
                 app.setActive();
                 doRefresh();
             }
@@ -181,7 +181,7 @@ abstract class BaseController {
     }
     
     protected final void updateState(Vehicle.StateType whichState) {
-        VTData.get().produceState(whichState, progressIndicator);
+        vtData.produceState(whichState, progressIndicator);
     }
 
     protected final void updateStateLater(final Vehicle.StateType whichState, long delay) {
@@ -214,7 +214,16 @@ abstract class BaseController {
       
     protected final boolean active() { return activeController == this; }
     
-
+    /**
+     * Convenience function to return a Prefs key that is prefixed by the VIN
+     * of the current vehicle.
+     * @param key   The raw Prefs key
+     * @return      The Prefs key prefixed by the VIN
+     */
+    public final String vinKey(String key) {     
+        return vtVehicle.getVehicle().getVIN() + "_" + key;
+    }
+    
 /*------------------------------------------------------------------------------
  * 
  * Private Utility Methods

@@ -9,12 +9,13 @@ import com.google.common.collect.Range;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.utils.TrackedObject;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
@@ -39,11 +40,15 @@ class ChargeStore extends CycleStore<ChargeCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore(File container, VTVehicle v, TrackedObject<ChargeCycle> lastCycle)
+    public ChargeStore(
+            File container, VTVehicle v, TrackedObject<ChargeCycle> lastCycle,
+            BooleanProperty submitCharge, BooleanProperty includeLoc,
+            DoubleProperty ditherAmt)
             throws FileNotFoundException {
         super("charge", ChargeCycle.class, container, v);
         this.lastChargeCycle = lastCycle;
         this.exporter = new ChargeCycleExporter(
+                submitCharge, includeLoc, ditherAmt,
                 v.getVehicle().getOptions().batteryType(),
                 v.getVehicle().getUUID());
         
@@ -75,8 +80,12 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
     private final Options.BatteryType batteryType;
     private final String uuid;
     
-    ChargeCycleExporter(Options.BatteryType batteryType, String uuid) { 
-        super("Charge", labels, Prefs.get().submitAnonCharge);
+    ChargeCycleExporter(
+            BooleanProperty submitCharge,
+            BooleanProperty includeLoc,
+            DoubleProperty ditherAmt,
+            Options.BatteryType batteryType, String uuid) { 
+        super("Charge", labels, submitCharge, includeLoc, ditherAmt);
         this.batteryType = batteryType;
         this.uuid = uuid;
     }
@@ -112,7 +121,7 @@ class ChargeCycleExporter extends CycleExporter<ChargeCycle> {
     }
     
     @Override protected void ditherLocation(ChargeCycle cycle) {
-        if (cycle.superCharger && Prefs.get().includeLocData.get()) return;
+        if (cycle.superCharger && includeLoc.get()) return;
         super.ditherLocation(cycle);
     }
 }
