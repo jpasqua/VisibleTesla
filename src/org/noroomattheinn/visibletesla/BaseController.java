@@ -98,7 +98,7 @@ abstract class BaseController {
      * controller. The context includes the App object, the vehicle we're
      * monitoring, the data service, and the Preferences.
      */
-    public final void setAppContext(
+    final void setAppContext(
             App ctxt, VTVehicle v, VTData data, Prefs p) {
         this.app = ctxt;
         this.vtVehicle = v;
@@ -110,7 +110,7 @@ abstract class BaseController {
     /**
      * Called whenever the tab associated with this controller is activated.
      */
-    public final void activate() {
+    final void activate() {
         activeController = this;
         if (!initialized) { initializeState(); initialized = true; }
         activateTab();
@@ -220,7 +220,7 @@ abstract class BaseController {
      * @param key   The raw Prefs key
      * @return      The Prefs key prefixed by the VIN
      */
-    public final String vinKey(String key) {     
+    final String vinKey(String key) {     
         return vtVehicle.getVehicle().getVIN() + "_" + key;
     }
     

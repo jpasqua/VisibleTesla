@@ -34,7 +34,7 @@ class ChargeMonitor {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeMonitor(VTVehicle vehicle, TrackedObject<ChargeCycle> lastCycle) {
+    ChargeMonitor(VTVehicle vehicle, TrackedObject<ChargeCycle> lastCycle) {
         this.vtVehicle = vehicle;
         this.lastChargeCycle = lastCycle;
         this.cycleInProgress = null;

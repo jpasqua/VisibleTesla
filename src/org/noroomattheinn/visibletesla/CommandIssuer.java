@@ -25,11 +25,11 @@ class CommandIssuer extends Executor<CommandIssuer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public CommandIssuer(ProgressListener progressListener) {
+    CommandIssuer(ProgressListener progressListener) {
         super("CommandIssuer", progressListener);
     }
     
-    public void issueCommand(Callable<Result> command, boolean retry,
+    void issueCommand(Callable<Result> command, boolean retry,
                              ProgressIndicator pi, String name) {
         super.produce(new Request(command, retry, pi, name));
     }
@@ -47,7 +47,7 @@ class CommandIssuer extends Executor<CommandIssuer.Request> {
         return false;
     }
     
-    public static class Request extends Executor.Request {
+    static class Request extends Executor.Request {
         private final Callable<Result> command;
         private final String name;
         private final boolean retry;

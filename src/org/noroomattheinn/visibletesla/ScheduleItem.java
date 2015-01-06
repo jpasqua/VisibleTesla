@@ -49,7 +49,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
  * 
  *----------------------------------------------------------------------------*/
 
-    public enum Command {
+    enum Command {
         HVAC_ON, HVAC_OFF, CHARGE_ON, CHARGE_OFF, CHARGE_SET, AWAKE, SLEEP,
         UNPLUGGED, SET, MESSAGE, None}
     private static final BiMap<Command, String> commandMap = HashBiMap.create();
@@ -139,7 +139,7 @@ class ScheduleItem implements EventHandler<ActionEvent> {
      * @param id    The externally assigned ID of this row of controls
      * @param row   A map containing the row of controls as described above
      */
-    public ScheduleItem(int id, Map<Integer,Node> row, final ScheduleOwner owner) {
+    ScheduleItem(int id, Map<Integer,Node> row, final ScheduleOwner owner) {
         this.id = id;
         this.owner = owner;
         
@@ -170,20 +170,18 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         enableItems(enabled.isSelected());
     }
     
-    public static void stop() {
-        scheduler.stop();
-    }
+    static void stop() { scheduler.stop(); }
     
     /**
      * We're shutting down, do any necessary cleanup
      */
-    public void shutDown() {
+    void shutDown() {
         if (schedulerID != null) {
             scheduler.deschedule(schedulerID);
         }
     }
     
-    public void loadExistingSchedule() {
+    void loadExistingSchedule() {
         internalizing = true;
         // Load any saved value for this ScheduleItem
         String key = getFullKey();
@@ -203,12 +201,12 @@ class ScheduleItem implements EventHandler<ActionEvent> {
                 DefaultSubject, DefaultMessage);
     }
     
-    public static Command nameToCommand(String commandName) {
+    private static Command nameToCommand(String commandName) {
         Command cmd = commandMap.inverse().get(commandName);
         return (cmd == null) ? Command.None : cmd;
     }
     
-    public static String commandToName(Command cmd) {
+    static String commandToName(Command cmd) {
         return commandMap.get(cmd);
     }
     

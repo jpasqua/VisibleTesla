@@ -60,13 +60,13 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private static class GeoTrigger {
-        public GenericTrigger<GeoUtils.CircularArea> trigger;
-        public MessageTarget        messageTarget;
-        public ObjectProperty<GeoUtils.CircularArea> prop =
+        GenericTrigger<GeoUtils.CircularArea> trigger;
+        MessageTarget        messageTarget;
+        ObjectProperty<GeoUtils.CircularArea> prop =
                         new SimpleObjectProperty<>(new GeoUtils.CircularArea());
-        public Button               defineArea;
-        public Button               optionsButton;
-        public CheckBox             enabled;
+        Button               defineArea;
+        Button               optionsButton;
+        CheckBox             enabled;
         GeoTrigger(Button options, Button defArea, CheckBox enabled) {
             this.optionsButton = options;
             this.defineArea = defArea;
@@ -75,8 +75,8 @@ public class NotifierController extends BaseController {
     }
     
     private static class StringList extends ArrayList<String> {
-        public StringList(String s) { super(); add(s); }
-        public StringList() { super();  }
+        StringList(String s) { super(); add(s); }
+        StringList() { super();  }
     }
     
     private static final long TypicalDebounce = 10 * 60 * 1000; // 10 Minutes

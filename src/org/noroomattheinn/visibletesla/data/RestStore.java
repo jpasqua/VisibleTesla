@@ -43,7 +43,7 @@ class RestStore extends CycleStore<RestCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public RestStore(File container, VTVehicle v,
+    RestStore(File container, VTVehicle v,
             TrackedObject<RestCycle> lastCycle, BooleanProperty submitRests,
             BooleanProperty includeLoc, DoubleProperty ditherAmt)
             throws FileNotFoundException {
@@ -64,7 +64,7 @@ class RestStore extends CycleStore<RestCycle> {
         });
     }
    
-    public boolean export(File toFile, Range<Long> exportPeriod) {
+    boolean export(File toFile, Range<Long> exportPeriod) {
         return exporter.export(this, toFile, exportPeriod);
     }
     
@@ -82,7 +82,7 @@ class RestStore extends CycleStore<RestCycle> {
         return !f.exists();
     }
     
-    public void doIntialLoad(final RestMonitor rm, TimeSeries ts) {
+    void doIntialLoad(final RestMonitor rm, TimeSeries ts) {
         // Create a rest file based on existing data. This is a one time thing.
         logger.info("Synthesizing RestCycle data - one time only");
         try {

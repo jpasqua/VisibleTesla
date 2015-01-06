@@ -45,7 +45,7 @@ abstract class CycleStore<C extends BaseCycle>
  * -------                                                               -------
  *============================================================================*/
     
-    public CycleStore(String cycleType, Class<C> theClass, File container, VTVehicle v)
+    CycleStore(String cycleType, Class<C> theClass, File container, VTVehicle v)
             throws FileNotFoundException {
         this.theClass = theClass;
         this.vtVehicle = v;
@@ -60,7 +60,7 @@ abstract class CycleStore<C extends BaseCycle>
     
     @Override public void stop() { cycleWriter.close(); }
     
-    public List<C> getCycles(Range<Long> period) {
+    List<C> getCycles(Range<Long> period) {
         List<C> cycles = new ArrayList<>();
         try {
             BufferedReader r = new BufferedReader(new FileReader(cycleFile));

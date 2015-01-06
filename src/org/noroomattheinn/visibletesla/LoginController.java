@@ -19,7 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.utils.TrackedObject;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 /**
  * This controller allows the user to login and logout. The "logged-in" state
@@ -44,9 +43,10 @@ public class LoginController extends BaseController {
  * Constants and Enums
  * 
  *----------------------------------------------------------------------------*/
-    public static final String RememberMePrefKey = "APP_REMEMBER_ME";
-    public static final String AuthTokenKey = "APP_AUTH_TOKEN";
-    public static final String UsernameKey = "APP_USERNAME";
+    
+    private static final String RememberMePrefKey = "APP_REMEMBER_ME";
+    private static final String AuthTokenKey = "APP_AUTH_TOKEN";
+    private static final String UsernameKey = "APP_USERNAME";
     
 /*------------------------------------------------------------------------------
  *
@@ -54,7 +54,7 @@ public class LoginController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    public TrackedObject<Boolean> loggedIn = new TrackedObject<>(false);
+    TrackedObject<Boolean> loggedIn = new TrackedObject<>(false);
     
 /*------------------------------------------------------------------------------
  *

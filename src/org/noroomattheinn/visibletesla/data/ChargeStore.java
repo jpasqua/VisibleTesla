@@ -40,7 +40,7 @@ class ChargeStore extends CycleStore<ChargeCycle> {
  * -------                                                               -------
  *============================================================================*/
     
-    public ChargeStore(
+    ChargeStore(
             File container, VTVehicle v, TrackedObject<ChargeCycle> lastCycle,
             BooleanProperty submitCharge, BooleanProperty includeLoc,
             DoubleProperty ditherAmt)
@@ -60,7 +60,7 @@ class ChargeStore extends CycleStore<ChargeCycle> {
         });
     }
     
-    public boolean export(File toFile, Range<Long> exportPeriod) {
+    boolean export(File toFile, Range<Long> exportPeriod) {
         return exporter.export(this, toFile, exportPeriod);
     }
 }

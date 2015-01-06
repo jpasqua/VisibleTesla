@@ -57,7 +57,7 @@ class StatsStreamer implements Runnable {
  * -------                                                               -------
  *============================================================================*/
     
-    public StatsStreamer(VTData data, VTVehicle vehicle, BooleanProperty streamWhenPossible) {
+    StatsStreamer(VTData data, VTVehicle vehicle, BooleanProperty streamWhenPossible) {
         this.vtData = data;
         this.vtVehicle = vehicle;
         this.streamWhenPossible = streamWhenPossible;
@@ -94,11 +94,11 @@ class StatsStreamer implements Runnable {
         ThreadManager.get().launch((Runnable)this, "CollectStats");
     }
     
-    public void setWakeEarly(Predicate wakeEarly) {
+    void setWakeEarly(Predicate wakeEarly) {
         this.wakeEarly = wakeEarly;
     }
     
-    public void setPassiveCollection(Predicate pc) {
+    void setPassiveCollection(Predicate pc) {
         this.passiveCollection = pc;
     }
     

@@ -53,7 +53,7 @@ class KMLExporter {
         pw.format(s, args);
     }
 
-    public boolean export(List<Trip> trips, File toFile) {
+    boolean export(List<Trip> trips, File toFile) {
         File tempDir;
         File kmlFile;
 

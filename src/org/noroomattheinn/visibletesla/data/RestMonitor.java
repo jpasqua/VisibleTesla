@@ -76,7 +76,7 @@ class RestMonitor {
         });
     }
 
-    public void handleNewData(Row r) {
+    void handleNewData(Row r) {
         long timestamp = r.timestamp;
 
         if (outOfRange(timestamp)) {

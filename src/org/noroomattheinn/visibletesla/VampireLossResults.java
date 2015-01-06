@@ -32,7 +32,7 @@ import org.noroomattheinn.visibletesla.data.RestCycle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class VampireLossResults  extends VTDialog.Controller {
+class VampireLossResults  extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -56,7 +56,7 @@ public class VampireLossResults  extends VTDialog.Controller {
  * -------                                                               -------
  *============================================================================*/
     
-    public static void show(Stage stage, List<RestCycle> restPeriods, String units, double average) {
+    static void show(Stage stage, List<RestCycle> restPeriods, String units, double average) {
         VampireLossResults vlr = VTDialog.<VampireLossResults>load(
                 VampireLossResults.class.getResource("VampireLossResults.fxml"),
                 "Vampire Loss", stage);

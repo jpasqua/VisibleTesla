@@ -82,7 +82,7 @@ abstract class CycleExporter<C extends BaseCycle> {
      * @param submitData    A property that indicates whether to submit anonymous
      *                      data for this cycle type
      */
-    public CycleExporter(String cycleType, String[] columns,
+    CycleExporter(String cycleType, String[] columns,
             BooleanProperty submitData, BooleanProperty includeLoc,
             DoubleProperty ditherLocAmt) {
         this.cycleType = cycleType;
@@ -97,7 +97,7 @@ abstract class CycleExporter<C extends BaseCycle> {
      * @param provider  An object that can provide a list of Cycles for a 
      *                  specified range of times.
      */
-    public boolean export(CycleStore<C> provider, File file, Range<Long> exportPeriod) {        
+    boolean export(CycleStore<C> provider, File file, Range<Long> exportPeriod) {        
             List<C> cycles = provider.getCycles(exportPeriod);
             return doExport(file, cycles);
     }
@@ -106,7 +106,7 @@ abstract class CycleExporter<C extends BaseCycle> {
      * Submit a Cycle anonymously to a central repository
      * @param cycle The Cycle to be submitted
      */
-    public void submitData(C cycle) {
+    void submitData(C cycle) {
         if (!submitData.get()) return;
         ditherLocation(cycle);
         String jsonRep = cycle.toJSONString();

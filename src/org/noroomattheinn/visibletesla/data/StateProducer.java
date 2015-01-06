@@ -40,12 +40,12 @@ class StateProducer extends Executor<StateProducer.Request> {
  * -------                                                               -------
  *============================================================================*/
     
-    public StateProducer(VTVehicle v, FeedbackListener feedbackListener) {
+    StateProducer(VTVehicle v, FeedbackListener feedbackListener) {
         super("StateProducer",  feedbackListener);
         this.vtVehicle = v;
     }
     
-    public void produce(Vehicle.StateType whichState, Object progressContext) {
+    void produce(Vehicle.StateType whichState, Object progressContext) {
         super.produce(new Request(whichState, progressContext));
     }
         
@@ -69,8 +69,8 @@ class StateProducer extends Executor<StateProducer.Request> {
         return false;
     }
     
-    public static class Request extends Executor.Request {
-        public Vehicle.StateType stateType;
+    static class Request extends Executor.Request {
+        Vehicle.StateType stateType;
 
         Request(Vehicle.StateType stateType, Object progressContext) {
             super(progressContext);

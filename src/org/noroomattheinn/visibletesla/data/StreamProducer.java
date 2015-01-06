@@ -44,14 +44,14 @@ class StreamProducer extends Executor<StreamProducer.Request>
  * -------                                                               -------
  *============================================================================*/
     
-    public StreamProducer(VTVehicle v, FeedbackListener feedbackListener) {
+    StreamProducer(VTVehicle v, FeedbackListener feedbackListener) {
         super("StreamProducer", feedbackListener);
         this.vtVehicle = v;
         this.streamer = v.getVehicle().getStreamer();
         ThreadManager.get().addStoppable((ThreadManager.Stoppable)this);
     }
     
-    public void produce(boolean stream) {
+    void produce(boolean stream) {
         super.produce(new Request(stream, false));
     }
     
@@ -100,9 +100,9 @@ class StreamProducer extends Executor<StreamProducer.Request>
         if (!((Request)r).continuation) super.addToHistogram(r);
     }
     
-    public static class Request extends Executor.Request {
-        public final boolean stream;
-        public final boolean continuation;
+    static class Request extends Executor.Request {
+        final boolean stream;
+        final boolean continuation;
         
         Request(boolean stream, boolean continuation) {
             super(null);

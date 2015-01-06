@@ -12,28 +12,28 @@ import javafx.beans.property.SimpleStringProperty;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class GenericProperty {
+class GenericProperty {
     private final SimpleStringProperty name;
     private final SimpleStringProperty value;
     private final SimpleStringProperty units;
 
-    public GenericProperty(String name, String value, String units) {
+    GenericProperty(String name, String value, String units) {
         this.name = new SimpleStringProperty(name);
         this.value = new SimpleStringProperty(value);
         this.units = new SimpleStringProperty(units);
     }
 
-    public SimpleStringProperty nameProperty() { return name; }
-    public SimpleStringProperty valueProperty() { return value; }
-    public SimpleStringProperty unitsProperty() { return units; }
+    SimpleStringProperty nameProperty() { return name; }
+    SimpleStringProperty valueProperty() { return value; }
+    SimpleStringProperty unitsProperty() { return units; }
 
-    public String getName() { return name.get(); }
-    public void setName(String newName) { name.set(newName); }
+    String getName() { return name.get(); }
+    void setName(String newName) { name.set(newName); }
 
-    public String getValue() { return value.get(); }
-    public void setValue(String newValue) { value.set(newValue); }
+    String getValue() { return value.get(); }
+    void setValue(String newValue) { value.set(newValue); }
 
-    public String getUnits() { return units.get(); }
-    public void setUnits(String newUnits) { units.set(newUnits); }
+    String getUnits() { return units.get(); }
+    void setUnits(String newUnits) { units.set(newUnits); }
 
 }

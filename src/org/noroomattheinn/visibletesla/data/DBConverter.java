@@ -50,12 +50,12 @@ class DBConverter {
  * -------                                                               -------
  *============================================================================*/
 
-    public DBConverter(File container, String baseName) {
+    DBConverter(File container, String baseName) {
         this.container = container;
         this.baseName = baseName;
     }
     
-    public boolean conversionRequired() {
+    boolean conversionRequired() {
         if (PersistentTS.repoExistsFor(container, baseName)) {
             logger.fine("TimeSeries already exists");
             return false;
@@ -68,7 +68,7 @@ class DBConverter {
         return false;
     }
     
-    public void convert() throws IOException {
+    void convert() throws IOException {
         Map<String,String> keyConversions = new HashMap<>();
         keyConversions.put("S_PWR", "L_PWR");
         keyConversions.put("S_SPD", "L_SPD");

@@ -127,7 +127,7 @@ public class MainController extends BaseController {
      * fxApp context to all of the controllers, and (2) we set a listener for login
      * completion and try and automatic login.
      */
-    public void start(App theApp, VTVehicle v, VTData data, Prefs prefs) {
+    void start(App theApp, VTVehicle v, VTData data, Prefs prefs) {
         this.app = theApp;
         this.vtVehicle = v;  // This is defined in BaseController
         this.vtData = data;  // This is defined in BaseController

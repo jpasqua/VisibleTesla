@@ -17,7 +17,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class Firmware {
+class Firmware {
     
 /*------------------------------------------------------------------------------
  *
@@ -42,7 +42,7 @@ public class Firmware {
         loadFirmwareVersion(
             Firmware.class.getClassLoader().getResourceAsStream(FirmwareVersionsFile));
     
-    public static String getSoftwareVersion(String firmwareVersion) {
+    static String getSoftwareVersion(String firmwareVersion) {
         String v = firmwareVersions.getProperty(firmwareVersion);
         if (v != null) return v;
         
