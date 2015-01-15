@@ -18,7 +18,7 @@ import static org.noroomattheinn.tesla.Tesla.logger;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 class StreamProducer extends Executor<StreamProducer.Request>
-                            implements ThreadManager.Stoppable {
+                     implements ThreadManager.Stoppable {
     
 /*------------------------------------------------------------------------------
  *
@@ -73,7 +73,7 @@ class StreamProducer extends Executor<StreamProducer.Request>
         
         if (!r.continuation || snapshot.timestamp - lastSnapshotTime > StreamingThreshold) {
             lastSnapshotTime = snapshot.timestamp;
-            vtVehicle.streamState.set(snapshot);
+            vtVehicle.noteUpdatedState(snapshot);
         }
         
         if (r.stream) super.produce(new Request(true, true));

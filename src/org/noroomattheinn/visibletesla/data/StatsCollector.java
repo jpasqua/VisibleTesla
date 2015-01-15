@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.NavigableMap;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.CachedTimeSeries;
@@ -81,19 +79,15 @@ class StatsCollector implements ThreadManager.Stoppable {
         this.ts = new CachedTimeSeries(
                 container, vtVehicle.getVehicle().getVIN(), VTData.schema, loadPeriod);
         
-        vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
-            @Override public void changed(
-                    ObservableValue<? extends StreamState> ov,
-                    StreamState old, StreamState cur) {
-                handleStreamState(cur);
+        vtVehicle.streamState.addTracker(new Runnable() {
+            @Override public void run() {
+                handleStreamState(vtVehicle.streamState.get());
             }
         });
         
-        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
-            @Override public void changed(
-                    ObservableValue<? extends ChargeState> ov,
-                    ChargeState old, ChargeState cur) {
-                handleChargeState(cur);
+        vtVehicle.chargeState.addTracker(new Runnable() {
+            @Override public void run() {
+                handleChargeState(vtVehicle.chargeState.get());
             }
         });
         

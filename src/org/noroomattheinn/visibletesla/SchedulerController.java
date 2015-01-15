@@ -26,7 +26,6 @@ import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.ThreadManager.Stoppable;
 import org.noroomattheinn.visibletesla.ScheduleItem.Command;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 

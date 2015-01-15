@@ -27,7 +27,6 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
 import org.noroomattheinn.visibletesla.dialogs.SetChargeDialog;
 import org.noroomattheinn.visibletesla.dialogs.SetTempDialog;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 

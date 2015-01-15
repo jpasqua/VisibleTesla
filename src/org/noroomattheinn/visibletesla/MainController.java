@@ -45,7 +45,6 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.RestCycle;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.dialogs.*;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 import static org.noroomattheinn.tesla.Tesla.logger;

@@ -17,7 +17,6 @@ import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
@@ -70,12 +69,12 @@ public class VisibleTesla extends Application {
         App app = new App(this, stage, prefs);
         
         // The object representing the vehicle we're monitoring
-        VTVehicle v = new VTVehicle(prefs);
+        VTVehicle v = new VTVehicle(prefs.overrides);
         
         // Even though it's not represented in the parameters, VTData
         // depends on VTVehicle, so now you can create it
         VTData data = new VTData(
-                app.appFileFolder(), prefs, v, app.progressListener);
+                app.appFileFolder(), prefs.dataOptions, v, app.progressListener);
         
         // The RESTServer depends on the App object and the Vehicle
         RESTServer rs = new RESTServer(
@@ -87,7 +86,7 @@ public class VisibleTesla extends Application {
         mainController = Utils.cast(root.getUserData());
         mainController.start(app, v, data, prefs);
     }
-    
+        
     @Override public void stop() {
         // Shut the app down cleanly. All threads and components are tied into
         // the ThreadManager's shutDown mechanism.

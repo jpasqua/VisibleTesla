@@ -119,21 +119,20 @@ public class HVACController extends BaseController {
     
     @Override protected void initializeState() {
         v = vtVehicle.getVehicle();
-        vtVehicle.hvacState.addListener(new ChangeListener<HVACState>() {
-            @Override public void changed(ObservableValue<? extends HVACState> ov,
-                HVACState old, HVACState cur) {
+        vtVehicle.hvacState.addTracker(new Runnable() {
+            @Override public void run() {
                 if (active()) { reflectNewState(); }
             }
         });
         
         getAppropriateBody();   // Get the body image that matches the wheels
-        prefs.overideWheelsTo.addListener(new ChangeListener<String>() {
+        prefs.overrides.overideWheelsTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        prefs.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
+        prefs.overrides.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels

@@ -9,8 +9,6 @@ package org.noroomattheinn.visibletesla;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -173,10 +171,8 @@ public class ChargeController extends BaseController {
         chargeSlider.setDisable(Utils.compareVersions(
             vtVehicle.vehicleState.get().version, MinVersionForChargePct) < 0);
         reflectNewState();
-        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
-            @Override public void changed(ObservableValue<? extends ChargeState> ov,
-                ChargeState old, ChargeState cur) {
-                if (active()) { reflectNewState(); }
+        vtVehicle.chargeState.addTracker(new Runnable() {
+            @Override public void run() { if (active()) { reflectNewState(); }
             }
         });
     }

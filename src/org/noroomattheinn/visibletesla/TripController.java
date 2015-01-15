@@ -44,7 +44,6 @@ import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.data.Trip;
 import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.data.WayPoint;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 

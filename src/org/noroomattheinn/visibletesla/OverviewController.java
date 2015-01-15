@@ -201,39 +201,35 @@ public class OverviewController extends BaseController {
     @Override protected void initializeState() {
         final Vehicle v = vtVehicle.getVehicle();
         getAppropriateImages(v);
-        prefs.overideColorTo.addListener(new ChangeListener<String>() {
+        prefs.overrides.overideColorTo.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateImages(v);
             }
         });
-        prefs.overideColorActive.addListener(new ChangeListener<Boolean>() {
+        prefs.overrides.overideColorActive.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateImages(v);
             }
         });
 
-        vtVehicle.vehicleState.addListener(new ChangeListener<VehicleState>() {
-            @Override public void changed(ObservableValue<? extends VehicleState> ov,
-                VehicleState old, VehicleState cur) {
+        vtVehicle.vehicleState.addTracker(new Runnable() {
+            @Override public void run() {
                 Platform.runLater(new Runnable() {
                     @Override public void run() { updateVehicleState(); }
                 });
             }
         });
-        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
-            @Override public void changed(ObservableValue<? extends ChargeState> ov,
-                ChargeState old, ChargeState cur) {
+        vtVehicle.chargeState.addTracker(new Runnable() {
+            @Override public void run() {
                 Platform.runLater(new Runnable() {
                     @Override public void run() { updateChargePort(); updateRange(); }
                 });
             }
         });
-        vtVehicle.streamState.addListener(new ChangeListener<StreamState>() {
-            @Override public void changed(
-                    ObservableValue<? extends StreamState> ov,
-                    StreamState old, final StreamState cur) {
+        vtVehicle.streamState.addTracker(new Runnable() {
+            @Override public void run() {
                 Platform.runLater(new Runnable() {
                     @Override public void run() {
                         updateOdometer();

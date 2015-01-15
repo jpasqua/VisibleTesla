@@ -7,14 +7,10 @@
 package org.noroomattheinn.visibletesla.data;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import org.noroomattheinn.tesla.BaseState;
 import static org.noroomattheinn.tesla.Tesla.logger;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.utils.Utils.Predicate;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 import static org.noroomattheinn.utils.Utils.timeSince;
@@ -66,9 +62,8 @@ class StatsStreamer implements Runnable {
         // The following two changeListeners look similar, but the order of
         // the if statements is different and significant. Always check the
         // one that changed, then test the other (older) value.
-        vtVehicle.chargeState.addListener(new ChangeListener<BaseState>() {
-            @Override public void changed(
-                    ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
+        vtVehicle.chargeState.addTracker(new Runnable() {
+            @Override public void run() {
                 if (isCharging()) carState.update(CarState.Charging);
                 else if (isInMotion()) carState.update(CarState.Moving);
                 else carState.update(CarState.Idle);
@@ -76,9 +71,8 @@ class StatsStreamer implements Runnable {
             }
         });
 
-        vtVehicle.streamState.addListener(new ChangeListener<BaseState>() {
-            @Override public void changed(
-                    ObservableValue<? extends BaseState> ov, BaseState t, BaseState cs) {
+        vtVehicle.streamState.addTracker(new Runnable() {
+            @Override public void run() {
                 if (isInMotion()) carState.update(CarState.Moving);
                 else if (isCharging()) carState.update(CarState.Charging);
                 else carState.update(CarState.Idle);

@@ -11,16 +11,24 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.NavigableMap;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ProgressIndicator;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.RowDescriptor;
+import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Executor.FeedbackListener;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils.Predicate;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 
@@ -67,7 +75,7 @@ public class VTData {
     private final File              container;
     private final FeedbackListener  feedbackListener;
     private final VTVehicle         vtVehicle;
-    private final Prefs             prefs;
+    private final Options           options;
     private       StatsCollector    statsCollector;
     private       StreamProducer    streamProducer;
     private       StateProducer     stateProducer;
@@ -86,15 +94,65 @@ public class VTData {
     public final TrackedObject<StreamState>     lastStoredStreamState;
     public final TrackedObject<ChargeState>     lastStoredChargeState;
 
-    public VTData(File container, Prefs prefs, VTVehicle v, FeedbackListener fl) {
+    public VTData(File container, Options options, VTVehicle v, FeedbackListener fl) {
         this.container = container;
-        this.prefs = prefs;
+        this.options = options;
         this.vtVehicle = v;
         this.lastChargeCycle = new TrackedObject<>(null);
         this.lastRestCycle = new TrackedObject<>(null);
         this.feedbackListener = fl;
         this.lastStoredStreamState = new TrackedObject<>(new StreamState());
         this.lastStoredChargeState = new TrackedObject<>(null);        
+    }
+    
+    public static class Options {
+        public final ObjectProperty<Range<Long>> loadPeriod;
+        public final IntegerProperty  locMinTime;
+        public final IntegerProperty  locMinDist;
+        public final BooleanProperty  streamWhenPossible;
+        public final BooleanProperty  submitAnonCharge;
+        public final BooleanProperty  submitAnonRest;
+        public final BooleanProperty  includeLocData;
+        public final DoubleProperty   ditherLocAmt;
+        public final BooleanProperty  restLimitEnabled;
+        public final ObjectProperty<CalTime>  restLimitFrom;
+        public final ObjectProperty<CalTime>  restLimitTo;
+        
+        public Options() {
+            this.loadPeriod = new SimpleObjectProperty<>();
+            this.locMinTime  = new SimpleIntegerProperty();
+            this.locMinDist  = new SimpleIntegerProperty();
+            this.streamWhenPossible = new SimpleBooleanProperty();
+            this.submitAnonCharge = new SimpleBooleanProperty();
+            this.submitAnonRest = new SimpleBooleanProperty();
+            this.includeLocData = new SimpleBooleanProperty();
+            this.ditherLocAmt = new SimpleDoubleProperty();
+            this.restLimitEnabled = new SimpleBooleanProperty();
+            this.restLimitFrom = new SimpleObjectProperty<>();
+            this.restLimitTo = new SimpleObjectProperty<>();
+        }
+        
+        public Options(
+                ObjectProperty<Range<Long>> loadPeriod,
+                IntegerProperty locMinTime, IntegerProperty locMinDist,
+                BooleanProperty streamWhenPossible,
+                BooleanProperty submitAnonCharge, BooleanProperty submitAnonRest,
+                BooleanProperty includeLocData, DoubleProperty ditherLocAmt,
+                BooleanProperty restLimitEnabled,
+                ObjectProperty<CalTime> restLimitFrom,
+                ObjectProperty<CalTime> restLimitTo) {
+            this.loadPeriod = loadPeriod;
+            this.locMinTime = locMinTime;
+            this.locMinDist = locMinDist;
+            this.streamWhenPossible = streamWhenPossible;
+            this.submitAnonCharge = submitAnonCharge;
+            this.submitAnonRest = submitAnonRest;
+            this.includeLocData = includeLocData;
+            this.ditherLocAmt = ditherLocAmt;
+            this.restLimitEnabled = restLimitEnabled;
+            this.restLimitFrom = restLimitFrom;
+            this.restLimitTo = restLimitTo;
+        }
     }
     
 /*------------------------------------------------------------------------------
@@ -105,11 +163,11 @@ public class VTData {
     
     public void setVehicle(Vehicle v) throws IOException {
         statsCollector = new StatsCollector(
-                container, this, vtVehicle, prefs.getLoadPeriod(),
-                prefs.locMinTime, prefs.locMinDist);
+                container, this, vtVehicle, options.loadPeriod.get(),
+                options.locMinTime, options.locMinDist);
         streamProducer = new StreamProducer(vtVehicle, feedbackListener);
         stateProducer = new StateProducer(vtVehicle, feedbackListener);
-        statsStreamer = new StatsStreamer(this, vtVehicle, prefs.streamWhenPossible);
+        statsStreamer = new StatsStreamer(this, vtVehicle, options.streamWhenPossible);
         initChargeStore();
         initRestStore();
     }
@@ -222,13 +280,13 @@ public class VTData {
                 container, vtVehicle.getVehicle().getVIN());
         restStore = new RestStore(
                 container, vtVehicle, lastRestCycle,
-                prefs.submitAnonRest,
-                prefs.includeLocData,
-                prefs.ditherLocAmt);
+                options.submitAnonRest,
+                options.includeLocData,
+                options.ditherLocAmt);
         RestMonitor rm = new RestMonitor(
                 vtVehicle, lastRestCycle,
-                prefs.vsLimitEnabled,
-                prefs.vsFrom, prefs.vsTo);
+                options.restLimitEnabled,
+                options.restLimitFrom, options.restLimitTo);
         if (needsInitialLoad) {
             restStore.doIntialLoad(rm, statsCollector.getFullTimeSeries());
         }
@@ -237,8 +295,8 @@ public class VTData {
     private void initChargeStore() throws FileNotFoundException {
         chargeStore = new ChargeStore(
                 container, vtVehicle, lastChargeCycle,
-                prefs.submitAnonCharge, prefs.includeLocData,
-                prefs.ditherLocAmt);
+                options.submitAnonCharge, options.includeLocData,
+                options.ditherLocAmt);
         ChargeMonitor cm = new ChargeMonitor(vtVehicle, lastChargeCycle);
     }
     

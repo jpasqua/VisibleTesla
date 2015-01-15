@@ -1,5 +1,7 @@
 #VisibleTesla
 
+**NOTE** to existing users: Starting with version 0.31.00, VisibleTesla will do a one time transofrmation of data files to a new and enhanced format. This conversion is irreversible and the new format is not compatible with older versions. The older version of the data files will not be changed or deleted, but it is strongly suggested that they be backed up before moving to VisibleTesla version 0.31.00 or greater. Once you are successfully converted to the new data file format, you may remove the old files if you wish in order to save space.
+
 An appliction to view, monitor, and control your Tesla Model S and in the future, other Tesla models.
 
 This software and documentation do not come from Tesla Motors Inc.

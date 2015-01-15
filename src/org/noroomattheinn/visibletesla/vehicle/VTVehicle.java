@@ -8,8 +8,9 @@ package org.noroomattheinn.visibletesla.vehicle;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.tesla.BaseState;
 import org.noroomattheinn.tesla.ChargeState;
@@ -22,7 +23,6 @@ import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 
@@ -79,7 +79,7 @@ public class VTVehicle {
  * 
  *----------------------------------------------------------------------------*/
    
-    private final Prefs prefs;
+    private final Overrides overrides;
     
 /*==============================================================================
  * -------                                                               -------
@@ -87,25 +87,69 @@ public class VTVehicle {
  * -------                                                               -------
  *============================================================================*/
     
-    public final ObjectProperty<ChargeState> chargeState;
-    public final ObjectProperty<DriveState> driveState;
-    public final ObjectProperty<VehicleState> vehicleState;
-    public final ObjectProperty<HVACState> hvacState;
-    public final ObjectProperty<GUIState> guiState;
-    public final ObjectProperty<StreamState> streamState;
+    public final TrackedObject<ChargeState> chargeState;
+    public final TrackedObject<DriveState> driveState;
+    public final TrackedObject<VehicleState> vehicleState;
+    public final TrackedObject<HVACState> hvacState;
+    public final TrackedObject<GUIState> guiState;
+    public final TrackedObject<StreamState> streamState;
     public final TrackedObject<Vehicle> vehicle;
     
-    public VTVehicle(Prefs thePrefs) {
-        this.prefs = thePrefs;
-        this.chargeState = new SimpleObjectProperty<>(new ChargeState());
-        this.driveState = new SimpleObjectProperty<>();
-        this.guiState = new SimpleObjectProperty<>();
-        this.hvacState = new SimpleObjectProperty<>();
-        this.streamState = new SimpleObjectProperty<>(new StreamState());
-        this.vehicleState = new SimpleObjectProperty<>();
+    public VTVehicle(Overrides overrides) {
+        this.overrides = overrides;
+        this.chargeState = new TrackedObject<>(new ChargeState());
+        this.driveState = new TrackedObject<>(null);
+        this.guiState = new TrackedObject<>(null);
+        this.hvacState = new TrackedObject<>(null);
+        this.streamState = new TrackedObject<>(new StreamState());
+        this.vehicleState = new TrackedObject<>(null);
         this.vehicle = new TrackedObject<>(null);
     }
 
+    public static class Overrides {
+        public final StringProperty   overideWheelsTo;
+        public final BooleanProperty  overideWheelsActive;
+        public final StringProperty   overideColorTo;
+        public final BooleanProperty  overideColorActive;
+        public final StringProperty   overideUnitsTo;
+        public final BooleanProperty  overideUnitsActive;
+        public final StringProperty   overideModelTo;
+        public final BooleanProperty  overideModelActive;
+        public final StringProperty   overideRoofTo;
+        public final BooleanProperty  overideRoofActive;
+        
+        public Overrides() {
+            this.overideWheelsTo         = new SimpleStringProperty();
+            this.overideWheelsActive     = new SimpleBooleanProperty();
+            this.overideColorTo          = new SimpleStringProperty();
+            this.overideColorActive      = new SimpleBooleanProperty();
+            this.overideUnitsTo          = new SimpleStringProperty();
+            this.overideUnitsActive      = new SimpleBooleanProperty();
+            this.overideModelTo          = new SimpleStringProperty();
+            this.overideModelActive      = new SimpleBooleanProperty();
+            this.overideRoofTo           = new SimpleStringProperty();
+            this.overideRoofActive       = new SimpleBooleanProperty();
+        }
+        
+        public Overrides(
+                StringProperty overideWheelsTo, BooleanProperty overideWheelsActive,
+                StringProperty overideColorTo, BooleanProperty overideColorActive,
+                StringProperty overideUnitsTo, BooleanProperty overideUnitsActive, 
+                StringProperty overideModelTo, BooleanProperty overideModelActive, 
+                StringProperty overideRoofTo, BooleanProperty overideRoofActive) {
+            this.overideWheelsTo = overideWheelsTo;
+            this.overideWheelsActive = overideWheelsActive;
+            this.overideColorTo = overideColorTo;
+            this.overideColorActive = overideColorActive;
+            this.overideUnitsTo = overideUnitsTo;
+            this.overideUnitsActive = overideUnitsActive;
+            this.overideModelTo = overideModelTo;
+            this.overideModelActive = overideModelActive;
+            this.overideRoofTo = overideRoofTo;
+            this.overideRoofActive = overideRoofActive;
+        }
+    }
+    
     public void setVehicle(Vehicle v) {
         vehicle.set(v);
     }
@@ -113,35 +157,35 @@ public class VTVehicle {
     public Vehicle getVehicle() { return vehicle.get(); }
     
     public Options.Model model() {
-        Options.Model model = overrideModel.get(prefs.overideModelTo.get());
-        if (prefs.overideModelActive.get() && model != null) return model;
+        Options.Model model = overrideModel.get(overrides.overideModelTo.get());
+        if (overrides.overideModelActive.get() && model != null) return model;
         return (getVehicle().getOptions().model());
     }
     
     public Options.RoofType roofType() {
-        Options.RoofType roof = overrideRoof.get(prefs.overideRoofTo.get());
-        if (prefs.overideRoofActive.get() && roof != null) return roof;
+        Options.RoofType roof = overrideRoof.get(overrides.overideRoofTo.get());
+        if (overrides.overideRoofActive.get() && roof != null) return roof;
         return (getVehicle().getOptions().roofType());
     }
     
     public Options.PaintColor paintColor() {
-        Options.PaintColor color = overrideColor.get(prefs.overideColorTo.get());
-        if (prefs.overideColorActive.get() && color != null) return color;
+        Options.PaintColor color = overrideColor.get(overrides.overideColorTo.get());
+        if (overrides.overideColorActive.get() && color != null) return color;
         return (getVehicle().getOptions().paintColor());
     }
     
     
     public boolean useDegreesF() {
-        Utils.UnitType units = overrideUnits.get(prefs.overideUnitsTo.get());
-        if (prefs.overideUnitsActive.get() && units != null)
+        Utils.UnitType units = overrideUnits.get(overrides.overideUnitsTo.get());
+        if (overrides.overideUnitsActive.get() && units != null)
             return units == Utils.UnitType.Imperial;
         return guiState.get().temperatureUnits.equalsIgnoreCase("F");
 
     }
     
     public Utils.UnitType unitType() {
-        Utils.UnitType units = overrideUnits.get(prefs.overideUnitsTo.get());
-        if (prefs.overideUnitsActive.get() && units != null) return units;
+        Utils.UnitType units = overrideUnits.get(overrides.overideUnitsTo.get());
+        if (overrides.overideUnitsActive.get() && units != null) return units;
 
         return guiState.get().distanceUnits.equalsIgnoreCase("mi/hr")
                 ? Utils.UnitType.Imperial : Utils.UnitType.Metric;
@@ -153,8 +197,8 @@ public class VTVehicle {
     }
 
     public Options.WheelType wheelType() {
-        Options.WheelType wt = overrideWheels.get(prefs.overideWheelsTo.get());
-        if (prefs.overideWheelsActive.get() && wt != null) return wt;
+        Options.WheelType wt = overrideWheels.get(overrides.overideWheelsTo.get());
+        if (overrides.overideWheelsActive.get() && wt != null) return wt;
 
         wt = getVehicle().getOptions().wheelType();
         VehicleState vs = vehicleState.get();

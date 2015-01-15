@@ -8,9 +8,6 @@ package org.noroomattheinn.visibletesla.data;
 import java.util.Calendar;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.timeseries.RowDescriptor;
 import org.noroomattheinn.utils.CalTime;
@@ -68,10 +65,10 @@ class RestMonitor {
         }
               
         this.cycleInProgress = null;
-        vtVehicle.chargeState.addListener(new ChangeListener<ChargeState>() {
-            @Override public void changed(ObservableValue<? extends ChargeState> ov, ChargeState old, ChargeState cur) {
-                handleNewData(
-                        StatsCollector.rowFromStates(cur, vtVehicle.streamState.get()));
+        vtVehicle.chargeState.addTracker(new Runnable() {
+            @Override public void run() {
+                handleNewData(StatsCollector.rowFromStates(
+                        vtVehicle.chargeState.get(), vtVehicle.streamState.get()));
             }
         });
     }
@@ -133,7 +130,7 @@ class RestMonitor {
     }
     
     private boolean outOfRange(long ts) {
-        if (limitEnabled.get()) return false;
+        if (!limitEnabled.get()) return false;
         CalTime c = new CalTime(ts);
         if (stradles) { return (c.after(toLimit) && c.before(fromLimit)); }
         else { return c.after(toLimit) || c.before(fromLimit); }

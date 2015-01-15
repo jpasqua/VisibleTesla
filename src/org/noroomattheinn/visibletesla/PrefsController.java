@@ -152,11 +152,11 @@ public class PrefsController extends BaseController {
         bindToTextField(emailForNotifications, prefs.notificationAddress);
         bindToComboBox(overviewRange, prefs.overviewRange);
         
-        bindToCheckBox(anonRest, prefs.submitAnonRest);
-        bindToCheckBox(anonCharge, prefs.submitAnonCharge);
+        bindToCheckBox(anonRest, prefs.dataOptions.submitAnonRest);
+        bindToCheckBox(anonCharge, prefs.dataOptions.submitAnonCharge);
         bindToCheckBox(anonFailure, prefs.submitAnonFailure);
-        bindToCheckBox(includeLoc, prefs.includeLocData);
-        bindToDoubleProperty(ditherAmt, null, prefs.ditherLocAmt);
+        bindToCheckBox(includeLoc, prefs.dataOptions.includeLocData);
+        bindToDoubleProperty(ditherAmt, null, prefs.dataOptions.ditherLocAmt);
         
         // Advanced
         bindToCheckBox(enableProxy, prefs.enableProxy);
@@ -174,16 +174,16 @@ public class PrefsController extends BaseController {
         bindToComboBox(logLevel, prefs.logLevel);
 
         // Overrides
-        bindToComboBox(overrideWheelsCombo, prefs.overideWheelsTo);
-        bindToCheckBox(overrideWheelsActive, prefs.overideWheelsActive);
-        bindToComboBox(overrideColorCombo, prefs.overideColorTo);
-        bindToCheckBox(overrideColorActive, prefs.overideColorActive);
-        bindToComboBox(overrideUnitsCombo, prefs.overideUnitsTo);
-        bindToCheckBox(overrideUnitsActive, prefs.overideUnitsActive);
-        bindToComboBox(overrideModelCombo, prefs.overideModelTo);
-        bindToCheckBox(overrideModelActive, prefs.overideModelActive);
-        bindToComboBox(overrideRoofCombo, prefs.overideRoofTo);
-        bindToCheckBox(overrideRoofActive, prefs.overideRoofActive);
+        bindToComboBox(overrideWheelsCombo, prefs.overrides.overideWheelsTo);
+        bindToCheckBox(overrideWheelsActive, prefs.overrides.overideWheelsActive);
+        bindToComboBox(overrideColorCombo, prefs.overrides.overideColorTo);
+        bindToCheckBox(overrideColorActive, prefs.overrides.overideColorActive);
+        bindToComboBox(overrideUnitsCombo, prefs.overrides.overideUnitsTo);
+        bindToCheckBox(overrideUnitsActive, prefs.overrides.overideUnitsActive);
+        bindToComboBox(overrideModelCombo, prefs.overrides.overideModelTo);
+        bindToCheckBox(overrideModelActive, prefs.overrides.overideModelActive);
+        bindToComboBox(overrideRoofCombo, prefs.overrides.overideRoofTo);
+        bindToCheckBox(overrideRoofActive, prefs.overrides.overideRoofActive);
     }
     
 /*------------------------------------------------------------------------------
@@ -207,9 +207,9 @@ public class PrefsController extends BaseController {
     //
     private void initLocationPrefsUI() {
         bindToCheckBox(collectLocationData, prefs.collectLocationData);
-        bindToCheckBox(streamWhenPossible, prefs.streamWhenPossible);
-        bindToIntegerProperty(locMinTime, locMinTimeDisplay, prefs.locMinTime);
-        bindToIntegerProperty(locMinDist, locMinDistDisplay, prefs.locMinDist);
+        bindToCheckBox(streamWhenPossible, prefs.dataOptions.streamWhenPossible);
+        bindToIntegerProperty(locMinTime, locMinTimeDisplay, prefs.dataOptions.locMinTime);
+        bindToIntegerProperty(locMinDist, locMinDistDisplay, prefs.dataOptions.locMinDist);
     }
 
 /*------------------------------------------------------------------------------
@@ -241,9 +241,9 @@ public class PrefsController extends BaseController {
         
         final TimeSelector vsFromTime = new TimeSelector(vsFromHour, vsFromMin, vsFromAMPM);
         final TimeSelector vsToTime = new TimeSelector(vsToHour, vsToMin, vsToAMPM);
-        vsFromTime.bind(prefs.vsFrom);
-        vsToTime.bind(prefs.vsTo);
-        bindToCheckBox(limitVS, prefs.vsLimitEnabled);
+        vsFromTime.bind(prefs.dataOptions.restLimitFrom);
+        vsToTime.bind(prefs.dataOptions.restLimitTo);
+        bindToCheckBox(limitVS, prefs.dataOptions.restLimitEnabled);
         limitVS.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override public void changed(ObservableValue ov, Boolean t, Boolean t1) {
                 vsFromTime.enable(t1);

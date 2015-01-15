@@ -3,7 +3,7 @@
  * Provided under the MIT License. See the LICENSE file for details.
  * Created: Nov 17, 2013
  */
-package org.noroomattheinn.visibletesla.prefs;
+package org.noroomattheinn.visibletesla;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -18,15 +18,15 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.noroomattheinn.utils.CalTime;
 import org.noroomattheinn.utils.Utils;
+import org.noroomattheinn.visibletesla.data.VTData;
+import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 /**
  * Prefs - Stores and Manages Preferences data the app.
@@ -96,15 +96,12 @@ public class Prefs {
     public StringProperty   notificationAddress     = new SimpleStringProperty();
     private static final String WakeOnTCKey         = "APP_WAKE_ON_TC";
     private static final String IdleThresholdKey    = "APP_IDLE_THRESHOLD";
-    private static final String GraphPeriodPrefKey  = "GRAPH_PERIOD";
+    private static final String LoadPeriodKey  = "GRAPH_PERIOD";
     private static final String OverviewRangeKey    = "OVERVIEW_RANGE";
     private static final String NotifyAddressKey    = "NOTIFICATION_ADDR";
     
-    public BooleanProperty  submitAnonRest          = new SimpleBooleanProperty();
-    public BooleanProperty  submitAnonCharge        = new SimpleBooleanProperty();
+    public VTData.Options   dataOptions             = new VTData.Options();
     public BooleanProperty  submitAnonFailure       = new SimpleBooleanProperty();
-    public BooleanProperty  includeLocData          = new SimpleBooleanProperty();
-    public DoubleProperty   ditherLocAmt            = new SimpleDoubleProperty();
     private static final String SubmitAnonRest      = "APP_SUBMIT_ANON_REST";
     private static final String SubmitAnonCharge    = "APP_SUBMIT_ANON_CHARGE";
     private static final String SubmitAnonFailure   = "APP_SUBMIT_ANON_FAILURE";
@@ -148,16 +145,7 @@ public class Prefs {
             );
     
     // Overrides
-    public StringProperty   overideWheelsTo         = new SimpleStringProperty();
-    public BooleanProperty  overideWheelsActive     = new SimpleBooleanProperty();
-    public StringProperty   overideColorTo          = new SimpleStringProperty();
-    public BooleanProperty  overideColorActive      = new SimpleBooleanProperty();
-    public StringProperty   overideUnitsTo          = new SimpleStringProperty();
-    public BooleanProperty  overideUnitsActive      = new SimpleBooleanProperty();
-    public StringProperty   overideModelTo          = new SimpleStringProperty();
-    public BooleanProperty  overideModelActive      = new SimpleBooleanProperty();
-    public StringProperty   overideRoofTo           = new SimpleStringProperty();
-    public BooleanProperty  overideRoofActive       = new SimpleBooleanProperty();
+    public VTVehicle.Overrides  overrides           = new VTVehicle.Overrides();
     private static final String ORWheelToKey        = "APP_OWT";
     private static final String ORWheelActiveKey    = "APP_OWA";
     private static final String ORColorToKey        = "APP_OCT";
@@ -176,16 +164,22 @@ public class Prefs {
         integerPref(IdleThresholdKey, idleThresholdInMinutes, 15);
         booleanPref(WakeOnTCKey, wakeOnTabChange, true);
         stringPref(NotifyAddressKey, notificationAddress, "");
-        stringPref(GraphPeriodPrefKey, loadPeriod, LoadPeriod.All.name());
         stringPref(OverviewRangeKey, overviewRange, "Rated");
         
-        booleanPref(SubmitAnonRest, submitAnonRest, false);
-        booleanPref(SubmitAnonCharge, submitAnonCharge, false);
+        booleanPref(SubmitAnonRest, dataOptions.submitAnonRest, false);
+        booleanPref(SubmitAnonCharge, dataOptions.submitAnonCharge, false);
         booleanPref(SubmitAnonFailure, submitAnonFailure, false);
-        booleanPref(IncludeLocData, includeLocData, false);
-        doublePref(DitherAmtKey, ditherLocAmt, 1.5);
+        booleanPref(IncludeLocData, dataOptions.includeLocData, false);
+        doublePref(DitherAmtKey, dataOptions.ditherLocAmt, 1.5);
 
-        
+        loadPeriod.addListener(new ChangeListener<String>() {
+            @Override public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                Range<Long>period = getLoadPeriod();
+                dataOptions.loadPeriod.set(period);
+            }
+        });
+        stringPref(LoadPeriodKey, loadPeriod, LoadPeriod.All.name());
+
         // ----- Advanced Preferences
         booleanPref(OfferExpKey, offerExperimental, false);
         booleanPref(EnableProxyKey, enableProxy, false);
@@ -204,20 +198,20 @@ public class Prefs {
         stringPref(AuthCodeKey, authCode, "");
         
         // ----- Overrides
-        stringPref(ORWheelToKey, overideWheelsTo, "From Car");
-        booleanPref(ORWheelActiveKey, overideWheelsActive, false);
-        stringPref(ORColorToKey, overideColorTo, "From Car");
-        booleanPref(ORColorActiveKey, overideColorActive, false);
-        stringPref(ORUnitsToKey, overideUnitsTo, "From Car");
-        booleanPref(ORUnitsActiveKey, overideUnitsActive, false);
-        stringPref(ORModelToKey, overideModelTo, "From Car");
-        booleanPref(ORModelActiveKey, overideModelActive, false);
-        stringPref(ORRoofToKey, overideRoofTo, "From Car");
-        booleanPref(ORRoofActiveKey, overideRoofActive, false);
+        stringPref(ORWheelToKey, overrides.overideWheelsTo, "From Car");
+        booleanPref(ORWheelActiveKey, overrides.overideWheelsActive, false);
+        stringPref(ORColorToKey, overrides.overideColorTo, "From Car");
+        booleanPref(ORColorActiveKey, overrides.overideColorActive, false);
+        stringPref(ORUnitsToKey, overrides.overideUnitsTo, "From Car");
+        booleanPref(ORUnitsActiveKey, overrides.overideUnitsActive, false);
+        stringPref(ORModelToKey, overrides.overideModelTo, "From Car");
+        booleanPref(ORModelActiveKey, overrides.overideModelActive, false);
+        stringPref(ORRoofToKey, overrides.overideRoofTo, "From Car");
+        booleanPref(ORRoofActiveKey, overrides.overideRoofActive, false);
     }
     
     
-    public final Range<Long> getLoadPeriod() {
+    private final Range<Long> getLoadPeriod() {
         Range<Long> range = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
 
         long now = System.currentTimeMillis();
@@ -267,9 +261,6 @@ public class Prefs {
      
     public BooleanProperty  ignoreGraphGaps = new SimpleBooleanProperty();
     public IntegerProperty  graphGapTime    = new SimpleIntegerProperty();
-    public BooleanProperty  vsLimitEnabled  = new SimpleBooleanProperty();
-    public ObjectProperty<CalTime>   vsFrom = new SimpleObjectProperty<>();
-    public ObjectProperty<CalTime>   vsTo   = new SimpleObjectProperty<>();
     private static final String GraphIgnoreGapsKey  = "GRAPH_GAP_IGNORE";
     private static final String GraphGapTimeKey     = "GRAPH_GAP_TIME";
     private static final String VSLimitEnabledKey   = "VS_LIMIT_ENABLED";
@@ -280,9 +271,9 @@ public class Prefs {
         booleanPref(GraphIgnoreGapsKey, ignoreGraphGaps, false);
         integerPref(GraphGapTimeKey, graphGapTime, 15); // 15 minutes 
         
-        booleanPref(VSLimitEnabledKey, vsLimitEnabled, false);
-        calTimePref(VSFromKey, vsFrom, new CalTime("10^00^PM"));
-        calTimePref(VSToKey,   vsTo,   new CalTime("06^00^AM"));
+        booleanPref(VSLimitEnabledKey, dataOptions.restLimitEnabled, false);
+        calTimePref(VSFromKey, dataOptions.restLimitFrom, new CalTime("10^00^PM"));
+        calTimePref(VSToKey,   dataOptions.restLimitTo,   new CalTime("06^00^AM"));
     }
     
 /*------------------------------------------------------------------------------
@@ -308,9 +299,6 @@ public class Prefs {
  *----------------------------------------------------------------------------*/
     
     public BooleanProperty collectLocationData = new SimpleBooleanProperty();
-    public BooleanProperty streamWhenPossible = new SimpleBooleanProperty();
-    public IntegerProperty locMinTime = new SimpleIntegerProperty();
-    public IntegerProperty locMinDist = new SimpleIntegerProperty();
     
     private static final String LocCollectData = "LOC_COLLECT_DATA";
     private static final String LocStreamMore = "LOC_STREAM_MORE";
@@ -319,9 +307,9 @@ public class Prefs {
     
     private void loadLocationPrefs() {
         booleanPref(LocCollectData, collectLocationData, true);
-        booleanPref(LocStreamMore, streamWhenPossible, true);
-        integerPref(LocMinTime, locMinTime, 5); // 5 Seconds
-        integerPref(LocMinDist, locMinDist, 5); // 5 Meters
+        booleanPref(LocStreamMore, dataOptions.streamWhenPossible, true);
+        integerPref(LocMinTime, dataOptions.locMinTime, 5); // 5 Seconds
+        integerPref(LocMinDist, dataOptions.locMinDist, 5); // 5 Meters
     }
     
 

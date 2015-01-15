@@ -31,14 +31,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
-import org.noroomattheinn.tesla.VehicleState;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.MailGun;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
 import org.noroomattheinn.visibletesla.dialogs.ChooseLocationDialog;
 import org.noroomattheinn.visibletesla.dialogs.NotifyOptionsDialog;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.trigger.DeviationTrigger;
 import org.noroomattheinn.visibletesla.trigger.GenericTrigger;
 import org.noroomattheinn.visibletesla.trigger.StationaryTrigger;
@@ -528,9 +526,9 @@ public class NotifierController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private void startListening() {
-        vtVehicle.chargeState.addListener(csListener);
-        vtVehicle.streamState.addListener(ssListener);
-        vtVehicle.vehicleState.addListener(vsListener);
+        vtVehicle.chargeState.addTracker(csListener);
+        vtVehicle.streamState.addTracker(ssListener);
+        vtVehicle.vehicleState.addTracker(vsListener);
         app.schedulerActivity.addTracker(schedListener);
     }
     
@@ -541,10 +539,9 @@ public class NotifierController extends BaseController {
         }
     };
     
-    private ChangeListener<ChargeState> csListener = new ChangeListener<ChargeState>() {
-        @Override public synchronized void  changed(
-                ObservableValue<? extends ChargeState> ov,
-                ChargeState old, ChargeState cur) {
+    private Runnable csListener = new Runnable() {
+        @Override public synchronized void run() {
+            ChargeState cur = vtVehicle.chargeState.get();
             if (csTrigger.evalPredicate(new StringList(cur.chargingState.name()))) {
                 notifyUser(csTrigger, csMessageTarget);
             }
@@ -568,12 +565,11 @@ public class NotifierController extends BaseController {
         }
     };
             
-    private ChangeListener<StreamState> ssListener = new ChangeListener<StreamState>() {
+    private Runnable ssListener = new Runnable() {
         long lastSpeedNotification = 0;
         
-        @Override public void changed(
-                ObservableValue<? extends StreamState> ov,
-                StreamState old, StreamState cur) {
+        @Override public void run() {
+            StreamState cur = vtVehicle.streamState.get();
             if (socHitsTrigger.evalPredicate(new BigDecimal(cur.soc))) {
                 notifyUser(socHitsTrigger, socHitsMessageTarget);
             }
@@ -612,12 +608,10 @@ public class NotifierController extends BaseController {
         }
     };
     
-    private ChangeListener<VehicleState> vsListener = new ChangeListener<VehicleState>() {
-        @Override public void changed(
-                ObservableValue<? extends VehicleState> ov,
-                VehicleState old, VehicleState cur) {
+    private Runnable vsListener = new Runnable() {
+        @Override public void run() {
             if (!checkForUnlocked) { return; }
-            if (!cur.locked) {
+            if (!vtVehicle.vehicleState.get().locked) {
                 int minutes = unlockedDoorsField.numberProperty().getValue().intValue();
                 Map<String, String> contextSpecific = Utils.newHashMap(
                         "CUR", String.format("%d", minutes),

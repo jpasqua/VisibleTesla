@@ -28,7 +28,6 @@ import org.noroomattheinn.utils.PWUtils;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
 import static org.noroomattheinn.utils.Utils.timeSince;

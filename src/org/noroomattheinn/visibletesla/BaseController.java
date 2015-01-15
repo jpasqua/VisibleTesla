@@ -22,7 +22,6 @@ import org.noroomattheinn.tesla.Result;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.visibletesla.data.VTData;
-import org.noroomattheinn.visibletesla.prefs.Prefs;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
 import static org.noroomattheinn.tesla.Tesla.logger;
