@@ -201,13 +201,13 @@ public class OverviewController extends BaseController {
     @Override protected void initializeState() {
         final Vehicle v = vtVehicle.getVehicle();
         getAppropriateImages(v);
-        prefs.overrides.overideColorTo.addListener(new ChangeListener<String>() {
+        prefs.overrides.color.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateImages(v);
             }
         });
-        prefs.overrides.overideColorActive.addListener(new ChangeListener<Boolean>() {
+        prefs.overrides.doColor.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateImages(v);

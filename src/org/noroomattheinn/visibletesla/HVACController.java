@@ -126,13 +126,13 @@ public class HVACController extends BaseController {
         });
         
         getAppropriateBody();   // Get the body image that matches the wheels
-        prefs.overrides.overideWheelsTo.addListener(new ChangeListener<String>() {
+        prefs.overrides.wheels.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels
             }
         });
-        prefs.overrides.overideWheelsActive.addListener(new ChangeListener<Boolean>() {
+        prefs.overrides.doWheels.addListener(new ChangeListener<Boolean>() {
             @Override public void changed(
                     ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 getAppropriateBody();   // Get the body image that matches the wheels

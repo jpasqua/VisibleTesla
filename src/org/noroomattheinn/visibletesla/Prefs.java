@@ -198,20 +198,20 @@ public class Prefs {
         stringPref(AuthCodeKey, authCode, "");
         
         // ----- Overrides
-        stringPref(ORWheelToKey, overrides.overideWheelsTo, "From Car");
-        booleanPref(ORWheelActiveKey, overrides.overideWheelsActive, false);
-        stringPref(ORColorToKey, overrides.overideColorTo, "From Car");
-        booleanPref(ORColorActiveKey, overrides.overideColorActive, false);
-        stringPref(ORUnitsToKey, overrides.overideUnitsTo, "From Car");
-        booleanPref(ORUnitsActiveKey, overrides.overideUnitsActive, false);
-        stringPref(ORModelToKey, overrides.overideModelTo, "From Car");
-        booleanPref(ORModelActiveKey, overrides.overideModelActive, false);
-        stringPref(ORRoofToKey, overrides.overideRoofTo, "From Car");
-        booleanPref(ORRoofActiveKey, overrides.overideRoofActive, false);
+        stringPref(ORWheelToKey, overrides.wheels, "From Car");
+        booleanPref(ORWheelActiveKey, overrides.doWheels, false);
+        stringPref(ORColorToKey, overrides.color, "From Car");
+        booleanPref(ORColorActiveKey, overrides.doColor, false);
+        stringPref(ORUnitsToKey, overrides.units, "From Car");
+        booleanPref(ORUnitsActiveKey, overrides.doUnits, false);
+        stringPref(ORModelToKey, overrides.model, "From Car");
+        booleanPref(ORModelActiveKey, overrides.doModel, false);
+        stringPref(ORRoofToKey, overrides.roof, "From Car");
+        booleanPref(ORRoofActiveKey, overrides.doRoof, false);
     }
     
     
-    private final Range<Long> getLoadPeriod() {
+    private Range<Long> getLoadPeriod() {
         Range<Long> range = Range.closed(Long.MIN_VALUE, Long.MAX_VALUE);
 
         long now = System.currentTimeMillis();

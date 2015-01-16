@@ -174,16 +174,16 @@ public class PrefsController extends BaseController {
         bindToComboBox(logLevel, prefs.logLevel);
 
         // Overrides
-        bindToComboBox(overrideWheelsCombo, prefs.overrides.overideWheelsTo);
-        bindToCheckBox(overrideWheelsActive, prefs.overrides.overideWheelsActive);
-        bindToComboBox(overrideColorCombo, prefs.overrides.overideColorTo);
-        bindToCheckBox(overrideColorActive, prefs.overrides.overideColorActive);
-        bindToComboBox(overrideUnitsCombo, prefs.overrides.overideUnitsTo);
-        bindToCheckBox(overrideUnitsActive, prefs.overrides.overideUnitsActive);
-        bindToComboBox(overrideModelCombo, prefs.overrides.overideModelTo);
-        bindToCheckBox(overrideModelActive, prefs.overrides.overideModelActive);
-        bindToComboBox(overrideRoofCombo, prefs.overrides.overideRoofTo);
-        bindToCheckBox(overrideRoofActive, prefs.overrides.overideRoofActive);
+        bindToComboBox(overrideWheelsCombo, prefs.overrides.wheels);
+        bindToCheckBox(overrideWheelsActive, prefs.overrides.doWheels);
+        bindToComboBox(overrideColorCombo, prefs.overrides.color);
+        bindToCheckBox(overrideColorActive, prefs.overrides.doColor);
+        bindToComboBox(overrideUnitsCombo, prefs.overrides.units);
+        bindToCheckBox(overrideUnitsActive, prefs.overrides.doUnits);
+        bindToComboBox(overrideModelCombo, prefs.overrides.model);
+        bindToCheckBox(overrideModelActive, prefs.overrides.doModel);
+        bindToComboBox(overrideRoofCombo, prefs.overrides.roof);
+        bindToCheckBox(overrideRoofActive, prefs.overrides.doRoof);
     }
     
 /*------------------------------------------------------------------------------
