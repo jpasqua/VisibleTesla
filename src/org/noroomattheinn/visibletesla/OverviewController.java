@@ -31,7 +31,6 @@ import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.Vehicle.PanoCommand;
 import org.noroomattheinn.tesla.VehicleState;
-import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.Utils;
 
 
@@ -141,11 +140,6 @@ public class OverviewController extends BaseController {
                 "\n--------------------------------------------" +
                 "\nLow level information: " + vtVehicle.getVehicle().getUnderlyingValues() +
                 "\nAPI Usage Rates:";
-        for (Map.Entry<Integer,Integer> e: RestyWrapper.stats().entrySet()) {
-            int seconds = e.getKey();
-            int calls = e.getValue();
-            info += "\n    "+ calls + " calls in the last " + seconds + " seconds";
-        }
 
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);
