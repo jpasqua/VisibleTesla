@@ -25,6 +25,7 @@ import javafx.stage.Stage;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.PWUtils;
+import org.noroomattheinn.utils.RestyWrapper;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
@@ -117,8 +118,11 @@ class App {
         appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
         Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
 
-        tesla = (prefs.enableProxy.get())
-                ? new Tesla(prefs.proxyHost.get(), prefs.proxyPort.get()) : new Tesla();
+        if (prefs.enableProxy.get()) {
+            // Enable the proxy at the lowest level so all services use it
+            RestyWrapper.setProxy(prefs.proxyHost.get(), prefs.proxyPort.get());
+        }
+        tesla = new Tesla();
 
         this.progressListener = new ProgressListener(prefs.submitAnonFailure, getAppID());
         
