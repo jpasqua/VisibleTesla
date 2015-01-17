@@ -337,8 +337,14 @@ public class GraphController extends BaseController {
                         // At least 5 seconds apart unless they represent a huge 
                         // swing in values: greater than 50%
                         if (time - lastTimeForType.get(type) >= 5 * 1000 ||
-                            Utils.percentChange(value, lastValForType.get(type)) > 0.5)
-                        {
+                            Utils.percentChange(value, lastValForType.get(type)) > 0.5) {
+                            if (type.equals(VTData.SpeedKey) &&
+                                lastValForType.get(type) == 0 &&
+                                time - lastTimeForType.get(type) > 60 * 1000) {
+                                    data.add(new XYChart.Data<>(
+                                            vts.getXformX().transform(time - (5 * 1000)), 
+                                            vts.getXformY().transform(0)));
+                            }
                             data.add(new XYChart.Data<>(
                                     vts.getXformX().transform(time), 
                                     vts.getXformY().transform(value)));
@@ -369,8 +375,7 @@ public class GraphController extends BaseController {
     
     private void addElement(final VTSeries series, final long time, double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) value = 0;
-        double rounded = Math.round(value * 10.0) / 10.0;   // Limit to 1 decimal place
-        series.addToSeries(time, rounded, false);
+        series.addToSeries(time, value, false);
     }
     
     private final Runnable chargeHandler = new Runnable() {
