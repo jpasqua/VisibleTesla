@@ -25,7 +25,7 @@ import javafx.stage.Stage;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.noroomattheinn.tesla.Tesla;
 import org.noroomattheinn.utils.PWUtils;
-import org.noroomattheinn.utils.RestAPI;
+import org.noroomattheinn.utils.RestHelper;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils;
@@ -120,7 +120,7 @@ class App {
 
         if (prefs.enableProxy.get()) {
             // Enable the proxy at the lowest level so all services use it
-            RestAPI.setDefaultProxy(prefs.proxyHost.get(), prefs.proxyPort.get());
+            RestHelper.setDefaultProxy(prefs.proxyHost.get(), prefs.proxyPort.get());
         }
         tesla = new Tesla();
 

@@ -97,6 +97,7 @@ public class AppAPI {
     private final TrackedObject<String>schedulerActivityReport;
     
     public void fakeSchedulerActivity(String activityReport) {
+        schedulerActivityReport.set("");
         schedulerActivityReport.set(activityReport);
     }
     

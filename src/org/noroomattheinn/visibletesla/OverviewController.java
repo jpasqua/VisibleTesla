@@ -139,7 +139,7 @@ public class OverviewController extends BaseController {
                 "\nNotifications Enabled: " + vtVehicle.getVehicle().notificationsEnabled() +
                 "\n--------------------------------------------" +
                 "\nLow level information: " + vtVehicle.getVehicle().getUnderlyingValues() +
-                "\nAPI Usage Rates:";
+                "\n";
 
         TextArea t = new TextArea(info);
         pane.getChildren().add(t);

@@ -6,7 +6,7 @@
 package org.noroomattheinn.visibletesla.data;
 
 import com.google.gson.Gson;
-import org.noroomattheinn.utils.RestAPI;
+import org.noroomattheinn.utils.RestHelper;
 import us.monoid.json.JSONObject;
 
 /**
@@ -40,7 +40,7 @@ abstract class BaseCycle {
      * @return A JSONObject that represents this Cycle
      */
     public JSONObject toJSON() {
-        return RestAPI.newJSONObject(toJSONString());
+        return RestHelper.newJSONObject(toJSONString());
     }
 
     /**
