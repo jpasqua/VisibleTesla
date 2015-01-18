@@ -157,13 +157,14 @@ class KMLExporter {
     }
 
     private boolean zipEm(File toFile, File... files) {
+        FileInputStream fis = null;
         try {
             byte[] buffer = new byte[1024];
             FileOutputStream fos = new FileOutputStream(toFile);
             ZipOutputStream zos = new ZipOutputStream(fos);
 
             for (File file : files) {
-                FileInputStream fis = new FileInputStream(file);
+                fis = new FileInputStream(file);
                 zos.putNextEntry(new ZipEntry(file.getName()));
 
                 int length;
@@ -173,12 +174,18 @@ class KMLExporter {
 
                 zos.closeEntry();
                 fis.close();
+                fis = null;
             }
             zos.close();
-
         } catch (IOException ioe) {
             logger.warning("Error creating zip file: " + ioe);
             return false;
+        } finally {
+            if (fis != null) try {
+                fis.close();
+            } catch (IOException ex) {
+                logger.warning("Failed closing FileInputStream: " + ex);
+            }
         }
 
         return true;

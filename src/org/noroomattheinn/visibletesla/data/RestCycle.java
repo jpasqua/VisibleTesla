@@ -15,7 +15,8 @@ import java.util.List;
  *
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-public class RestCycle extends BaseCycle implements Cloneable {
+public class RestCycle extends BaseCycle {
+    
 /*==============================================================================
  * -------                                                               -------
  * -------              Public Interface To This Class                   ------- 
