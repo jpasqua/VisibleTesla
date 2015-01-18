@@ -100,7 +100,6 @@ public class MainController extends BaseController {
     @FXML private Tab   overviewTab;
     @FXML private Tab   tripsTab;
     @FXML private Pane  wakePane;
-    @FXML private Button wakeButton;
     
     private List<Tab> tabs;
     

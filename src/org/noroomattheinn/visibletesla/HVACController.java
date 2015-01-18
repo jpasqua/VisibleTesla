@@ -7,8 +7,6 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.concurrent.Callable;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -41,7 +39,6 @@ public class HVACController extends BaseController {
     
     private boolean useDegreesF = false;
     private Vehicle v;
-    DoubleProperty sliderValue = new SimpleDoubleProperty(70);
     
 /*------------------------------------------------------------------------------
  *
@@ -58,7 +55,6 @@ public class HVACController extends BaseController {
     // Cold / Medium / Hot Images    
     @FXML private ImageView climateColdImg;
     @FXML private ImageView climateHotImg;
-    @FXML private ImageView coldWSImg;
     
     // Fan Speed Images
     @FXML private ImageView fan0, fan1, fan2, fan3, fan4;

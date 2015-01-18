@@ -77,7 +77,6 @@ public class GraphController extends BaseController {
     @FXML private CheckBox batteryCurrentCheckbox;
     @FXML private CheckBox speedCheckbox;
     @FXML private AnchorPane itemListContent;
-    @FXML private Button showItemsButton;
     @FXML private Button nowButton;
     @FXML private AnchorPane arrow;
     

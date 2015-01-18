@@ -96,7 +96,7 @@ public class OverviewController extends BaseController {
     //
     // Controls
     //
-    @FXML private Button lockButton, unlockButton;
+    @FXML private Button lockButton;
     @FXML private Button closePanoButton, ventPanoButton, openPanoButton;
     
 /*------------------------------------------------------------------------------
