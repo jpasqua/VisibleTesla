@@ -187,12 +187,10 @@ public class MessageTemplate {
                         val = String.valueOf(v.chargeState.get().chargerPilotCurrent);
                         break;
                     case "TIME_TO_FULL":
-                        val = ChargeController.getDurationString(
-                                v.chargeState.get().timeToFullCharge);
+                        val = v.chargeState.get().timeToFull();
                         break;
                     case "C_RATE":
-                        val = String.format(
-                                "%.1f", v.inProperUnits(v.chargeState.get().chargeRate));
+                        val = String.format("%.1f", v.inProperUnits(v.chargeState.get().chargeRate));
                         break;
                     case "C_AMP":
                         val = String.format("%.1f", v.chargeState.get().batteryCurrent);

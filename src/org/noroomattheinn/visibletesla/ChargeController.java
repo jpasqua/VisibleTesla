@@ -216,7 +216,7 @@ public class ChargeController extends BaseController {
         nRangeCharges.setValue(String.valueOf(charge.maxRangeCharges));
         fastCharger.setValue(charge.fastChargerPresent ? "Yes":"No");
         chargeRate.setValue(String.format("%.1f", charge.chargeRate*conversionFactor));
-        remaining.setValue(getDurationString(charge.timeToFullCharge));
+        remaining.setValue(charge.timeToFull());
         actualCurrent.setValue(String.valueOf(charge.chargerActualCurrent));
         chargerPower.setValue(String.valueOf(charge.chargerPower));
         chargingState.setValue(charge.chargingState.name());
@@ -300,19 +300,4 @@ public class ChargeController extends BaseController {
         scheduledTimeLabel.setVisible(show);
     }
     
-/*------------------------------------------------------------------------------
- *
- * Private Utility Methods and Classes
- * 
- *----------------------------------------------------------------------------*/
-
-    static String getDurationString(double hoursFloat) {
-        int hours = (int)hoursFloat;
-        double fractionalHour = hoursFloat - hours;
-        int minutes = (int)(fractionalHour * 60);
-        int seconds = (int)((fractionalHour * 60) - minutes) * 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-    
-
 }
