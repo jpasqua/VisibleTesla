@@ -20,6 +20,8 @@ import org.noroomattheinn.visibletesla.data.VTData;
 import org.noroomattheinn.visibletesla.rest.RESTServer;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
 
+import static org.noroomattheinn.tesla.Tesla.logger;
+
 /**
  * This is the main class for the VisibleTesla application.
  * In addition to loading the FXML and launching the MainController, it creates
@@ -81,6 +83,7 @@ public class VisibleTesla extends Application {
                 app.api, v, app.authenticator,
                 prefs.enableRest, prefs.restPort,
                 prefs.customURLSource);
+        logger.finest("Created RESTServer: " + rs);
         
         // OK, that's done. Now launch the MainController and let's get started!
         mainController = Utils.cast(root.getUserData());
