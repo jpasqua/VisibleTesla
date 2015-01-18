@@ -119,11 +119,13 @@ public class MultiGauge {
     }
     
     private RadialGradient gradientFromBase(Color c) {
+        double width = radius-thickness;
+        double firstStop = width / ((double)radius);
         return new RadialGradient(
                 0, 0, radius, radius, radius, false, CycleMethod.NO_CYCLE,
                 new Stop[]{
                     new Stop(0.00, trans(c, 0.0)),
-                    new Stop((radius-thickness)/radius, trans(c, 0.3)),
+                    new Stop(firstStop, trans(c, 0.3)),
                     new Stop(0.85, trans(c, 0.5)),
                     new Stop(1.00, c)
         });
