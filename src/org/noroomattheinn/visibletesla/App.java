@@ -241,7 +241,7 @@ class App {
             n.addEventFilter(MouseEvent.MOUSE_RELEASED, new EventPassThrough());
         }
         ThreadManager.get().launch(
-                new InactivityThread(prefs.idleThresholdInMinutes.get() * 60 * 1000),
+                new InactivityThread(60L * 1000L * prefs.idleThresholdInMinutes.get()),
                 "Inactivity");
     }
 
