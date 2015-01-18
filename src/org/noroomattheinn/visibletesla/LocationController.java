@@ -24,7 +24,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -70,7 +69,6 @@ public class LocationController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    @FXML private Button launchButton;
     @FXML private WebView webView;
     @FXML private ImageView loadingImage;
     @FXML private Label loadingImageLabel;
