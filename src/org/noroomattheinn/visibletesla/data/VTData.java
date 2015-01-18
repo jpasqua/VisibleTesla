@@ -30,6 +30,7 @@ import org.noroomattheinn.utils.Executor.FeedbackListener;
 import org.noroomattheinn.utils.TrackedObject;
 import org.noroomattheinn.utils.Utils.Predicate;
 import org.noroomattheinn.visibletesla.vehicle.VTVehicle;
+import static org.noroomattheinn.tesla.Tesla.logger;
 
 
 /**
@@ -61,7 +62,7 @@ public class VTData {
     public static final String OdometerKey =    "L_ODO";
     public static final String PowerKey =       "L_PWR";
     
-    public static final String[] Columns = {
+    static final String[] Columns = {
         VoltageKey, CurrentKey, EstRangeKey, SOCKey, ROCKey, BatteryAmpsKey,
         LatitudeKey, LongitudeKey, HeadingKey, SpeedKey, OdometerKey, PowerKey};
     public static final RowDescriptor schema = new RowDescriptor(Columns);
@@ -298,6 +299,7 @@ public class VTData {
                 options.submitAnonCharge, options.includeLocData,
                 options.ditherLocAmt);
         ChargeMonitor cm = new ChargeMonitor(vtVehicle, lastChargeCycle);
+        logger.finest("Created ChargeMonitor: " + cm);
     }
     
 /*------------------------------------------------------------------------------
