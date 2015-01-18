@@ -32,7 +32,7 @@ import org.noroomattheinn.visibletesla.data.RestCycle;
  * 
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
-class VampireLossResults  extends VTDialog.Controller {
+public class VampireLossResults  extends VTDialog.Controller {
 /*------------------------------------------------------------------------------
  *
  * Internal State
@@ -175,8 +175,8 @@ class VampireLossResults  extends VTDialog.Controller {
  *----------------------------------------------------------------------------*/
     
     private double nHours(RestCycle r) {
-        long diff = r.endTime - r.startTime;
-        long seconds = diff/1000;
+        double diff = r.endTime - r.startTime;
+        double seconds = diff/1000;
         double minutes = seconds/60;
         double hours = minutes/60;
         return hours;
@@ -241,7 +241,7 @@ class VampireLossResults  extends VTDialog.Controller {
                 date, (int)period, (int)((period%1)*60), loss, units, loss/period  );
     }
     
-    class DateLabelGenerator extends StringConverter<Number> {
+    static class DateLabelGenerator extends StringConverter<Number> {
         TimeStringConverter hmConverter = new TimeStringConverter("HH:mm");
         TimeStringConverter mdConverter = new TimeStringConverter("MM/dd");
         String lastMD = "";
