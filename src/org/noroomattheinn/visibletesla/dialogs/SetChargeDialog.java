@@ -126,7 +126,7 @@ public class SetChargeDialog extends VTDialog.Controller {
                 if (newValue == null) {
                     label.setText("...");
                 } else {
-                    label.setText(Math.round(newValue.intValue())+"");
+                    label.setText(String.valueOf(newValue.intValue()));
                 }
             }
         });
