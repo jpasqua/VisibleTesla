@@ -62,8 +62,9 @@ abstract class CycleStore<C extends BaseCycle>
     
     List<C> getCycles(Range<Long> period) {
         List<C> cycles = new ArrayList<>();
+        BufferedReader r = null;
         try {
-            BufferedReader r = new BufferedReader(new FileReader(cycleFile));
+            r = new BufferedReader(new FileReader(cycleFile));
 
             try {
                 String entry;
@@ -78,6 +79,11 @@ abstract class CycleStore<C extends BaseCycle>
             }
         } catch (FileNotFoundException ex) {
             logger.warning("Could not open " + cycleType + " file: " + ex);
+        } finally {
+            if (r != null) {
+                try { r.close(); }
+                catch (IOException e) { logger.warning("Failed closing reader: " + e); }
+            }
         }
         return cycles;
     }
