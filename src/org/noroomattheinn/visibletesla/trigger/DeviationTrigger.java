@@ -50,7 +50,7 @@ public class DeviationTrigger {
             return false;
         }
 
-        if (runningAverage == NoAverageEstablished) {
+        if (almostEquals(runningAverage, NoAverageEstablished)) {
             firstTime = lastTime = System.currentTimeMillis();
             runningAverage = sample;
             sampleCount = 1;
@@ -88,5 +88,9 @@ public class DeviationTrigger {
         runningAverage = NoAverageEstablished;
         firstTime = lastTime = firstTriggerTime = -1L;
         sampleCount = 0;
+    }
+    
+    private boolean almostEquals(double d1, double d2) {
+        return ( Math.abs(d1 - d2) < .0000001 );
     }
 }
