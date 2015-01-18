@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.timeseries;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,10 +46,11 @@ public class RowDescriptor {
      * @param columnNames   An ordered list of columns in a row.
      */
     public RowDescriptor(String[] columnNames) {
-        this.columnNames = columnNames;
+        this.nColumns = columnNames.length;
+        this.columnNames = new String[this.nColumns];
+        System.arraycopy(columnNames, 0, this.columnNames, 0, nColumns);
         this.bitForColumn = new HashMap<>();
         this.indexOfColumn = new HashMap<>();
-        this.nColumns = columnNames.length;
         
         long bit = 1;
         for (int i = 0; i < nColumns; i++) {
