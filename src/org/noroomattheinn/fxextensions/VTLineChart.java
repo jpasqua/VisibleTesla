@@ -7,13 +7,8 @@
 package org.noroomattheinn.fxextensions;
 
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -38,7 +33,6 @@ public class VTLineChart extends LineChart<Number,Number> {
  *----------------------------------------------------------------------------*/
     
     public enum DisplayMode {LinesOnly, MarkersOnly, Both};
-    public static final long ALongLongTime = 60*24*365;  // 1 Year in minutes
     
 /*------------------------------------------------------------------------------
  *
@@ -46,13 +40,13 @@ public class VTLineChart extends LineChart<Number,Number> {
  * 
  *----------------------------------------------------------------------------*/
     
-    private final BiMap<Integer,VTSeries> seriesNumberToSeries = HashBiMap.create();
-    private final Map<Integer,Boolean> visibilityMap = new HashMap<>();
-    private DisplayMode displayMode = DisplayMode.LinesOnly;
-    private double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
-    private double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
-    private long gapTime = ALongLongTime * 60;  // Time that constitutes a gap in data (seconds)
-    private boolean ignoreGaps = false;         // Should we ignore gaps
+    private final List<VTSeries> theSeries;
+    
+    private DisplayMode displayMode;
+    private double      minX, minY, maxX, maxY;
+    private boolean     ignoreGaps; // Should we ignore gaps
+    private long        gapTime;    // Time in seconds that constitutes a gap
+                                    // Only relevant if ignoreGaps is true
     
 /*==============================================================================
  * -------                                                               -------
@@ -60,16 +54,14 @@ public class VTLineChart extends LineChart<Number,Number> {
  * -------                                                               -------
  *============================================================================*/
 
-    //
-    // Constructors
-    //
-    
-    public VTLineChart(NumberAxis x, NumberAxis y, ObservableList<XYChart.Series<Number,Number>> data) {
-        super(x, y, data);
-    }
-        
     public VTLineChart(NumberAxis x, NumberAxis y) {
         super(x, y);
+        theSeries = new ArrayList<>();
+        ignoreGaps = false;
+        gapTime = 0;
+        minX = minY = Double.POSITIVE_INFINITY;
+        maxX = maxY = Double.NEGATIVE_INFINITY;
+        displayMode = DisplayMode.LinesOnly;
     }
 
     
@@ -80,24 +72,22 @@ public class VTLineChart extends LineChart<Number,Number> {
  *----------------------------------------------------------------------------*/
 
     public void clearSeries() {
-        seriesNumberToSeries.clear();
         getData().clear();
     }
 
     public VTSeries register(VTSeries s) {
-        seriesNumberToSeries.put(seriesNumberToSeries.size(), s);
+        theSeries.add(s);
         return s;
     }
     
     public void applySeriesToChart() {
-        getData().clear();
-        for (int i = 0; i < seriesNumberToSeries.size(); i++) {
-            getData().add(seriesNumberToSeries.get(i).getSeries());
+        ObservableList<Series<Number, Number>> list = getData();
+        list.clear();
+        for (VTSeries s : theSeries) {
+            list.add(s.getSeries());
         }
     }
     
-    public Collection<VTSeries> set() { return seriesNumberToSeries.values(); }
-
 /*------------------------------------------------------------------------------
  *
  * PUBLIC - Set/Get various characterisitics of how the data is displayed
@@ -106,14 +96,6 @@ public class VTLineChart extends LineChart<Number,Number> {
     
     public void refreshChart() { layoutPlotChildren(); }
 
-    public void setVisible(VTSeries s, boolean visible) {
-        visibilityMap.put(seriesNumberToSeries.inverse().get(s), visible);
-    }
-    
-    public boolean isVisible(VTSeries s) {
-        return visibilityMap.get(seriesNumberToSeries.inverse().get(s));
-    }
-    
     public void setDisplayMode(DisplayMode mode) {
         this.displayMode = mode;
         for (XYChart.Series<Number,Number> s : getData()) { applyLineStyleToSeries(s);}
@@ -198,7 +180,7 @@ public class VTLineChart extends LineChart<Number,Number> {
             if (series.getNode() instanceof  Path) {
                 ObservableList<PathElement> line = ((Path)series.getNode()).getElements();
                 line.clear();
-                if (!visibilityMap.get(seriesIndex)) continue;
+                if (!theSeries.get(seriesIndex).isVisible()) continue;
 
                 line.add(new MoveTo(0,0));  // We need an initial MoveTo...
                                             // Set the actual values at the end

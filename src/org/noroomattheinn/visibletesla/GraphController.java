@@ -112,7 +112,7 @@ public class GraphController extends BaseController {
         CheckBox cb = (CheckBox) event.getSource();
         boolean visible = cb.isSelected();
         VTSeries series = cbToSeries.get(cb);
-        lineChart.setVisible(series, visible);
+        series.setVisible(visible);
         lineChart.refreshChart();
 
         // Remember the value for next time we start up
@@ -167,7 +167,7 @@ public class GraphController extends BaseController {
             VTSeries s = cbToSeries.get(cb);
             boolean selected = prefs.storage().getBoolean(vinKey(s.getName()), true);
             cb.setSelected(selected);
-            lineChart.setVisible(s, selected);
+            s.setVisible(selected);
         }
 
         // Restore the last display settings (display lines, markers, or both)
@@ -193,8 +193,8 @@ public class GraphController extends BaseController {
         
         prepSeries();
         loadExistingData();
-        // Register for additions to the data - Handle the new data on the JFX
-        // thread to avoid ConcurrentModificationExceptions in the series data
+        // Register for additions to the list - Handle the new list on the JFX
+        // thread to avoid ConcurrentModificationExceptions in the series list
         App.addTracker(vtData.lastStoredChargeState, chargeHandler);
         App.addTracker(vtData.lastStoredStreamState, streamHandler);
 
@@ -305,7 +305,7 @@ public class GraphController extends BaseController {
     
 /*------------------------------------------------------------------------------
  *
- * PRIVATE - Loading existing data into the Series
+ * PRIVATE - Loading existing list into the Series
  * 
  *----------------------------------------------------------------------------*/
         
@@ -331,22 +331,16 @@ public class GraphController extends BaseController {
                     VTSeries vts = typeToSeries.get(type);
                     if (vts != null) {  // It's a column that we're graphing
                         double value = row.values[i];
-                        ObservableList<XYChart.Data<Number,Number>> data = typeToList.get(type);
+                        ObservableList<XYChart.Data<Number,Number>> list = typeToList.get(type);
                         // Don't overload the graph. Make sure that samples are
                         // At least 5 seconds apart unless they represent a huge 
                         // swing in values: greater than 50%
                         if (time - lastTimeForType.get(type) >= 5 * 1000 ||
                             Utils.percentChange(value, lastValForType.get(type)) > 0.5) {
-                            if (type.equals(VTData.SpeedKey) &&
-                                lastValForType.get(type) == 0 &&
-                                time - lastTimeForType.get(type) > 60 * 1000) {
-                                    data.add(new XYChart.Data<>(
-                                            vts.getXformX().transform(time - (5 * 1000)), 
-                                            vts.getXformY().transform(0)));
+                            if (type.equals(VTData.SpeedKey) && add0Speed(time, value)) {
+                                vts.addToData(list, time - (5 * 1000), 0);
                             }
-                            data.add(new XYChart.Data<>(
-                                    vts.getXformX().transform(time), 
-                                    vts.getXformY().transform(value)));
+                            vts.addToData(list, time, value);
                             lastTimeForType.put(type, time);
                             lastValForType.put(type, value);
                         }
@@ -365,16 +359,16 @@ public class GraphController extends BaseController {
         lineChart.applySeriesToChart();
         restoreLastSettings();
     }
-    
+        
 /*------------------------------------------------------------------------------
  *
- * PRIVATE - Listen for and add new data points to the graph
+ * PRIVATE - Listen for and add new list points to the graph
  * 
  *----------------------------------------------------------------------------*/
     
     private void addElement(final VTSeries series, final long time, double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) value = 0;
-        series.addToSeries(time, value, false);
+        series.addToSeries(time, value);
     }
     
     private final Runnable chargeHandler = new Runnable() {
@@ -392,9 +386,27 @@ public class GraphController extends BaseController {
     private final Runnable streamHandler = new Runnable() {
         @Override public void run() {
             StreamState ss = vtData.lastStoredStreamState.get();
-            addElement(typeToSeries.get(VTData.SpeedKey), ss.timestamp, ss.speed);
             addElement(typeToSeries.get(VTData.PowerKey), ss.timestamp, ss.power);
+            
+            if (add0Speed(ss.timestamp, ss.speed)) {
+                addElement(typeToSeries.get(VTData.SpeedKey), ss.timestamp  - (5 * 1000), 0);                
+            }
+            addElement(typeToSeries.get(VTData.SpeedKey), ss.timestamp, ss.speed);
         }
     };
-
+    
+    private long lastTime = 0;
+    private double lastSpeed = -1.0;
+    private boolean add0Speed(long curTime, double curSpeed) {
+        boolean add0 = false;
+        if (lastSpeed == 0.0 && curSpeed != 0.0) {
+            if (curTime - lastTime > 60 * 1000L) {
+                add0 = true;
+            }
+        }
+        lastTime = curTime;
+        lastSpeed = curSpeed;
+        return add0;
+    }
+    
 }
