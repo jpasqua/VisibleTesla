@@ -96,7 +96,7 @@ public class TimeBasedChart {
         xAxis = new NumberAxis(
                 secondsFromMinutes(nowInMinutes - 23 * 60), 
                 secondsFromMinutes(nowInMinutes + 60), 
-                secondsFromMinutes(24 * 60)/minorTicksForX);
+                (double)secondsFromMinutes(24 * 60)/(double)minorTicksForX);
         xAxis.setAnimated(false);
         xAxis.setAutoRanging(false);
         xAxis.setTickLabelFormatter(new DateLabelGenerator());
@@ -134,7 +134,7 @@ public class TimeBasedChart {
 
     }
     
-    class DateLabelGenerator extends StringConverter<Number> {
+    static class DateLabelGenerator extends StringConverter<Number> {
         TimeStringConverter hmConverter = new TimeStringConverter("HH:mm");
         TimeStringConverter mdConverter = new TimeStringConverter("MM/dd");
         String lastMD = "";
