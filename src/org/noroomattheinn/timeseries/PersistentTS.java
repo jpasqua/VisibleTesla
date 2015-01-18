@@ -208,7 +208,11 @@ public class PersistentTS extends TSBase {
         } catch (IOException ex) {
             logger.severe("Error loading from repository" + ex);
         }
-        if (rdr != null) try { rdr.close(); } catch (IOException e) { }
+        if (rdr != null) try {
+            rdr.close();
+        } catch (IOException e) {
+            logger.warning("Failure closing reader: " + e);
+        }
     }
 
     @Override public synchronized void flush() {
