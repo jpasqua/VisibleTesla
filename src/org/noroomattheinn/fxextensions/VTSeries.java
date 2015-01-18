@@ -8,6 +8,7 @@ package org.noroomattheinn.fxextensions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Shape;
@@ -110,6 +111,16 @@ public class VTSeries implements Comparable {
     @Override public int compareTo(Object o) {
         return series.getName().compareTo(((VTSeries)o).series.getName());
     }
+
+    @Override public int hashCode() {
+        return series.getName().hashCode();
+    }
+    
+    @Override public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof VTSeries)) return false;
+        return compareTo(o) == 0;
+    }
     
 /*------------------------------------------------------------------------------
  *
@@ -137,27 +148,27 @@ public class VTSeries implements Comparable {
         T transform(T value);
     }
     
-    public static Transform<Number> idTransform = new Transform<Number>() {
+    public static final Transform<Number> idTransform = new Transform<Number>() {
         @Override public Number transform(Number value) { return value; }
     };
             
-    public static Transform<Number> cToFTransform = new Transform<Number>() {
+    public static final Transform<Number> cToFTransform = new Transform<Number>() {
         @Override public Number transform(Number value) { return Utils.cToF(value.doubleValue()); }
     };
     
-    public static Transform<Number> fToCTransform = new Transform<Number>() {
+    public static final Transform<Number> fToCTransform = new Transform<Number>() {
         @Override public Number transform(Number value) { return Utils.fToC(value.doubleValue()); }
     };
     
-    public static Transform<Number> mToKTransform = new Transform<Number>() {
+    public static final Transform<Number> mToKTransform = new Transform<Number>() {
         @Override public Double transform(Number value) { return Utils.milesToKm(value.doubleValue()); }
     };
     
-    public static Transform<Number> kToMTransform = new Transform<Number>() {
+    public static final Transform<Number> kToMTransform = new Transform<Number>() {
         @Override public Double transform(Number value) { return Utils.kmToMiles(value.doubleValue()); }
     };
 
-    public static Transform<Number> millisToSeconds = new Transform<Number>() {
+    public static final Transform<Number> millisToSeconds = new Transform<Number>() {
         @Override public Long transform(Number value) { return value.longValue()/1000; }
     };
 
