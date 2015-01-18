@@ -566,8 +566,6 @@ public class NotifierController extends BaseController {
     };
             
     private Runnable ssListener = new Runnable() {
-        long lastSpeedNotification = 0;
-        
         @Override public void run() {
             StreamState cur = vtVehicle.streamState.get();
             if (socHitsTrigger.evalPredicate(new BigDecimal(cur.soc))) {
@@ -678,7 +676,7 @@ public class NotifierController extends BaseController {
         });
     }
 
-    private class HTTPAsyncGet implements Runnable {
+    private static class HTTPAsyncGet implements Runnable {
         private static final int timeout = 5 * 1000;
         
         private URLConnection connection;
