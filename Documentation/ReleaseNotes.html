@@ -19,420 +19,408 @@
 			<h1>
 				VisibleTesla Release Notes
 			</h1>
-		<h3>
-			VisibleTesla 0.50.00 [01-18-2015]
-		</h3>
-		<ul>
-			<li>User-Visible Changes
-				<ul>
-					<li>General
-						<ul>
-							<li>
-								<span class="added">Addition</span>: Added ....
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: More work on ....
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: Addressed the problem where ...
-							</li>
-						</ul>
-					</li>
-					<li>Login
-						<ul>
-						</ul>
-					</li>
-					<li>Overview
-						<ul>
-						</ul>
-					</li>
-					<li>HVAC
-						<ul>
-						</ul>
-					</li>
-					<li>Location
-						<ul>
-						</ul>
-					</li>
-					<li>Charge
-						<ul>
-						</ul>
-					</li>
-					<li>Graphs
-						<ul>
-							<li>A few minor changes to make the speed line in the Graph look a little better in the face of missing data at the beginning or end of a trip. This is purely cosmetic - no new data is being collected.</li>
-						</ul>
-					</li>
-					<li>Trips
-						<ul>
-							<li>There is now an <span class="ui">End Trip</span> button which will explicitly end a trip that the app thinks is in progress. Normally the app will not decide a trip has been completed until there has been no movement for over 15 minutes. Thus if you arrive at home after a trip and immediately check the <span class="ui">Trips</span> Tab, you won't see it. Pressing the <span class="ui">End Trip</span> button will cause the Trip to display now, rather than 15 minutes from now.</li>
-						</ul>
-					</li>
-					<li>Scheduler
-						<ul>
-						</ul>
-					</li>
-					<li>Notify
-						<ul>
-						</ul>
-					</li>
-					<li>Prefs
-						<ul>
-							<li>Moved to a tabbed based interface for the preferences. Reorganized some of the layout as a result.</li>
-							<li>The Advanced Prefs is further broken down into sections.</li>
-							<li>Override settings have their own tab.</li>
-							<li>New options related to anonymous data submissions.</li>
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>Under-the-covers
-				<ul>
-					<li>Massive under-the-cover changes to almost every corner of the app.</li>
-					<li>New data storage subsystem that is incompatible with the old system. A one-time upgrade is performed the first time this version is run. The old data files are left in place, but they may be archived and deleted to reclaim space if desired.</li>
-					<li>Significant code refactoring to remove dependencies and make the code easier to work on and maintain.</li>
-				</ul>
-			</li>
-			<li>Known problems
-				<ul>
-				</ul>
-			</li>
-		</ul>
-		<hr>
-		<h3>
-			VisibleTesla 0.30.00 [10-30-2014] - <strong>EXPERIMENTAL</strong>
-		</h3>
-		<ul>
-			<li>User-Visible Changes
-				<ul>
-					<li>General
-						<ul>
-							<li> <span class="added">Addition</span>: VisibleTesla now keeps track of charge cycles and stores a record. At this point all you can do with this information is export it as an excel spreadsheet and submit it (anonymized) to a central repository. Future versions will likely allow the capability to graph the information and submit it anonymously to sites that track Tesla statistics.
-							</li>
-							<li> <span class="added">Addition</span>: <strong>Experimental</strong> - Added the <span class="ui">Remote Start</span> capability to the <span class="ui">Options&rarrActions</span> menu. Much more testing needs to be done to ensure this is a proper implementation and that appropriate feedback is presented in the user interface when remote start has been enabled.
-							</li>
-							<li> <span class="added">Addition</span>: Added the ability to restrict the time period considered for Vampire Loss. You can now set a preference that specifies a range of times during the day that should be considered when analyzing vampire loss. For example, you can specify that only times between 10PM and 7AM should be analyzed. The time range (and whether it is active) are set using new preferences in the Graphs Prefs section.
-							</li>
-							<li> <span class="added">Addition</span>: VisibleTesla now displays your car's name in the window title bar. If your car is on at least version 6.0 of Tesla's software, you can give your car a name using  <a href="https://www.teslamotors.com/mytesla">Tesla's web site</a>.</li>
-							<li>
-								<span class="changed">Refinement</span>: Significant changes to adapt to the new Tesla 6.0 firmware. This includes the way authentication is performed with Tesla's servers (OAUTH). As a result, cookies are no longer stored to retain authenticiaton information.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Daydreaming mode is gone. There is just "Stay Awake" mode and "Allow Sleeping" mode. This is just a simplification. All Daydream mode did was turn off autorefresh on the tabs to minimize the load on Tesla's servers.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Automatic Tab refreshing has been removed. Since very few people just sit there staring at the app waiting for updates every thirty seconds, I  did away with autorefresh. Of course the Location Tab will follow motion without you having to press the refresh button and when you switch between tabs, it will refresh the data on the newly selected tab. Furthermore, Tabs will automatically update data whenever data is collected in the background that effects them.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Several new options codes are now recognized. this may result in a more faithful representation of the car in the Overview Tab. 
-							</li>
-						</ul>
-					</li>
-					<li>Login
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: Removed the logout option. If you want to logout, you need to quit and restart.
-							</li>
-						</ul>
-					</li>
-					<li>Overview
-						<ul>
-							<li> <span class="added">Addition</span>: VisibleTesla now supports Steel Grey as a new body color.  </li>
-							<span class="changed">Refinement</span>: VisibleTesla now displays a distinct body for Right Hand Drive vehicles.  </li>
-							<li>
-								<span class="changed">Refinement</span>: The field that toggles between the VIN or firmware version now toggles between the VIN or software version. The firmware version is an internal version number that corresponds to the detailed version of the firmware. The software version is the version number that Tesla talks about, such as 6.0. There may be several firmware versions that are all software version 6.0. VisibleTesla keeps a map of which firmware versions correspond to which software versions. If your car has a new version than VisibleTesla knows about, it will display the firmware version. Actually, it will first try to download a newer information about software and firmware versions. Only if that fails will it display the firmware version. The firmware version is always available by pressing the <span class="ui">Details</span> button and checking the resulting dialog box.
-							</li>
-						</ul>
-					</li>
-					<li>HVAC
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: The car now shows the correct wheels on both the driver side and the passenger side of the car. Thanks to Tesla for providing the correct images.
-							</li>
-						</ul>
-					</li>
-					<li>Location
-						<ul>
-						</ul>
-					</li>
-					<li>Charge
-						<ul>
-						</ul>
-					</li>
-					<li>Graphs
-						<ul>
-						</ul>
-					</li>
-					<li>Trips
-						<ul>
-						</ul>
-					</li>
-					<li>Scheduler
-						<ul>
-						</ul>
-					</li>
-					<li>Notify
-						<ul>
-							<li>
-								<span class="added">Addition</span>: There is a new notification type that can send an alert if you forget your car doors unlocked. In particular, when enabled, a notification will be sent if your car is stationary (and in Park) for more than 5 minutes with the doors unlocked. Another notification will not be sent unitl the car has gone from this state to in-motion, to unlocked again.
-							</li>
-							<li>
-								<span class="added">Addition</span>: <strong>For advanced users only.</strong> Notifications can trigger the execution of an arbitrary command on the computer that is running VisibleTesla. Normally a notification results in an email message being sent. There's also the ability to issue an HTTP GET. Now there is a new option - the ability to execute a user-specified command. This allows advanced users to integrate VisibleTesla with other services such as home automation controllers. For details, please refer to the <a href="pages/NotifyTab.html">Notify Tab</a>.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Geofencing now allows you to specify up to four geofences for <span class="ui">Car Entered Area</span> and another four for <span class="ui">Car Left Area</span>. Each fence is able to deliver a separate custom message or trigger a custom action. For example, when arriving home you might have a custom action that tells your home automation system to turn on the lights. When arriving at the market, you can trigger a text message reminding you to bring in a bag.
-								<blockquote><strong>NOTE</strong>: You will have to recreate any existing geofencing notifications that you had previously created.</blockquote>
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: The different types of notifications are now separated into different panes in order to make room for new notifications.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: The <span class="ui">Charge State Becomes</span> notification now allows you to select one or more individual states that you are interested in. For example, you can alert on <span class="ui">Disconnected</span>, <span class="ui">Stopped</span>, and <span class="ui">Complete</span> if you'd like. You can still get notifications on any change to the charge state, or a single charge state.
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: In version 0.29.00 notifications could lag by a couple of minutes. That has been fixed.
-							</li>
-						</ul>
-					</li>
-					<li>Prefs
-						<ul>
-							<li>
-								<span class="added">Addition</span>: The <span class="ui">Graphs</span> section now includes additional options that allow you to restrict the hours to be included in the analysis of Vampire Loss.
-							</li>
-							<li>
-								<span class="added">Addition</span>: The <span class="ui">Overrides</span> section of General Preferences now includes some additional options. For wheels, you may now select <span class="ui">19" Turbine Grey</span>. For color, you may now select <span class="ui">Steel Grey</span>.
-							</li>
-							<li>
-								<span class="added">Addition</span>: The <span class="ui">General/Advanced</span> section now includes a <span class="ui">Log Level</span> setting. This does not influence the operation of the application. It is solely there to aid in diagnosing problems.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Changed the default of <span class="ui">Location/Stream when possible</span> from false to true.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Color and wheel overrides are now reflected immediately in the HVAC and Overview Tabs.
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>Under-the-covers
-				<ul>
-					<li>Fairly significant changes to adapt to the new TeslaClient library. It was refactored while dealing with the changes to Tesla's REST API.
-					</li>
-					<li>Code refactoring and cleanup while performing some of the changes listed above.
-					</li>
-				</ul>
-			</li>
-			<li>Known problems
-				<ul>
-				</ul>
-			</li>
-		</ul>
-		<hr>
-		<h3>
-			VisibleTesla 0.29.00 [08-30-2014] - <strong>EXPERIMENTAL</strong>
-		</h3>
-		<ul>
-			<li>User-Visible Changes
-				<ul>
-					<li>General
-						<ul>
-							<li>
-								<span class="changed">Note</span>: If you're using an old version of VisibleTesla (older than 0.27.03) AND you have overriden the advanced option describing where to store application files, you'll need to be careful about upgrading. Upgrade to verion 0.27.03 manually and then you can upgrade to the latst version.
-							</li>
-							<li>
-								<span class="added">Addition</span>: The <span class="ui">Options&rarr;Simulate</span> menu has been replaced by a new and more general <span class="ui">Overrides</span> mechanism.
-								<ul>
-									<li>The simulate menu gave you the ability to see variations of your car during a specific run of VisibleTesla. The new Overrides capability gives you to simulate an option and remember that state across sessions. There are cases where the information reported by Tesla's servers to VisibleTesla does not reflect the actual state of the car. This is usually the result of a change to the car after it was initially delivered.</li>
-									<li>For example, you may have ordered your car with 21" wheels but later decided to switch to 19's. In fact, some people keep both types and switch during the year based on weather. Today, VisibleTesla has no way to track those changes.
-									<li>With this new feature, you can manually override the wheel setting when you change the actual wheels. For details of the UI, please refer to the documentation of the <span class="ui">Overrides</span> section of the <a href="pages/PrefsTab.html">Prefs Tab</a>.</li>
-								</ul>
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Added the variable {{HT_CARVIEW}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>. This variable  generates an HTML canvas representing the current state of the doors, trunks, and roof. It's similar to the car view that is displayed by the Overview Tab. This variable is for use in HTML pages only, not in notification messages.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Improvements to the way various wheel types are detected to handle some unusual cases.
-							</li>
-						</ul>
-					</li>
-					<li>Login
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: In principle there should be no user visible changes to the Login Tab. In practice, there were quite a few code changes. Hopefully I did not introduce any bugs into this area, but please let me know if I did.
-							</li>
-						</ul>
-					</li>
-					<li>Overview
-						<ul>
-							<li>
-								<span class="added">Addition</span>: The range is now displayed on the Overview Tab. You can select which type of range is displayed using the preferences. it can be either Rated, Ideal, or Estimated. 
-							</li>
-							<li>
-								<span class="added">Addition</span>: The shift state is now displayed. It is either P (park), N (neutral), D (drive), or R (reverse). There are times when the car may not respond with an accurate drive state. In this case a "P" will be displayed. 
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: The <span class="ui">Honk</span>, <span class="ui">Flash</span>, and <span class="ui">Wakeup</span> buttons have been moved to the <span class="ui">Options&rarr;Activity</span> menu.
-							</li>
-						</ul>
-					</li>
-					<li>HVAC
-						<ul>
-						</ul>
-					</li>
-					<li>Location
-						<ul>
-						</ul>
-					</li>
-					<li>Charge
-						<ul>
-						</ul>
-					</li>
-					<li>Graphs
-						<ul>
-						</ul>
-					</li>
-					<li>Trips
-						<ul>
-							<li>
-								<span class="fixed">Fix</span>: When a trip is selected, an estimate of the kWh consumed is displayed. It was previously mislabeled as <span class="ui">Power</span>. It has been changed to <span class="ui">Energy</span>.
-							</li>
-						</ul>
-					</li>
-					<li>Scheduler
-						<ul>
-						</ul>
-					</li>
-					<li>Notify
-						<ul>
-							<li>
-								<span class="added">Addition</span>: You may now request to be notified a charge anomaly occurs. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during a charging cycle. This feature is highly <strong>experimental</strong> since I have no way to safelt recreate such a charge anomaly. 
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Sometimes certain readings can fluctuate enough that a notification like <span class="ui">SOC Hits or Exceeds</span> may be triggered multiple times in a short period. VisibleTesla now avoids sending you multiple notifications in these circumstances. 
-							</li>
-						</ul>
-					</li>
-					<li>Prefs
-						<ul>
-							<li>
-								<span class="added">Addition</span>: There is a new option in the <span class="ui">General/Basic</span> preferences. It controls which type of range is displayed on the Overview Tab. It can be either Rated, Estimated, or Ideal.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Removed the option to store application data files with the app. I've been phasing this out for a few releases and the option is now completely removed. There were a number of logistical problems maintaining this option. If you used this option in past and are upgrading from a version before 0.27.03, please follow the process listed at the very top of the release notes.
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>Under-the-covers
-				<ul>
-					<li>Moved to a fully observer-based model for state updates.</li>
-					<li>Changed the way commands are issued to Tesla's servers. There is now one background thread to issue commands rather than threads spawning and completing per command. Removed some dead code.</li>
-					<li>Fairly massive code refactoring to make the code more manageable. Lots more could be done, but that will happen over time. The extent of these changes is in large part the reason that this release is experimental.</li>
-				</ul>
-			</li>
-			<li>Known problems
-				<ul>
-				</ul>
-			</li>
-		</ul>
-		<hr>
-		<h3>
-			VisibleTesla 0.28.01 [07-18-2014]
-		</h3>
-		<ul>
-			<li>User-Visible Changes
-				<ul>
-					<li>General
-						<ul>
-							<li>
-								<span class="added">Addition</span>: On the Mac you can now use <span class="ui">&#8984;-H</span>  to hide a window just like you can with other Mac apps. Note that unlike other Mac applications, you won't see this shortcut listed in the application menu. This is a deficiency with JavaFX on the Mac. Using <span class="ui">&#8984;-H</span> is the same as pressing the yellow minimize icon. On Windows 7 you and beyond you can use <span class="ui"><img src="images/other/WinKey.gif"> +↓</span> to minimize the VisibleTesla window. This has always been there. 
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: <strong>For advanced users only - EXPERIMENTAL.</strong>You may now set an advanced preference that specifies a URL that holds custom pages that can be served up by the built-in web server. Use template variables to customize the pages. See the <a href="pages/PrefsTab.html">Prefs Tab</a> and <a href="pages/OtherTopics.html#rest">Web Services</a> for details.
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: The <span class="ui">Help->What's New</span> menu item works again.
-							</li>
-							<li>
-								<span class="fixed">Fix</span>: Fixed a minor issue with login to the web services which only affected those who are using this experimental feature.
-							</li>
-						</ul>
-					</li>
-					<li>Login
-						<ul>
-						</ul>
-					</li>
-					<li>Overview
-						<ul>
-						</ul>
-					</li>
-					<li>HVAC
-						<ul>
-						</ul>
-					</li>
-					<li>Location
-						<ul>
-						</ul>
-					</li>
-					<li>Charge
-						<ul>
-						</ul>
-					</li>
-					<li>Graphs
-						<ul>
-						</ul>
-					</li>
-					<li>Trips
-						<ul>
-							<li>
-								<span class="added">Addition</span>: There is a new row in the Trip property table. In addition to displaying the starting and ending value for Range, SOC, and Odometer, it now displays an estimate of the power consumed in the selected trip (or trips). <strong>This is purely an estimate.</strong> It is not a value reported by the car, but rather a rough integration of area under the power curve that you see plotted in the Graphs Tab.
-							</li>
-						</ul>
-					</li>
-					<li>Scheduler
-						<ul>
-						</ul>
-					</li>
-					<li>Notify
-						<ul>
-							<li>
-								<span class="changed">Refinement</span>: The target email address specified for a notification may now be a comma-separated list of email addressses. This functionality has actually been there for some time, but it has now been tested.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: Added the variable {{HT_SPEEDO}} and {{HT_LOC}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>.
-							</li>
-							<li>
-								<span class="changed">Refinement</span>: The {{HT_SOC_G}} variable now more accurately represents the charge state.
-							</li>
-						</ul>
-					</li>
-					<li>Prefs
-						<ul>
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>Under-the-covers
-				<ul>
-					<li>VisibleTesla is using HTML5 Canvas to render the {{HT_SOC_G}} and {{HT_SPEEDO}} elements.</li>
-				</ul>
-			</li>
-			<li>Known problems
-				<ul>
-					<li>There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. Debugging and testing is ongoing to address this problem.
-					</li>
-				</ul>
-			</li>
-		</ul>
-		<hr>
+			<h3>
+				VisibleTesla 0.50.00 [01-18-2015]
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="added">Addition</span>: There are more options for exporting data. You may export only charge related data, only location data, or both. You may also export Charge cycle information and Rest cycle information.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Enhancements to the exported data to make it easier to manipulate.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: When in sleep mode you may not interact with certain tabs without waking up your car: Login, Graphs, Trips, Scheduler, Notify, Prefs. If you interact with the Overview, HVAC, Location, or Charge Tabs, it will take you out of sleep mode as before.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+						</li>
+						<li>Overview
+							<ul>
+								<li>The software version button used to display the firmware revision (e.g. 2.2.92), it now displays the "user level" version (e.g. 6.1). The firmware version is still in the details box and will be displayed if VisibleTesla doesn't know about a particular firmware version.
+								</li>
+							</ul>
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+							<ul>
+								<li>A few minor changes to make the speed line in the Graph look a little better in the face of missing data at the beginning or end of a trip. This is purely cosmetic - no new data is being collected.
+								</li>
+							</ul>
+						</li>
+						<li>Trips
+							<ul>
+								<li>There is now an <span class="ui">End Trip</span> button which will explicitly end a trip that the app thinks is in progress. Normally the app will not decide a trip has been completed until there has been no movement for over 15 minutes. Thus if you arrive at home after a trip and immediately check the <span class="ui">Trips</span> Tab, you won't see it. Pressing the <span class="ui">End Trip</span> button will cause the Trip to display now, rather than 15 minutes from now.
+								</li>
+							</ul>
+						</li>
+						<li>Scheduler
+						</li>
+						<li>Notify
+							<ul>
+								<li>[User Request] Now lets you explicitly select one or more charge states for notification
+								</li>
+								<li>[User Request] Now allows you to specify up to 4 Enter and 4 Exit geofencing areas
+								</li>
+								<li>[User Request] Now can send events when a specified odometer reading has been reached
+								</li>
+								<li>[User Request] Now can send a notification if you forget your doors unlocked
+								</li>
+								<li>[User Request] Now can execute an arbitrary local command in response to any notification. Run a curl script or any other program when an event occurs
+								</li>
+							</ul>
+						</li>
+						<li>Prefs
+							<ul>
+								<li>Moved to a tabbed based interface for the preferences. Reorganized some of the layout as a result.
+								</li>
+								<li>The Advanced Prefs is further broken down into sections.
+								</li>
+								<li>Override settings have their own tab.
+								</li>
+								<li>New options related to anonymous data submissions.
+								</li>
+								<li>You may now limit the time period for which vampire loss data is collected. The most common use case is collect data overnight only.
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>
+						<li>Massive under-the-cover changes to almost every corner of the app.
+						</li>
+						<li>New data storage subsystem that is incompatible with the old system. A one-time upgrade is performed the first time this version is run. The old data files are left in place, but they may be archived and deleted to reclaim space if desired.
+						</li>
+						<li>Significant code refactoring to remove dependencies and make the code easier to work on and maintain.
+						</li>
+					</ul>
+				</li>
+				<li>Known problems
+				</li>
+			</ul>
+			<hr>
+			<h3>
+				VisibleTesla 0.30.00 [10-30-2014] - <strong>EXPERIMENTAL</strong>
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="added">Addition</span>: VisibleTesla now keeps track of charge cycles and stores a record. At this point all you can do with this information is export it as an excel spreadsheet and submit it (anonymized) to a central repository. Future versions will likely allow the capability to graph the information and submit it anonymously to sites that track Tesla statistics.
+								</li>
+								<li>
+									<span class="added">Addition</span>: <strong>Experimental</strong> - Added the <span class="ui">Remote Start</span> capability to the <span class="ui">Options&amp;rarrActions</span> menu. Much more testing needs to be done to ensure this is a proper implementation and that appropriate feedback is presented in the user interface when remote start has been enabled.
+								</li>
+								<li>
+									<span class="added">Addition</span>: Added the ability to restrict the time period considered for Vampire Loss. You can now set a preference that specifies a range of times during the day that should be considered when analyzing vampire loss. For example, you can specify that only times between 10PM and 7AM should be analyzed. The time range (and whether it is active) are set using new preferences in the Graphs Prefs section.
+								</li>
+								<li>
+									<span class="added">Addition</span>: VisibleTesla now displays your car's name in the window title bar. If your car is on at least version 6.0 of Tesla's software, you can give your car a name using <a href="https://www.teslamotors.com/mytesla">Tesla's web site</a>.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Significant changes to adapt to the new Tesla 6.0 firmware. This includes the way authentication is performed with Tesla's servers (OAUTH). As a result, cookies are no longer stored to retain authenticiaton information.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Daydreaming mode is gone. There is just "Stay Awake" mode and "Allow Sleeping" mode. This is just a simplification. All Daydream mode did was turn off autorefresh on the tabs to minimize the load on Tesla's servers.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Automatic Tab refreshing has been removed. Since very few people just sit there staring at the app waiting for updates every thirty seconds, I did away with autorefresh. Of course the Location Tab will follow motion without you having to press the refresh button and when you switch between tabs, it will refresh the data on the newly selected tab. Furthermore, Tabs will automatically update data whenever data is collected in the background that effects them.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Several new options codes are now recognized. this may result in a more faithful representation of the car in the Overview Tab.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: Removed the logout option. If you want to logout, you need to quit and restart.
+								</li>
+							</ul>
+						</li>
+						<li>Overview
+							<ul>
+								<li>
+									<span class="added">Addition</span>: VisibleTesla now supports Steel Grey as a new body color.
+								</li>
+								<li style="list-style: none">
+									<span class="changed">Refinement</span>: VisibleTesla now displays a distinct body for Right Hand Drive vehicles.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: The field that toggles between the VIN or firmware version now toggles between the VIN or software version. The firmware version is an internal version number that corresponds to the detailed version of the firmware. The software version is the version number that Tesla talks about, such as 6.0. There may be several firmware versions that are all software version 6.0. VisibleTesla keeps a map of which firmware versions correspond to which software versions. If your car has a new version than VisibleTesla knows about, it will display the firmware version. Actually, it will first try to download a newer information about software and firmware versions. Only if that fails will it display the firmware version. The firmware version is always available by pressing the <span class="ui">Details</span> button and checking the resulting dialog box.
+								</li>
+							</ul>
+						</li>
+						<li>HVAC
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: The car now shows the correct wheels on both the driver side and the passenger side of the car. Thanks to Tesla for providing the correct images.
+								</li>
+							</ul>
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+						</li>
+						<li>Scheduler
+						</li>
+						<li>Notify
+							<ul>
+								<li>
+									<span class="added">Addition</span>: There is a new notification type that can send an alert if you forget your car doors unlocked. In particular, when enabled, a notification will be sent if your car is stationary (and in Park) for more than 5 minutes with the doors unlocked. Another notification will not be sent unitl the car has gone from this state to in-motion, to unlocked again.
+								</li>
+								<li>
+									<span class="added">Addition</span>: <strong>For advanced users only.</strong> Notifications can trigger the execution of an arbitrary command on the computer that is running VisibleTesla. Normally a notification results in an email message being sent. There's also the ability to issue an HTTP GET. Now there is a new option - the ability to execute a user-specified command. This allows advanced users to integrate VisibleTesla with other services such as home automation controllers. For details, please refer to the <a href="pages/NotifyTab.html">Notify Tab</a>.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Geofencing now allows you to specify up to four geofences for <span class="ui">Car Entered Area</span> and another four for <span class="ui">Car Left Area</span>. Each fence is able to deliver a separate custom message or trigger a custom action. For example, when arriving home you might have a custom action that tells your home automation system to turn on the lights. When arriving at the market, you can trigger a text message reminding you to bring in a bag.
+									<blockquote>
+										<strong>NOTE</strong>: You will have to recreate any existing geofencing notifications that you had previously created.
+									</blockquote>
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: The different types of notifications are now separated into different panes in order to make room for new notifications.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: The <span class="ui">Charge State Becomes</span> notification now allows you to select one or more individual states that you are interested in. For example, you can alert on <span class="ui">Disconnected</span>, <span class="ui">Stopped</span>, and <span class="ui">Complete</span> if you'd like. You can still get notifications on any change to the charge state, or a single charge state.
+								</li>
+								<li>
+									<span class="fixed">Fix</span>: In version 0.29.00 notifications could lag by a couple of minutes. That has been fixed.
+								</li>
+							</ul>
+						</li>
+						<li>Prefs
+							<ul>
+								<li>
+									<span class="added">Addition</span>: The <span class="ui">Graphs</span> section now includes additional options that allow you to restrict the hours to be included in the analysis of Vampire Loss.
+								</li>
+								<li>
+									<span class="added">Addition</span>: The <span class="ui">Overrides</span> section of General Preferences now includes some additional options. For wheels, you may now select <span class="ui">19" Turbine Grey</span>. For color, you may now select <span class="ui">Steel Grey</span>.
+								</li>
+								<li>
+									<span class="added">Addition</span>: The <span class="ui">General/Advanced</span> section now includes a <span class="ui">Log Level</span> setting. This does not influence the operation of the application. It is solely there to aid in diagnosing problems.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Changed the default of <span class="ui">Location/Stream when possible</span> from false to true.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Color and wheel overrides are now reflected immediately in the HVAC and Overview Tabs.
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>
+						<li>Fairly significant changes to adapt to the new TeslaClient library. It was refactored while dealing with the changes to Tesla's REST API.
+						</li>
+						<li>Code refactoring and cleanup while performing some of the changes listed above.
+						</li>
+					</ul>
+				</li>
+				<li>Known problems
+				</li>
+			</ul>
+			<hr>
+			<h3>
+				VisibleTesla 0.29.00 [08-30-2014] - <strong>EXPERIMENTAL</strong>
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="changed">Note</span>: If you're using an old version of VisibleTesla (older than 0.27.03) AND you have overriden the advanced option describing where to store application files, you'll need to be careful about upgrading. Upgrade to verion 0.27.03 manually and then you can upgrade to the latst version.
+								</li>
+								<li>
+									<span class="added">Addition</span>: The <span class="ui">Options→Simulate</span> menu has been replaced by a new and more general <span class="ui">Overrides</span> mechanism.
+									<ul>
+										<li>The simulate menu gave you the ability to see variations of your car during a specific run of VisibleTesla. The new Overrides capability gives you to simulate an option and remember that state across sessions. There are cases where the information reported by Tesla's servers to VisibleTesla does not reflect the actual state of the car. This is usually the result of a change to the car after it was initially delivered.
+										</li>
+										<li>For example, you may have ordered your car with 21" wheels but later decided to switch to 19's. In fact, some people keep both types and switch during the year based on weather. Today, VisibleTesla has no way to track those changes.
+										</li>
+										<li>With this new feature, you can manually override the wheel setting when you change the actual wheels. For details of the UI, please refer to the documentation of the <span class="ui">Overrides</span> section of the <a href="pages/PrefsTab.html">Prefs Tab</a>.
+										</li>
+									</ul>
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Added the variable {{HT_CARVIEW}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>. This variable generates an HTML canvas representing the current state of the doors, trunks, and roof. It's similar to the car view that is displayed by the Overview Tab. This variable is for use in HTML pages only, not in notification messages.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Improvements to the way various wheel types are detected to handle some unusual cases.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: In principle there should be no user visible changes to the Login Tab. In practice, there were quite a few code changes. Hopefully I did not introduce any bugs into this area, but please let me know if I did.
+								</li>
+							</ul>
+						</li>
+						<li>Overview
+							<ul>
+								<li>
+									<span class="added">Addition</span>: The range is now displayed on the Overview Tab. You can select which type of range is displayed using the preferences. it can be either Rated, Ideal, or Estimated.
+								</li>
+								<li>
+									<span class="added">Addition</span>: The shift state is now displayed. It is either P (park), N (neutral), D (drive), or R (reverse). There are times when the car may not respond with an accurate drive state. In this case a "P" will be displayed.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: The <span class="ui">Honk</span>, <span class="ui">Flash</span>, and <span class="ui">Wakeup</span> buttons have been moved to the <span class="ui">Options→Activity</span> menu.
+								</li>
+							</ul>
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+							<ul>
+								<li>
+									<span class="fixed">Fix</span>: When a trip is selected, an estimate of the kWh consumed is displayed. It was previously mislabeled as <span class="ui">Power</span>. It has been changed to <span class="ui">Energy</span>.
+								</li>
+							</ul>
+						</li>
+						<li>Scheduler
+						</li>
+						<li>Notify
+							<ul>
+								<li>
+									<span class="added">Addition</span>: You may now request to be notified a charge anomaly occurs. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during a charging cycle. This feature is highly <strong>experimental</strong> since I have no way to safelt recreate such a charge anomaly.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Sometimes certain readings can fluctuate enough that a notification like <span class="ui">SOC Hits or Exceeds</span> may be triggered multiple times in a short period. VisibleTesla now avoids sending you multiple notifications in these circumstances.
+								</li>
+							</ul>
+						</li>
+						<li>Prefs
+							<ul>
+								<li>
+									<span class="added">Addition</span>: There is a new option in the <span class="ui">General/Basic</span> preferences. It controls which type of range is displayed on the Overview Tab. It can be either Rated, Estimated, or Ideal.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Removed the option to store application data files with the app. I've been phasing this out for a few releases and the option is now completely removed. There were a number of logistical problems maintaining this option. If you used this option in past and are upgrading from a version before 0.27.03, please follow the process listed at the very top of the release notes.
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>
+						<li>Moved to a fully observer-based model for state updates.
+						</li>
+						<li>Changed the way commands are issued to Tesla's servers. There is now one background thread to issue commands rather than threads spawning and completing per command. Removed some dead code.
+						</li>
+						<li>Fairly massive code refactoring to make the code more manageable. Lots more could be done, but that will happen over time. The extent of these changes is in large part the reason that this release is experimental.
+						</li>
+					</ul>
+				</li>
+				<li>Known problems
+				</li>
+			</ul>
+			<hr>
+			<h3>
+				VisibleTesla 0.28.01 [07-18-2014]
+			</h3>
+			<ul>
+				<li>User-Visible Changes
+					<ul>
+						<li>General
+							<ul>
+								<li>
+									<span class="added">Addition</span>: On the Mac you can now use <span class="ui">⌘-H</span> to hide a window just like you can with other Mac apps. Note that unlike other Mac applications, you won't see this shortcut listed in the application menu. This is a deficiency with JavaFX on the Mac. Using <span class="ui">⌘-H</span> is the same as pressing the yellow minimize icon. On Windows 7 you and beyond you can use <span class="ui"><img src="images/other/WinKey.gif"> +↓</span> to minimize the VisibleTesla window. This has always been there.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: <strong>For advanced users only - EXPERIMENTAL.</strong>You may now set an advanced preference that specifies a URL that holds custom pages that can be served up by the built-in web server. Use template variables to customize the pages. See the <a href="pages/PrefsTab.html">Prefs Tab</a> and <a href="pages/OtherTopics.html#rest">Web Services</a> for details.
+								</li>
+								<li>
+									<span class="fixed">Fix</span>: The <span class="ui">Help-&gt;What's New</span> menu item works again.
+								</li>
+								<li>
+									<span class="fixed">Fix</span>: Fixed a minor issue with login to the web services which only affected those who are using this experimental feature.
+								</li>
+							</ul>
+						</li>
+						<li>Login
+						</li>
+						<li>Overview
+						</li>
+						<li>HVAC
+						</li>
+						<li>Location
+						</li>
+						<li>Charge
+						</li>
+						<li>Graphs
+						</li>
+						<li>Trips
+							<ul>
+								<li>
+									<span class="added">Addition</span>: There is a new row in the Trip property table. In addition to displaying the starting and ending value for Range, SOC, and Odometer, it now displays an estimate of the power consumed in the selected trip (or trips). <strong>This is purely an estimate.</strong> It is not a value reported by the car, but rather a rough integration of area under the power curve that you see plotted in the Graphs Tab.
+								</li>
+							</ul>
+						</li>
+						<li>Scheduler
+						</li>
+						<li>Notify
+							<ul>
+								<li>
+									<span class="changed">Refinement</span>: The target email address specified for a notification may now be a comma-separated list of email addressses. This functionality has actually been there for some time, but it has now been tested.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: Added the variable {{HT_SPEEDO}} and {{HT_LOC}} for for use in message templates. For details, please refer to the documention on the <a href="pages/NotifyTab.html#custom_messages">Notify Tab</a>.
+								</li>
+								<li>
+									<span class="changed">Refinement</span>: The {{HT_SOC_G}} variable now more accurately represents the charge state.
+								</li>
+							</ul>
+						</li>
+						<li>Prefs
+						</li>
+					</ul>
+				</li>
+				<li>Under-the-covers
+					<ul>
+						<li>VisibleTesla is using HTML5 Canvas to render the {{HT_SOC_G}} and {{HT_SPEEDO}} elements.
+						</li>
+					</ul>
+				</li>
+				<li>Known problems
+					<ul>
+						<li>There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. Debugging and testing is ongoing to address this problem.
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<hr>
 			<h3>
 				VisibleTesla 0.28.00 [07-05-2014] - <font color="red">[EXPERIMENTAL]</font>
 			</h3>
 			<p>
-				<strong>Important note for Windows users</strong>: 
-				Windows users should <strong>not</strong> use the built-in Update feature to download this version of VisibleTesla. Please download it directly by clicking <a href="https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/WinApp/VisibleTesla.zip">here</a> and then install as usual. This is a one-time change based on the new packaging of the Windows version (see below).
+				<strong>Important note for Windows users</strong>: Windows users should <strong>not</strong> use the built-in Update feature to download this version of VisibleTesla. Please download it directly by clicking <a href="https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/WinApp/VisibleTesla.zip">here</a> and then install as usual. This is a one-time change based on the new packaging of the Windows version (see below).
 			</p>
 			<ul>
 				<li>User-Visible Changes
@@ -471,7 +459,7 @@
 						<li>Trips
 							<ul>
 								<li>
-									<span class="changed">Refinement</span>: There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. It can also, in some cases, lead to VisibleTesla not quitting cleanly. I found one case in which an error returned by Tesla's servers can cause this to happen. I've put in a tentative fix for that case, but there may be more circumstances like this lurking out there.  As a result, I've listed this as a refinement rather than a fix. After getting more feedback from users who experience this problem regularly, I'll know whether it addressed all, none, or some of the issue.
+									<span class="changed">Refinement</span>: There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. It can also, in some cases, lead to VisibleTesla not quitting cleanly. I found one case in which an error returned by Tesla's servers can cause this to happen. I've put in a tentative fix for that case, but there may be more circumstances like this lurking out there. As a result, I've listed this as a refinement rather than a fix. After getting more feedback from users who experience this problem regularly, I'll know whether it addressed all, none, or some of the issue.
 								</li>
 							</ul>
 						</li>
@@ -511,7 +499,8 @@
 					<ul>
 						<li>There are situations where VisibleTesla will stop recording data from the car. This can result in gaps in the Graphs and missing Trips. Debugging and testing is ongoing to address this problem.
 						</li>
-						<li>The <span class="ui">Help->What's New</span> menu item is broken. For the time being please use the <span class="ui">Help->Documentation</span> menu item and then click on <span class="ui">Release Notes</span>. Alternatively, you click <a href="http://visibletesla.com/Documentation/ReleaseNotes.html">here</a>.</li>	
+						<li>The <span class="ui">Help-&gt;What's New</span> menu item is broken. For the time being please use the <span class="ui">Help-&gt;Documentation</span> menu item and then click on <span class="ui">Release Notes</span>. Alternatively, you click <a href="http://visibletesla.com/Documentation/ReleaseNotes.html">here</a>.
+						</li>
 					</ul>
 				</li>
 			</ul>
@@ -802,8 +791,9 @@
 				</li>
 			</ul>
 			<hr>
-			<h3><a href="ReleaseNotes_S1.html">Earlier Versions...</a></h3>
-<!--
+			<h3>
+				<a href="ReleaseNotes_S1.html">Earlier Versions...</a>
+			</h3><!--
 		<h3>
 			VisibleTesla 0.XX.YY [01-27-2014]
 		</h3>
