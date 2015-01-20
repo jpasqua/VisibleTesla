@@ -20,7 +20,87 @@
 				VisibleTesla Release Notes
 			</h1>
 		<h3>
-			VisibleTesla 0.30.00 [10-30-2014]
+			VisibleTesla 0.50.00 [01-18-2015]
+		</h3>
+		<ul>
+			<li>User-Visible Changes
+				<ul>
+					<li>General
+						<ul>
+							<li>
+								<span class="added">Addition</span>: Added ....
+							</li>
+							<li>
+								<span class="changed">Refinement</span>: More work on ....
+							</li>
+							<li>
+								<span class="fixed">Fix</span>: Addressed the problem where ...
+							</li>
+						</ul>
+					</li>
+					<li>Login
+						<ul>
+						</ul>
+					</li>
+					<li>Overview
+						<ul>
+						</ul>
+					</li>
+					<li>HVAC
+						<ul>
+						</ul>
+					</li>
+					<li>Location
+						<ul>
+						</ul>
+					</li>
+					<li>Charge
+						<ul>
+						</ul>
+					</li>
+					<li>Graphs
+						<ul>
+							<li>A few minor changes to make the speed line in the Graph look a little better in the face of missing data at the beginning or end of a trip. This is purely cosmetic - no new data is being collected.</li>
+						</ul>
+					</li>
+					<li>Trips
+						<ul>
+							<li>There is now an <span class="ui">End Trip</span> button which will explicitly end a trip that the app thinks is in progress. Normally the app will not decide a trip has been completed until there has been no movement for over 15 minutes. Thus if you arrive at home after a trip and immediately check the <span class="ui">Trips</span> Tab, you won't see it. Pressing the <span class="ui">End Trip</span> button will cause the Trip to display now, rather than 15 minutes from now.</li>
+						</ul>
+					</li>
+					<li>Scheduler
+						<ul>
+						</ul>
+					</li>
+					<li>Notify
+						<ul>
+						</ul>
+					</li>
+					<li>Prefs
+						<ul>
+							<li>Moved to a tabbed based interface for the preferences. Reorganized some of the layout as a result.</li>
+							<li>The Advanced Prefs is further broken down into sections.</li>
+							<li>Override settings have their own tab.</li>
+							<li>New options related to anonymous data submissions.</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Under-the-covers
+				<ul>
+					<li>Massive under-the-cover changes to almost every corner of the app.</li>
+					<li>New data storage subsystem that is incompatible with the old system. A one-time upgrade is performed the first time this version is run. The old data files are left in place, but they may be archived and deleted to reclaim space if desired.</li>
+					<li>Significant code refactoring to remove dependencies and make the code easier to work on and maintain.</li>
+				</ul>
+			</li>
+			<li>Known problems
+				<ul>
+				</ul>
+			</li>
+		</ul>
+		<hr>
+		<h3>
+			VisibleTesla 0.30.00 [10-30-2014] - <strong>EXPERIMENTAL</strong>
 		</h3>
 		<ul>
 			<li>User-Visible Changes

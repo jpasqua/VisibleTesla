@@ -20,7 +20,7 @@
 				The Notify Tab
 			</h1>
 			<p>
-				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. The following screen shot gives an example of what the Notify Tab looks like. Each notification can be enabled or disabled individually using the associated checkbox.
+				The Notify tab allows you to request notifications when certain types of events occur. For example, if your state of charge (SOC) drops below a certain level or rises above a certain level. Note that in order to receive a notification, VisibleTesla must be running. If the app is sleeping, notifications may be missed or delayed. For more details, consult the <a href="SleepMode.html">Understanding Sleep Mode</a> section. As you can see in the screen shot below, the Notify Tab is split into several sections: Charging, Geofencing, and Other.  Each type of notification in each section can be enabled or disabled individually using the associated checkbox.
 			</p>
 			<p>
 				<img class="screenshot" src="../images/24_Notify_Tab.png" alt="Notify Tab">
@@ -31,9 +31,12 @@
 			<p>
 				Notifications are sent via a hosted service (MailGun). You don't need to enter your email credentials - just an email address. This need not be the same address that you use as your Tesla login. Messages are sent from the address "notifier@visibletesla.com". Do not reply to this address. It is not monitored. Advanced users may use their own MailGun account as described <a href="PrefsTab.html#mailgunkey">here</a>.
 			</p>
+			<h2>Charge Notifications</h2>
+			The screenshot below shows all of the charge and battery related notifications. Note that for the <span class="ui">Charge State Becomes</span> notification, you may open the drop down list to select the charge states of interest.
 			<p>
-				The following types of notifications are supported:
+				<img class="screenshot" src="../images/24_CS_Open.png" alt="Notify Tab">
 			</p>
+			<p>List of available charge notifications:</p>
 			<table class="grid_table">
 				<thead>
 					<tr>
@@ -110,28 +113,29 @@
 							A notification will be sent if something odd happens during a charge cycle. At the moment, the only anomaly that is detected is if your charging current or pilot current drops by 20% or more during the cycle. The drop must be sustained for a small number of minutes before a notification will be sent. The baseline from which the drop is detected is also established over a number of minutes. This notification will not be sent when using a supercharger since changes in current are normal. This feature is <strong>highly experimental</strong> since I have no way to safely recreate such a charge anomaly.
 						</td>
 					</tr>
+				</tbody>
+			</table>
+			<h2>Geofencing  Notifications</h2>
+			Geofencing allows you to receive a notification when you car enters or exits a specific geographic area. As you can see in the screenshot below, you may specify up to four <b>Enter</b> notofications and four <b>Exit</b> notifications. Each notification can specify a different geographic area.
+			<p>
+				<img class="screenshot" src="../images/24_Geo.png" alt="Notify Tab">
+			</p>
+			<p>List of available geofencing notifications:</p>
+			<table class="grid_table">
+				<thead>
 					<tr>
-						<td>
-							Speed Hits or Exceeds
-						</td>
-						<td>
-							Speed in mph or km/h
-						</td>
-						<td>
-							A notification will be sent if the speed changes from a value that is below the target value to one that is equal to or greater than the target. This notification will not be sent more frequently than once per 30 minutes. Let's say you set the target to 75 mph and are driving very near that speed. Normal fluctuations in your driving might cause you to drop below then go above 75 mph many times. VisibleTesla will not issue a notification each time that happens. It will issue the first notification and then will not issue another until at least 30 minutes passes.
-						</td>
+						<th>
+							Notification
+						</th>
+						<th>
+							Target
+						</th>
+						<th>
+							Description
+						</th>
 					</tr>
-					<tr>
-						<td>
-							Scheduler Event Triggered
-						</td>
-						<td>
-							N/A
-						</td>
-						<td>
-							A notification will be sent if any scheduled activity occurs.
-						</td>
-					</tr>
+				</thead>
+				<tbody>
 					<tr>
 						<td>
 							Car entered area
@@ -154,14 +158,12 @@
 							A notification will be sent if if your car starts inside of the specified area and later leaves that area. See below for instructions on setting the area.
 						</td>
 					</tr>
+
 				</tbody>
 			</table>
-			<p>
-				Some readings can vary slightly over a short period of time which could, in theory, cause multiple notifications. For example, say that you asked to be notified whenever your SOC drops below 50%. If your SOC is hovering right around 50% and you fall below, you'll get a notification. If you go down a big hill and regeneration brings your SOC back up to 50%, you're likely to get another notification again very soon. VisibleTesla will avoid sending multiple redundant notifications in these cases.
-			</p>
-			<h2>
+			<h3>
 				<a name="locs">Defining Locations</a>
-			</h2>
+			</h3>
 			<p>
 				When using the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> notifications, you must define the area of interest. An area is defined by a location and a radius which are set via an options dialog box. You get to that dialog box by pressing the <span class="ui">Define Area</span> button next to the <span class="ui">Car entered area</span> or <span class="ui">Car left area</span> checkboxes. The dialog you get looks like a normal Google map as shown in the screen shot below.
 			</p>
@@ -188,6 +190,76 @@
 			</p>
 			<p>
 				<img class="screenshot" src='../images/24f_Map_Nickname.png' alt='Notify Tab'>
+			</p>
+			<h2>Other Notifications</h2>
+			The screenshot below shows all of the charge and battery related notifications. Note that for the <span class="ui">Charge State Becomes</span> notification, you may open the drop down list to select the charge states of interest.
+			<p>
+				<img class="screenshot" src="../images/24_Other.png" alt="Notify Tab">
+			</p>
+			<p>List of available charge notifications:</p>
+			<table class="grid_table">
+				<thead>
+					<tr>
+						<th>
+							Notification
+						</th>
+						<th>
+							Target
+						</th>
+						<th>
+							Description
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							Speed Hits or Exceeds
+						</td>
+						<td>
+							Speed in mph or km/h
+						</td>
+						<td>
+							A notification will be sent if the speed changes from a value that is below the target value to one that is equal to or greater than the target. This notification will not be sent more frequently than once per 30 minutes. Let's say you set the target to 75 mph and are driving very near that speed. Normal fluctuations in your driving might cause you to drop below then go above 75 mph many times. VisibleTesla will not issue a notification each time that happens. It will issue the first notification and then will not issue another until at least 30 minutes passes.
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Unlocked Doors
+						</td>
+						<td>
+							Unlocked time in minutes
+						</td>
+						<td>
+							A notification will be sent if you forget to lock your doors. The notification will be sent if your car remains unlocked for a specified number of minutes after you get out of it. 
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Odometer Passes
+						</td>
+						<td>
+							Odometer reading in kilometers or miles. 
+						</td>
+						<td>
+							A notification will be sent when the odometer reading passes the specified value. This can be useful if you want a reminder when your car needs service - for example tire rotation. 
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Report Scheduler Events
+						</td>
+						<td>
+							N/A
+						</td>
+						<td>
+							A notification will be sent if any scheduled activity occurs.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				Some readings can vary slightly over a short period of time which could, in theory, cause multiple notifications. For example, say that you asked to be notified whenever your SOC drops below 50%. If your SOC is hovering right around 50% and you fall below, you'll get a notification. If you go down a big hill and regeneration brings your SOC back up to 50%, you're likely to get another notification again very soon. VisibleTesla will avoid sending multiple redundant notifications in these cases.
 			</p>
 			<h2>
 				<a name="custom_messages">Customizing Notifications</a>
