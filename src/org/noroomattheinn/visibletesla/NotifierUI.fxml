@@ -52,14 +52,13 @@
                               <children>
                                 <GridPane id="GridPane" hgap="5.0" layoutX="0.0" layoutY="3.0" vgap="5.0">
                                   <children>
-                                    <RadioButton fx:id="csbAny" mnemonicParsing="false" onAction="#csbItemClicked" prefHeight="23.0" prefWidth="86.0" text="Anything" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <RadioButton fx:id="csbCharging" mnemonicParsing="false" onAction="#csbItemClicked" text="Charging" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <RadioButton fx:id="csbComplete" mnemonicParsing="false" onAction="#csbItemClicked" text="Complete" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                    <RadioButton fx:id="csbStarting" mnemonicParsing="false" onAction="#csbItemClicked" text="Starting" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                    <RadioButton fx:id="csbDisconnected" mnemonicParsing="false" onAction="#csbItemClicked" text="Disconnected" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <RadioButton fx:id="csbStopped" mnemonicParsing="false" onAction="#csbItemClicked" text="Stopped" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <RadioButton fx:id="csbNoPower" mnemonicParsing="false" onAction="#csbItemClicked" text="No Power" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                    <RadioButton fx:id="csbUnknown" mnemonicParsing="false" onAction="#csbItemClicked" text="Unknown" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <RadioButton fx:id="csbAny" mnemonicParsing="false" onAction="#csbItemClicked" prefHeight="23.0" prefWidth="86.0" text="Anything" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <RadioButton fx:id="csbCharging" mnemonicParsing="false" onAction="#csbItemClicked" text="Charging" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    <RadioButton fx:id="csbComplete" mnemonicParsing="false" onAction="#csbItemClicked" text="Complete" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <RadioButton fx:id="csbDisconnected" mnemonicParsing="false" onAction="#csbItemClicked" text="Disconnected" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <RadioButton fx:id="csbStarting" mnemonicParsing="false" onAction="#csbItemClicked" text="Starting" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <RadioButton fx:id="csbStopped" mnemonicParsing="false" onAction="#csbItemClicked" text="Stopped" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <RadioButton fx:id="csbNoPower" mnemonicParsing="false" onAction="#csbItemClicked" text="No Power" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                                   </children>
                                   <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />

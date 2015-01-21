@@ -178,7 +178,7 @@ public class NotifierController extends BaseController {
     @FXML private CheckBox chargeState;
     @FXML private Button chargeBecomesOptions;
     @FXML private RadioButton csbAny, csbCharging, csbComplete, csbDisconnected,
-                              csbNoPower, csbStarting, csbStopped, csbUnknown;
+                              csbNoPower, csbStarting, csbStopped;
     
     @FXML private CheckBox schedulerEvent;
     @FXML private Button seOptions;
@@ -280,7 +280,6 @@ public class NotifierController extends BaseController {
             csbNoPower.setSelected(false);
             csbStarting.setSelected(false);
             csbStopped.setSelected(false);
-            csbUnknown.setSelected(false);
         } else {
             if (csbCharging.isSelected()) s.add("Charging");
             if (csbComplete.isSelected()) s.add("Complete");
@@ -288,7 +287,6 @@ public class NotifierController extends BaseController {
             if (csbNoPower.isSelected()) s.add("No Power");
             if (csbStarting.isSelected()) s.add("Starting");
             if (csbStopped.isSelected()) s.add("Stopped");
-            if (csbUnknown.isSelected()) s.add("Unknown");
             csbAny.setSelected(false);
         }
         this.csSelectProp.set(s);
@@ -304,7 +302,6 @@ public class NotifierController extends BaseController {
                 csbNoPower.setSelected(false);
                 csbStarting.setSelected(false);
                 csbStopped.setSelected(false);
-                csbUnknown.setSelected(false);
             } else {
                 if (t1.contains("Charging")) csbCharging.setSelected(true);
                 if (t1.contains("Complete")) csbComplete.setSelected(true);
@@ -312,7 +309,6 @@ public class NotifierController extends BaseController {
                 if (t1.contains("No Power")) csbNoPower.setSelected(true);
                 if (t1.contains("Starting")) csbStarting.setSelected(true);
                 if (t1.contains("Stopped")) csbStopped.setSelected(true);
-                if (t1.contains("Unknown")) csbUnknown.setSelected(true);
             }
         }
     };
@@ -542,8 +538,10 @@ public class NotifierController extends BaseController {
     private Runnable csListener = new Runnable() {
         @Override public synchronized void run() {
             ChargeState cur = vtVehicle.chargeState.get();
-            if (csTrigger.evalPredicate(new StringList(cur.chargingState.name()))) {
-                notifyUser(csTrigger, csMessageTarget);
+            if (cur.chargingState != ChargeState.Status.Unknown) {
+                if (csTrigger.evalPredicate(new StringList(cur.chargingState.name()))) {
+                    notifyUser(csTrigger, csMessageTarget);
+                }
             }
             // Handle other triggers
             if (!cur.fastChargerPresent && chargeAnomaly.isSelected()) {
