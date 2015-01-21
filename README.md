@@ -31,7 +31,7 @@ This project assumes a directory structure that looks like this:
 	ThirdParty				-- A repository for third party library dependencies
 		apache
 			commons-io-2.4
-		javafx-dialog
+		javafx-dialogs
 		jfxtras
 		jexcelapi
 		google-guava
@@ -42,48 +42,48 @@ The Tesla/VisibleTesla directory corresponds to this github project (VisibleTesl
 
 Once you have installed the TeslaClient project you'll have most of what you need. To get the rest, you can use the following commands to populate the hierarchy. It assumes that:
 
-+ <code>$DOWNLOAD</code>is the directory where you downloaded the project from github
-+ <code>$ROOT</code>is the directory in which the top level Tesla directory resides.
++ <code>$ROOT</code>is the directory in which the top level Tesla directory will reside.
 
 Be sure to either set these variables or adapt the commands below. Note that the jfxtras library is under active development and the library versions change fairly frequently. The project refers to a stable jar name which is assumed to be linked to the version that has been downloaded. The commands below create the link.
 
 	cd $ROOT
-	mv $DOWNLOAD/VisibleTesla-master Tesla/VisibleTesla
-	mkdir ThirdParty/javafx-dialogs
-	mkdir ThirdParty/jfxtras
-	mkdir ThirdParty/jexcelapi
-	mkdir ThirdParty/google-guava
+    mkdir Tesla
+    cd Tesla
+    git clone https://github.com/jpasqua/VisibleTesla.git
+	mkdir $ROOT/ThirdParty/javafx-dialogs
+	mkdir $ROOT/ThirdParty/jfxtras
+	mkdir $ROOT/ThirdParty/jexcelapi
+	mkdir $ROOT/ThirdParty/google-guava
 
 	# Download the apache libraries
-	cd ThirdParty/apache
+	cd $ROOT/ThirdParty/apache
 	curl -s -O http://mirror.nexcess.net/apache//commons/io/binaries/commons-io-2.4-bin.zip
 	unzip commons-io-2.4-bin.zip
 	rm commons-io-2.4-bin.zip
 
 	# Download the javafx-dialogs library
-	cd ../javafx-dialogs
+	cd $ROOT/ThirdParty/javafx-dialogs
 	# curl -s -O -L https://github.com/marcojakob/javafx-ui-sandbox/blob/master/javafx-dialogs/dist/javafx-dialogs-0.0.3.jar?raw=true
 	curl -s -O https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/jars/javafx-dialogs-0.0.3JP.jar
-	mv javafx-dialogs-0.0.3.jar* javafx-dialogs-0.0.3.jar
 
 	# Download the  JExcelAPI library
-	cd ../jexcelapi
+	cd $ROOT/ThirdParty/jexcelapi
 	curl -s -O -L http://sourceforge.net/projects/jexcelapi/files/jexcelapi/2.6.12/jexcelapi_2_6_12.zip
 	unzip jexcelapi_2_6_12.zip
 	rm jexcelapi_2_6_12.zip
 
 	# Download Google Guava
-	cd ../google-guava
-	curl -s -O http://search.maven.org/remotecontent?filepath=com/google/guava/guava/15.0/guava-15.0.jar
+	cd $ROOT/ThirdParty/google-guava
+    curl -s -O -L http://search.maven.org/remotecontent?filepath=com/google/guava/guava/18.0/guava-18.0.jar
 
 	# Download the jfxtras library
 	# There may be a newer version of the library. If so, update the version details below
-	cd ../jfxtras
-	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20140104.090242-24.jar
-    ln -s jfxtras-labs-2.2-r6-20140104.090242-24.jar jfxtras-labs-2.2.jar
+	cd $ROOT/ThirdParty/jfxtras
+	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20150117.090057-397-sources.jar
+    ln -s jfxtras-labs-2.2-r6-20150117.090057-397-sources.jar jfxtras-labs-2.2.jar
 
 	# The Java application bundler file is only used to create a Mac OS X bundled app. It's not used by VisibleTesla at run time
-	cd ..
+	cd $ROOT/ThirdParty
 	curl -s -O -L https://java.net/projects/appbundler/downloads/download/appbundler-1.0.jar
 
 
