@@ -227,21 +227,11 @@ public class MainController extends BaseController {
                 Vehicle v = SelectVehicleDialog.select(app.stage, app.tesla.getVehicles());
                 vtVehicle.setVehicle(v);
                 try {
+                    upgradeDataStoreIfNeeded(v);
                     vtData.setVehicle(v);
                     vtData.setWakeEarly(new WakeEarlyPredicate());
                     vtData.setPassiveCollection(new PassiveCollectionPredicate());
                     vtData.setCollectNow(new CollectNowPredicate());
-                    if (vtData.upgradeRequired()) {
-                        Dialogs.showInformationDialog(
-                            app.stage,
-                            "Your data files must be upgraded\nPress OK to begin the process.",
-                            "Data Upgrade Process" , "Data File Upgrade");
-                        vtData.doUpgrade();
-                        Dialogs.showInformationDialog(
-                            app.stage,
-                            "Your data files have been upgraded\nPress OK to continue.",
-                            "Data Upgrade Process" , "Process Complete");
-                    }
                 } catch (IOException e) {
                     logger.severe("Unable to establish VTData: " + e.getMessage());
                     Dialogs.showErrorDialog(app.stage,
@@ -276,6 +266,20 @@ public class MainController extends BaseController {
             conditionalCheckVersion();
             app.restoreMode();
             fetchInitialCarState();
+        }
+        
+        private void upgradeDataStoreIfNeeded(Vehicle v) {
+            if (vtData.upgradeRequired(v)) {
+                Dialogs.showInformationDialog(
+                        app.stage,
+                        "Your data files must be upgraded\nPress OK to begin the process.",
+                        "Data Upgrade Process", "Data File Upgrade");
+                vtData.doUpgrade(v);
+                Dialogs.showInformationDialog(
+                        app.stage,
+                        "Your data files have been upgraded\nPress OK to continue.",
+                        "Data Upgrade Process", "Process Complete");
+            }
         }
     }
     

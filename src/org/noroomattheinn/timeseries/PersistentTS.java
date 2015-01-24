@@ -336,8 +336,11 @@ public class PersistentTS extends TSBase {
         }
         
         static boolean repoExistsFor(File container, String baseName) {
-            return headerFile(container, baseName).exists() &&
-                   dataFile(container, baseName).exists();
+            File header = headerFile(container, baseName);
+            File data = dataFile(container, baseName);
+            boolean hdrExists = header.exists();
+            boolean dataExists = data.exists();
+            return hdrExists && dataExists;
         }
         
         public void flush() { if (ps != null) ps.flush(); }

@@ -55,12 +55,12 @@ class DBConverter {
         this.baseName = baseName;
     }
     
-    boolean conversionRequired() {
-        if (PersistentTS.repoExistsFor(container, baseName)) {
+    static boolean conversionRequired(File dir, String name) {
+        if (PersistentTS.repoExistsFor(dir, name)) {
             logger.fine("TimeSeries already exists");
             return false;
         }
-        File oldRepo = new File(container, baseName + ".stats.log");
+        File oldRepo = new File(dir, name + ".stats.log");
         if (oldRepo.exists()) {
             logger.info("No TimeSeries exists, but an old repo does");
             return true;

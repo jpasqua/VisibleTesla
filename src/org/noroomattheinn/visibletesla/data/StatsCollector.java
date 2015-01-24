@@ -13,6 +13,7 @@ import java.util.NavigableMap;
 import javafx.beans.property.IntegerProperty;
 import org.noroomattheinn.tesla.ChargeState;
 import org.noroomattheinn.tesla.StreamState;
+import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.timeseries.CachedTimeSeries;
 import org.noroomattheinn.timeseries.IndexedTimeSeries;
 import org.noroomattheinn.timeseries.Row;
@@ -43,8 +44,6 @@ class StatsCollector implements ThreadManager.Stoppable {
     private final CachedTimeSeries ts;
     private final IntegerProperty minTime;
     private final IntegerProperty minDist;
-    private final File container;
-    private DBConverter converter;
     private VTData.TimeBasedPredicate collectNow = new VTData.TimeBasedPredicate() {
         @Override public void setTime(long time) { }
         @Override public boolean eval() { return false; }
@@ -70,7 +69,6 @@ class StatsCollector implements ThreadManager.Stoppable {
             File container, VTData vtData, VTVehicle v, Range<Long> loadPeriod,
             IntegerProperty minTime, IntegerProperty minDist)
             throws IOException {
-        this.container = container;
         this.vtData = vtData;
         this.minTime = minTime;
         this.minDist = minDist;
@@ -162,12 +160,23 @@ class StatsCollector implements ThreadManager.Stoppable {
      */
     @Override public void stop() { ts.close(); }
     
-    boolean upgradeRequired() {
-        converter = new DBConverter(container, vtVehicle.getVehicle().getVIN());
-        return converter.conversionRequired();
+    void setCollectNow(VTData.TimeBasedPredicate p) {
+        collectNow = p;
     }
     
-    boolean doUpgrade() {
+/*------------------------------------------------------------------------------
+ *
+ * Upgrading the Stats store if needed
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    
+    static boolean upgradeRequired(File dir, Vehicle v) {
+        return DBConverter.conversionRequired(dir, v.getVIN());
+    }
+    
+    static boolean doUpgrade(File dir, Vehicle v) {
+        DBConverter converter = new DBConverter(dir, v.getVIN());
         try {
             converter.convert();
         } catch (IOException e) {
@@ -177,9 +186,6 @@ class StatsCollector implements ThreadManager.Stoppable {
         return true;
     }
     
-    void setCollectNow(VTData.TimeBasedPredicate p) {
-        collectNow = p;
-    }
     
 /*------------------------------------------------------------------------------
  *

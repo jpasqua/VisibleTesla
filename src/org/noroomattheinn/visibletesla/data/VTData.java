@@ -191,12 +191,12 @@ public class VTData {
  * 
  *----------------------------------------------------------------------------*/
     
-    public boolean upgradeRequired() {
-        return statsCollector.upgradeRequired();
+    public boolean upgradeRequired(Vehicle v) {
+        return StatsCollector.upgradeRequired(container, v);
     }
     
-    public boolean doUpgrade() {
-        return statsCollector.doUpgrade();
+    public boolean doUpgrade(Vehicle v) {
+        return StatsCollector.doUpgrade(container, v);
     }
     
 /*------------------------------------------------------------------------------

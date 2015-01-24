@@ -47,7 +47,7 @@ class App {
  *----------------------------------------------------------------------------*/
     
     static final String ProductName = "VisibleTesla";
-    static final String ProductVersion = "0.50.01";
+    static final String ProductVersion = "0.50.03";
     static final String LastExportDirKey = "APP_LAST_EXPORT_DIR";
     
 /*------------------------------------------------------------------------------
