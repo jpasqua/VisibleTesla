@@ -35,6 +35,23 @@ import org.noroomattheinn.utils.Utils;
 
 
 public class OverviewController extends BaseController {
+/*------------------------------------------------------------------------------
+ *
+ * Constants and Enums
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private static final String ToggleChoiceKey = "DISP_VIN";
+    private enum ToggleDisplayChoice { VIN, SW, FW };
+    private static final int nToggleChoices = ToggleDisplayChoice.values().length;
+    
+/*------------------------------------------------------------------------------
+ *
+ * Internal State
+ * 
+ *----------------------------------------------------------------------------*/
+    
+    private ToggleDisplayChoice toggleChoice;
     
 /*------------------------------------------------------------------------------
  *
@@ -195,6 +212,7 @@ public class OverviewController extends BaseController {
     @Override protected void initializeState() {
         final Vehicle v = vtVehicle.getVehicle();
         getAppropriateImages(v);
+        toggleChoice = this.storedToggleChoice();
         prefs.overrides.color.addListener(new ChangeListener<String>() {
             @Override public void changed(
                     ObservableValue<? extends String> ov, String t, String t1) {
@@ -242,7 +260,7 @@ public class OverviewController extends BaseController {
         vinButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                toggleDisplayVIN();
+                cycleToggleChoice();
                 reflectVINOrFirmware();
             }
         });
@@ -404,22 +422,33 @@ public class OverviewController extends BaseController {
     
     private void reflectVINOrFirmware() {
         VehicleState car = vtVehicle.vehicleState.get();
-        if (displayVIN())
-            vinButton.setText("VIN " + StringUtils.right(vtVehicle.getVehicle().getVIN(), 6));
-        else {
-            vinButton.setText("v" + Firmware.getSoftwareVersion(car.version));
+        String text;
+        switch (toggleChoice) {
+            case SW:
+                text = "v" + Firmware.getSoftwareVersion(car.version);
+                break;
+            case FW:
+                text = "FW: " + car.version;
+                break;
+            case VIN:
+            default:
+                text = "VIN " + StringUtils.right(vtVehicle.getVehicle().getVIN(), 6);
+                break;
         }
+        vinButton.setText(text);
     }
     
-    private boolean displayVIN() {
-        return prefs.storage().getBoolean(vinKey("DISP_VIN"), true);
+    private ToggleDisplayChoice storedToggleChoice() {
+        String currentAsString = prefs.storage().get("DISP_VIN", ToggleDisplayChoice.VIN.name());
+        return ToggleDisplayChoice.valueOf(currentAsString);
     }
     
-    private void toggleDisplayVIN() {
-        boolean displayVIN = prefs.storage().getBoolean(vinKey("DISP_VIN"), true);
-        prefs.storage().putBoolean(vinKey("DISP_VIN"), !displayVIN);
+    private void cycleToggleChoice() {
+        int nextIndex = (toggleChoice.ordinal()+1) % nToggleChoices;
+        toggleChoice = ToggleDisplayChoice.values()[nextIndex];
+        prefs.storage().put(ToggleChoiceKey, toggleChoice.name());
     }
-
+    
 /*------------------------------------------------------------------------------
  *
  * State and Methods for locating the right images based on vehicle parameters
