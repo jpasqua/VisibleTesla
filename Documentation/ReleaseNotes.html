@@ -42,7 +42,11 @@
 						</li>
 						<li>Overview
 							<ul>
-								<li>The software version button used to display the firmware revision (e.g. 2.2.92), it now displays the "user level" version (e.g. 6.1). The firmware version is still in the details box and will be displayed if VisibleTesla doesn't know about a particular firmware version.
+								<li>
+									<span class="changed">Refinement</span>: [User Request] The button which displays the VIN or software version now cycles through three distinct values: VIN, "user level" version (e.g. 6.1), and firmware version (e.g. 2.2.92). If VisibleTesla doesn't know the relationship between a particular firmware version and a "user level" version, it will display the firmware version for both. Tesla only reports the firmware version, so VisibleTesla must do it's own conversion to firmware version.
+								</li>
+								<li>
+									<span class="added">Addition</span>: The production year of the vehicle is now shown in the details dialog. The production year isn't provided by Tesla, but one of the option codes appears to correspond to the production year, so VisibleTesla is using that. 
 								</li>
 							</ul>
 						</li>
@@ -54,13 +58,13 @@
 						</li>
 						<li>Graphs
 							<ul>
-								<li>A few minor changes to make the speed line in the Graph look a little better in the face of missing data at the beginning or end of a trip. This is purely cosmetic - no new data is being collected.
+								<li><span class="changed">Refinement</span>: A few minor changes to make the speed line in the Graph look a little better in the face of missing data at the beginning or end of a trip. This is purely cosmetic - no new data is being collected.
 								</li>
 							</ul>
 						</li>
 						<li>Trips
 							<ul>
-								<li>There is now an <span class="ui">End Trip</span> button which will explicitly end a trip that the app thinks is in progress. Normally the app will not decide a trip has been completed until there has been no movement for over 15 minutes. Thus if you arrive at home after a trip and immediately check the <span class="ui">Trips</span> Tab, you won't see it. Pressing the <span class="ui">End Trip</span> button will cause the Trip to display now, rather than 15 minutes from now.
+								<li><span class="added">Addition</span>: There is now an <span class="ui">End Trip</span> button which will explicitly end a trip that the app thinks is in progress. Normally the app will not decide a trip has been completed until there has been no movement for over 15 minutes. Thus if you arrive at home after a trip and immediately check the <span class="ui">Trips</span> Tab, you won't see it. Pressing the <span class="ui">End Trip</span> button will cause the Trip to display now, rather than 15 minutes from now.
 								</li>
 							</ul>
 						</li>
@@ -68,29 +72,29 @@
 						</li>
 						<li>Notify
 							<ul>
-								<li>[User Request] Now lets you explicitly select one or more charge states for notification
+								<li><span class="added">Addition</span>: [User Request] Now can send events when a specified odometer reading has been reached
 								</li>
-								<li>[User Request] Now allows you to specify up to 4 Enter and 4 Exit geofencing areas
+								<li><span class="added">Addition</span>: [User Request] Now can send a notification if you forget your doors unlocked
 								</li>
-								<li>[User Request] Now can send events when a specified odometer reading has been reached
+								<li><span class="added">Addition</span>: [User Request] Now can execute an arbitrary local command in response to any notification. Run a curl script or any other program when an event occurs
 								</li>
-								<li>[User Request] Now can send a notification if you forget your doors unlocked
+								<li><span class="changed">Refinement</span>: [User Request] Now lets you explicitly select one or more charge states for notification
 								</li>
-								<li>[User Request] Now can execute an arbitrary local command in response to any notification. Run a curl script or any other program when an event occurs
+								<li><span class="changed">Refinement</span>: [User Request] Now allows you to specify up to 4 Enter and 4 Exit geofencing areas
 								</li>
 							</ul>
 						</li>
 						<li>Prefs
 							<ul>
-								<li>Moved to a tabbed based interface for the preferences. Reorganized some of the layout as a result.
+								<li><span class="changed">Refinement</span>: Moved to a tabbed based interface for the preferences. Reorganized some of the layout as a result.
 								</li>
-								<li>The Advanced Prefs is further broken down into sections.
+								<li><span class="changed">Refinement</span>: The Advanced Prefs is further broken down into sections.
 								</li>
-								<li>Override settings have their own tab.
+								<li><span class="changed">Refinement</span>: Override settings have their own tab.
 								</li>
-								<li>New options related to anonymous data submissions.
+								<li><span class="changed">Refinement</span>: New options related to anonymous data submissions.
 								</li>
-								<li>You may now limit the time period for which vampire loss data is collected. The most common use case is collect data overnight only.
+								<li><span class="changed">Refinement</span>: You may now limit the time period for which vampire loss data is collected. The most common use case is collect data overnight only.
 								</li>
 							</ul>
 						</li>
