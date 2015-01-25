@@ -536,6 +536,19 @@ public class NotifierController extends BaseController {
     };
     
     private Runnable csListener = new Runnable() {
+        private boolean withinNPercent(double actual, double expected, double percent) {
+            double delta = expected * percent;
+            return (actual >= expected - delta && actual <= expected+ delta);
+        }
+        
+        private boolean worthChecking(ChargeState cs) {
+            if (!cs.isCharging() || cs.fastChargerPresent) return false;
+            double expectedPower = cs.chargerActualCurrent * cs.chargerVoltage;
+            if (withinNPercent(cs.chargerPower, expectedPower, 10.0));
+            return false;
+        }
+        
+        
         @Override public synchronized void run() {
             ChargeState cur = vtVehicle.chargeState.get();
             if (cur.chargingState != ChargeState.Status.Unknown) {
@@ -543,8 +556,8 @@ public class NotifierController extends BaseController {
                     notifyUser(csTrigger, csMessageTarget);
                 }
             }
-            // Handle other triggers
-            if (!cur.fastChargerPresent && chargeAnomaly.isSelected()) {
+            // Handle charge anomalies
+            if (chargeAnomaly.isSelected() && worthChecking(cur)) {
                 if (ccTrigger.evalPredicate(cur.chargerActualCurrent)) {
                     Map<String,String> contextSpecific = Utils.newHashMap(
                         "CUR", String.format("%d", cur.chargerActualCurrent),
