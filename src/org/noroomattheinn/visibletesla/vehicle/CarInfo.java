@@ -80,12 +80,12 @@ class CarInfo {
     
     public static String carDetailsAsJSON(VTVehicle v) {
         Options options = v.getVehicle().getOptions();
-        VehicleState vs = v.vehicleState.get();
         return String.format(DetailsFormat,
-                ColorMap.get(options.paintColor()),
+                ColorMap.get(v.paintColor()),
                 SeatMap.get(options.seatType().getColor()),
                 WheelMap.get(v.wheelType()),
-                vs.hasSpoiler, vs.hasPano,
+                v.vehicleState.get().hasSpoiler,
+                v.roofType() == Options.RoofType.RFPO,
                 getModel(options));
 
     }
