@@ -61,6 +61,10 @@ abstract class CycleStore<C extends BaseCycle>
     @Override public void stop() { cycleWriter.close(); }
     
     List<C> getCycles(Range<Long> period) {
+        if (period == null) period = Range.all();
+        long startTime = period.hasLowerBound() ? period.lowerEndpoint() : 0;
+        long endTime = period.hasUpperBound() ? period.upperEndpoint() : Long.MAX_VALUE;
+
         List<C> cycles = new ArrayList<>();
         BufferedReader r = null;
         try {
@@ -69,10 +73,10 @@ abstract class CycleStore<C extends BaseCycle>
             try {
                 String entry;
                 while ((entry = r.readLine()) != null) {
-                    C cycle = ChargeCycle.fromJSON(entry, theClass);
-                    if (period == null || period.contains(cycle.startTime)) {
+                    C cycle = BaseCycle.fromJSON(entry, theClass);
+                    if (cycle.startTime >= startTime && cycle.startTime <= endTime) {
                         cycles.add(cycle);
-                    }
+                    } else if (cycle.startTime > endTime) { break; }
                 }
             } catch (IOException ex) {
                 logger.warning("Problem reading " + cycleType + " Cycle data: " + ex);

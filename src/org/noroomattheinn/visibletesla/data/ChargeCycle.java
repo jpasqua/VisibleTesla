@@ -5,6 +5,8 @@
  */
 package org.noroomattheinn.visibletesla.data;
 
+import static org.noroomattheinn.tesla.Tesla.logger;
+
 /**
  * An object that represents a single charge cycle.
  *
@@ -43,6 +45,10 @@ public class ChargeCycle extends BaseCycle {
     }
 
     @Override public String toJSONString() {
+        if (Double.isNaN(lat) || Double.isNaN(lng)) {
+            lat = lng = 0.0;
+            logger.warning("Lat/Lng is unknown");
+        }
         return String.format(
                 "{ " +
                 "  \"superCharger\": %b, " +
