@@ -15,7 +15,7 @@ import org.noroomattheinn.utils.GeoUtils;
  * @author Joe Pasqua <joe at NoRoomAtTheInn dot org>
  */
 public class Trip {
-    private List<WayPoint> waypoints;
+    private final List<WayPoint> waypoints;
     private double energyEstimate = Double.NaN;
 
     public Trip() {
@@ -31,7 +31,8 @@ public class Trip {
     public void addElevationData() {
         if (!Double.isNaN(waypoints.get(0).getElevation())) return;   // Already added
         List<GeoUtils.ElevationData> edl = GeoUtils.getElevations(waypoints);
-        int nElevations = nElevations(edl);
+        if (edl == null) return;
+        int nElevations = edl.size();
         for (int i = 0; i < waypoints.size(); i++) {
             waypoints.get(i).setElevation((i < nElevations) ? edl.get(i).elevation : 0.0);
         }
@@ -39,11 +40,11 @@ public class Trip {
     
     public double distance() {
         if (waypoints.isEmpty()) return 0.0;
-        double startLoc = firstWayPoint().getOdo();
-        double endLoc = lastWayPoint().getOdo();
-        return (endLoc - startLoc);
+        double startOdo = firstWayPoint().getOdo();
+        double endOdo = lastWayPoint().getOdo();
+        return (endOdo - startOdo);
     }
-
+    
     public double estimateEnergy() {
         if (!Double.isNaN(energyEstimate)) return energyEstimate;
         double cumulative = 0.0;
@@ -93,15 +94,4 @@ public class Trip {
 
     @Override public String toString() { return asJSON(); }
     
-    /**
-     * Return the number of elements in the list. Unfortunately if this code is
-     * simply inserted inline, it can cause null pointer warnings in subsequent
-     * code - which is dumb because that's what this test is meant to avoid.
-     * @param edl   The list of ElevationData objects. Can be null.
-     * @return      The length of the list or 0 if null.
-     */
-    private static int nElevations(List<GeoUtils.ElevationData> edl) {
-        return (edl == null) ? 0 : edl.size();
-    }
-
 }

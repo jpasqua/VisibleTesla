@@ -37,6 +37,8 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import jfxtras.labs.scene.control.CalendarPicker;
 import org.apache.commons.io.FileUtils;
+import org.noroomattheinn.tesla.ChargeState;
+import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.SimpleTemplate;
@@ -387,18 +389,30 @@ public class TripController extends BaseController {
     private void readTrips() {
         Map<Long,Row> rows = vtData.getAllLoadedRows();
         for (Row r : rows.values()) {
-            WayPoint wp = new WayPoint(r);
+            WayPoint wp = new WayPoint(
+                r.timestamp,
+                r.get(VTData.schema, VTData.OdometerKey),
+                r.get(VTData.schema, VTData.SpeedKey),
+                r.get(VTData.schema, VTData.HeadingKey),
+                r.get(VTData.schema, VTData.LatitudeKey),
+                r.get(VTData.schema, VTData.LongitudeKey),
+                Double.NaN,
+                r.get(VTData.schema, VTData.PowerKey),
+                r.get(VTData.schema, VTData.SOCKey));
             handleNewWayPoint(wp);
         }
-        
         endCurrentTrip();
         
         // Start listening for new WayPoints
         vtData.lastStoredStreamState.addTracker(new Runnable() {
             @Override public void run() {
-                handleNewWayPoint(new WayPoint(
-                        vtData.lastStoredStreamState.get(),
-                        vtData.lastStoredChargeState.get()));
+                StreamState ss = vtData.lastStoredStreamState.get();
+                ChargeState cs = vtData.lastStoredChargeState.get();
+                handleNewWayPoint(
+                    new WayPoint(
+                        ss.timestamp, ss.odometer, ss.speed,
+                        ss.heading, ss.estLat, ss.estLng, Double.NaN,
+                        ss.power, cs.batteryPercent));
             }
         });
         
@@ -407,7 +421,11 @@ public class TripController extends BaseController {
     
     private void endCurrentTrip() {
         if (tripInProgress == null) return;
-        handleNewWayPoint(new WayPoint());
+        
+        if (tripInProgress.distance() > 0.1) {
+            updateTripData(tripInProgress);
+        }
+        
         tripInProgress = null;
     }
     
@@ -415,21 +433,28 @@ public class TripController extends BaseController {
     
     private void handleNewWayPoint(WayPoint wp) {
         if (tripInProgress == null) {
-            tripInProgress = new Trip();
-            tripInProgress.addWayPoint(wp);
+            // No Trip in progress, start one
+            startNewTrip(wp);
             return;
         }
+        
         WayPoint last = tripInProgress.lastWayPoint();
         if ((wp.getTime() - last.getTime() > MaxTimeBetweenWayPoints)) {
-            if (tripInProgress.distance() > 0.1) {
-                updateTripData(tripInProgress);
-            }
-            tripInProgress = null;
+            // Finish the old trip and start a new one
+            endCurrentTrip();
+            startNewTrip(wp);
+            return;
         }
+        
         if (thereWasMotion(wp, last)) {
-            if (tripInProgress == null) tripInProgress = new Trip();
+            // Add to the current Trip
             tripInProgress.addWayPoint(wp);
         }
+    }
+    
+    private void startNewTrip(WayPoint wp) {
+        tripInProgress = new Trip();
+        tripInProgress.addWayPoint(wp);
     }
     
     private void updateTripData(Trip t) {

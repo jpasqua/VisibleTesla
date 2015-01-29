@@ -6,9 +6,6 @@
 package org.noroomattheinn.visibletesla.data;
 
 import java.util.Date;
-import org.noroomattheinn.tesla.ChargeState;
-import org.noroomattheinn.tesla.StreamState;
-import org.noroomattheinn.timeseries.Row;
 import org.noroomattheinn.utils.GeoUtils;
 import org.noroomattheinn.utils.Utils;
 
@@ -23,8 +20,16 @@ public class WayPoint implements GeoUtils.LocationSource {
  * Internal State
  * 
  *----------------------------------------------------------------------------*/
-    private final Row row;
-    private double elevation;
+    
+    private final long   timestamp;
+    private final double odometer;
+    private final double speed;
+    private final double heading;
+    private final double power;
+    private final double soc;
+    private final double lat;
+    private final double lng;
+    private       double elevation;
     
 /*==============================================================================
  * -------                                                               -------
@@ -32,27 +37,19 @@ public class WayPoint implements GeoUtils.LocationSource {
  * -------                                                               -------
  *============================================================================*/
 
-    public WayPoint(Row r) {
-        this.row = r;
-        this.elevation = Double.NaN;
-    }
-
-    public WayPoint() {
-        this(new Row(VTData.schema));
-        row.timestamp = Long.MAX_VALUE;
-    }
-
-    public WayPoint(StreamState ss, ChargeState cs) {
-        this(new Row(VTData.schema));
-        row.timestamp = ss.timestamp;
-
-        set(VTData.LatitudeKey, ss.estLat);
-        set(VTData.LongitudeKey, ss.estLng);
-        set(VTData.HeadingKey, ss.estHeading);
-        set(VTData.SpeedKey, ss.speed);
-        set(VTData.OdometerKey, ss.odometer);
-        set(VTData.PowerKey, ss.power);
-        set(VTData.SOCKey, cs.batteryPercent);
+    public WayPoint(
+            long timestamp, double odometer, double speed,
+            double heading, double lat, double lng, double elevation,
+            double power, double soc) {
+        this.timestamp = timestamp;
+        this.odometer = odometer;
+        this.speed = speed;
+        this.heading = heading;
+        this.lat = lat;
+        this.lng = lng;
+        this.elevation = elevation;
+        this.power = power;
+        this.soc = soc;
     }
     
     public String asJSON() { return asJSON(true); }
@@ -61,19 +58,19 @@ public class WayPoint implements GeoUtils.LocationSource {
         double adjustedSpeed, adjustedOdo, adjustedElevation;
 
         if (useMiles) {
-            adjustedSpeed = get(VTData.SpeedKey);
-            adjustedOdo = get(VTData.OdometerKey);
+            adjustedSpeed = speed;
+            adjustedOdo = odometer;
             adjustedElevation = Utils.round(Utils.metersToFeet(elevation), 0);
         } else {
-            adjustedSpeed = Utils.milesToKm(get(VTData.SpeedKey));
-            adjustedOdo = Utils.milesToKm(get(VTData.OdometerKey));
+            adjustedSpeed = Utils.milesToKm(speed);
+            adjustedOdo = Utils.milesToKm(odometer);
             adjustedElevation = Utils.round(elevation, 1);
         }
 
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         sb.append("    timestamp: \"");
-        sb.append(String.format("%1$tm/%1$td/%1$ty %1$tH:%1$tM:%1$tS", new Date(row.timestamp)));
+        sb.append(String.format("%1$tm/%1$td/%1$ty %1$tH:%1$tM:%1$tS", new Date(timestamp)));
         sb.append("\",\n");
         sb.append("    lat: ").append(getLat()).append(",\n");
         sb.append("    lng: ").append(getLng()).append(",\n");
@@ -81,6 +78,7 @@ public class WayPoint implements GeoUtils.LocationSource {
         sb.append("    heading: ").append(getHeading()).append(",\n");
         sb.append("    power: ").append(getPower()).append(",\n");
         sb.append("    odometer: ").append(adjustedOdo).append(",\n");
+        sb.append("    soc: ").append(soc).append(",\n");
         sb.append("    elevation: ").append(adjustedElevation).append("\n");
         sb.append("}\n");
 
@@ -88,31 +86,21 @@ public class WayPoint implements GeoUtils.LocationSource {
     }
 
     @Override public String toString() { return asJSON(); }
-
-    public long   getTime()         { return row.timestamp; }
+    
+    public long   getTime()         { return timestamp; }
     public double getElevation()    { return elevation; }
-    public double getOdo()          { return get(VTData.OdometerKey); }
-    public double getHeading()      { return get(VTData.HeadingKey); }
-    public double getPower()        { return get(VTData.PowerKey); }
-    public double getSOC()          { return get(VTData.SOCKey); }
+    public double getOdo()          { return odometer; }
+    public double getHeading()      { return heading; }
+    public double getPower()        { return power; }
+    public double getSOC()          { return soc; }
+    public double getSpeed()        { return speed; }
     
     // The following getters are also part of the GeoUtils.LocationSource interface
-    @Override public double getLat() { return get(VTData.LatitudeKey); }
-    @Override public double getLng() { return get(VTData.LongitudeKey); }
+    @Override public double getLat() { return lat; }
+    @Override public double getLng() { return lng; }
 
     // Elevation is the only field that can be set after the WayPoint is created
     // This is done so that it can be added lazily only when needed
     public void setElevation(double e) { elevation = e; }
-    
-/*------------------------------------------------------------------------------
- *
- * Private Utility Methods
- * 
- *----------------------------------------------------------------------------*/
-    
-    private double get(String column) { return row.get(VTData.schema, column); }
-    
-    private void set(String column, double value) {
-        row.set(VTData.schema, column, value);
-    }
+
 }
