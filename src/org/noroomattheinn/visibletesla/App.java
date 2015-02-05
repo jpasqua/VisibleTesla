@@ -7,11 +7,14 @@ package org.noroomattheinn.visibletesla;
 
 import com.sun.net.httpserver.BasicAuthenticator;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Properties;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -46,8 +49,8 @@ class App {
  * 
  *----------------------------------------------------------------------------*/
     
-    static final String ProductName = "VisibleTesla";
-    static final String ProductVersion = "0.50.04";
+    private static final String AppPropertiesFile = 
+            "org/noroomattheinn/visibletesla/VT.properties";
     static final String LastExportDirKey = "APP_LAST_EXPORT_DIR";
     
 /*------------------------------------------------------------------------------
@@ -62,6 +65,10 @@ class App {
     private final PWUtils       pwUtils = new PWUtils();
     private       byte[]        encPW, salt;
     private       long          lastEventTime;    
+    
+    private static Properties appProperties = 
+        loadAppProperties(
+            App.class.getClassLoader().getResourceAsStream(AppPropertiesFile));
     
 /*------------------------------------------------------------------------------
  *
@@ -115,7 +122,7 @@ class App {
             }
         });
 
-        appFilesFolder = Utils.ensureAppFilesFolder(ProductName);
+        appFilesFolder = Utils.ensureAppFilesFolder(productName());
         Utils.setupLogger(appFilesFolder, "visibletesla", logger, prefs.getLogLevel());
 
         if (prefs.enableProxy.get()) {
@@ -128,6 +135,9 @@ class App {
         
         internalizePW(prefs.authCode.get());
     }
+    
+    static String productName() { return appProperties.getProperty("APP_NAME"); }
+    static String productVersion() { return appProperties.getProperty("APP_VERSION"); }
     
     void showDocument(String doc) { fxApp.getHostServices().showDocument(doc); }
     HostServices getHostServices() { return fxApp.getHostServices(); }
@@ -280,4 +290,15 @@ class App {
             return "Unidentified";
         }
     }
+    
+    private static Properties loadAppProperties(InputStream is) {
+        Properties p = new Properties();
+        try {
+            p.load(is);
+        } catch (IOException ex) {
+            logger.warning("Couldn't load app properties file: " + ex);
+        }
+        return p;
+    }
+
 }

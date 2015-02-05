@@ -289,7 +289,7 @@ public class MainController extends BaseController {
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
             VersionUpdater.checkForNewerVersion(
-                    App.ProductVersion, app.stage, app.getHostServices(),
+                    App.productName(), app.stage, app.getHostServices(),
                     prefs.offerExperimental.get());
             prefs.storage().putLong(key, now);
         }
@@ -465,14 +465,14 @@ public class MainController extends BaseController {
                 "Based on the great API detective work of many members\n" +
                 "of teslamotorsclub.com.  All Tesla imagery derives\n" +
                 "from the official Tesla iPhone app.",
-                App.ProductName + " " + App.ProductVersion,
-                "About " + App.ProductName);
+                App.productName() + " " + App.productVersion(),
+                "About " + App.productName());
     }
 
     // Help->Check for Updates
     @FXML private void updatesHandler(ActionEvent event) {
         if (!VersionUpdater.checkForNewerVersion(
-                App.ProductVersion,
+                App.productVersion(),
                 app.stage, app.getHostServices(),
                 prefs.offerExperimental.get())) {
             Dialogs.showInformationDialog(
@@ -622,7 +622,7 @@ public class MainController extends BaseController {
     private void refreshTitle() {
         Vehicle v = vtVehicle.getVehicle();
         String carName = (v != null) ? v.getDisplayName() : null;
-        String title = App.ProductName + " " + App.ProductVersion;
+        String title = App.productName() + " " + App.productVersion();
         if (carName != null) title = title + " for " + carName;
         if (app.api.isIdle()) {
             String time = String.format("%1$tH:%1$tM", new Date());
@@ -637,7 +637,7 @@ public class MainController extends BaseController {
     }
 
     private void logAppInfo() {
-        logger.info(App.ProductName + ": " + App.ProductVersion);
+        logger.info(App.productName() + ": " + App.productVersion());
         
         logger.info(
                 String.format("Max memory: %4dmb", Runtime.getRuntime().maxMemory()/(1024*1024)));
