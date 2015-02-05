@@ -389,14 +389,16 @@ public class TripController extends BaseController {
     private void readTrips() {
         Map<Long,Row> rows = vtData.getAllLoadedRows();
         for (Row r : rows.values()) {
+            double lat = r.get(VTData.schema, VTData.LatitudeKey);
+            double lng = r.get(VTData.schema, VTData.LongitudeKey);
+            double odo = r.get(VTData.schema, VTData.OdometerKey);
+            if (lat == 0.0 && lng == 0.0 || odo == 0.0) continue;
             WayPoint wp = new WayPoint(
                 r.timestamp,
-                r.get(VTData.schema, VTData.OdometerKey),
+                odo,
                 r.get(VTData.schema, VTData.SpeedKey),
                 r.get(VTData.schema, VTData.HeadingKey),
-                r.get(VTData.schema, VTData.LatitudeKey),
-                r.get(VTData.schema, VTData.LongitudeKey),
-                Double.NaN,
+                lat, lng, Double.NaN,
                 r.get(VTData.schema, VTData.PowerKey),
                 r.get(VTData.schema, VTData.SOCKey));
             handleNewWayPoint(wp);
