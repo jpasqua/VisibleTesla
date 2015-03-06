@@ -289,7 +289,7 @@ public class MainController extends BaseController {
         long now = System.currentTimeMillis();
         if (now - lastVersionCheck > (7 * 24 * 60 * 60 * 1000)) {
             VersionUpdater.checkForNewerVersion(
-                    App.productName(), app.stage, app.getHostServices(),
+                    App.productVersion(), app.stage, app.getHostServices(),
                     prefs.offerExperimental.get());
             prefs.storage().putLong(key, now);
         }

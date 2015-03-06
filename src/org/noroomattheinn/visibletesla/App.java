@@ -157,6 +157,18 @@ class App {
      * @return  The folder in which app related files are to be stored
      */
     File appFileFolder() { return appFilesFolder; }
+    
+    final String getAppID() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+            byte[] mac = network.getHardwareAddress();
+            return DigestUtils.sha256Hex(mac);
+        } catch (UnknownHostException | SocketException e) {
+            return "Unidentified";
+        }
+    }
+    
 
     /**
      * Add a tracker to a TrackedObject, but ensure it will run on the
@@ -280,17 +292,6 @@ class App {
         }
     }
 
-    private String getAppID() {
-        try {
-            InetAddress ip = InetAddress.getLocalHost();
-            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-            byte[] mac = network.getHardwareAddress();
-            return DigestUtils.sha256Hex(mac);
-        } catch (UnknownHostException | SocketException e) {
-            return "Unidentified";
-        }
-    }
-    
     private static Properties loadAppProperties(InputStream is) {
         Properties p = new Properties();
         try {

@@ -150,12 +150,13 @@ public class OverviewController extends BaseController {
         VehicleState car = vtVehicle.vehicleState.get();
         String info = vtVehicle.getVehicle().toString() +
                 "\nFirmware Version: " + car.version +
-                "\nUUID: " + vtVehicle.getVehicle().getUUID() +
                 "\nRemote Start Enabled: " + vtVehicle.getVehicle().remoteStartEnabled() +
                 "\nCalendar Enabled: " + vtVehicle.getVehicle().calendarEnabled() +
                 "\nNotifications Enabled: " + vtVehicle.getVehicle().notificationsEnabled() +
                 "\n--------------------------------------------" +
                 "\nLow level information: " + vtVehicle.getVehicle().getUnderlyingValues() +
+                "\nVehicle UUID: " + vtVehicle.getVehicle().getUUID() +
+                "\nApp UUID: " + app.getAppID() +
                 "\n";
 
         TextArea t = new TextArea(info);
