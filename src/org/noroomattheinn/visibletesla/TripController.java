@@ -501,7 +501,7 @@ public class TripController extends BaseController {
         double turn =  180.0 - Math.abs((Math.abs(wp1.getHeading() - wp2.getHeading())%360.0) - 180.0);
         double meters = GeoUtils.distance(wp1.getLat(), wp1.getLng(), wp2.getLat(), wp2.getLng());
 
-        return (meters >= 5 || (turn > 10 && meters > 0.1));
+        return (meters >= 5 || (turn > 10 && meters > 3.0));
     }
 
 }
