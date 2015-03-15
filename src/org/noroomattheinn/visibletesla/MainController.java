@@ -69,7 +69,7 @@ public class MainController extends BaseController {
     private static final String DocumentationURL = 
             "http://visibletesla.com/Doc_v2/pages/GettingStarted.html";
     private static final String ReleaseNotesURL  = 
-            "http://visibletesla.com/Documentation/ReleaseNotes.html";
+            "http://visibletesla.com/Doc_v2/ReleaseNotes.html";
     
 /*------------------------------------------------------------------------------
  *
