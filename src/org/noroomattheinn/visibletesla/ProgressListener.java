@@ -5,8 +5,10 @@
  */
 package org.noroomattheinn.visibletesla;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.ProgressIndicator;
@@ -30,6 +32,10 @@ class ProgressListener implements Executor.FeedbackListener {
  * 
  *----------------------------------------------------------------------------*/
     
+    private static final String LastReportKey = "APP_LastReportKey";
+    private static final long ReportingInterval = 24 * 60 * 60 * 1000;
+    private static final String ReportAddress = "data@visibletesla.com";
+
     /**
      * Keep track of how many 'requestStarted' calls are outstanding for a 
      * given ProgressIndicator. Each tab has it's own ProgressIndicator
@@ -39,12 +45,8 @@ class ProgressListener implements Executor.FeedbackListener {
     
     private final BooleanProperty submitStats;
     private final String submissionID;
-    
-    /**
-     * The last time we sent a report to the user. Only do that once a day
-     */
-    private long lastReport;
-    
+    private final Preferences persistentStore;
+            
 /*==============================================================================
  * -------                                                               -------
  * -------              External Interface To This Class                 ------- 
@@ -56,7 +58,7 @@ class ProgressListener implements Executor.FeedbackListener {
      * only be one for the entire app.
      */
     ProgressListener(BooleanProperty submitStats, String submissionID) {
-        this.lastReport = System.currentTimeMillis();
+        persistentStore = Preferences.userNodeForPackage(this.getClass());
         this.submitStats = submitStats;
         this.submissionID = submissionID;
     }
@@ -71,25 +73,39 @@ class ProgressListener implements Executor.FeedbackListener {
             showProgress((ProgressIndicator)(r.progressContext), false);
     }
 
-    @Override public void completionHistogram(String type, Map<Integer,Integer> histogram) {
-        long ReportingInterval = 24 * 60 * 60 * 1000;
-        String ReportAddress = "data@visibletesla.com";
-
+    @Override public void completionHistogram(String type, Map<Integer, Integer> histogram) {
         StringBuilder sb = new StringBuilder();
-        sb.append(type); sb.append(" stats: ");
-        for (Map.Entry<Integer,Integer> entry : histogram.entrySet()) {
+        // Format of the submission is JSON:
+        // {"uuid":"XYZ123","type":"Charge","stats":[[-3,1],[0,1000],[1,4],[2,1]],
+        //  "time":"Thu Mar 05 19:51:58 PST 2015"}
+        sb.append("{");
+        sb.append("\"type\":\""); sb.append(type); sb.append("\",");
+        sb.append("\"stats\":[");
+        boolean first = true;
+        for (Map.Entry<Integer, Integer> entry : histogram.entrySet()) {
             int tries = entry.getKey();
             int count = entry.getValue();
-            sb.append("("); sb.append(tries); sb.append(", "); sb.append(count); sb.append(") ");
+            if (!first) { sb.append(","); }
+            sb.append("["); sb.append(tries); sb.append(","); sb.append(count); sb.append("]");
+            first = false;
         }
+        sb.append("],");
+        sb.append("\"date\":\""); sb.append(new Date()); sb.append("\",");
+        sb.append("\"uuid\":\""); sb.append(submissionID); sb.append("\"");
+        sb.append("}");
+        
         logger.info(sb.toString());
-        if (submitStats.get() && timeSince(lastReport) > ReportingInterval) {
-            logger.info("Sending api stats report: " + sb.toString());
-            MailGun.get().send(
-                    ReportAddress,                      // To
-                    "API Stats for " +  submissionID,   // Subject
-                    sb.toString());                     // Body
-            lastReport = System.currentTimeMillis();
+
+        long lastReport = persistentStore.getLong(LastReportKey, 0);
+        if (submitStats.get()) {
+            if (timeSince(lastReport) >= ReportingInterval) {
+                logger.info("Sending api stats report: " + sb.toString());
+                MailGun.get().send(
+                        ReportAddress,                      // To
+                        "API Stats for " + submissionID,    // Subject
+                        sb.toString());                     // Body
+                persistentStore.putLong(LastReportKey, System.currentTimeMillis());
+            }
         }
     }
     

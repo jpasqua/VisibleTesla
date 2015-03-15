@@ -30,7 +30,7 @@ class Firmware {
         // This data is collected from:
         // http://www.teslamotorsclub.com/showwiki.php?title=Model+S+software+firmware+changelog
     private static final String FirmwareVersionsURL =
-        "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/FirmwareVersions.properties";
+        "https://dl.dropboxusercontent.com/u/7045813/VT2/FirmwareVersions.properties";
 
 /*------------------------------------------------------------------------------
  *

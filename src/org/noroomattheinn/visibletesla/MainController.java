@@ -67,7 +67,7 @@ public class MainController extends BaseController {
  *----------------------------------------------------------------------------*/
 
     private static final String DocumentationURL = 
-            "http://visibletesla.com/Documentation/pages/GettingStarted.html";
+            "http://visibletesla.com/Doc_v2/pages/GettingStarted.html";
     private static final String ReleaseNotesURL  = 
             "http://visibletesla.com/Documentation/ReleaseNotes.html";
     
@@ -160,6 +160,8 @@ public class MainController extends BaseController {
             }
         }
         
+        showDisclaimer();
+
         // Watch for changes to the inactivity mode and state in order to update the UI
         App.addTracker(app.api.mode, new Runnable() {
             @Override public void run() { setAppModeMenu(); } } );
@@ -262,7 +264,6 @@ public class MainController extends BaseController {
                 }
             }
                 
-            showDisclaimer();
             conditionalCheckVersion();
             app.restoreMode();
             fetchInitialCarState();
@@ -732,7 +733,7 @@ public class MainController extends BaseController {
     }
     
     private void showDisclaimer() {
-        boolean disclaimer = prefs.storage().getBoolean("Disclaimer", false);
+        boolean disclaimer = prefs.storage().getBoolean("V2_Disclaimer", false);
         if (!disclaimer) {
             Dialogs.showInformationDialog(
                     app.stage,
@@ -746,8 +747,17 @@ public class MainController extends BaseController {
                     "unlocking the doors, opening the sun roof, or\n" +
                     "reducing the available charge in the battery.",
                     "Please Read Carefully", "Disclaimer");
+            Dialogs.showInformationDialog(
+                    app.stage,
+                    "Use of this application may result in Tesla Motors\n" +
+                    "restricting your access via your official Tesla mobile\n" +
+                    "phone application. The author takes no responsibilitity\n" +
+                    "for this outcome. By running this application you\n" +
+                    "acknowledge this and accept all responsibility for\n" +
+                    "any adverse outcomes.",
+                    "Please Read Carefully", "Disclaimer");
+            prefs.storage().putBoolean("V2_Disclaimer", true);                
         }
-        prefs.storage().putBoolean("Disclaimer", true);                
     }
     
     private Range<Long> getExportPeriod() {
