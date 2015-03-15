@@ -79,8 +79,7 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	# Download the jfxtras library
 	# There may be a newer version of the library. If so, update the version details below
 	cd $ROOT/ThirdParty/jfxtras
-	curl -s -O https://oss.sonatype.org/content/repositories/snapshots/org/jfxtras/jfxtras-labs/2.2-r6-SNAPSHOT/jfxtras-labs-2.2-r6-20150117.090057-397-sources.jar
-    ln -s jfxtras-labs-2.2-r6-20150117.090057-397-sources.jar jfxtras-labs-2.2.jar
+	curl -s -O https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/jars/jfxtras-labs-2.2.jar
 
 	# The Java application bundler file is only used to create a Mac OS X bundled app. It's not used by VisibleTesla at run time
 	cd $ROOT/ThirdParty

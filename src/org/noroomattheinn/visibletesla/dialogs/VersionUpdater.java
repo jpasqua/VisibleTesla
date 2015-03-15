@@ -38,7 +38,7 @@ public class VersionUpdater {
  *----------------------------------------------------------------------------*/
 
     private static final String VersionsFile = 
-      "https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/versions.xml";
+      "https://dl.dropboxusercontent.com/u/7045813/VT2/versions.xml";
       //"https://dl.dropboxusercontent.com/u/7045813/VTExtras/test_versions.xml";
     
 /*==============================================================================
