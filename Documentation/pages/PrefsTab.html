@@ -9,20 +9,25 @@
         <link rel="stylesheet" href="../default.css" type="text/css">
         <link rel="shortcut icon" href="../images/favicon.ico?v=1" type="image/x-icon">
         <link rel="icon" href="../images/favicon.ico?v=1" type="image/x-icon">
-        <script src="../scripts/gcse.js"></script>
+        <script src="../scripts/gcse.js" type="text/javascript">
+</script>
     </head>
     <body>
-        <SCRIPT LANGUAGE="JavaScript" type="text/javascript" src="../scripts/hsp.js"></SCRIPT> 
+        <script language="JavaScript" type="text/javascript" src="../scripts/hsp.js">
+</script>
         <div id="content">
             <h1>
                 The Prefs Tab
             </h1>
+            <h3>
+                General Preferences
+            </h3>
             <p>
-                The Preferences tab allows users to control various options for the application as a whole and individual tabs within the application. Each Tab in VisibleTesla has it's own section within the preferences tab. There are also general preferences for the app as a whole. To set the preferences associated with a given tab, click the arrow next to the Tab name. The screen shot below shows the Preferences tab with the Login preferences selected. As you can see, there are currently no preferences available for this tab.
-            </p><img class="screenshot" src="../images/19_Prefs.png">
+                The Preferences tab allows users to control various options for the application as a whole and individual tabs within the application. The preferences are organized into a set of sub-tabs, each of which has preferences for a particular aspect of the application. The screen shot below shows the Preferences tab with the General preferences selected. This is what you'll see when you first choose the Prefs Tab.
+            </p><img class="screenshot" src="../images/19_Prefs_General.png">
             <p>
-                The preferences associated with some tabs are split into two groups: Basic and Advanced. In general, you should avoid changing the advanced options. The most common preferences are shown in the table below.
-            </p><a id="pref_table_sched"></a><a id="loadPrefs"></a>
+                The table below describes each of the preferences.
+            </p>
             <table class="grid_table">
                 <col width="10">
                 <tbody>
@@ -35,82 +40,6 @@
                         </th>
                     </tr>
                     <tr class="firstRowOfGroup">
-                        <td colspan="2" align="center">
-                            <strong>Location Preferences</strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Collect Location Data</span>
-                        </td>
-                        <td>
-                            Checking this box causes VisibleTesla to store location data that it collects from the Location Tab or the Graph Tab. This option is required is you want to use the Trips tab.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Seconds Between Stored Samples</span>
-                        </td>
-                        <td>
-                            Location data can come in quite rapidly when viewing the Locations tab. VisibleTesla doesn't store every single piece of data. You can specify the minimum time between samples using this slider. Note that this does not impact how frequently data comes into VisibleTesla. It only specifies how much data is stored.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Distance Between Stored Samples</span>
-                        </td>
-                        <td>
-                            Location data can come in quite rapidly when viewing the Locations tab. VisibleTesla doesn't store every single piece of data. You can specify the minimum distance between location samples using this slider. Note that this does not impact how frequently data comes into VisibleTesla. It only specifies how much data is stored.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Stream when possible</span>
-                        </td>
-                        <td>
-                            Checking this box tells VisibleTesla to stream location data opportunistically even when not on the Location Tab. When the car is not moving this will have no net effect. When the car is moving, additional location data will be captured. On very short trips or when the app is daydreaming, you may not see additional data.
-                        </td>
-                    </tr>
-                    <tr class="firstRowOfGroup">
-                        <td colspan="2" align="center">
-                            <strong>Graphs Preferences</strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Ignore Graph Gaps</span>
-                        </td>
-                        <td>
-                            Checking this box causes VisibleTesla treat gaps in graph data specially. In particular, lines will not be displayed when between points that are far apart indicating gaps in the data. 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Minutes constituting a gap</span>
-                        </td>
-                        <td>
-                            Sets the threshold for how far apart points need to be to constitute a gap in the data. This can range from  10 minutes to an hour.
-                        </td>
-                    </tr>
-                    <tr class="firstRowOfGroup">
-                        <td colspan="2" align="center">
-                            <strong>Scheduler Preferences</strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">"Safe" includes:</span>
-                        </td>
-                        <td>
-                            These checkboxes allow the user to determine what sorts of power safety checks should apply to commands in the Scheduler UI that may consume significant power. You may select <span class="ui">Minimum Battery Power</span> or <span class="ui">Vehicle Plugged-In</span> or both or neither.
-                        </td>
-                    </tr>
-                    <tr class="firstRowOfGroup">
-                        <td colspan="2" align="center">
-                            <strong>General / Basic Preferences</strong>
-                        </td>
-                    </tr>
-                    <tr>
                         <td>
                             <span class="ui">Wake on Tab change</span>
                         </td>
@@ -163,8 +92,7 @@
                             <span class="ui">Include Location</span>
                         </td>
                         <td>
-                            If you have chosen to share anonymous charge data, you have additional control over what is shared. In particular, you can choose whether or not you want to share where the charge took place. If you choose to include location information using the <span class="ui">Include Location</span> check box, then a modified version of your charge location is sent along with your submission. Since most people frequently charge at home, this modified location will prevent your home address from showing up repeatedly in the public information. If it did, the relationship between UUID and owner might be determined.
-                            Instead, each time you submit data, your location is randomized. Your actual home location will never be one of these randomized locations. Just how much the location is altered is determined by the <span class="ui">Coarse/Fine</span> slider.
+                            If you have chosen to share anonymous charge data, you have additional control over what is shared. In particular, you can choose whether or not you want to share where the charge took place. If you choose to include location information using the <span class="ui">Include Location</span> check box, then a modified version of your charge location is sent along with your submission. Since most people frequently charge at home, this modified location will prevent your home address from showing up repeatedly in the public information. If it did, the relationship between UUID and owner might be determined. Instead, each time you submit data, your location is randomized. Your actual home location will never be one of these randomized locations. Just how much the location is altered is determined by the <span class="ui">Coarse/Fine</span> slider.
                         </td>
                     </tr>
                     <tr>
@@ -173,13 +101,18 @@
                         </td>
                         <td>
                             This slider determines how much your location is randomized before it is submitted to VisibleTesla.com (assuming you opted in). If you think of a latitude (or longitude) as a number with some number of decimal places, the slider determines how much information after the decimal point will be preserved. For example, if you choose 3, then the third decimal place and beyond will be modified. If you choose 1, then the first decimal place and beyond will be modified. There are normally 6 digits after the decimal place, so there is no option to submit unmodified data.
-                            <p>Note: If you charge at a supercharger this randomization doesn't really help since supercharger locations are public and the fact that you used a supercharger is noted in your submission. In this case, the actual supercharger location is submitted.</p>
+                            <p>
+                                Note: If you charge at a supercharger this randomization doesn't really help since supercharger locations are public and the fact that you used a supercharger is noted in your submission. In this case, the actual supercharger location is submitted.
+                            </p>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            <h3>
+                Location Preferences
+            </h3><img class="screenshot" src="../images/19_Prefs_Location.png">
             <p>
-                There are also a set of advanced preferences that most users should never have to use. You can safely ignore these unless you run into one of the few cases that lead you here.
+                Description:
             </p>
             <table class="grid_table">
                 <col width="10">
@@ -192,101 +125,125 @@
                             Description
                         </th>
                     </tr>
-
-                    <tr>
-                        <td colspan="2" align="center">
-                            <strong>General / Advanced Preferences</strong>
+                    <tr class="firstRowOfGroup">
+                        <td>
+                            <span class="ui">Collect Location Data</span>
+                        </td>
+                        <td>
+                            Checking this box causes VisibleTesla to store location data that it collects from the Location Tab or the Graph Tab. This option is required is you want to use the Trips tab.
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <span class="ui">Enable Proxy</span>
+                            <span class="ui">Seconds Between Stored Samples</span>
                         </td>
                         <td>
-                            Allows the user to specify an HTTP proxy (not SOCKS) to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. You must quit and restart VisibleTesla for these settings to take effect.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Offer Experimental Versions</span>
-                        </td>
-                        <td>
-                            If this box is checked, the app will offer experimental versions as part of the normal process of checking for updates. The box is not checked by default. If an experimental version is available and this box is not checked, it will not be offered to the user.
+                            Location data can come in quite rapidly when viewing the Locations tab. VisibleTesla doesn't store every single piece of data. You can specify the minimum time between samples using this slider. Note that this does not impact how frequently data comes into VisibleTesla. It only specifies how much data is stored.
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <span class="ui">Use custom Google API key</span>
+                            <span class="ui">Distance Between Stored Samples</span>
                         </td>
                         <td>
-                            <i>If you are not a Google Maps developer, please ignore this option</i>. Using this options provides no new functionality. If you are a developer with a valid API key issued by Google, you may enter it here and it will be used by the application instead of the default key. This may provide you with higher usage limits on Google Maps related actions. <b>If you check this box and supply an invalid key, the Location tab and the Trips tab will fail without notice.</b> If you are a developer and want to learn more about the Google Maps API and how to get a key, please refer to <a href="https://developers.google.com/maps/documentation/javascript/tutorial">Google's documentation</a>.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui"><a name="mailgunkey">Use custom MailGun key</a></span>
-                        </td>
-                        <td>
-                            Advanced users may supply their own API key for MailGun. This is the service used to send notifications via email. It is up to you to set up an account with MailGun and agree to their terms of service. Supplying your own key provides no new functionality. It does, however, provide better privacy and may help to avoid usage limits. If you don't supply your own key, a default account is used and logging information is available to the author of VisibleTesla who administers the account. Please do not use this setting unless you are comfortable acquiring your own MailGun key.
+                            Location data can come in quite rapidly when viewing the Locations tab. VisibleTesla doesn't store every single piece of data. You can specify the minimum distance between location samples using this slider. Note that this does not impact how frequently data comes into VisibleTesla. It only specifies how much data is stored.
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <span class="ui">Font Scale</span>
+                            <span class="ui">Stream when possible</span>
                         </td>
                         <td>
-                            Users who are experiencing problems with fonts being too large and not displaying properly may use the new <span class="ui">Font Scale</span> setting to adjust the font size. Set the font scale to a value lower than 100% to reduce VisibleTesla's font size. Some experimentation may be necessary to find the right scaling. You must quit and restart VisibleTesla before the setting will take effect.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Enable REST Services</span>
-                        </td>
-                        <td>
-                            VisibleTesla makes very limited functionality available via web services. Please read about it in the <a href="OtherTopics.html">Other Topics</a> documentation. These services are turned off by default. There are three preference settings:
-                            <ol>
-                                <li><span class="ui">Enable REST Services</span>: To enable this functionality, you must check this box. If you don't, all requests will be ignored.</li>
-                                <li><span class="ui">Port</span>: The service will be available on port 9090 unless you change the value in the  field. If you do change the value, it will not take effect until VisibleTesla restarts.</li>
-                                <li><span class="ui">Auth Code</span>: You must set an authorization code (password) in order to access the service. Enter your code into the  field and then press the <span class="ui">Set</span> button. Your new code will not be set unless you press the button. Once you do, the new code will be in force immediately.</li>
-                            </ol>
-                            <strong>If you are not comfortable with the direct use of web services, please leave this functional disabled.</strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Custom Page Source</span>
-                        </td>
-                        <td>
-                            This is the URL of a directory which contains custom HTML pages designed by you. It is up to you to host these files at this URL. The URL may refer to a local folder or a URL on a web server. You can use a public Dropbox folder as a web server if you'd like. Local folders are specified with URLs of the form: <code>file:///PATH_TO_FOLDER</code>. These pages will be served up by VisibleTesla's built-in web server under the URL: <code>http://127.0.0.1:9090/custom/PageName.html</code>. See the <a href="OtherTopics.html#rest">Other Topics</a> page for details.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Show App Files</span>
-                        </td>
-                        <td>
-                            VisibleTesla stores its data files in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. In normal operation you should never need to know or care where these files are. The only time you might care is if you encounter a problem. In that case, the files stored in this folder may help in finding the problem. Pressing the  <span class="ui">Show App Files</span> button will take you to these files.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="ui">Log Level</span>
-                        </td>
-                        <td>
-                            This setting does not affect the operation of the application. It determines how much diagnostic information about the application should be stored. You need never change this unless requested to do so by the developer as part of diagnosing a problem with VisibleTesla.
+                            Checking this box tells VisibleTesla to stream location data opportunistically even when not on the Location Tab. When the car is not moving this will have no net effect. When the car is moving, additional location data will be captured. On very short trips or when the app is daydreaming, you may not see additional data.
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <h3>Overriding Vehicle Data</h3>
+            <h3>
+                Graphs Preferences
+            </h3><img class="screenshot" src="../images/19_Prefs_Graphs.png">
             <p>
-                VisibleTesla gives you the ability to override certain information that comes from Tesla's servers. For example, you can change the color of your car or the kind of wheels it has. This can be useful to explore different looks, but it can also come in handy if Tesla's servers report the wrong information. This can happen if you change options on your car after it is delivered. A typical example of this is that you change the wheels form 19's to 21's. You may even change them on a seasonal basis. 
+                Description:
             </p>
-            </p><img class="screenshot" src="../images/20a_Prefs_Overrides.png">
+            <table class="grid_table">
+                <col width="10">
+                <tbody>
+                    <tr>
+                        <th>
+                            Preference
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td>
+                            <span class="ui">Ignore Graph Gaps</span>
+                        </td>
+                        <td>
+                            Checking this box causes VisibleTesla treat gaps in graph data specially. In particular, lines will not be displayed when between points that are far apart indicating gaps in the data.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Minutes constituting a gap</span>
+                        </td>
+                        <td>
+                            Sets the threshold for how far apart points need to be to constitute a gap in the data. This can range from 10 minutes to an hour.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Limit Vampire Stats</span>
+                        </td>
+                        <td>
+                            If you enable this preference, statistics relating to Vampire loss will only be collected during the specified period. This can be useful if you just want to look at overnight losses, or just losses during the day.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>
+                Scheduler Preferences
+            </h3><img class="screenshot" src="../images/19_Prefs_Scheduler.png">
+            <p>
+                Description:
+            </p>
+            <table class="grid_table">
+                <col width="10">
+                <tbody>
+                    <tr>
+                        <th>
+                            Preference
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td>
+                            <span class="ui">"Safe" includes:</span>
+                        </td>
+                        <td>
+                            These checkboxes allow the user to determine what sorts of power safety checks should apply to commands in the Scheduler UI that may consume significant power. You may select <span class="ui">Minimum Battery Power</span> or <span class="ui">Vehicle Plugged-In</span> or both or neither.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>
+                Vehicle Data Overrides
+            </h3>
+            <p>
+                VisibleTesla gives you the ability to override certain information that comes from Tesla's servers. For example, you can change the color of your car or the kind of wheels it has. This can be useful to explore different looks, but it can also come in handy if Tesla's servers report the wrong information. This can happen if you change options on your car after it is delivered. A typical example of this is that you change the wheels form 19's to 21's. You may even change them on a seasonal basis. .
+            </p>
             <p>
                 The options listed below allow you to override these settings and remember them across different runs of the application. The <span class="ui">Active</span> checkbox for each option indicates whether that option is actually in force. For example, if you set the color to Blue, it won't actually take effect unless you check the <span class="ui">Active</span> box. The setting of the <span class="ui">Active</span> checkboxes is remembered, so next time you start the app, overrides will still be active.
             </p>
-            <p><strong>Note</strong>: Changes to the override settings will not take effect until you quit and relaunch the app.</p>
+            <p>
+                <strong>Note</strong>: Changes to the override settings may not take effect until you quit and relaunch the app.
+            </p><img class="screenshot" src="../images/19_Prefs_Overrides.png">
+            <p>
+                Description:
+            </p>
             <table class="grid_table">
                 <col width="10">
                 <tbody>
@@ -338,9 +295,136 @@
                             Allows you to specify the type of roof to display. Note that if you choose a Panoramic roof and you don't actually have one, it will always show as closed. <span class="ui">From Car</span> means that the setting should not be overriden.
                         </td>
                     </tr>
-
                 </tbody>
             </table>
+            <h3>
+                Advanced Preferences
+            </h3>
+            <p>
+                There are a variety of advanced preferences that most users should never have to use. They are described in the table below.  
+            </p>
+            <table class="grid_table">
+                <col width="10">
+                <tbody>
+                    <tr>
+                        <th>
+                            Preference
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td colspan="2" align="center">
+                            <strong>Proxy Settings</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Enable Proxy</span>
+                        </td>
+                        <td>
+                            Allows the user to specify an HTTP proxy (not SOCKS) to be used for all operations. To use this feature, check the "Enable Proxy" checkbox and fill in valid settings for "Proxy Host" and "Proxy Port". Your network administrator will provide these settings to you. You must quit and restart VisibleTesla for these settings to take effect.
+                        </td>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td colspan="2" align="center">
+                            <strong>REST Services Settings</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Enable REST Services</span>
+                        </td>
+                        <td>
+                            VisibleTesla makes very limited functionality available via web services. Please read about it in the <a href="OtherTopics.html">Other Topics</a> documentation. These services are turned off by default. There are three preference settings:
+                            <ol>
+                                <li>
+                                    <span class="ui">Enable REST Services</span>: To enable this functionality, you must check this box. If you don't, all requests will be ignored.
+                                </li>
+                                <li>
+                                    <span class="ui">Port</span>: The service will be available on port 9090 unless you change the value in the field. If you do change the value, it will not take effect until VisibleTesla restarts.
+                                </li>
+                                <li>
+                                    <span class="ui">Password</span>: You must set an authorization code (password) in order to access the service. Enter your code into the field and then press the <span class="ui">Set</span> button. Your new code will not be set unless you press the button. Once you do, the new code will be in force immediately.
+                                </li>
+                            </ol><strong>If you are not comfortable with the direct use of web services, please leave this functional disabled.</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Custom Page Source</span>
+                        </td>
+                        <td>
+                            This is the URL of a directory which contains custom HTML pages designed by you. It is up to you to host these files at this URL. The URL may refer to a local folder or a URL on a web server. You can use a public Dropbox folder as a web server if you'd like. Local folders are specified with URLs of the form: <code>file:///PATH_TO_FOLDER</code>. These pages will be served up by VisibleTesla's built-in web server under the URL: <code>http://127.0.0.1:9090/custom/PageName.html</code>. See the <a href="OtherTopics.html#rest">Other Topics</a> page for details.
+                        </td>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td colspan="2" align="center">
+                            <strong>API Keys</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Use custom Google API key</span>
+                        </td>
+                        <td>
+                            <i>If you are not a Google Maps developer, please ignore this option</i>. Using this options provides no new functionality. If you are a developer with a valid API key issued by Google, you may enter it here and it will be used by the application instead of the default key. This may provide you with higher usage limits on Google Maps related actions. <b>If you check this box and supply an invalid key, the Location tab and the Trips tab will fail without notice.</b> If you are a developer and want to learn more about the Google Maps API and how to get a key, please refer to <a href="https://developers.google.com/maps/documentation/javascript/tutorial">Google's documentation</a>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui"><a name="mailgunkey">Use custom MailGun key</a></span>
+                        </td>
+                        <td>
+                            Advanced users may supply their own API key for MailGun. This is the service used to send notifications via email. It is up to you to set up an account with MailGun and agree to their terms of service. Supplying your own key provides no new functionality. It does, however, provide better privacy and may help to avoid usage limits. If you don't supply your own key, a default account is used and logging information is available to the author of VisibleTesla who administers the account. Please do not use this setting unless you are comfortable acquiring your own MailGun key.
+                        </td>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td colspan="2" align="center">
+                            <strong>Font Scaling</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Font Scale</span>
+                        </td>
+                        <td>
+                            Users who are experiencing problems with fonts being too large and not displaying properly may use the new <span class="ui">Font Scale</span> setting to adjust the font size. Set the font scale to a value lower than 100% to reduce VisibleTesla's font size. Some experimentation may be necessary to find the right scaling. You must quit and restart VisibleTesla before the setting will take effect.
+                        </td>
+                    </tr>
+                    <tr class="firstRowOfGroup">
+                        <td colspan="2" align="center">
+                            <strong>Other</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Offer Experimental Versions</span>
+                        </td>
+                        <td>
+                            If this box is checked, the app will offer experimental versions as part of the normal process of checking for updates. The box is not checked by default. If an experimental version is available and this box is not checked, it will not be offered to the user.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Log Level</span>
+                        </td>
+                        <td>
+                            This setting does not affect the operation of the application. It determines how much diagnostic information about the application should be stored. You need never change this unless requested to do so by the developer as part of diagnosing a problem with VisibleTesla.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="ui">Show App Files</span>
+                        </td>
+                        <td>
+                            VisibleTesla stores its data files in a location appropriate to the platform. This location differs between Mac, Linux, and Windows. In normal operation you should never need to know or care where these files are. The only time you might care is if you encounter a problem. In that case, the files stored in this folder may help in finding the problem. Pressing the <span class="ui">Show App Files</span> button will take you to these files.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>The Advanced preferences tab is broken up into the sections mentioned above. The screen shot below shows the "Other preferences" section.</p><img class="screenshot" src="../images/19_Prefs_Adv_Other.png">
         </div>
         <div id="footer"></div>
     </body>

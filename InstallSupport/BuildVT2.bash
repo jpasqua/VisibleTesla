@@ -23,9 +23,9 @@
     ant package-generic
 
 # Place the new zip file for each platform in the right spot
-    mv dist/VTMac.zip       $RELEASE_ROOT/MacApp/VisibleTesla.zip
-    mv dist/VTWin.zip       $RELEASE_ROOT/WinApp/VisibleTesla.zip
-    mv dist/VTGeneric.zip   $RELEASE_ROOT/RawApp/VisibleTesla.zip
+    mv $PROJECT_ROOT/dist/VTMac.zip       $RELEASE_ROOT/MacApp/VisibleTesla.zip
+    mv $PROJECT_ROOT/dist/VTWin.zip       $RELEASE_ROOT/WinApp/VisibleTesla.zip
+    mv $PROJECT_ROOT/dist/VTGeneric.zip   $RELEASE_ROOT/RawApp/VisibleTesla.zip
 
 # Create a copy of the newly released version which is named with it's version #
 # This should be done with symlinks, but DropBox chokes on them

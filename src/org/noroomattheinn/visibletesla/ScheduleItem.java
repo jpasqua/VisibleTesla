@@ -169,7 +169,9 @@ class ScheduleItem implements EventHandler<ActionEvent> {
         enableItems(enabled.isSelected());
     }
     
-    static void stop() { scheduler.stop(); }
+    static void stop() {
+        if (scheduler.isStarted()) { scheduler.stop(); }
+    }
     
     /**
      * We're shutting down, do any necessary cleanup

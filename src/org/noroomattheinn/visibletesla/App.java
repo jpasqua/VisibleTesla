@@ -159,14 +159,18 @@ class App {
     File appFileFolder() { return appFilesFolder; }
     
     final String getAppID() {
+        String appID = "Unidentified";
         try {
             InetAddress ip = InetAddress.getLocalHost();
             NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-            byte[] mac = network.getHardwareAddress();
-            return DigestUtils.sha256Hex(mac);
+            if (network != null) {
+                byte[] mac = network.getHardwareAddress();
+                appID = DigestUtils.sha256Hex(mac);
+            }
         } catch (UnknownHostException | SocketException e) {
-            return "Unidentified";
+            logger.warning("Unable to generate an AppID: " + e.getMessage());
         }
+        return appID;
     }
     
 
