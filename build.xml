@@ -93,7 +93,7 @@
 <target name="get-version">
     <exec executable="/bin/bash" outputproperty="vt.version">
         <arg value="-c" />
-        <arg value="grep ProductVersion src/org/noroomattheinn/visibletesla/VT.properties| sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'"/>
+        <arg value="grep APP_VERSION src/org/noroomattheinn/visibletesla/VT.properties| sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'"/>
     </exec>    
     <echo>Version: ${vt.version}</echo>
 </target>

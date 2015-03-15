@@ -14,6 +14,8 @@
     # For testing purposes, uncomment the line below to override RELASE_ROOT 
     # RELEASE_ROOT=~/Desktop/Temp/VisibleTesla
 
+    VERSION=`grep APP_VERSION $PROJECT_ROOT/src/org/noroomattheinn/visibletesla/VT.properties | sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'`
+
 # Build the zip files for each platform
     cd $PROJECT_ROOT
     ant package-mac
