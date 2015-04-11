@@ -54,6 +54,7 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	mkdir $ROOT/ThirdParty/jfxtras
 	mkdir $ROOT/ThirdParty/jexcelapi
 	mkdir $ROOT/ThirdParty/google-guava
+	mkdir $ROOT/ThirdParty/apache
 
 	# Download the apache libraries
 	cd $ROOT/ThirdParty/apache
@@ -80,6 +81,12 @@ Be sure to either set these variables or adapt the commands below. Note that the
 	# There may be a newer version of the library. If so, update the version details below
 	cd $ROOT/ThirdParty/jfxtras
 	curl -s -O https://dl.dropboxusercontent.com/u/7045813/VisibleTesla/jars/jfxtras-labs-2.2.jar
+
+	# Download cron4j
+	cd $ROOT/ThirdParty
+	curl -s -O -L https://sourceforge.net/projects/cron4j/files/cron4j/2.2.5/cron4j-2.2.5.zip
+	unzip cron4j-2.2.5.zip
+	rm cron4j-2.2.5.zip
 
 	# The Java application bundler file is only used to create a Mac OS X bundled app. It's not used by VisibleTesla at run time
 	cd $ROOT/ThirdParty
