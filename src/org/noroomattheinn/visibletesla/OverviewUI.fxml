@@ -291,12 +291,20 @@
         <Image url="@../TeslaResources/wheel_front_21@2x.png" />
       </image>
     </ImageView>
-    <ImageView id="s60Img" fx:id="p85dImg" fitHeight="0.0" fitWidth="0.0" layoutX="491.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+    <ImageView fx:id="p85dImg" fitHeight="0.0" fitWidth="0.0" layoutX="491.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
       <effect>
         <DropShadow color="$x1" height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0" />
       </effect>
       <image>
         <Image url="@../TeslaResources/Emblems/P85D.png" />
+      </image>
+    </ImageView>
+    <ImageView fx:id="s85dImg" fitHeight="0.0" fitWidth="0.0" layoutX="491.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75" visible="false">
+      <effect>
+        <DropShadow color="$x1" height="10.0" offsetX="3.0" offsetY="3.0" radius="4.5" width="10.0" />
+      </effect>
+      <image>
+        <Image url="@../TeslaResources/Emblems/85D.png" />
       </image>
     </ImageView>
   </children>

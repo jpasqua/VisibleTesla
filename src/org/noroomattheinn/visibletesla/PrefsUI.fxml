@@ -316,6 +316,7 @@
                           <String fx:value="From Car" />
                           <String fx:value="S60" />
                           <String fx:value="S85" />
+                          <String fx:value="S85D" />
                           <String fx:value="P85" />
                           <String fx:value="P85+" />
                           <String fx:value="P85D" />

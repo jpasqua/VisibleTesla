@@ -108,7 +108,7 @@ public class OverviewController extends BaseController {
     @FXML private Button vinButton;
     
     // Emblem Images
-    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg, p85dImg;
+    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg, p85dImg, s85dImg;
     
     //
     // Controls
@@ -395,12 +395,14 @@ public class OverviewController extends BaseController {
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
         p85dImg.setVisible(false);
+        s85dImg.setVisible(false);
         switch (vtVehicle.model()) {
             case S60: s60Img.setVisible(true); break;
             case S85: s85Img.setVisible(true); break;
             case P85: p85Img.setVisible(true); break;
             case P85Plus: p85pImg.setVisible(true); break;
             case P85D: p85dImg.setVisible(true); break;
+            case S85D: s85dImg.setVisible(true); break;
             default: s85Img.setVisible(true); break;
         }
     }
