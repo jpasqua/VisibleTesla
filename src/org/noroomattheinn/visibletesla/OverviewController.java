@@ -472,6 +472,9 @@ public class OverviewController extends BaseController {
         colorToDirectory.put(Options.PaintColor.PPSR, "COLOR_red/");
         colorToDirectory.put(Options.PaintColor.PPSW, "COLOR_pearl/");
         colorToDirectory.put(Options.PaintColor.PMNG, "COLOR_steelgrey/");
+        colorToDirectory.put(Options.PaintColor.PPTI, "COLOR_titanium/");
+        colorToDirectory.put(Options.PaintColor.PMBL, "COLOR_black/");
+        colorToDirectory.put(Options.PaintColor.PPSB, "COLOR_oceanblue/");
         colorToDirectory.put(Options.PaintColor.Unknown, "COLOR_white/");
     }
 
