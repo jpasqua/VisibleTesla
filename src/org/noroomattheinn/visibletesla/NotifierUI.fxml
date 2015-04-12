@@ -164,10 +164,10 @@
                         </HBox>
                         <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
                           <children>
-                            <CheckBox id="schedulerEvent" fx:id="carEntered4" mnemonicParsing="false" prefWidth="120.0" text="Area 4" />
-                            <Button id="defineEnterArea" fx:id="defineEnterButton4" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
+                            <CheckBox id="schedulerEvent" fx:id="carLeft3" mnemonicParsing="false" prefWidth="120.0" text="Area 3" />
+                            <Button id="defineExitArea" fx:id="defineLeftButton3" mnemonicParsing="false" onAction="#defineArea" text="Define Area" />
                             <Region prefHeight="2.0" prefWidth="2.0" HBox.hgrow="ALWAYS" />
-                            <Button id="seOptions" fx:id="carEnteredOptions4" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
+                            <Button id="seOptions" fx:id="carLeftOptions3" disable="false" mnemonicParsing="false" onAction="#optionsButton" prefHeight="22.0" style="-fx-padding: 1px;" styleClass="squareButton" text="+" visible="true" />
                           </children>
                         </HBox>
                         <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
