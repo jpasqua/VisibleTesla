@@ -61,7 +61,11 @@ public class VTVehicle {
         "Steel Grey", Options.PaintColor.PMNG,
         "Red", Options.PaintColor.PPMR,
         "Sig. Red", Options.PaintColor.PPSR,
-        "Pearl", Options.PaintColor.PPSW);
+        "Pearl", Options.PaintColor.PPSW,
+        "Titanium", Options.PaintColor.PPTI,
+        "Obsidian Black", Options.PaintColor.PMBL,
+        "Deep Blue", Options.PaintColor.PPSB
+        );
     private static final Map<String,Options.WheelType> overrideWheels = Utils.newHashMap(
         "19\" Silver", Options.WheelType.WT19,
         "19\" Aero", Options.WheelType.WTAE,

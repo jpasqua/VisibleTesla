@@ -289,7 +289,9 @@
                           <String fx:value="From Car" />
                           <String fx:value="Red" />
                           <String fx:value="Blue" />
+                          <String fx:value="Deep Blue" />
                           <String fx:value="Black" />
+                          <String fx:value="Obsidian Black" />
                           <String fx:value="Green" />
                           <String fx:value="Pearl" />
                           <String fx:value="Sig. Red" />
@@ -297,6 +299,7 @@
                           <String fx:value="Grey" />
                           <String fx:value="Steel Grey" />
                           <String fx:value="Silver" />
+                          <String fx:value="Titanium" />
                           <String fx:value="White" />
                         </FXCollections>
                       </items>
