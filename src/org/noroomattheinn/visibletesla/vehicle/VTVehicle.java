@@ -49,7 +49,8 @@ public class VTVehicle {
         "P85D", Options.Model.S85,
         "P85D", Options.Model.P85,
         "P85+", Options.Model.P85Plus,
-        "P85D", Options.Model.P85D);
+        "P85D", Options.Model.P85D,
+        "S85D", Options.Model.S85D);
     private static final Map<String,Options.PaintColor> overrideColor = Utils.newHashMap(
         "White", Options.PaintColor.PBCW,
         "Black", Options.PaintColor.PBSB,
