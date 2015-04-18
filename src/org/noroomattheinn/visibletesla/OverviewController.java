@@ -108,7 +108,7 @@ public class OverviewController extends BaseController {
     @FXML private Button vinButton;
     
     // Emblem Images
-    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg, p85dImg;
+    @FXML private ImageView s60Img, s85Img, p85Img, p85pImg, p85dImg, s85dImg, s70dImg;
     
     //
     // Controls
@@ -394,13 +394,21 @@ public class OverviewController extends BaseController {
         s85Img.setVisible(false);
         p85Img.setVisible(false);
         p85pImg.setVisible(false);
+        s70dImg.setVisible(false);
+        s85dImg.setVisible(false);
         p85dImg.setVisible(false);
         switch (vtVehicle.model()) {
+            // RWD Standard Models
             case S60: s60Img.setVisible(true); break;
             case S85: s85Img.setVisible(true); break;
+            // RWD Performance Models
             case P85: p85Img.setVisible(true); break;
             case P85Plus: p85pImg.setVisible(true); break;
+            // AWD Standard & Performance Models
+            case S70D: s70dImg.setVisible(true); break;
+            case S85D: s85dImg.setVisible(true); break;
             case P85D: p85dImg.setVisible(true); break;
+                
             default: s85Img.setVisible(true); break;
         }
     }
@@ -472,6 +480,9 @@ public class OverviewController extends BaseController {
         colorToDirectory.put(Options.PaintColor.PPSR, "COLOR_red/");
         colorToDirectory.put(Options.PaintColor.PPSW, "COLOR_pearl/");
         colorToDirectory.put(Options.PaintColor.PMNG, "COLOR_steelgrey/");
+        colorToDirectory.put(Options.PaintColor.PPTI, "COLOR_titanium/");
+        colorToDirectory.put(Options.PaintColor.PMBL, "COLOR_black/");
+        colorToDirectory.put(Options.PaintColor.PPSB, "COLOR_oceanblue/");
         colorToDirectory.put(Options.PaintColor.Unknown, "COLOR_white/");
     }
 

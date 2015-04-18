@@ -7,6 +7,7 @@ package org.noroomattheinn.visibletesla.data;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Object that represents a single rest cycle. A rest cycle is a period where
@@ -40,7 +41,7 @@ public class RestCycle extends BaseCycle {
     }
 
     @Override public String toJSONString() {
-        return String.format(
+        return String.format(Locale.US,     // Get the correct decimal point char
                 "{ " +
                 "  \"startTime\": %d, " +
                 "  \"endTime\": %d, " +

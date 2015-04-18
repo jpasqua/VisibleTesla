@@ -5,6 +5,7 @@
  */
 package org.noroomattheinn.visibletesla.data;
 
+import java.util.Locale;
 import static org.noroomattheinn.tesla.Tesla.logger;
 
 /**
@@ -49,7 +50,7 @@ public class ChargeCycle extends BaseCycle {
             lat = lng = 0.0;
             logger.warning("Lat/Lng is unknown");
         }
-        return String.format(
+        return String.format(Locale.US,     // Get the correct decimal point char
                 "{ " +
                 "  \"superCharger\": %b, " +
                 "  \"phases\": %d, " +

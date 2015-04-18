@@ -181,7 +181,7 @@ public class LocationController extends BaseController {
 //            });
 
         }
-        multigauge.setVal(Side.LEFT, useMiles ? ss.speed : Utils.kmToMiles(ss.speed));
+        multigauge.setVal(Side.LEFT, useMiles ? ss.speed : Utils.milesToKm(ss.speed));
         multigauge.setVal(Side.RIGHT, ss.power);
     }
     

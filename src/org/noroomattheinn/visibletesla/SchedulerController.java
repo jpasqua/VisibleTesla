@@ -110,9 +110,9 @@ public class SchedulerController extends BaseController
                     }
                 }
                 if (command == Command.CHARGE_ON)
-                    r = v.startCharing();
+                    r = v.startCharging();
                 break;
-            case CHARGE_OFF: r = v.stopCharing(); break;
+            case CHARGE_OFF: r = v.stopCharging(); break;
             case HVAC_ON:
                 if (value > 0) {    // Set the target temp first
                     if (vtVehicle.useDegreesF())

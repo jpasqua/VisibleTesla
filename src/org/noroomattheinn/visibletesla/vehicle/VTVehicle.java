@@ -45,10 +45,15 @@ public class VTVehicle {
         "Black", Options.RoofType.RFBK,
         "Pano", Options.RoofType.RFPO);
     private static final Map<String,Options.Model> overrideModel = Utils.newHashMap(
-        "P85+", Options.Model.S60,
-        "P85D", Options.Model.S85,
-        "P85D", Options.Model.P85,
+        // RWD Standard Models
+        "S60", Options.Model.S60,
+        "S85", Options.Model.S85,
+        // RWD Performance Models
+        "P85", Options.Model.P85,
         "P85+", Options.Model.P85Plus,
+        // RWD Standard & Performance Models
+        "S70D", Options.Model.S70D,
+        "S85D", Options.Model.S85D,
         "P85D", Options.Model.P85D);
     private static final Map<String,Options.PaintColor> overrideColor = Utils.newHashMap(
         "White", Options.PaintColor.PBCW,
@@ -61,7 +66,11 @@ public class VTVehicle {
         "Steel Grey", Options.PaintColor.PMNG,
         "Red", Options.PaintColor.PPMR,
         "Sig. Red", Options.PaintColor.PPSR,
-        "Pearl", Options.PaintColor.PPSW);
+        "Pearl", Options.PaintColor.PPSW,
+        "Titanium", Options.PaintColor.PPTI,
+        "Obsidian Black", Options.PaintColor.PMBL,
+        "Deep Blue", Options.PaintColor.PPSB
+        );
     private static final Map<String,Options.WheelType> overrideWheels = Utils.newHashMap(
         "19\" Silver", Options.WheelType.WT19,
         "19\" Aero", Options.WheelType.WTAE,
