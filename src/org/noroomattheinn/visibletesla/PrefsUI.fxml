@@ -70,7 +70,7 @@
                       </children>
                     </Group>
                     <Line endX="540.0" endY="0.0" startX="-100.0" />
-                    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
+                    <HBox id="HBox" alignment="CENTER_LEFT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="559.0" spacing="5.0">
                       <children>
                         <Label text="Overview Range Type:" />
                         <ComboBox fx:id="overviewRange" value="Rated">
@@ -79,6 +79,16 @@
                               <String fx:value="Rated" />
                               <String fx:value="Ideal" />
                               <String fx:value="Estimated" />
+                            </FXCollections>
+                          </items>
+                        </ComboBox>
+                        <Region prefHeight="22.0" prefWidth="37.0" HBox.hgrow="ALWAYS" />
+                        <Label text="Charge Time Type:" />
+                        <ComboBox id="ChargeTimeType" fx:id="chargeTimeType" prefWidth="-1.0" value="Remaining">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="Remaining" />
+                              <String fx:value="Complete At" />
                             </FXCollections>
                           </items>
                         </ComboBox>

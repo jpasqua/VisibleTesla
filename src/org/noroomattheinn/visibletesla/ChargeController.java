@@ -7,8 +7,11 @@
 package org.noroomattheinn.visibletesla;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Callable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -47,6 +50,7 @@ public class ChargeController extends BaseController {
  *----------------------------------------------------------------------------*/
     
     private boolean useMiles;
+    private boolean showTimeComplete;
     
 /*------------------------------------------------------------------------------
  *
@@ -170,7 +174,16 @@ public class ChargeController extends BaseController {
     @Override protected void initializeState() {
         chargeSlider.setDisable(Utils.compareVersions(
             vtVehicle.vehicleState.get().version, MinVersionForChargePct) < 0);
+        
+        setTimeType(prefs.chargeTimeType.get());
+        prefs.chargeTimeType.addListener(new ChangeListener<String>() {
+            @Override public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                setTimeType(t1);
+            }
+        });
+
         reflectNewState();
+        
         vtVehicle.chargeState.addTracker(new Runnable() {
             @Override public void run() { if (active()) { reflectNewState(); }
             }
@@ -216,7 +229,21 @@ public class ChargeController extends BaseController {
         nRangeCharges.setValue(String.valueOf(charge.maxRangeCharges));
         fastCharger.setValue(charge.fastChargerPresent ? "Yes":"No");
         chargeRate.setValue(String.format("%.1f", charge.chargeRate*conversionFactor));
-        remaining.setValue(charge.timeToFull());
+        if (showTimeComplete) {
+            long msToFull = (long)(charge.timeToFullCharge * (60*60*1000));
+            if (msToFull == 0 || !charge.isCharging()) {
+                remaining.setValue("00:00:00");
+            } else {
+                Calendar when = Calendar.getInstance();
+                when.setTimeInMillis(System.currentTimeMillis() + msToFull);
+                remaining.setValue(
+                    String.format("%02d:%02d:%02d", when.get(Calendar.HOUR_OF_DAY),
+                                                    when.get(Calendar.MINUTE),
+                                                    when.get(Calendar.SECOND)));
+            }
+        } else {
+            remaining.setValue(charge.timeToFull());
+        }
         actualCurrent.setValue(String.valueOf(charge.chargerActualCurrent));
         chargerPower.setValue(String.valueOf(charge.chargerPower));
         chargingState.setValue(charge.chargingState.name());
@@ -300,4 +327,17 @@ public class ChargeController extends BaseController {
         scheduledTimeLabel.setVisible(show);
     }
     
+    private void setTimeType(String timeType) {
+        switch (timeType) {
+            case "Complete At":
+                remaining.setName("Will Complete");
+                showTimeComplete = true;
+                break;
+            case "Remaining":
+            default:
+                remaining.setName("Time Left");
+                showTimeComplete = false;
+                break;
+        }
+    }
 }

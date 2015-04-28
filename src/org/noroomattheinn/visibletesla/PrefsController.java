@@ -59,6 +59,7 @@ public class PrefsController extends BaseController {
     @FXML private PasswordField authCode;
     @FXML private TextField     customURLSrc;
     @FXML private ComboBox<String> overviewRange;
+    @FXML private ComboBox<String> chargeTimeType;
     @FXML private ComboBox<String> logLevel;
     
     @FXML private CheckBox      anonRest;
@@ -151,6 +152,7 @@ public class PrefsController extends BaseController {
         bindToComboBox(graphsTimePeriod, prefs.loadPeriod);
         bindToTextField(emailForNotifications, prefs.notificationAddress);
         bindToComboBox(overviewRange, prefs.overviewRange);
+        bindToComboBox(chargeTimeType, prefs.chargeTimeType);
         
         bindToCheckBox(anonRest, prefs.dataOptions.submitAnonRest);
         bindToCheckBox(anonCharge, prefs.dataOptions.submitAnonCharge);
