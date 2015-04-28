@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>
+			Provide Input
+		</title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="default.css" type="text/css">
+		<link rel="shortcut icon" href="images/favicon.ico?v=1" type="image/x-icon">
+		<link rel="icon" href="images/favicon.ico?v=1" type="image/x-icon">
+		<script src="scripts/gcse.js" type="text/javascript">
+</script>
+	</head>
+	<body>
+		<script language="JavaScript" type="text/javascript" src="scripts/hsr.js">
+</script>
+		<div id="content">
+	        <form action="/cgi-sys/formmail.pl" method="post">
+	        	&nbsp;<br>
+	          <table cellspacing="0" cellpadding="2" width="90%" bordercolor="#1149A6" border="2">
+	            <tr>
+	              <td colspan="2" align="center">
+	                <b>Provide Input</font>
+	              </td>
+	            </tr>
+	            <tr>
+	              <td align="left">
+	                  <b>Vehicle UUID:</b>
+	              </td>
+	              <td>
+	                  <input type="text" name="VUUID" size="65">
+	              </td>
+	            </tr>
+	            <tr>
+	              <td width="200" align="left">
+	                  <b>App UUID:</b>
+	              </td>
+	              <td width="300">
+	                  <input type="text" size="65" name="AUUID">
+	              </td>
+	            </tr>
+	            <tr>
+	              <td width="200" align="left">
+	                  <b>Email Address:</b><br>
+	                  <font color="red">Optional</font>
+	              </td>
+	              <td width="300">
+	                  <input type="text" size="65" name="email">
+	              </td>
+	            </tr>
+	            <tr>
+	              <td colspan align="left">
+	                <b>Comments:</font></b>
+	              </td>
+	              <td colspan align="left">
+	                <textarea name="Comments" cols="80" rows="6" id="Comments"></textarea>
+	              </td>
+	            </tr>
+	            <tr>
+	              <td colspan="2">
+	                  <input type="submit" name="Submit" value="Send"> &nbsp;
+	                  <input type="reset" name="Reset" value="Reset">
+	              </td>
+	            </tr>
+	            <input type="hidden" name="recipient" value="info@visibletesla.com">
+	            <input type="hidden" name="subject" value="Input to VisibleTesla">
+	            <input type="hidden" name="title" value="Thank you for your comments.">
+				<input type="hidden" name="redirect" value="http://visibletesla.com/Doc_v2/ThanksForInput.html" />
+	          </table>
+	        </form>
+		</div>
+		<div id="footer"></div>
+	</body>
+</html>
