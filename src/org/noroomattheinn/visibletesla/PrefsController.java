@@ -51,6 +51,7 @@ public class PrefsController extends BaseController {
     @FXML private CheckBox      useCustomGoogleAPIKey;
     @FXML private TextField     customMailGunKey;
     @FXML private CheckBox      useCustomMailGunKey;
+    @FXML private TextField     customNumerousKey;
     @FXML private TextField     emailForNotifications;
     @FXML private Slider        fontScaleSlider;
     @FXML private Label         fontScale;
@@ -169,6 +170,7 @@ public class PrefsController extends BaseController {
         bindToTextField(customGoogleAPIKey, prefs.googleAPIKey);
         bindToCheckBox(useCustomMailGunKey, prefs.useCustomMailGunKey);
         bindToTextField(customMailGunKey, prefs.mailGunKey);
+        bindToTextField(customNumerousKey, prefs.numerousKey);
         bindToIntegerProperty(fontScaleSlider, fontScale, prefs.fontScale);
         bindToCheckBox(enableRest, prefs.enableRest);
         bindToTextField(restPort, prefs.restPort);
