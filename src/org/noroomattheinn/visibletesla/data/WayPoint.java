@@ -62,8 +62,8 @@ public class WayPoint implements GeoUtils.LocationSource {
             adjustedOdo = odometer;
             adjustedElevation = Utils.round(Utils.metersToFeet(elevation), 0);
         } else {
-            adjustedSpeed = Utils.milesToKm(speed);
-            adjustedOdo = Utils.milesToKm(odometer);
+            adjustedSpeed = Utils.round(Utils.milesToKm(speed), 1);
+            adjustedOdo = Utils.round(Utils.milesToKm(odometer),1);
             adjustedElevation = Utils.round(elevation, 1);
         }
 
