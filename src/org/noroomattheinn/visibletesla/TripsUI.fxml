@@ -25,7 +25,7 @@
         <Button id="todayHandler" layoutX="14.0" layoutY="200.0" mnemonicParsing="false" onAction="#endTripHandler" text="End Trip" />
       </children>
     </Pane>
-    <ListView id="displaySelectedTrips" fx:id="availableTripsView" layoutX="350.0" layoutY="40.0" prefHeight="191.0" prefWidth="277.0" style="-fx-border-color: black" />
+    <ListView id="displaySelectedTrips" fx:id="availableTripsView" layoutX="350.0" layoutY="40.0" prefHeight="211.0" prefWidth="277.0" style="-fx-border-color: black" />
     <Button fx:id="mapItButton" layoutX="350.0" layoutY="19.0" mnemonicParsing="false" onAction="#mapItHandler" prefWidth="138.5" style="-fx-base: #b6e7c9" styleClass="squareBottomLeft" text="Map It!" />
     <ImageView fitHeight="117.22780023719416" fitWidth="323.0" layoutX="19.0" layoutY="264.0" pickOnBounds="true" preserveRatio="true">
       <image>
@@ -37,7 +37,7 @@
         <Image url="@../TeslaResources/02_home_models_beta1@2x.png" />
       </image>
     </ImageView>
-    <TableView fx:id="propertyTable" layoutX="350.0" layoutY="237.0" prefHeight="149.75" prefWidth="277.0" style="-fx-border-color: black">
+    <TableView fx:id="propertyTable" layoutX="350.0" layoutY="257.0" prefHeight="129.75" prefWidth="277.0" style="-fx-border-color: black">
       <columns>
         <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="106.0" text="Property" fx:id="propNameCol" />
         <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="84.0" text="Start" fx:id="propStartCol" />
