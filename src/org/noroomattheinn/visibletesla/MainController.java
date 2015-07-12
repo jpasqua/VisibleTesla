@@ -356,7 +356,25 @@ public class MainController extends BaseController {
     private Result cacheBasics() {
         final int MaxTriesToStart = 10;
         Result madeContact = establishContact();
-        if (!madeContact.success) return madeContact;
+        if (!madeContact.success) {
+            // Try getting last values from previous run of the app
+            logger.warning("Unable to contact vehicle after successful login");
+            GUIState gs = vtVehicle.lastSavedGS();
+            VehicleState vs = vtVehicle.lastSavedVS();
+            ChargeState cs = vtVehicle.lastSavedCS();
+            if (gs != null && vs != null && cs != null) {
+                vtVehicle.chargeState.reset(cs);
+                vtVehicle.vehicleState.reset(vs);
+                vtVehicle.guiState.reset(gs);
+                logger.info("Able to initial state from old values");
+                warnAboutNoCarAccess(madeContact.explanation.equals("mobile_access_disabled"));
+                // TO DO: Force Sleep Mode!
+                return Result.Succeeded;
+            } else {
+                logger.info("Unable to initial state from old values");
+                return madeContact;
+            }
+        }
         
         // As part of establishing contact with the car we cached the GUIState
         Vehicle         v = vtVehicle.getVehicle();
@@ -693,6 +711,26 @@ public class MainController extends BaseController {
     
     @FXML private void wakeButtonHandler(ActionEvent event) { forceWakeup.set(true); }
     
+    private void warnAboutNoCarAccess(final boolean mobileDisabled) {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                String message =
+                        "VisibleTesla is unable to access your car even though" +
+                        "the login succeeded.\n\n";
+                if (mobileDisabled) message = message + 
+                        "Your Tesla has not been configured to allow mobile " +
+                        "access. You have to enable this on your car's touch"  +
+                        "screen using Controls / Settings / Vehicle.\n\n";
+                message = message + "VisibleTesla will still launch, but will not" +
+                        "be able to control or monitor your car until access is restored.";
+                
+                Dialogs.showErrorDialog(app.stage,
+                        message,
+                        "Mobile access is not enabled", "Communication Problem");
+            }
+        });
+    }
+    
     private void exitWithMobileAccessError() {
         Platform.runLater(new Runnable() {
             @Override public void run() {
@@ -701,7 +739,7 @@ public class MainController extends BaseController {
                         "access. You have to enable this on your car's touch"  +
                         "screen using Controls / Settings / Vehicle." +
                         "\n\nChange that setting in your car, then relaunch VisibleTesla.",
-                        "Mobile access is not enabled", "Communication Problem");
+                        "Unable to communicate with your Tesla", "Communication Problem");
                 logger.log(Level.SEVERE, "Mobile access is not enabled - exiting.");
                 Platform.exit();
             }

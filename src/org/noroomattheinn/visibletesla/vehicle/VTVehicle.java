@@ -6,6 +6,7 @@
 package org.noroomattheinn.visibletesla.vehicle;
 
 import java.util.Map;
+import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -21,6 +22,7 @@ import org.noroomattheinn.tesla.Options;
 import org.noroomattheinn.tesla.StreamState;
 import org.noroomattheinn.tesla.Vehicle;
 import org.noroomattheinn.tesla.VehicleState;
+import org.noroomattheinn.utils.RestHelper;
 import org.noroomattheinn.utils.ThreadManager;
 import org.noroomattheinn.utils.Utils;
 
@@ -274,6 +276,28 @@ public class VTVehicle {
         return CarInfo.carStateAsJSON(this);
     }
     
+    public ChargeState lastSavedCS() {
+        Preferences persistentStore = Preferences.userNodeForPackage(this.getClass());
+        String json = persistentStore.get(this.vehicle.get().getVIN() + "_ChargeState", null);
+        if (json == null) return null;
+        return new ChargeState(RestHelper.newJSONObject(json));
+    }
+
+    public GUIState lastSavedGS() {
+        Preferences persistentStore = Preferences.userNodeForPackage(this.getClass());
+        String json = persistentStore.get(this.vehicle.get().getVIN() + "_GUIState", null);
+        if (json == null) return null;
+        return new GUIState(RestHelper.newJSONObject(json));
+    }
+
+    public VehicleState lastSavedVS() {
+        Preferences persistentStore = Preferences.userNodeForPackage(this.getClass());
+        String json = persistentStore.get(this.vehicle.get().getVIN() + "_VehicleState", null);
+        if (json == null) return null;
+        return new VehicleState(RestHelper.newJSONObject(json));
+    }
+
+            
 /*------------------------------------------------------------------------------
  *
  * Private utility methods
@@ -281,6 +305,8 @@ public class VTVehicle {
  *----------------------------------------------------------------------------*/
     
     private void noteUpdatedStateInternal(BaseState state) {
+        Preferences persistentStore = Preferences.userNodeForPackage(this.getClass());
+        String type = state.getClass().getSimpleName();
         if (state instanceof ChargeState) {
             chargeState.set((ChargeState) state);
         } else if (state instanceof DriveState) {
@@ -294,6 +320,7 @@ public class VTVehicle {
         } else if (state instanceof StreamState) {
             streamState.set((StreamState) state);
         }
+        persistentStore.put(this.vehicle.get().getVIN() + "_" + type, state.rawState.toString());
     }
 
 }
