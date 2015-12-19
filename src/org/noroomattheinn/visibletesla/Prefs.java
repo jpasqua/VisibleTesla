@@ -119,6 +119,7 @@ public class Prefs {
     public StringProperty   googleAPIKey            = new SimpleStringProperty();
     public BooleanProperty  useCustomMailGunKey     = new SimpleBooleanProperty();
     public StringProperty   mailGunKey              = new SimpleStringProperty();
+    public StringProperty   numerousKey             = new SimpleStringProperty();
     public IntegerProperty  fontScale               = new SimpleIntegerProperty();
     public BooleanProperty  enableRest              = new SimpleBooleanProperty();
     public IntegerProperty  restPort                = new SimpleIntegerProperty();
@@ -133,6 +134,7 @@ public class Prefs {
     private static final String CustomGoogleKey     = "APP_CUSTOM_GKEY";
     private static final String UseCustomMailGunKey = "APP_USE_CUSTOM_MGKEY";
     private static final String CustomMailGunKey    = "APP_CUSTOM_MGKEY";
+    private static final String CustomNumerousKey   = "APP_CUSTOM_NUMKEY";
     private static final String FontScaleKey        = "APP_FONT_SCALE";
     private static final String RestPortKey         = "APP_REST_PORT";
     private static final String EnableRestKey       = "APP_ENABLE_REST";
@@ -192,6 +194,7 @@ public class Prefs {
         stringPref(CustomGoogleKey, googleAPIKey, GoogleMapsAPIKey);
         booleanPref(UseCustomMailGunKey, useCustomMailGunKey, false);
         stringPref(CustomMailGunKey, mailGunKey, MailGunKey);
+        stringPref(CustomNumerousKey, numerousKey, "");
         integerPref(FontScaleKey, fontScale, 100);
         booleanPref(EnableRestKey, enableRest, false);
         integerPref(RestPortKey, restPort, 9090);

@@ -385,34 +385,16 @@
               <children>
                 <Accordion prefHeight="364.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                   <expandedPane>
-                    <TitledPane fx:id="x2" animated="false" text="Other">
+                    <TitledPane fx:id="x3" animated="false" text="API Keys">
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                           <children>
-                            <VBox id="VBox" alignment="CENTER_LEFT" spacing="10.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
-                              <children>
-                                <CheckBox fx:id="offerExperimental" contentDisplay="RIGHT" mnemonicParsing="false" text="Offer Experimental Versions" />
-                                <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="5.0">
-                                  <children>
-                                    <Label prefWidth="70.0" text="Log Level:" />
-                                    <ComboBox fx:id="logLevel" value="Info">
-                                      <items>
-                                        <FXCollections fx:factory="observableArrayList">
-                                          <String fx:value="Severe" />
-                                          <String fx:value="Warning" />
-                                          <String fx:value="Info" />
-                                          <String fx:value="Config" />
-                                          <String fx:value="Fine" />
-                                          <String fx:value="Finer" />
-                                          <String fx:value="Finest" />
-                                        </FXCollections>
-                                      </items>
-                                    </ComboBox>
-                                  </children>
-                                </HBox>
-                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" />
-                              </children>
-                            </VBox>
+                            <CheckBox fx:id="useCustomGoogleAPIKey" mnemonicParsing="false" prefWidth="-1.0" text="Use custom Google API Key" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                            <TextField fx:id="customGoogleAPIKey" layoutX="225.0" layoutY="11.0" prefWidth="379.0" />
+                            <CheckBox id="useCustomGoogleAPIKey" fx:id="useCustomMailGunKey" mnemonicParsing="false" prefWidth="-1.0" text="Use custom MailGun Key" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="43.0" />
+                            <TextField id="customGoogleAPIKey" fx:id="customMailGunKey" layoutX="225.0" layoutY="40.0" prefWidth="379.0" />
+                            <Label layoutX="36.0" layoutY="73.0" prefHeight="21.999908447265625" text="Numerous Key" />
+                            <TextField fx:id="customNumerousKey" layoutX="225.0" layoutY="73.0" prefWidth="376.0" />
                           </children>
                         </AnchorPane>
                       </content>
@@ -481,18 +463,7 @@
                         </AnchorPane>
                       </content>
                     </TitledPane>
-                    <TitledPane animated="false" text="API Keys">
-                      <content>
-                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                          <children>
-                            <CheckBox fx:id="useCustomGoogleAPIKey" mnemonicParsing="false" prefWidth="-1.0" text="Use custom Google API Key" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
-                            <TextField fx:id="customGoogleAPIKey" layoutX="225.0" layoutY="11.0" prefWidth="379.0" />
-                            <CheckBox id="useCustomGoogleAPIKey" fx:id="useCustomMailGunKey" mnemonicParsing="false" prefWidth="-1.0" text="Use custom MailGun Key" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="43.0" />
-                            <TextField id="customGoogleAPIKey" fx:id="customMailGunKey" layoutX="225.0" layoutY="40.0" prefWidth="379.0" />
-                          </children>
-                        </AnchorPane>
-                      </content>
-                    </TitledPane>
+                    <fx:reference source="x3" />
                     <TitledPane animated="false" text="Font Scaling">
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -509,7 +480,38 @@
                         </AnchorPane>
                       </content>
                     </TitledPane>
-                    <fx:reference source="x2" />
+                    <TitledPane fx:id="x2" animated="false" text="Other">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <VBox id="VBox" alignment="CENTER_LEFT" spacing="10.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+                              <children>
+                                <CheckBox fx:id="offerExperimental" contentDisplay="RIGHT" mnemonicParsing="false" text="Offer Experimental Versions" />
+                                <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="5.0">
+                                  <children>
+                                    <Label prefWidth="70.0" text="Log Level:" />
+                                    <ComboBox fx:id="logLevel" value="Info">
+                                      <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                          <String fx:value="Severe" />
+                                          <String fx:value="Warning" />
+                                          <String fx:value="Info" />
+                                          <String fx:value="Config" />
+                                          <String fx:value="Fine" />
+                                          <String fx:value="Finer" />
+                                          <String fx:value="Finest" />
+                                        </FXCollections>
+                                      </items>
+                                    </ComboBox>
+                                  </children>
+                                </HBox>
+                                <Button mnemonicParsing="false" onAction="#showAppFiles" prefWidth="149.0" text="Show App Files" />
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
                   </panes>
                 </Accordion>
               </children>

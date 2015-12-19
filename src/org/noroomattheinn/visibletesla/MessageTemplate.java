@@ -6,6 +6,7 @@
 package org.noroomattheinn.visibletesla;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -188,6 +189,14 @@ public class MessageTemplate {
                         break;
                     case "TIME_TO_FULL":
                         val = v.chargeState.get().timeToFull();
+                        break;
+                    case "CHARGE_ETA":
+                        long msToFull = (long)(v.chargeState.get().timeToFullCharge * (60*60*1000));
+                        Calendar when = Calendar.getInstance();
+                        when.setTimeInMillis(System.currentTimeMillis() + msToFull);
+                        val = String.format("%02d:%02d:%02d", when.get(Calendar.HOUR_OF_DAY),
+                                                              when.get(Calendar.MINUTE),
+                                                              when.get(Calendar.SECOND));
                         break;
                     case "C_RATE":
                         val = String.format("%.1f", v.inProperUnits(v.chargeState.get().chargeRate));
