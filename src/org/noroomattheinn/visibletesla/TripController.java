@@ -237,14 +237,8 @@ public class TripController extends BaseController {
     }
 
     @Override protected void activateTab() {
-<<<<<<< HEAD
-        String units = vtVehicle.unitType() == Utils.UnitType.Imperial ? " (mi)" : " (km)";
-        useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
-
-=======
         useMiles = vtVehicle.unitType() == Utils.UnitType.Imperial;
         String units = useMiles ? " (mi)" : " (km)";
->>>>>>> refs/remotes/jpasqua/master
         rangeRow.setName(RangeRowName + units);
         odoRow.setName(OdoRowName + units);
         comsumptionRow.setName(ConsumptionRowName+" (Wh/"+units.substring(2,4)+")");
