@@ -12,7 +12,7 @@
 <?import jfxtras.labs.scene.control.gauge.*?>
 <?scenebuilder-classpath-element ../../../../../../ThirdParty/jfxtras/jfxtras-labs-2.2-r6-20130703.085215-2.jar?>
 
-<AnchorPane id="AnchorPane" fx:id="root" disable="false" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.noroomattheinn.visibletesla.ChargeController">
+<AnchorPane id="AnchorPane" fx:id="root" disable="false" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" styleClass="AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.noroomattheinn.visibletesla.ChargeController">
   <children>
     <Group id="Group" layoutX="157.0" layoutY="47.0">
       <children>
@@ -26,20 +26,23 @@
         </Group>
       </children>
     </Group>
-    <Lcd id="OD3" fx:id="ratedOdometer" layoutX="14.0" layoutY="37.0" lcdDecimals="1" lcdThreshold="20.0" lcdThresholdBehaviorInverted="true" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Rated" unit="Miles" />
-    <Lcd id="OD3" fx:id="estOdometer" layoutX="14.0" layoutY="84.0" lcdDecimals="1" lcdThreshold="20.0" lcdThresholdBehaviorInverted="true" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Estimated" unit="Miles" />
-    <Lcd id="OD3" fx:id="idealOdometer" layoutX="14.0" layoutY="131.0" lcdDecimals="1" lcdThreshold="99.0" lcdThresholdBehaviorInverted="false" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Ideal" unit="Miles" />
+    <Lcd id="OD3" fx:id="ratedOdometer" layoutX="14.0" layoutY="37.0" lcdDecimals="0" lcdThreshold="20.0" lcdThresholdBehaviorInverted="true" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Rated" unit="Miles" />
+    <Lcd id="OD3" fx:id="estOdometer" layoutX="14.0" layoutY="84.0" lcdDecimals="0" lcdThreshold="20.0" lcdThresholdBehaviorInverted="true" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Estimated" unit="Miles" />
+    <Lcd id="OD3" fx:id="idealOdometer" layoutX="14.0" layoutY="131.0" lcdDecimals="0" lcdThreshold="99.0" lcdThresholdBehaviorInverted="false" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Ideal" unit="Miles" />
+    <Lcd id="OD3" fx:id="chargedOdometer" layoutX="153.0" layoutY="37.0" lcdDecimals="0" lcdThreshold="99.0" lcdThresholdBehaviorInverted="false" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Range at 100%" unit="Miles" />
+    <Lcd id="OD3" fx:id="chargeSelOdometer" layoutX="153.0" layoutY="84.0" lcdDecimals="0" lcdThreshold="99.0" lcdThresholdBehaviorInverted="false" lcdThresholdVisible="true" lcdUnit="Miles" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Range when charged" unit="Miles" />
+    <Lcd id="OD3" fx:id="SOC" layoutX="153.0" layoutY="131.0" lcdDecimals="0" lcdThreshold="10" lcdThresholdBehaviorInverted="false" lcdThresholdVisible="true" lcdUnit="\%" lcdUnitVisible="true" maxValue="500.0" threshold="20.0" thresholdBehaviorInverted="true" thresholdVisible="true" title="Battery" unit="Miles" />
     <HBox id="HBox" alignment="CENTER" layoutX="321.0" layoutY="155.0" minWidth="25.0" prefWidth="44.0" spacing="5.0" />
     <Label layoutX="55.0" layoutY="9.0" text="Range">
       <font>
         <Font size="16.0" fx:id="x1" />
       </font>
     </Label>
-    <TableView fx:id="propertyTable" layoutX="299.0" layoutY="37.0" prefHeight="300.0" prefWidth="324.0">
+    <TableView fx:id="propertyTable" layoutX="299.0" layoutY="37.0" prefHeight="319.0" prefWidth="324.0">
       <columns>
-        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="147.0" text="Property" fx:id="propNameColumn" />
-        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="100.0" text="Value" fx:id="propValColumn" />
-        <TableColumn prefWidth="75.0" text="Units" fx:id="propUnitsColumn" />
+        <TableColumn fx:id="propNameColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="147.0" text="Property" />
+        <TableColumn fx:id="propValColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="100.0" text="Value" />
+        <TableColumn fx:id="propUnitsColumn" prefWidth="75.0" text="Units" />
       </columns>
     </TableView>
     <Label font="$x1" layoutX="405.0" layoutY="9.0" text="Charging Data" />
