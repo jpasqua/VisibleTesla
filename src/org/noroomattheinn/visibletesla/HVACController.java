@@ -247,7 +247,7 @@ public class HVACController extends BaseController {
             label.setText("...");
             return;
         }
-        double temp = adjustedTemp((useDegreesF) ? Utils.cToF(tempC) : tempC);
+        double temp = ((useDegreesF) ? Utils.cToF(tempC) : tempC);
         label.setText(String.format(useDegreesF ? "%.0f ºF" : "%.1f ºC", temp));
     }
     
