@@ -71,6 +71,9 @@ public class ChargeController extends BaseController {
     @FXML private Lcd estOdometer;
     @FXML private Lcd idealOdometer;
     @FXML private Lcd ratedOdometer;
+    @FXML private Lcd chargedOdometer;
+    @FXML private Lcd chargeSelOdometer;
+    @FXML private Lcd SOC;
     
     // Charging Schedule
     @FXML private Label chargeScheduledLabel, scheduledTimeLabel;
@@ -95,13 +98,14 @@ public class ChargeController extends BaseController {
     private final GenericProperty fastCharger = new GenericProperty("Supercharger", "No", "");
     private final GenericProperty chargeRate = new GenericProperty("Charge Rate", "0.0", "MPH");
     private final GenericProperty remaining = new GenericProperty("Time Left", "00:00:00", "HH:MM:SS");
+    private final GenericProperty finishAt = new GenericProperty("Finish at", "00:00:00", "HH:MM:SS");
     private final GenericProperty actualCurrent = new GenericProperty("Current", "0.0", "Amps");
     private final GenericProperty chargerPower = new GenericProperty("Charger Power", "0.0", "kW");
     private final GenericProperty chargingState = new GenericProperty("State", "Disconnected", "");
     private final GenericProperty batteryLevel = new GenericProperty("Battery Level", "0", "%");
     
     final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
-            actualCurrent, voltage, chargeRate, remaining, chargingState,
+            actualCurrent, voltage, chargeRate, remaining, finishAt, chargingState,
             pilotCurrent, batteryCurrent, fastCharger, chargerPower,
             nRangeCharges, batteryLevel);
 
@@ -196,6 +200,9 @@ public class ChargeController extends BaseController {
         estOdometer.setUnit(units);
         idealOdometer.setUnit(units);
         ratedOdometer.setUnit(units);
+        chargedOdometer.setUnit(units);
+        chargeSelOdometer.setUnit(units);
+        SOC.setUnit("%");
         chargeRate.setUnits(useMiles ? "mph" : "km/h");
         if (vtVehicle.chargeState.get() != null) { reflectNewState(); }
     }
@@ -229,21 +236,21 @@ public class ChargeController extends BaseController {
         nRangeCharges.setValue(String.valueOf(charge.maxRangeCharges));
         fastCharger.setValue(charge.fastChargerPresent ? "Yes":"No");
         chargeRate.setValue(String.format("%.1f", charge.chargeRate*conversionFactor));
-        if (showTimeComplete) {
+        //if (showTimeComplete) {
             long msToFull = (long)(charge.timeToFullCharge * (60*60*1000));
             if (msToFull == 0 || !charge.isCharging()) {
-                remaining.setValue("00:00:00");
+                finishAt.setValue("");
             } else {
                 Calendar when = Calendar.getInstance();
                 when.setTimeInMillis(System.currentTimeMillis() + msToFull);
-                remaining.setValue(
+                finishAt.setValue(
                     String.format("%02d:%02d:%02d", when.get(Calendar.HOUR_OF_DAY),
                                                     when.get(Calendar.MINUTE),
                                                     when.get(Calendar.SECOND)));
             }
-        } else {
+        //} else {
             remaining.setValue(charge.timeToFull());
-        }
+        //}
         actualCurrent.setValue(String.valueOf(charge.chargerActualCurrent));
         chargerPower.setValue(String.valueOf(charge.chargerPower));
         chargingState.setValue(charge.chargingState.name());
@@ -311,6 +318,7 @@ public class ChargeController extends BaseController {
             batteryPercentLabel.setTextFill(Color.BLACK);
         }
         batteryPercentLabel.setText(String.valueOf(bl));
+        SOC.setValue(bl);
     }
 
     private void reflectRange() {
@@ -319,6 +327,8 @@ public class ChargeController extends BaseController {
         estOdometer.setValue(Utils.round(charge.estimatedRange * conversionFactor, 1));
         idealOdometer.setValue(Utils.round(charge.idealRange * conversionFactor, 1));
         ratedOdometer.setValue(Utils.round(charge.range * conversionFactor, 1));
+        chargedOdometer.setValue(Utils.round(charge.idealRange * conversionFactor/charge.batteryPercent*100, 1));
+        chargeSelOdometer.setValue(Utils.round(charge.idealRange * conversionFactor/charge.batteryPercent*chargeSlider.getValue(), 1));
         
     }
     

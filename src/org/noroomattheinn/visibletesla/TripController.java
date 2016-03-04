@@ -68,6 +68,7 @@ public class TripController extends BaseController {
     private static final long MaxTimeBetweenWayPoints = 15 * 60 * 1000;
     private static final String RangeRowName = "Range";
     private static final String OdoRowName = "Odometer";
+    private static final String ConsumptionRowName = "Cons.";
     
 /*------------------------------------------------------------------------------
  *
@@ -75,7 +76,7 @@ public class TripController extends BaseController {
  * 
  *----------------------------------------------------------------------------*/
     
-    private boolean useMiles = true;
+    private boolean useMiles;
     
     private Map<String,List<Trip>> dateToTrips = new HashMap<>();
     private Map<String,Trip> selectedTrips = new HashMap<>();
@@ -85,8 +86,9 @@ public class TripController extends BaseController {
     private final GenericProperty socRow = new GenericProperty("SOC (%)", "0.0", "0.0");
     private final GenericProperty odoRow = new GenericProperty(OdoRowName, "0.0", "0.0");
     private final GenericProperty powerRow = new GenericProperty("Energy (kWh)", "0.0", "0.0");
+    private final GenericProperty comsumptionRow = new GenericProperty(ConsumptionRowName, "0.0", "0.0");
     private final ObservableList<GenericProperty> data = FXCollections.observableArrayList(
-            rangeRow, socRow, odoRow, powerRow);
+            rangeRow, socRow, odoRow, powerRow, comsumptionRow);
     
 /*------------------------------------------------------------------------------
  *
@@ -239,6 +241,7 @@ public class TripController extends BaseController {
         String units = useMiles ? " (mi)" : " (km)";
         rangeRow.setName(RangeRowName + units);
         odoRow.setName(OdoRowName + units);
+        comsumptionRow.setName(ConsumptionRowName+" (Wh/"+units.substring(2,4)+")");
     }
     
     @Override protected void initializeState() {
@@ -270,7 +273,7 @@ public class TripController extends BaseController {
         updateStartEndProps(
                 VTData.SOCKey, start.getTime(), end.getTime(),
                 socRow, 1.0);
-        
+                
         updateStartEndProps(odoRow, start.getOdo(), end.getOdo(), cvt);
         
         double power = 0.0;
@@ -278,6 +281,8 @@ public class TripController extends BaseController {
             power += t.estimateEnergy();
         }
         updateStartEndProps(powerRow, 0.0, power, 1.0);
+        double tripLength=end.getOdo()-start.getOdo();
+        updateStartEndProps(comsumptionRow, 0.0, (power*1000.0)/(tripLength*cvt),1.0);
     }
     
     private void updateStartEndProps(
