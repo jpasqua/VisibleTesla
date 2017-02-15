@@ -27,7 +27,7 @@ RUN rm VisibleTesla.zip
 
 # install dependencies
 RUN apt-get update && apt-get -y install libxrender1 libxtst6 libxi6 libgtk2.0-0 gtk2-engines libxtst6 libxxf86vm1 libcanberra-gtk*
-RUN apt-get update && apt-get -y install libxext-dev libxrender-dev libxtst-dev fonts-droid-fallback libxslt1-dev debconf-set-selections
+RUN apt-get update && apt-get -y install libxext-dev libxrender-dev libxtst-dev fonts-droid-fallback libxslt1-dev 
  
 # Set the locale
 RUN locale-gen en_US.UTF-8  
