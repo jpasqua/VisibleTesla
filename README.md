@@ -50,10 +50,10 @@ Be sure to either set these variables or adapt the commands below. Note that the
     mkdir Tesla
     cd Tesla
     git clone https://github.com/jpasqua/VisibleTesla.git
-	mkdir $ROOT/ThirdParty/javafx-dialogs
-	mkdir $ROOT/ThirdParty/jfxtras
-	mkdir $ROOT/ThirdParty/jexcelapi
-	mkdir $ROOT/ThirdParty/google-guava
+	mkdir -p $ROOT/ThirdParty/javafx-dialogs
+	mkdir -p $ROOT/ThirdParty/jfxtras
+	mkdir -p $ROOT/ThirdParty/jexcelapi
+	mkdir -p $ROOT/ThirdParty/google-guava
 
 	# Download the apache libraries
 	cd $ROOT/ThirdParty/apache
